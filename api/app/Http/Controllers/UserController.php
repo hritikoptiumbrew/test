@@ -45,7 +45,7 @@ class UserController extends Controller
                 $result = Cache::rememberforever("getFeaturedJsonImages$this->catalog_id", function () {
                     $result = DB::select('SELECT
                                         id as json_id,
-                                        IF(image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",image),"") as sample_image,
+                                        IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                         json_data as json_list,
                                         is_free,
                                         is_featured
@@ -174,7 +174,7 @@ class UserController extends Controller
                     if ($this->catalog_id == 0) {
                         $result = DB::select('SELECT
                                                   id as json_id,
-                                                  IF(image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",image),"") as sample_image,
+                                                  IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                   is_free,
                                                   is_featured,
                                                   is_portrait
@@ -187,7 +187,7 @@ class UserController extends Controller
                     } else {
                         $result = DB::select('SELECT
                                                id as json_id,
-                                               IF(image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",image),"") as sample_image,
+                                               IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                is_free,
                                                is_featured,
                                                is_portrait
@@ -427,9 +427,9 @@ class UserController extends Controller
                         return DB::select('SELECT
                                           ct.id as catalog_id,
                                           ct.name,
-                                          IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",ct.image),"") as thumbnail_img,
-                                          IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",ct.image),"") as compressed_img,
-                                          IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",ct.image),"") as original_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                           ct.is_free,
                                           ct.is_featured
                                         FROM
@@ -444,9 +444,9 @@ class UserController extends Controller
                         return DB::select('SELECT
                                           ct.id as catalog_id,
                                           ct.name,
-                                          IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",ct.image),"") as thumbnail_img,
-                                          IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",ct.image),"") as compressed_img,
-                                          IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",ct.image),"") as original_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                           ct.is_free,
                                           ct.is_featured
                                         FROM
@@ -602,7 +602,7 @@ class UserController extends Controller
                     if ($this->catalog_id == 0) {
                         $result = DB::select('SELECT
                                                   id as json_id,
-                                                  IF(image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",image),"") as sample_image,
+                                                  IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                   is_free,
                                                   is_featured,
                                                   is_portrait
@@ -617,7 +617,7 @@ class UserController extends Controller
                     } else {
                         $result = DB::select('SELECT
                                                id as json_id,
-                                               IF(image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",image),"") as sample_image,
+                                               IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                is_free,
                                                is_featured,
                                                is_portrait
@@ -796,6 +796,8 @@ class UserController extends Controller
                 (new ImageController())->saveOriginalImage($image);
                 (new ImageController())->saveCompressedImage($image);
                 (new ImageController())->saveThumbnailImage($image);
+                (new ImageController())->saveImageInToSpaces($image);
+
             }
 
             $sub_category_id = $request->sub_category_id;
@@ -894,9 +896,9 @@ class UserController extends Controller
                                           id As user_feeds_id,
                                           sub_category_id,
                                           json_id,
-                                          IF(image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",image),"") as thumbnail_img,
-                                          IF(image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",image),"") as compressed_img,
-                                          IF(image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",image),"") as original_img,
+                                          IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as thumbnail_img,
+                                          IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as compressed_img,
+                                          IF(image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as original_img,
                                           is_active,
                                           create_time,
                                           update_time
@@ -1071,7 +1073,6 @@ class UserController extends Controller
         return $response;
     }
 
-
     /**
      * @api {post} getLink   getLink
      * @apiName getLink
@@ -1135,12 +1136,12 @@ class UserController extends Controller
                     return DB::select('SELECT
                                         adl.id as advertise_link_id,
                                         adl.name,
-                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",adl.image),"") as thumbnail_img,
-                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",adl.image),"") as compressed_img,
-                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",adl.image),"") as original_img,
-                                        IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
-                                        IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_compressed_img,
-                                        IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_original_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
                                         adl.url,
                                         adl.platform,
                                         if(adl.app_description!="",adl.app_description,"") as app_description

@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Input;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Redis;
+use Image;
+use App\Http\Controllers\AppBaseController;
+use Illuminate\Support\Facades\Storage;
+
 
 class AdminController extends Controller
 {
@@ -353,6 +357,77 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function storeFileIntoS3Bucket(Request $request_body)
+    {
+        try {
+
+            $create_time = date("Y-m-d H:i:s");
+            $base_url = (new ImageController())->getBaseUrl();
+            if ($request_body->hasFile('file')) {
+                $file = Input::file('file');
+                $file_type = $file->getMimeType();
+
+                if (($response = (new ImageController())->verifyImage($file)) != '')
+                    return $response;
+
+                $image = (new ImageController())->generateNewFileName('post_img', $file);
+                (new ImageController())->saveOriginalImage($image);
+                (new ImageController())->saveCompressedImage($image);
+                (new ImageController())->saveThumbnailImage($image);
+
+                $original_sourceFile = $base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
+                $compressed_sourceFile = $base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $image;
+                $thumbnail_sourceFile = $base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image;
+
+                //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
+                $disk = Storage::disk('spaces');
+                $original_targetFile = "photoeditorlab/original/" . $image;
+                $compressed_targetFile = "photoeditorlab/compressed/" . $image;
+                $thumbnail_targetFile = "photoeditorlab/thumbnail/" . $image;
+                $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
+                $disk->put($compressed_targetFile, file_get_contents($compressed_sourceFile), 'public');
+                $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile), 'public');
+
+
+            } else {
+                return $response = Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            //$contents = Storage::get();
+
+            //https://s3-ap-southeast-1.amazonaws.com/maystr/original/5ac1b68fe3738_post_img_1522644623.png
+            $value = "photoeditorlab/original/" . $image;
+            $disk = \Storage::disk('spaces');
+            $config = \Config::get('filesystems.disks.spaces.bucket');
+            if ($disk->exists($value)) {
+
+                $url = "'" . $disk->getDriver()->getAdapter()->getClient()->getObjectUrl($config, $value) . "'";
+
+//                $command = $disk->getDriver()->getAdapter()->getClient()->getCommand('GetObject', [
+//                    'Bucket' => $config,
+//                    'Key' => $value,
+//                    //’ResponseContentDisposition’ => ‘attachment;’//for download
+//                ]);
+//
+//                //return $command;
+//               $request = $disk->getDriver()->getAdapter()->getClient()->createPresignedRequest($command, '+10 minutes');
+//
+//                $generate_url = "'".$request->getUri()."'";
+                $result = $url;//array('image_url' => $generate_url);
+                $response = Response::json(array('code' => 200, 'message' => 'Post uploaded successfully.', 'cause' => '', 'data' => $result));
+
+                //return $generate_url;
+            }
+
+
+        } catch (Exception $e) {
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'follow user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error('followUser', ['Exception' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            DB::rollback();
+        }
+        return $response;
+    }
+
     /* ========================================= Sub Category =========================================*/
 
     /**
@@ -407,6 +482,8 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($category_img);
                 (new ImageController())->saveCompressedImage($category_img);
                 (new ImageController())->saveThumbnailImage($category_img);
+                (new ImageController())->saveImageInToSpaces($category_img);
+
             }
 
             $category_id = $request->category_id;
@@ -485,6 +562,7 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($sub_category_img);
                 (new ImageController())->saveCompressedImage($sub_category_img);
                 (new ImageController())->saveThumbnailImage($sub_category_img);
+                (new ImageController())->saveImageInToSpaces($sub_category_img);
 
                 $result = DB::select('select image from sub_category where id = ?', [$sub_category_id]);
                 $image_name = $result[0]->image;
@@ -649,7 +727,7 @@ class AdminController extends Controller
 
             if (!Cache::has("pel:getSubCategoryByCategoryId$this->category_id-$page:$this->item_count_sub_category")) {
                 $result = Cache::rememberforever("getSubCategoryByCategoryId$this->category_id-$page:$this->item_count_sub_category", function () {
-                    return DB::select('SELECT
+                    /*return DB::select('SELECT
                                         sct.id as sub_category_id,
                                         sct.category_id,
                                         sct.name,
@@ -663,7 +741,26 @@ class AdminController extends Controller
                                         and
                                         sct.is_active=?
                                       order by sct.updated_at DESC
+                                      LIMIT ?,?', [$this->category_id, $this->is_active, $this->offset, $this->item_count_sub_category]);*/
+
+
+                    return DB::select('SELECT
+                                        sct.id as sub_category_id,
+                                        sct.category_id,
+                                        sct.name,
+                                        IF(sct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as thumbnail_img,
+                                        IF(sct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as compressed_img,
+                                        IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img
+                                      FROM
+                                        sub_category as sct
+                                      WHERE
+                                        sct.category_id = ?
+                                        and
+                                        sct.is_active=?
+                                      order by sct.updated_at DESC
                                       LIMIT ?,?', [$this->category_id, $this->is_active, $this->offset, $this->item_count_sub_category]);
+
+
                 });
             }
 
@@ -729,13 +826,28 @@ class AdminController extends Controller
 
             if (!Cache::has("pel:getSubCategoryByCategoryId$this->category_id")) {
                 $result = Cache::rememberforever("getSubCategoryByCategoryId$this->category_id", function () {
-                    return DB::select('SELECT
+                    /*return DB::select('SELECT
                                         sct.id as sub_category_id,
                                         sct.category_id,
                                         sct.name as sub_category_name,
                                         IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",sct.image),"") as thumbnail_img,
                                         IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",sct.image),"") as compressed_img,
                                         IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",sct.image),"") as original_img
+                                      FROM
+                                        sub_category as sct
+                                      WHERE
+                                        sct.category_id = ?
+                                        and
+                                        sct.is_active=?
+                                      order by sct.updated_at DESC', [$this->category_id, $this->is_active]);*/
+
+                    return DB::select('SELECT
+                                        sct.id as sub_category_id,
+                                        sct.category_id,
+                                        sct.name as sub_category_name,
+                                        IF(sct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as thumbnail_img,
+                                        IF(sct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as compressed_img,
+                                        IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img
                                       FROM
                                         sub_category as sct
                                       WHERE
@@ -763,7 +875,6 @@ class AdminController extends Controller
         return $response;
 
     }
-
 
     /**
      * @api {post} searchSubCategoryByName   searchSubCategoryByName
@@ -814,9 +925,9 @@ class AdminController extends Controller
             $result = DB::select('SELECT
                                     sct.id AS sub_category_id,
                                     sct.name,
-                                    IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",sct.image),"") as thumbnail_img,
-                                    IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",sct.image),"") as compressed_img,
-                                    IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",sct.image),"") as original_img
+                                    IF(sct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as thumbnail_img,
+                                    IF(sct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as compressed_img,
+                                    IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img
                                    FROM
                                       sub_category AS sct
                                     WHERE
@@ -889,6 +1000,9 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($catalog_img);
                 (new ImageController())->saveCompressedImage($catalog_img);
                 (new ImageController())->saveThumbnailImage($catalog_img);
+
+                (new ImageController())->saveImageInToSpaces($catalog_img);
+
             }
 
             $sub_category_id = $request->sub_category_id;
@@ -992,6 +1106,7 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($catalog_img);
                 (new ImageController())->saveCompressedImage($catalog_img);
                 (new ImageController())->saveThumbnailImage($catalog_img);
+                (new ImageController())->saveImageInToSpaces($catalog_img);
 
                 $result = DB::select('select image from catalog_master where id = ?', [$catalog_id]);
                 $image_name = $result[0]->image;
@@ -1081,7 +1196,7 @@ class AdminController extends Controller
             DB::update('update catalog_master set is_active=?, is_featured= ?  where id = ? ', [$is_active, 0, $catalog_id]);
             DB::update('update sub_category_catalog set is_active=? where catalog_id = ? ', [$is_active, $catalog_id]);
 
-            DB::delete('DELETE FROM images WHERE catalog_id = ?',[$catalog_id]);
+            DB::delete('DELETE FROM images WHERE catalog_id = ?', [$catalog_id]);
             DB::commit();
 
 //            //Image Delete in image_bucket
@@ -1158,9 +1273,9 @@ class AdminController extends Controller
                     return DB::select('SELECT
                                         ct.id as catalog_id,
                                         ct.name,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",ct.image),"") as thumbnail_img,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",ct.image),"") as compressed_img,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",ct.image),"") as original_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                         ct.is_free,
                                         ct.is_featured
                                       FROM
@@ -1369,9 +1484,9 @@ class AdminController extends Controller
                     return DB::select('SELECT
                                         ct.id as catalog_id,
                                         ct.name,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",ct.image),"") as thumbnail_img,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",ct.image),"") as compressed_img,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",ct.image),"") as original_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                         ct.is_free,
                                         ct.is_featured
                                       FROM
@@ -1497,9 +1612,9 @@ class AdminController extends Controller
                     return DB::select('SELECT
                                         ct.id as catalog_id,
                                         ct.name,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",ct.image),"") as thumbnail_img,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",ct.image),"") as compressed_img,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",ct.image),"") as original_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                         ct.is_free,
                                         ct.is_featured
                                       FROM
@@ -1587,9 +1702,9 @@ class AdminController extends Controller
             $result = DB::select('SELECT
                                     cm.id AS catalog_id,
                                     cm.name,
-                                    IF(cm.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",cm.image),"") as thumbnail_img,
-                                    IF(cm.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",cm.image),"") as compressed_img,
-                                    IF(cm.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",cm.image),"") as original_img,
+                                    IF(cm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as thumbnail_img,
+                                    IF(cm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as compressed_img,
+                                    IF(cm.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as original_img,
                                     cm.is_free
                                    FROM
                                       catalog_master AS cm,
@@ -1664,7 +1779,7 @@ class AdminController extends Controller
                     if (($response = (new ImageController())->verifyImage($image_array)) != '')
                         return $response;
 
-                    $catalog_image = (new ImageController())->generateNewFileName('catalog_image', $image_array);
+                    $catalog_image = (new ImageController())->generateNewFileName('catalog_images', $image_array);
                     //(new ImageController())->saveOriginalImage($background_img);
 
                     $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
@@ -1672,6 +1787,8 @@ class AdminController extends Controller
 
                     (new ImageController())->saveCompressedImage($catalog_image);
                     (new ImageController())->saveThumbnailImage($catalog_image);
+                    (new ImageController())->saveImageInToSpaces($catalog_image);
+
 
                     DB::insert('INSERT
                                 INTO
@@ -1732,53 +1849,67 @@ class AdminController extends Controller
             $image_type = $request->image_type;
             if (!$request_body->hasFile('original_img') and !$request_body->hasFile('display_img')) {
                 return Response::json(array('code' => 201, 'message' => 'required field original_img or display_img is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-            } else if ($request_body->hasFile('original_img')) {
-                $image_array = Input::file('original_img');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
+            } elseif (!$request_body->hasFile('original_img')) {
 
-                $original_img = (new ImageController())->generateNewFileName('original_img', $image_array);
-                $file_name = 'original_img';
-                (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
-                (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
-                (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
+                return Response::json(array('code' => 201, 'message' => 'required field original_img is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
 
+            } elseif (!$request_body->hasFile('display_img')) {
+                return Response::json(array('code' => 201, 'message' => 'required field display_img is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+
+            } else {
+                if ($request_body->hasFile('original_img')) {
+                    $image_array = Input::file('original_img');
+                    if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                        return $response;
+
+                    $original_img = (new ImageController())->generateNewFileName('original_img', $image_array);
+                    $file_name = 'original_img';
+                    (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
+                    (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
+                    (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
+                    (new ImageController())->saveImageInToSpaces($original_img);
+
+                }
+                if ($request_body->hasFile('display_img')) {
+
+                    $image_array = Input::file('display_img');
+                    if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                        return $response;
+
+                    $display_img = (new ImageController())->generateNewFileName('display_img', $image_array);
+
+                    $file_name = 'display_img';
+                    (new ImageController())->saveMultipleOriginalImage($display_img, $file_name);
+                    (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
+                    (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
+
+                    (new ImageController())->saveImageInToSpaces($display_img);
+
+
+                }
+
+                DB::beginTransaction();
+
+                $data = array(
+                    'catalog_id' => $catalog_id,
+                    'original_img' => $original_img,
+                    'display_img' => $display_img,
+                    'image_type' => $image_type,
+                    'created_at' => $created_at
+                );
+
+                $sample_image_id = DB::table('images')->insertGetId($data);
+
+                //DB::update('update images set original_img = ?,display_img = ?,image_type = ?,created_at = ? where catalog_id = ?',[$original_img, $display_img, $image_type, $created_at, $catalog_id]);
+                //log::info('Inserted featured background image');
+
+                DB::commit();
+
+                $response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
             }
-            if ($request_body->hasFile('display_img')) {
-
-                $image_array = Input::file('display_img');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $display_img = (new ImageController())->generateNewFileName('display_img', $image_array);
-
-                $file_name = 'display_img';
-                (new ImageController())->saveMultipleOriginalImage($display_img, $file_name);
-                (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
-                (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
-
-            }
 
 
-            DB::beginTransaction();
-
-            $data = array(
-                'catalog_id' => $catalog_id,
-                'original_img' => $original_img,
-                'display_img' => $display_img,
-                'image_type' => $image_type,
-                'created_at' => $created_at
-            );
-
-            $sample_image_id = DB::table('images')->insertGetId($data);
-
-            //DB::update('update images set original_img = ?,display_img = ?,image_type = ?,created_at = ? where catalog_id = ?',[$original_img, $display_img, $image_type, $created_at, $catalog_id]);
-            //log::info('Inserted featured background image');
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
             Log::error("addFeaturedBackgroundCatalogImage Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Featured Background Images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
@@ -1838,7 +1969,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-
+                (new ImageController())->saveImageInToSpaces($original_img);
 
             }
             if ($request_body->hasFile('display_img')) {
@@ -1853,6 +1984,8 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($display_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
+
+                (new ImageController())->saveImageInToSpaces($display_img);
 
             }
 
@@ -1930,7 +2063,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-
+                (new ImageController())->saveImageInToSpaces($original_img);
                 DB::beginTransaction();
                 DB::update('update images set original_img = ?,image_type = ?,created_at = ? where id = ?', [$original_img, $image_type, $created_at, $img_id]);
 
@@ -1950,6 +2083,8 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($display_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
+                (new ImageController())->saveImageInToSpaces($display_img);
+
                 DB::update('update images set display_img = ?,image_type = ?,created_at = ? where id = ?', [$display_img, $image_type, $created_at, $img_id]);
 
             } else {
@@ -2023,7 +2158,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-
+                (new ImageController())->saveImageInToSpaces($original_img);
 
             }
             if ($request_body->hasFile('display_img')) {
@@ -2038,6 +2173,8 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($display_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
+
+                (new ImageController())->saveImageInToSpaces($display_img);
 
             }
 
@@ -2135,12 +2272,12 @@ class AdminController extends Controller
                 $result = Cache::rememberforever("getSampleImagesForAdmin$this->catalog_id", function () {
                     return DB::select('SELECT
                                           im.id as img_id,
-                                          IF(im.original_img != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",im.original_img),"") as original_thumbnail_img,
-                                          IF(im.original_img != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",im.original_img),"") as original_compressed_img,
-                                          IF(im.original_img != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",im.original_img),"") as original_original_img,
-                                          IF(im.display_img != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",im.display_img),"") as display_thumbnail_img,
-                                          IF(im.display_img != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",im.display_img),"") as display_compressed_img,
-                                          IF(im.display_img != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",im.display_img),"") as display_original_img,
+                                          IF(im.original_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.original_img),"") as original_thumbnail_img,
+                                          IF(im.original_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.original_img),"") as original_compressed_img,
+                                          IF(im.original_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.original_img),"") as original_original_img,
+                                          IF(im.display_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.display_img),"") as display_thumbnail_img,
+                                          IF(im.display_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.display_img),"") as display_compressed_img,
+                                          IF(im.display_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.display_img),"") as display_original_img,
                                           image_type
                                         FROM
                                           images as im,
@@ -2245,12 +2382,12 @@ class AdminController extends Controller
                 $result = Cache::rememberforever("getSampleImagesForMobile$this->sub_category_id", function () {
                     return DB::select('SELECT
                                           im.id as img_id,
-                                          IF(im.original_img != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",im.original_img),"") as original_thumbnail_img,
-                                          IF(im.original_img != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",im.original_img),"") as original_compressed_img,
-                                          IF(im.original_img != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",im.original_img),"") as original_original_img,
-                                          IF(im.display_img != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",im.display_img),"") as display_thumbnail_img,
-                                          IF(im.display_img != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",im.display_img),"") as display_compressed_img,
-                                          IF(im.display_img != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",im.display_img),"") as display_original_img,
+                                          IF(im.original_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.original_img),"") as original_thumbnail_img,
+                                          IF(im.original_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.original_img),"") as original_compressed_img,
+                                          IF(im.original_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.original_img),"") as original_original_img,
+                                          IF(im.display_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.display_img),"") as display_thumbnail_img,
+                                          IF(im.display_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.display_img),"") as display_compressed_img,
+                                          IF(im.display_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.display_img),"") as display_original_img,
                                           image_type
                                         FROM
                                           images as im
@@ -2342,6 +2479,8 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($catalog_img);
                 (new ImageController())->saveCompressedImage($catalog_img);
                 (new ImageController())->saveThumbnailImage($catalog_img);
+                (new ImageController())->saveImageInToSpaces($catalog_img);
+
 
                 $result = DB::select('select image from images where id = ?', [$img_id]);
                 $image_name = $result[0]->image;
@@ -2615,9 +2754,9 @@ class AdminController extends Controller
                 $result = Cache::rememberforever("getImagesByCatalogId$this->catalog_id", function () {
                     $result = DB::select('SELECT
                                           im.id as img_id,
-                                          IF(im.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",im.image),"") as thumbnail_img,
-                                          IF(im.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",im.image),"") as compressed_img,
-                                          IF(im.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",im.image),"") as original_img,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
                                           IF(im.json_data IS NOT NULL,1,0) as is_json_data,
                                           coalesce(im.json_data,"") as json_data,
                                           coalesce(im.is_featured,"") as is_featured,
@@ -2720,9 +2859,9 @@ class AdminController extends Controller
                                         ct.id as catalog_id,
                                         sct.sub_category_id,
                                         ct.name,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",ct.image),"") as thumbnail_img,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",ct.image),"") as compressed_img,
-                                        IF(ct.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",ct.image),"") as original_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                         ct.is_free
                                       FROM
                                         catalog_master as ct,
@@ -3120,6 +3259,9 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($app_image);
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
+                (new ImageController())->saveImageInToSpaces($app_image);
+
+
             }
 
             //Logo Image
@@ -3135,6 +3277,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($app_logo, 'logo_file');
                 (new ImageController())->saveCompressedImage($app_logo);
                 (new ImageController())->saveThumbnailImage($app_logo);
+                (new ImageController())->saveImageInToSpaces($app_logo);
             }
 
             $data = array('name' => $name,
@@ -3188,6 +3331,8 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($app_image);
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
+                (new ImageController())->saveImageInToSpaces($app_image);
+
             }
 
             //Logo Image
@@ -3203,6 +3348,9 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($app_logo, 'logo_file');
                 (new ImageController())->saveCompressedImage($app_logo);
                 (new ImageController())->saveThumbnailImage($app_logo);
+
+                (new ImageController())->saveImageInToSpaces($app_logo);
+
             }
 
 
@@ -3377,6 +3525,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($app_image, 'file');
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
+                (new ImageController())->saveImageInToSpaces($app_image);
 
                 $result = DB::select('select image from advertise_links where id = ?', [$advertise_link_id]);
                 $image_name = $result[0]->image;
@@ -3402,6 +3551,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
+                (new ImageController())->saveImageInToSpaces($logo_image);
 
                 $result = DB::select('select app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
                 $logo_image_name = $result[0]->app_logo_img;
@@ -3433,10 +3583,14 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($app_image);
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
+                (new ImageController())->saveImageInToSpaces($app_image);
+
 
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
+                (new ImageController())->saveImageInToSpaces($logo_image);
+
 
                 $result = DB::select('select image,app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
                 $image_name = $result[0]->image;
@@ -3522,6 +3676,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($app_image, 'file');
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
+                (new ImageController())->saveImageInToSpaces($app_image);
 
                 $result = DB::select('select image from advertise_links where id = ?', [$advertise_link_id]);
                 $image_name = $result[0]->image;
@@ -3547,6 +3702,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
+                (new ImageController())->saveImageInToSpaces($logo_image);
 
                 $result = DB::select('select app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
                 $logo_image_name = $result[0]->app_logo_img;
@@ -3578,10 +3734,12 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($app_image);
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
+                (new ImageController())->saveImageInToSpaces($app_image);
 
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
+                (new ImageController())->saveImageInToSpaces($logo_image);
 
                 $result = DB::select('select image,app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
                 $image_name = $result[0]->image;
@@ -3752,12 +3910,12 @@ class AdminController extends Controller
                     return DB::select('SELECT
                                         adl.id as advertise_link_id,
                                         adl.name,
-                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",adl.image),"") as thumbnail_img,
-                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",adl.image),"") as compressed_img,
-                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",adl.image),"") as original_img,
-                                        IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
-                                        IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_compressed_img,
-                                        IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_original_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.imagee),"") as thumbnail_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
                                         adl.url,
                                         adl.platform,
                                         if(adl.app_description!="",adl.app_description,"") as app_description
@@ -4714,6 +4872,7 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($profile_img);
                 (new ImageController())->saveCompressedImage($profile_img);
                 (new ImageController())->saveThumbnailImage($profile_img);
+                (new ImageController())->saveImageInToSpaces($profile_img);
 
             } else {
                 $result = DB::table("user_detail")->where('user_id', $user_id)->get();
@@ -4841,9 +5000,9 @@ class AdminController extends Controller
                 $result = Cache::rememberforever("getImageDetails$this->page:$this->item_count:$this->order_by:$this->order_type", function () {
                     return DB::select('SELECT
                                         id.name,
-                                        IF(id.name != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",id.name),"") as thumbnail_img,
-                                        IF(id.name != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",id.name),"") as compressed_img,
-                                        IF(id.name != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",id.name),"") as original_img,
+                                        IF(id.name != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",id.name),"") as thumbnail_img,
+                                        IF(id.name != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",id.name),"") as compressed_img,
+                                        IF(id.name != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",id.name),"") as original_img,
                                         id.directory_name,
                                         id.type,
                                         id.size,
@@ -4919,6 +5078,22 @@ class AdminController extends Controller
                         return $response;
 
                     (new ImageController())->saveResourceImage($image_array);
+
+                    $bg_image = $image_array->getClientOriginalName();
+
+                    $base_url = (new ImageController())->getBaseUrl();
+
+                    $resourceFile = $base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $bg_image;
+
+
+                    //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
+                    $disk = Storage::disk('spaces');
+                    $resourceFile_targetFile = "photoeditorlab/resource/" . $bg_image;
+
+
+                    $disk->put($resourceFile_targetFile, file_get_contents($resourceFile), 'public');
+
+                    (new ImageController())->unlinkfile($bg_image);
                 }
             }
 
@@ -5025,6 +5200,8 @@ class AdminController extends Controller
 
                 (new ImageController())->saveCompressedImage($catalog_image);
                 (new ImageController())->saveThumbnailImage($catalog_image);
+                (new ImageController())->saveImageInToSpaces($catalog_image);
+
 
                 DB::insert('INSERT
                                 INTO
@@ -5136,6 +5313,7 @@ class AdminController extends Controller
 
                 (new ImageController())->saveCompressedImage($catalog_image);
                 (new ImageController())->saveThumbnailImage($catalog_image);
+                (new ImageController())->saveImageInToSpaces($catalog_image);
 
                 //Log::info('Encoded json_data', ['json_data' => json_encode($json_data)]);
 
@@ -5478,12 +5656,12 @@ class AdminController extends Controller
                     return DB::select('SELECT
                                           adl.id as advertise_link_id,
                                           adl.name,
-                                          IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",adl.image),"") as thumbnail_img,
-                                          IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",adl.image),"") as compressed_img,
-                                          IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",adl.image),"") as original_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_compressed_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_original_img,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
                                           adl.url,
                                           adl.platform,
                                           if(adl.app_description!="",adl.app_description,"") as app_description
@@ -5605,12 +5783,12 @@ class AdminController extends Controller
                     return DB::select('SELECT
                                           adl.id as advertise_link_id,
                                           adl.name,
-                                          IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",adl.image),"") as thumbnail_img,
-                                          IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",adl.image),"") as compressed_img,
-                                          IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",adl.image),"") as original_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_compressed_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",adl.app_logo_img),"") as app_logo_original_img,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
                                           adl.url,
                                           adl.platform,
                                           if(adl.app_description!="",adl.app_description,"") as app_description,
@@ -5683,7 +5861,7 @@ class AdminController extends Controller
         try {
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
-            $redis_keys = Redis::keys('obpl:*');
+            $redis_keys = Redis::keys('pel:*');
             //$result = isset($redis_keys)?$redis_keys:'{}';
             $result = ['keys_list' => $redis_keys];
             //Log::info("Total Keys :", [count($redis_keys)]);

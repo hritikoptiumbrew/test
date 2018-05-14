@@ -44,6 +44,11 @@ return [
     'THUMBNAIL_IMAGES_DIRECTORY' => '/image_bucket/thumbnail/',
     'RESOURCE_IMAGES_DIRECTORY' => '/image_bucket/resource/',
 
+    'COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.nyc3.digitaloceanspaces.com/photoeditorlab/compressed/',
+    'ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.nyc3.digitaloceanspaces.com/photoeditorlab/original/',
+    'THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.nyc3.digitaloceanspaces.com/photoeditorlab/thumbnail/',
+    'RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.nyc3.digitaloceanspaces.com/photoeditorlab/resource/',
+
     'TOTAL_ORDER_AMOUNT' => 10,
     'THUMBNAIL_HEIGHT' => 240,
     'THUMBNAIL_WIDTH' => 320,

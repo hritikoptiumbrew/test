@@ -430,4 +430,62 @@ class ImageController extends Controller
 
     }
 
+    //unlinkImage from image_bucket
+    public function unlinkfile($image_array)
+    {
+        //$bg_image = $image_array->getClientOriginalName();
+
+        $original_image_path = '../..'.Config::get('constant.ORIGINAL_IMAGES_DIRECTORY').$image_array;
+
+        //Log::info('path : ',['path' => $image_array]);
+        if (File::exists($original_image_path)) {
+            //File::delete($image_path);
+            unlink($original_image_path);
+        }
+        else
+        {
+            return 1;
+        }
+
+        $compressed_image_path = '../..'.Config::get('constant.COMPRESSED_IMAGES_DIRECTORY').$image_array;
+
+        if (File::exists($compressed_image_path)) {
+            //File::delete($image_path);
+            unlink($compressed_image_path);
+        }
+
+        $thumbnail_image_path = '../..'.Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY').$image_array;
+
+        if (File::exists($thumbnail_image_path)) {
+            //File::delete($image_path);
+            unlink($thumbnail_image_path);
+        }
+
+
+    }
+
+    //unlinkImage from image_bucket
+    public function saveImageInToSpaces($image)
+    {
+        $base_url = (new ImageController())->getBaseUrl();
+
+        $original_sourceFile = $base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
+        $compressed_sourceFile = $base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $image;
+        $thumbnail_sourceFile = $base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image;
+
+        //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
+        $disk = Storage::disk('spaces');
+        $original_targetFile = "photoeditorlab/original/" . $image;
+        $compressed_targetFile = "photoeditorlab/compressed/" . $image;
+        $thumbnail_targetFile = "photoeditorlab/thumbnail/" . $image;
+
+        $disk->put($original_targetFile, file_get_contents($original_sourceFile),'public');
+        $disk->put($compressed_targetFile, file_get_contents($compressed_sourceFile),'public');
+        $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile),'public');
+
+        (new ImageController())->unlinkfile($image);
+    }
+
+
+
 }

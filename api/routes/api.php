@@ -25,6 +25,7 @@ Route::post('doLoginForGuest', 'LoginController@doLoginForGuest');
 Route::post('doLogin', 'LoginController@doLogin');
 Route::post('doLogout', 'LoginController@doLogout');
 Route::post('registerUserDeviceByDeviceUdid', 'RegisterController@registerUserDeviceByDeviceUdid');
+Route::post('storeFileIntoS3Bucket', 'AdminController@storeFileIntoS3Bucket');
 
 Route::get('/clear-cache', function() {
     $exitCode = Artisan::call('cache:clear');
