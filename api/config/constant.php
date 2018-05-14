@@ -62,9 +62,9 @@ return [
     'GCM_TITLE_FOR_CATALOG' => '',
 
     /* for local server */
-    'receipt_validator_endpoint' => 'https://sandbox.itunes.apple.com/verifyReceipt',
+    //'receipt_validator_endpoint' => 'https://sandbox.itunes.apple.com/verifyReceipt',
 
     /* for live server */
-    //'receipt_validator_endpoint' => 'https://buy.itunes.apple.com/verifyReceipt',
+    'receipt_validator_endpoint' => 'https://buy.itunes.apple.com/verifyReceipt',
 
 ];
