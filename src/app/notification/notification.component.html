@@ -1,0 +1,53 @@
+<div class="row header-style">
+  <div class="col-sm-12 pr-0 pl-0">
+    <app-header></app-header>
+  </div>
+</div>
+<div class="row height-100">
+  <div class="col-lg-2 pl-0 pr-0">
+    <app-navigation></app-navigation>
+  </div>
+  <div class="col-lg-10 pt-3 pb-3 div-scroll">
+    <div class="row col p-0 pb-3">
+      <p class="pull-right m-0 pt-1 pb-1">{{current_path}}</p>
+    </div>
+    <div class="row pt-3 pb-3">
+      <div class="col-xl-3 col-lg-2 col-md-2 col-sm-1"></div>
+      <div class="col-xl-6 col-lg-8 col-md-8 col-sm-10 p-0 card-1" style="background-color: white;">
+        <div class="col-12 pt-3 pb-3 pr-3 pl-3 title-bar text-center">
+          <label class="m-0 font-weight-bold"> Send Notification </label>
+        </div>
+        <div class="col-12 pt-3 pb-3">
+          <div class="col-12 pr-0 pl-0">
+            <label>Title
+              <span class="text-danger">*</span>
+            </label>
+          </div>
+          <div class="col-12 pr-0 pl-0">
+            <input type="text" class="form-control" [(ngModel)]="notification.title">
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="col-12 pl-0 pr-0">
+            <label> Message
+              <span class="text-danger">*</span>
+            </label>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <textarea class="message-body form-control" [(ngModel)]="notification.message"></textarea>
+          </div>
+        </div>
+        <div class="col-12 text-center">
+          <a class="text-danger">{{errorMsg}} &nbsp;</a>
+          <a class="text-info">{{successMsg}} &nbsp;</a>
+        </div>
+        <div class="col-12">
+          <div class="text-center pb-3">
+            <button md-raised-button class="btn title-bar" (click)="sendNotification(notification)">Send</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-2 col-md-2 col-sm-1"></div>
+    </div>
+  </div>
+</div>

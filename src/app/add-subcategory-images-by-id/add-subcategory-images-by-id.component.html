@@ -1,0 +1,21 @@
+<div class="col-12 pr-0 pl-0 width-289">
+    <div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center">
+        <h5 class="title-bar m-0"> Add Backgrounds </h5>
+    </div>
+    <div class="row pb-3">
+        <div class="col-12 text-center pr-0 pl-0">
+            <input type="file" class="form-control" accept="image/*" (change)="fileChange($event)" multiple [(ngModel)]="category_img" id="multipleFiles">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 pl-0 pr-0 text-center">
+            <a md-raised-button class="btn title-bar" (click)="addImages()">Save</a>
+            <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+        </div>
+    </div>
+    <div class="row pt-2 text-center text-info">
+        <div class="col-sm-12 text-danger">
+            {{errorMsg}}
+        </div>
+    </div>
+</div>

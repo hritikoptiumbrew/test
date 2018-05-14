@@ -1,0 +1,23 @@
+{
+  "name": "Photo Editor Lab apidoc",
+  "version": "1.0.0",
+  "description": "apiDoc For Photo Editor Lab",
+  "title": "Ob Photo-Lab",
+  "url" : "http://192.168.0.113/photo_editor_lab_backend/api/public/api/",
+  "header": {
+    "title": "Photo Editor Lab Admin",
+    "filename": "header.md"
+  },
+  "footer": {
+    "title": "Developed By : OptimumBrew",
+    "filename": "footer.md"
+  },
+  "order": [
+    "GetUser",
+    "PostUser"
+  ],
+  "template": {
+    "withCompare": true,
+    "withGenerator": true
+  }
+}

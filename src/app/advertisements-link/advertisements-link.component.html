@@ -1,0 +1,39 @@
+<div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center">
+  <h5 class="title-bar m-0"> Link Advertisements </h5>
+  <a class="cursor-pointer close-btn" (click)="closeDialog()">
+    <i class="fa fa-close text-white font-18"></i>
+  </a>
+</div>
+<div class="col-sm-12 pr-0 pl-0 scroll" style="max-height:520px; height:520px; width:768px; max-width:100%; overflow:auto;">
+  <table class="table mb-0">
+    <tbody>
+      <tr *ngFor="let advertisement_details of advertisement_list; let i = index;">
+        <td>{{i+1}}</td>
+        <td class="text-center">
+          <img [src]="advertisement_details.thumbnail_img" class="cursor-pointer" (click)="imagePreview(advertisement_details)" style="width:50px;height:50px;">
+        </td>
+        <td>{{advertisement_details.name}}</td>
+        <td class="text-center">
+          <i class="fa fa-check fa-2x" *ngIf="advertisement_details.linked==1"></i>
+        </td>
+        <td class="text-center">
+          <a md-raised-button class="btn title-bar" title="Unlink from {{advertisement_details.name}}" *ngIf="advertisement_details.linked==1"
+            (click)="linkCatalogWithSubCategory(selected_sub_catagory,'deleteLinkedAdvertisement', advertisement_details)">
+            <i class="fa fa-chain-broken text-danger font-18"></i>
+          </a>
+          <a md-raised-button class="btn title-bar" title="Link with {{advertisement_details.name}}" *ngIf="advertisement_details.linked==0"
+            (click)="linkCatalogWithSubCategory(selected_sub_catagory,'linkAdvertisementWithSubCategory', advertisement_details)">
+            <i class="fa fa-link text-white font-18"></i>
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+    No Data Found
+  </h5>
+</div>
+<div class="col-12 pr-0 pl-0 text-center">
+  <h6 *ngIf="errorMsg" class="pt-3 pb-3 m-0 text-center text-danger">{{errorMsg}}</h6>
+  <h6 *ngIf="successMsg" class="pt-3 pb-3 m-0 text-center text-primary">{{successMsg}}</h6>
+</div>

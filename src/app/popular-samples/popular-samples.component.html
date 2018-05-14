@@ -1,0 +1,56 @@
+<div class="row header-style">
+  <div class="col-sm-12 pr-0 pl-0">
+    <app-header></app-header>
+  </div>
+</div>
+<div class="row height-100">
+  <div class="col-lg-2 pl-0 pr-0">
+    <app-navigation></app-navigation>
+  </div>
+  <div class="col-lg-10 pt-3 pb-3 pl-0 pr-0 div-scroll">
+    <div class="row col">
+      <p class="pull-right m-0 pt-1 pb-1">{{current_path}}</p>
+    </div>
+    <div class="row mr-3 ml-3 mb-2 pb-2 pt-2 title-bar">
+      <div class="col pl-2 pr-2">
+        <h5 class="float-left m-0 pt-1">Images : {{total_record}}</h5>
+        <md-select placeholder=" " [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-2 pull-right" (change)="itemPerPageChanged(itemsPerPage)">
+          <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
+            {{items.itemPerPageName}}
+          </md-option>
+        </md-select>
+      </div>
+    </div>
+    <div class="row pr-0 pl-0">
+      <div class="col-xl-2 col-lg-3 col-md-3 col-sm-4 col-6" *ngFor="let category of category_list">
+        <div class="col-12 pl-0 pr-0 mb-2 mt-2 background-card card card-1 text-center">
+          <img class="background-card-sticker cursor-pointer" [src]="category.display_compressed_img" (click)="dataService.viewImage(category.display_original_img)"
+            alt="Thumbnail image">
+          <div class="row title-bar pt-2 pb-2 font-18 align-middle">
+            <div class="col-12">
+              <a title="Update">
+                <i class="fa fa-edit font-24 pr-2 text-warning cursor-pointer" (click)="updateSample(category)"></i>
+              </a>
+              <a title="Delete">
+                <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer" (click)="deleteSample(category)"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h5 *ngIf="total_record==0" class="pb-3 pl-3">
+      No Data Found
+    </h5>
+    <!--<div class="col-12 text-center">
+            <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage"
+                [directionLinks]="false" [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage"
+                class="inline-block mt-3"></ngb-pagination>
+        </div>-->
+  </div>
+</div>
+<div class="row pr-0 pl-0">
+  <button md-fab class="btn add-button" (click)="addSample()">
+    <i class="fa fa-plus fa-2x"></i>
+  </button>
+</div>

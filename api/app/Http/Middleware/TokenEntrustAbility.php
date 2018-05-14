@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+
+use Log;
+
+use JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
+
+use Illuminate\Support\Facades\Response;
+use Tymon\JWTAuth\Middleware\BaseMiddleware;
+
+class TokenEntrustAbility extends BaseMiddleware
+{
+    public function handle($request, Closure $next, $roles, $permissions, $validateAll = false)
+    {
+
+        if (!$token = $this->auth->setRequest($request)->getToken()) {
+            return Response::json(array('code'=>201,'message'=>'Required field token is missing or empty.','cause'=>'','response'=> json_decode("{}")));
+
+        }
+
+        try {
+            $user = $this->auth->authenticate($token);
+            //Log::info("Token", ["token :" => $token, "time" => date('H:m:s')]);
+        } catch (TokenInvalidException $e) {
+            return Response::json(array('code' => $e->getStatusCode(), 'message' => 'Invalid token.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (TokenExpiredException $e) {
+            try {
+                $new_token = JWTAuth::refresh($token);
+                //Log::info("Refreshed Token", ["token :" => $new_token, "time" => date('H:m:s')]);
+            } catch (TokenExpiredException $e) {
+                //Log::debug('TokenExpiredException Can not be Refresh', ['status_code' => $e->getStatusCode()]);
+                return Response::json(array('code' => $e->getStatusCode(), 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode('{}')));
+            } catch (TokenBlacklistedException $e) {
+                //Log::debug('The token has been blacklisted.', ['status_code' => $e->getStatusCode()]);
+                return Response::json(array('code' => 400, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
+            } catch (JWTException $e) {
+                return Response::json(array('code' => $e->getStatusCode(), 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
+            }
+            return Response::json(array('code' => $e->getStatusCode(), 'message' => 'Token expired.', 'cause' => '', 'data' => ['new_token' => $new_token]));
+        } catch (JWTException $e) {
+            return Response::json(array('code' => $e->getStatusCode(), 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
+        }
+
+        if (!$user) {
+            //return $this->respond('tymon.jwt.user_not_found', 'user_not_found', 404);
+            return Response::json(array('code' => 404, 'message' => 'User not found.', 'cause' => '', 'data' => json_decode("{}")));
+        }
+
+        if (!$request->user()->ability(explode('|', $roles), explode('|', $permissions), array('validate_all' => $validateAll))) {
+            return Response::json(array('code' => 201, 'message' => 'Unauthorized user.', 'cause' => '', 'data' => json_decode("{}")));
+            //return $this->respond('tymon.jwt.invalid', 'token_invalid', 401, 'Unauthorized');
+        }
+
+        $this->events->fire('tymon.jwt.valid', $user);
+
+        return $next($request);
+    }
+}

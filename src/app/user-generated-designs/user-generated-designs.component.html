@@ -1,0 +1,66 @@
+<div class="row header-style">
+  <div class="col-sm-12 pr-0 pl-0">
+    <app-header></app-header>
+  </div>
+</div>
+<div class="row height-100">
+  <div class="col-lg-2 pl-0 pr-0">
+    <app-navigation></app-navigation>
+  </div>
+  <div class="col-lg-10 pt-3 pb-3 pl-0 pr-0 div-scroll">
+    <div class="row">
+      <div class="col-12">
+        <p class="pull-left m-0 pt-1 pb-1">{{current_path}}</p>
+      </div>
+    </div>
+    <div class="row mr-3 ml-3 pb-2 pt-2 title-bar">
+      <div class="col pl-2 pr-2 text-center">
+        <p class="m-0 font-18 pull-left">Design Cards : {{total_record}}</p>
+        <md-select placeholder=" " *ngIf="showPagination" [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-3 pull-right"
+          (change)="itemPerPageChanged(itemsPerPage)">
+          <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
+            {{items.itemPerPageName}}
+          </md-option>
+        </md-select>
+      </div>
+    </div>
+    <div class="row pr-0 pl-0">
+      <div class="col-sm-12 text-right">
+        <button class="btn pull-right m-1 mt-3 title-bar-del" md-raised-button *ngIf="total_record!=0" (click)="deleteAllUserFeeds('deleteAllUserFeeds')">
+          <i class="fa fa-trash font-18"></i> Delete All
+        </button>
+      </div>
+    </div>
+    <div class="row pr-0 pl-0">
+      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of sub_category_list">
+        <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
+          <img class="background-card-sticker cursor-pointer" [src]="category.compressed_img" (click)="dataService.viewImage(category.original_img)"
+            alt="thumbnail image">
+          <div class="row title-bar pt-2 pb-2 font-18 align-middle">
+            <div class="col-12">
+              <!-- <a title="Update">
+                <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer" (click)="updateSubCategory(category)"></i>
+              </a> -->
+              <a title="Delete">
+                <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer" (click)="deleteUserFeeds(category, 'deleteUserFeeds')"></i>
+              </a>
+            </div>
+          </div>
+          <!-- <i class="fa fa-code font-26 code-icon ab-top-left-5" *ngIf="category.is_json_data"></i> -->
+        </div>
+      </div>
+    </div>
+    <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+      No Data Found
+    </h5>
+    <div class="col-12 text-center">
+      <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage"
+        [directionLinks]="false" [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="inline-block mt-3"></ngb-pagination>
+    </div>
+  </div>
+</div>
+<!-- <div class="row pr-0 pl-0">
+  <button md-fab class="btn add-button" (click)="addSubCategory()">
+    <i class="fa fa-plus fa-2x"></i>
+  </button>
+</div> -->

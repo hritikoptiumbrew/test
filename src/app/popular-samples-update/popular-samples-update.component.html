@@ -1,0 +1,73 @@
+<!--<div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center">
+  <h5 class="title-bar m-0 pl-3 pr-3"> View Images </h5>
+</div>
+<div class="row pt-3 pb-3">
+  <div class="col-md-6 pr-1">
+    <h6>Background image</h6>
+    <img *ngIf="sample_data.cmp_background_img" [src]="sample_data.cmp_background_img" class="img-fluid img-240">
+  </div>
+  <div class="col-md-6 pl-1">
+    <h6>Display image</h6>
+    <img *ngIf="sample_data.cmp_display_img" [src]="sample_data.cmp_display_img" class="img-fluid img-240">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-12 pl-0 pr-0 pb-3 text-center">
+    <button md-raised-button class="btn" [md-dialog-close]="true">Close</button>
+  </div>
+</div>-->
+
+
+<div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center">
+  <h5 class="title-bar m-0 pl-3 pr-3"> Upload Images </h5>
+</div>
+<div class="col-12 pt-4 pb-3 pl-4 pr-4 width-289">
+  <h6>Background image</h6>
+  <div class="row pb-3 match-parent view-profile-img m-0-auto">
+    <div class="col-12 text-center pr-0 pl-0 match-parent">
+      <div class="match-parent">
+        <img *ngIf="sample_data.original_compressed_img" [src]="sample_data.original_compressed_img" class="pos-ab-img-upload img-240" #imageElement>
+        <button type="button" class="add-image-btn" (click)="onImageClicked1($event)">
+          <p class="plus"><i class="fa fa-camera"></i></p>
+        </button>
+      </div>
+      <input type="file" class="match-parent" accept="image/*" #fileInput1 (change)="fileChange1($event)">
+    </div>
+  </div>
+  <h6>Display image</h6>
+  <div class="row pb-3 match-parent view-profile-img m-0-auto">
+    <div class="col-12 text-center pr-0 pl-0 match-parent">
+      <div class="match-parent">
+        <img *ngIf="sample_data.display_compressed_img" [src]="sample_data.display_compressed_img" class="pos-ab-img-upload img-240" #imageElement>
+        <button type="button" class="add-image-btn" (click)="onImageClicked2($event)">
+          <p class="plus"><i class="fa fa-camera"></i></p>
+        </button>
+      </div>
+      <input type="file" class="match-parent" accept="image/*" #fileInput2 (change)="fileChange2($event)">
+    </div>
+  </div>
+  <div class="row pb-3">
+    <h6>Image Type</h6>
+    <div class="col-sm-12 pl-0 pr-0">
+      <md-radio-group [(ngModel)]="sample_data.image_type">
+        <md-radio-button [value]="1">
+          Background
+        </md-radio-button>
+        <md-radio-button [value]="2">
+          Frame
+        </md-radio-button>
+      </md-radio-group>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 pl-0 pr-0 text-center">
+      <a md-raised-button class="btn title-bar" (click)="addImages(sample_data)">Update</a>
+      <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+    </div>
+  </div>
+  <div class="row pt-2 text-center text-info">
+    <div class="col-sm-12 text-danger">
+      {{errorMsg}}
+    </div>
+  </div>
+</div>

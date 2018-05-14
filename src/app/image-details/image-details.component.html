@@ -1,0 +1,51 @@
+<div class="row header-style">
+    <div class="col-sm-12 pr-0 pl-0">
+        <app-header></app-header>
+    </div>
+</div>
+<div class="row height-100">
+    <div class="col-lg-2 pl-0 pr-0">
+        <app-navigation></app-navigation>
+    </div>
+    <div class="col-lg-10 pt-3 pb-3 div-scroll">
+        <div class="row pb-2 pt-2 title-bar">
+            <div class="col pl-2 pr-2">
+                <h5 class="pull-right m-0 pt-1">Images : {{total_record}}</h5>
+                <md-select placeholder=" " [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-2 pull-right" (change)="itemPerPageChanged(itemsPerPage)">
+                    <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
+                        {{items.itemPerPageName}}
+                    </md-option>
+                </md-select>
+            </div>
+        </div>
+        <div class="col-sm-12 pr-0 pl-0 card-1 table-responsive mb-3 table-style scroll">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr class="table-inverse">
+                        <th class="sr-only-focusable">#</th>
+                        <th>Image</th>
+                        <th class="text-center cursor-pointer" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Type</th>
+                        <th class="text-center cursor-pointer" (click)="sortBy('width', order_type == true ? 'ASC' : 'DESC')">Resolution</th>
+                        <th class="text-center cursor-pointer" (click)="sortBy('size', order_type == true ? 'ASC' : 'DESC')">Size</th>
+                        <th class="text-center cursor-pointer" (click)="sortBy('created_at', order_type == true ? 'ASC' : 'DESC')">Created Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let image_detail of image_detail_list; let i = index;">
+                        <td>{{i+1+(itemsPerPage * (currentPage-1))}}</td>
+                        <td><img [src]="image_detail.thumbnail_img" style="width:50px;height:50px;"></td>
+                        <td class="text-center">{{image_detail.type}}</td>
+                        <td class="text-center">{{image_detail.width}} * {{image_detail.height}}</td>
+                        <td class="text-center">{{image_detail.size | size}}</td>
+                        <td class="text-center">{{image_detail.created_at}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h5  *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+                No Data Found
+            </h5>
+        </div>
+        <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage" [directionLinks]="false"
+            [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="pull-right"></ngb-pagination>
+    </div>
+</div>

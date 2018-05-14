@@ -1,0 +1,66 @@
+<div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center">
+  <h5 class="title-bar m-0"> Publish New Advertisement </h5>
+</div>
+<div class="col-12 pr-4 pl-4 pb-2 pt-4">
+  <div class="row pb-3 match-parent view-profile-img" style="width: 100%; height: 190px;">
+    <div class="col-6 p-0">
+      <label class="font-weight-bold">Adv. Banner</label>
+    </div>
+    <div class="col-6 p-0">
+      <label class="font-weight-bold">App. Logo</label>
+    </div>
+    <div class="col-6 text-center pr-0 pl-0 match-parent" style="width: 152px;">
+      <div class="match-parent" style="width: 152px;">
+        <img *ngIf="advertisement_data.advertisement_img" [src]="advertisement_data.advertisement_img" class="pos-ab-img-upload img-240"
+          #imageElement>
+        <button type="button" class="add-image-btn" (click)="onImageClicked($event)">
+          <p class="plus">
+            <i class="fa fa-camera"></i>
+          </p>
+        </button>
+      </div>
+      <input type="file" class="match-parent" accept="image/*" #fileInput (change)="fileChange($event)">
+    </div>
+    <div class="col-6 text-center pr-0 pl-0 match-parent" style="width: 152px;">
+      <div class="match-parent" style="width: 152px;">
+        <img *ngIf="advertisement_data.logo_file" [src]="advertisement_data.logo_file" class="pos-ab-img-upload img-240" #imageElement>
+        <button type="button" class="add-image-btn" (click)="onImage2Clicked($event)">
+          <p class="plus">
+            <i class="fa fa-camera"></i>
+          </p>
+        </button>
+      </div>
+      <input type="file" class="match-parent" accept="image/*" #fileInput2 (change)="file2Change($event)">
+    </div>
+  </div>
+  <div class="row pb-3">
+    <label class="col-sm-12 m-0 pl-0 pr-0 pb-1 font-weight-bold">Application Name</label>
+    <div class="col-sm-12 pl-0 pr-0">
+      <input type="text" [(ngModel)]="advertisement_data.name" (keydown.enter)="addAdvertisement(advertisement_data)" class="form-control"
+        maxlength="150">
+    </div>
+  </div>
+  <div class="row pb-3">
+    <label class="col-sm-12 m-0 pl-0 pr-0 pb-1 font-weight-bold">Application URL</label>
+    <div class="col-sm-12 pl-0 pr-0">
+      <input type="text" [(ngModel)]="advertisement_data.url" (keydown.enter)="addAdvertisement(advertisement_data)" class="form-control">
+    </div>
+  </div>
+  <div class="row pb-3">
+    <label class="col-sm-12 m-0 pl-0 pr-0 pb-1 font-weight-bold">Application Descriptionn</label>
+    <div class="col-sm-12 pl-0 pr-0">
+      <textarea type="text" [(ngModel)]="advertisement_data.app_description" rows="5" class="form-control"></textarea>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 pl-0 pr-0 text-center">
+      <a md-raised-button class="btn title-bar" (click)="addAdvertisement(advertisement_data)">Save</a>
+      <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+    </div>
+  </div>
+  <div class="row pt-2 text-center text-info">
+    <div class="col-sm-12 text-danger">
+      {{errorMsg}}
+    </div>
+  </div>
+</div>

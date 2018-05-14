@@ -1,0 +1,83 @@
+<div class="row header-style">
+  <div class="col-sm-12 pr-0 pl-0">
+    <app-header></app-header>
+  </div>
+</div>
+<div class="row height-100">
+  <div class="col-lg-2 pl-0 pr-0">
+    <app-navigation></app-navigation>
+  </div>
+  <div class="col-lg-10 pt-3 pb-3 pl-0 pr-0 div-scroll">
+    <div class="row mr-3 ml-3 pb-2 pt-2 title-bar">
+      <div class="col pl-2 pr-2">
+        <input [(ngModel)]="searchQuery" class="form-control search-query-input" (keydown.enter)="searchData(searchQuery)" placeholder="Search query...">
+        <button class="form-control btn search-query-call" (click)="searchData(searchQuery)">
+          <i class="fa fa-search"></i>
+        </button>
+        <button class="form-control btn search-query-reset" (click)="do_reset()">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <p class="ml-2 pt-1 mb-0 float-left hidden-md-down">{{searchErr}}</p>
+        <h5 class="pull-right m-0 pt-1">{{category_name}} : {{total_record}}</h5>
+        <md-select placeholder=" " *ngIf="showPagination" [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-3 pull-right"
+          (change)="itemPerPageChanged(itemsPerPage)">
+          <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
+            {{items.itemPerPageName}}
+          </md-option>
+        </md-select>
+      </div>
+    </div>
+    <div class="row pr-0 pl-0">
+      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12" *ngFor="let category of category_list">
+        <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
+          <img class="background-card-sticker cursor-pointer" [src]="category.compressed_img" (click)="dataService.viewImage(category.original_img)"
+            alt="{{category.name}} thumbnail image">
+          <h6 class="pt-2 pb-2 m-0">{{category.sub_category_id}}. {{category.name}}</h6>
+          <div class="row title-bar pt-2 pb-2 font-18 align-middle">
+            <div class="col-12 pl-0 pr-0">
+              <a title="View">
+                <i class="fa fa-folder-open-o font-23 text-success cursor-pointer" (click)="viewSubCategory(category)"></i>
+              </a>
+              <a title="Update">
+                <i class="fa fa-edit font-23 text-warning align-text-bottom cursor-pointer" (click)="updateSubCategory(category)"></i>
+              </a>
+              <a title="Delete">
+                <i class="fa fa-trash-o font-24 text-danger cursor-pointer" (click)="deleteSubCategory(category)"></i>
+              </a>
+              <a title="View all users">
+                <i class="fa fa-users font-18 text-success cursor-pointer" (click)="viewAllUsers(category)"></i>
+              </a>
+              <a title="View premium users">
+                <i class="fa fa-shopping-cart font-20 text-calm cursor-pointer" (click)="viewPremiumUsers(category)"></i>
+              </a>
+              <a title="View restored devices">
+                <i class="fa fa-mobile font-24 text-primary cursor-pointer" (click)="viewRestoredDevices(category)"></i>
+              </a>
+              <a title="Send a notification">
+                <i class="fa fa-bell font-20 text-yellow cursor-pointer" (click)="sendANotification(category)"></i>
+              </a>
+              <a title="View advertisements">
+                <i class="fa fa-buysellads font-20 text-white cursor-pointer" (click)="viewAdvertisements(category)"></i>
+              </a>
+              <a title="View User Generated Designs">
+                <i class="fa fa-ravelry font-20 text-pink cursor-pointer" (click)="viewDesignByUsers(category)"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+      No Data Found
+    </h5>
+    <div class="col-12 text-center">
+      <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage"
+        [directionLinks]="false" [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="inline-block mt-3"></ngb-pagination>
+    </div>
+  </div>
+</div>
+<div class="row pr-0 pl-0">
+  <button md-fab class="btn add-button" (click)="addSubCategory()">
+    <i class="fa fa-plus fa-2x"></i>
+  </button>
+</div>

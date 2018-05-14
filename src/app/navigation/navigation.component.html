@@ -1,0 +1,34 @@
+<div class="row height-100 div-scroll header-style hidden-md-down">
+    <div class="col-12 pl-0 pr-0">
+        <nav class="navbar navbar-fixed-top navbar-dark p-0">
+            <ul class="nav navbar-nav">
+                <li class="nav-item admin-profile-background">
+                    <div class="pt-3 pb-3 text-center">
+                        <img src="./assets/img/logo.png" class="admin-profile-style">
+                        <p class="m-0 font-weight-bold">Welcome Admin</p>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a (click)="nav_categories()" class="li-height" [ngClass]="selected_nav_categories">
+                        <i class="fa fa-picture-o"></i>&nbsp;&nbsp; Categories
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a (click)="nav_advertisements()" class="li-height" [ngClass]="selected_nav_advertisements">
+                        <i class="fa fa-buysellads"></i>&nbsp;&nbsp; Advertisements
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a (click)="nav_images_with_details()" class="li-height" [ngClass]="selected_nav_images_with_details">
+                        <i class="fa fa-info-circle font-18"></i>&nbsp;&nbsp; Image Details
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a (click)="nav_redis_cache();" class="li-height" [ngClass]="selected_nav_redis_cache">
+                        <i class="fa fa-database"></i>&nbsp;&nbsp; Redis Cache
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+<div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center">
+  <h5 class="title-bar m-0"> Update Sub Category </h5>
+</div>
+<div class="col-12 pr-4 pl-4 pb-2 pt-4">
+  <div class="row pb-3 match-parent view-profile-img m-0-auto">
+    <div class="col-12 text-center pr-0 pl-0 match-parent">
+      <div class="match-parent">
+        <img *ngIf="sub_category_data.compressed_img" [src]="sub_category_data.compressed_img" class="pos-ab-img-upload img-240"
+          #imageElement>
+        <button type="button" class="add-image-btn" (click)="onImageClicked($event)">
+          <p class="plus"><i class="fa fa-camera"></i></p>
+        </button>
+      </div>
+      <input type="file" class="match-parent" accept="image/*" #fileInput (change)="fileChange($event)">
+    </div>
+  </div>
+  <div class="row pb-3">
+    <label class="col-sm-3 m-0 pl-0 pr-0 pt-1 pb-1 font-weight-bold">Category</label>
+    <div class="col-sm-9 pl-0 pr-0">
+      <input type="text" [(ngModel)]="sub_category_data.name" (keydown.enter)="updateCategory(sub_category_data)" class="form-control"
+        maxlength="30">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 pl-0 pr-0 text-center">
+      <a md-raised-button class="btn title-bar" (click)="updateCategory(sub_category_data)">Update</a>
+      <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+    </div>
+  </div>
+  <div class="row pt-2 text-center text-info">
+    <div class="col-sm-12 text-danger">
+      {{errorMsg}}
+    </div>
+  </div>
+</div>

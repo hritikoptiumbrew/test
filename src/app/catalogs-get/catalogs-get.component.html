@@ -1,0 +1,66 @@
+<div class="row header-style">
+  <div class="col-sm-12 pr-0 pl-0">
+    <app-header></app-header>
+  </div>
+</div>
+<div class="row height-100">
+  <div class="col-lg-2 pl-0 pr-0">
+    <app-navigation></app-navigation>
+  </div>
+  <div class="col-lg-10 pt-3 pb-3 pl-0 pr-0 div-scroll">
+    <div class="row col">
+      <p class="pull-right m-0 pt-1 pb-1">{{current_path}}</p>
+    </div>
+    <div class="row mr-3 ml-3 pb-2 pt-2 title-bar">
+      <div class="col pl-2 pr-2">
+        <input [(ngModel)]="searchQuery" class="form-control search-query-input" (keydown.enter)="searchData(searchQuery)" placeholder="Search query...">
+        <button class="form-control btn search-query-call" (click)="searchData(searchQuery)">
+          <i class="fa fa-search"></i>
+        </button>
+        <button class="form-control btn search-query-reset" (click)="do_reset()">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <p class="ml-2 pt-1 mb-0 float-left hidden-md-down">{{searchErr}}</p>
+        <p class="pull-right m-0 font-18 pt-1"> Catalogs : {{total_record}}</p>
+      </div>
+    </div>
+    <div class="row pr-0 pl-0">
+      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of catalog_list">
+        <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
+          <img class="background-card-sticker cursor-pointer" [src]="category.compressed_img" (click)="dataService.viewImage(category.original_img)"
+            alt="{{category.name}} thumbnail image">
+          <h6 class="pt-2 pb-2 m-0">{{category.catalog_id}}. {{category.name}}</h6>
+          <div class="row title-bar pt-2 pb-2 font-18 align-middle">
+            <div class="col-12">
+              <a title="View">
+                <i class="fa fa-folder-open-o font-24 pr-2 text-success cursor-pointer" (click)="viewCatalog(category)"></i>
+              </a>
+              <a title="Update">
+                <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer" (click)="updateCatalog(category)"></i>
+              </a>
+              <a title="Delete">
+                <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer" (click)="deleteCatalog(category)"></i>
+              </a>
+              <a title="Link this catelog">
+                <i class="fa fa-link font-20 text-calm pr-2 cursor-pointer" (click)="linkCatalog(category)"></i>
+              </a>
+            </div>
+          </div>
+          <i class="fa fa-check-square font-26 text-calm ab-top-left-5" *ngIf="category.is_featured==1"></i>
+        </div>
+      </div>
+    </div>
+    <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+      No Data Found
+    </h5>
+    <!--<div class="col-12 text-center">
+      <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage" [directionLinks]="false"
+        [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="inline-block mt-3"></ngb-pagination>
+    </div>-->
+  </div>
+</div>
+<div class="row pr-0 pl-0">
+  <button md-fab class="btn add-button" (click)="addCatalog()">
+    <i class="fa fa-plus fa-2x"></i>
+  </button>
+</div>

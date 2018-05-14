@@ -1,0 +1,59 @@
+<div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center">
+  <h5 class="title-bar m-0"> Add New Catalog </h5>
+</div>
+<div class="col-12 pr-4 pl-4 pb-2 pt-4">
+  <div class="row pb-3 match-parent view-profile-img m-0-auto">
+    <div class="col-12 text-center pr-0 pl-0 match-parent">
+      <div class="match-parent">
+        <img *ngIf="catalog_data.compressed_img" [src]="catalog_data.compressed_img" class="pos-ab-img-upload img-240" #imageElement>
+        <button type="button" class="add-image-btn" (click)="onImageClicked($event)">
+          <p class="plus"><i class="fa fa-camera"></i></p>
+        </button>
+      </div>
+      <input type="file" class="match-parent" accept="image/*" #fileInput (change)="fileChange($event)">
+    </div>
+  </div>
+  <div class="row pb-3">
+    <label class="col-sm-3 m-0 pl-0 pr-0 pt-1 pb-1 font-weight-bold">Catalog</label>
+    <div class="col-sm-9 pl-0 pr-0">
+      <input type="text" [(ngModel)]="catalog_data.name" (keydown.enter)="addCatalog(catalog_data)" class="form-control" maxlength="50">
+    </div>
+  </div>
+  <div class="row pb-3">
+    <label class="col-sm-3 m-0 pl-0 pr-0 font-weight-bold">Pricing</label>
+    <div class="col-sm-9 pl-0 pr-0">
+      <md-radio-group [(ngModel)]="catalog_data.is_free">
+        <md-radio-button [value]="1">
+          Free
+        </md-radio-button>
+        <md-radio-button [value]="0">
+          Paid
+        </md-radio-button>
+      </md-radio-group>
+    </div>
+  </div>
+  <div class="row pb-3">
+    <label class="col-sm-3 m-0 pl-0 pr-0 font-weight-bold">Type</label>
+    <div class="col-sm-9 pl-0 pr-0">
+      <md-radio-group [(ngModel)]="catalog_data.is_featured">
+        <md-radio-button [value]="1">
+          Featured
+        </md-radio-button>
+        <md-radio-button [value]="0">
+          Normal
+        </md-radio-button>
+      </md-radio-group>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 pl-0 pr-0 text-center">
+      <a md-raised-button class="btn title-bar" (click)="addCatalog(catalog_data)">Save</a>
+      <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+    </div>
+  </div>
+  <div class="row pt-2 text-center text-info">
+    <div class="col-sm-12 text-danger">
+      {{errorMsg}}
+    </div>
+  </div>
+</div>
