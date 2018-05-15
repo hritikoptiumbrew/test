@@ -33,6 +33,255 @@ class AdminController extends Controller
 
     }
 
+    /* ========================================= Promo Code =========================================*/
+
+    /**
+     * @api {post} addPromoCode   addPromoCode
+     * @apiName addPromoCode
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "promo_code":"123",
+     * "package_name":"com.bg.invitationcardmaker",
+     * "device_udid":"e9e24a9ce6ca5498",
+     * "device_platform":1 //1=android, 2=ios
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Promo code added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addPromoCode(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            //Log::info("request data :", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('promo_code', 'package_name', 'device_udid', 'device_platform'), $request)) != '')
+                return $response;
+
+            $promo_code = $request->promo_code;
+            $package_name = $request->package_name;
+            $device_udid = $request->device_udid;
+            $device_platform = $request->device_platform;
+
+            if (($response = (new VerificationController())->checkIfPromoCodeExist($promo_code, $package_name)) != '')
+                return $response;
+
+            DB::beginTransaction();
+            DB::insert('insert into promocode_master(promo_code, package_name, device_udid, device_platform, status) VALUES (?, ?, ?, ?, ?)', [$promo_code, $package_name, $device_udid, $device_platform, 0]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Promo code added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addPromoCode Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllPromoCode   getAllPromoCode
+     * @apiName getAllPromoCode
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "page":1, //compulsory
+     * "item_count":10, //compulsory
+     * "order_type":"asc",
+     * "order_by":"promo_code"
+     * }
+     * @apiSuccessExample Success-Response:
+     *{
+     * "code": 200,
+     * "message": "Promo codes fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 2,
+     * "is_next_page": false,
+     * "result": [
+     * {
+     * "promo_code_id": 1,
+     * "promo_code": "123",
+     * "package_name": "com.bg.invitationcardmaker",
+     * "device_udid": "e9e24a9ce6ca5498",
+     * "device_platform": 1,
+     * "status": 0,
+     * "create_time": "2018-05-15 09:50:49",
+     * "update_time": "2018-05-15 09:50:49"
+     * },
+     * {
+     * "promo_code_id": 2,
+     * "promo_code": "test 1",
+     * "package_name": "test 2",
+     * "device_udid": "test 3",
+     * "device_platform": 1,
+     * "status": 0,
+     * "create_time": "2018-05-15 10:02:35",
+     * "update_time": "2018-05-15 10:02:35"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllPromoCode(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            //Log::info([$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count'), $request)) != '')
+                return $response;
+
+
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $order_by = isset($request->order_by) ? $request->order_by : ''; //field name
+            $order_type = isset($request->order_type) ? $request->order_type : ''; //asc or desc
+            $offset = ($page - 1) * $item_count;
+
+            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  promocode_master');
+            $total_row = $total_row_result[0]->total;
+
+            if ($order_by == '' && $order_type == '') {
+
+
+                $result = DB::select('SELECT
+                                    id as promo_code_id,
+                                    promo_code,
+                                    package_name,
+                                    device_udid,
+                                    device_platform,
+                                    status,
+                                    create_time,
+                                    update_time
+                                  FROM
+                                  promocode_master
+                                  ORDER BY create_time DESC
+                                  LIMIT ?,?', [$offset, $item_count]);
+            } else {
+                $result = DB::select('SELECT
+                                    id as promo_code_id,
+                                    promo_code,
+                                    package_name,
+                                    device_udid,
+                                    device_platform,
+                                    status,
+                                    create_time,
+                                    update_time
+                                  FROM
+                                  promocode_master
+                                  ORDER BY ' . $order_by . ' ' . $order_type . ' LIMIT ?,?', [$offset, $item_count]);
+
+            }
+
+
+            $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
+
+            $response = Response::json(array('code' => 200, 'message' => 'Promo codes fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllPromoCode Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} searchPromoCode   searchPromoCode
+     * @apiName searchPromoCode
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "search_type":"promo_code", //compulsory
+     * "search_query":"12" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Promo code fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "promo_code_id": 1,
+     * "promo_code": "123",
+     * "package_name": "com.bg.invitationcardmaker",
+     * "device_udid": "e9e24a9ce6ca5498",
+     * "device_platform": 1,
+     * "status": 0,
+     * "create_time": "2018-05-15 09:50:49",
+     * "update_time": "2018-05-15 09:50:49"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function searchPromoCode(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('search_type', 'search_query'), $request)) != '')
+                return $response;
+
+            $search_type = $request->search_type;
+            $search_query = '%' . $request->search_query . '%';
+
+            $result = DB::select('SELECT
+                                    id as promo_code_id,
+                                    promo_code,
+                                    package_name,
+                                    device_udid,
+                                    device_platform,
+                                    status,
+                                    create_time,
+                                    update_time
+                                  FROM
+                                  promocode_master
+                                  WHERE ' . $search_type . ' LIKE ?', [$search_query]);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Promo code fetched successfully.', 'cause' => '', 'data' => ['result' => $result]));
+
+        } catch (Exception $e) {
+            Log::error("searchPromoCode Exception :", ['Exception : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' search promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+
     /* ========================================= Category =========================================*/
 
     /**
