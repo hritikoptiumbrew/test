@@ -14,6 +14,7 @@ import { RedisCacheComponent } from './redis-cache/redis-cache.component';
 import { PopularSamplesComponent } from './popular-samples/popular-samples.component';
 import { SettingsComponent } from './settings/settings.component';
 import { AdvManagementComponent } from './adv-management/adv-management.component';
+import { PromocodeManagementComponent } from './promocode-management/promocode-management.component';
 import { UserGeneratedDesignsComponent } from './user-generated-designs/user-generated-designs.component';
 
 export const AppRoutes = [
@@ -31,6 +32,7 @@ export const AppRoutes = [
     { path: 'admin/notification/:sub_category_id', component: NotificationComponent, canActivate: [AuthenticationService] },
     { path: 'admin/advertisements/:sub_category_id', component: AdvertisementsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/advertisements', component: AdvManagementComponent, canActivate: [AuthenticationService] },
+    { path: 'admin/promocode-management', component: PromocodeManagementComponent, canActivate: [AuthenticationService] },
     { path: 'admin/categories/:categoryId/user-designs', component: UserGeneratedDesignsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/redis-cache', component: RedisCacheComponent, canActivate: [AuthenticationService] },
     { path: 'admin/settings', component: SettingsComponent, canActivate: [AuthenticationService] },

@@ -59,6 +59,8 @@ import { AdvManagementComponent } from './adv-management/adv-management.componen
 import { ViewImageComponent } from './view-image/view-image.component';
 import { UserGeneratedDesignsComponent } from './user-generated-designs/user-generated-designs.component';
 import { DeleteUserGeneratedComponent } from './delete-user-generated/delete-user-generated.component';
+import { PromocodeManagementComponent } from './promocode-management/promocode-management.component';
+import { PromocodeAddComponent } from './promocode-add/promocode-add.component';
 
 @NgModule({
   declarations: [
@@ -109,6 +111,8 @@ import { DeleteUserGeneratedComponent } from './delete-user-generated/delete-use
     ViewImageComponent,
     UserGeneratedDesignsComponent,
     DeleteUserGeneratedComponent,
+    PromocodeManagementComponent,
+    PromocodeAddComponent,
   ],
   imports: [
     BrowserModule,
@@ -154,6 +158,7 @@ import { DeleteUserGeneratedComponent } from './delete-user-generated/delete-use
     AdvertisementsLinkComponent,
     ViewImageComponent,
     DeleteUserGeneratedComponent,
+    PromocodeAddComponent,
   ],
   providers: [DataService, AuthenticationService],
   bootstrap: [AppComponent]

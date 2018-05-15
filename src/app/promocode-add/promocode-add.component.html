@@ -1,0 +1,32 @@
+<div class="col-sm-12 pl-0 pr-0">
+  <label class="text-center col-12 m-0 title-bar pt-2 pb-2">
+    Add Promocode Details
+  </label>
+  <div class="row pt-4 pl-4 pr-4 pb-2">
+    <div class="col-sm-12 pl-0 pr-0 pb-3">
+      <input type="text" class="form-control" [(ngModel)]="promocode_details.promo_code" (ngModelChange)="promocode_details.promo_code = $event.toLocaleLowerCase()"
+        (keydown.enter)="addPromoCode(promocode_details)" placeholder="Promo code">
+    </div>
+    <div class="col-sm-12 pl-0 pr-0 pb-3">
+      <input type="text" class="form-control" [(ngModel)]="promocode_details.package_name" (ngModelChange)="promocode_details.package_name = $event.toLocaleLowerCase()"
+        (keydown.enter)="addPromoCode(promocode_details)" placeholder="Package name">
+    </div>
+    <div class="col-sm-12 pl-0 pr-0 pb-3">
+      <input type="text" class="form-control" [(ngModel)]="promocode_details.device_udid" (ngModelChange)="promocode_details.device_udid = $event.toLocaleLowerCase()"
+        (keydown.enter)="addPromoCode(promocode_details)" placeholder="Device UDID">
+    </div>
+    <div class="col-sm-12 pl-0 pr-0 pb-3">
+      <select class="form-control" [(ngModel)]="promocode_details.device_platform">
+        <option value="1">android</option>
+        <option value="2">ios</option>
+      </select>
+    </div>
+    <div class="col-sm-12 pl-0 pr-0 text-center">
+      <a md-raised-button class="btn title-bar" (click)="addPromoCode(promocode_details)">Add</a>
+      <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+      <p class="m-0 pt-3 text-center text-danger">
+        {{errorMsg}}
+      </p>
+    </div>
+  </div>
+</div>

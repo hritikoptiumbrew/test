@@ -1,0 +1,83 @@
+<div class="row header-style">
+  <div class="col-sm-12 pr-0 pl-0">
+    <app-header></app-header>
+  </div>
+</div>
+<div class="row height-100">
+  <div class="col-lg-2 pl-0 pr-0">
+    <app-navigation></app-navigation>
+  </div>
+  <div class="col-lg-10 pt-3 pb-3 div-scroll">
+    <div class="row pb-2 pt-2 title-bar">
+      <div class="col pl-2 pr-2">
+        <md-select placeholder=" " [(ngModel)]="searchTag" class="search-query-dropdown mr-2 hidden-md-down">
+          <md-option *ngFor="let searchItem of searchArray" [value]="searchItem.searchTagValue">
+            {{searchItem.searchTagName}}
+          </md-option>
+        </md-select>
+        <input [(ngModel)]="searchQuery" class="form-control search-query-input hidden-md-down" (keydown.enter)="searchData(searchQuery, searchTag)"
+          placeholder="Search Query...">
+        <button class="form-control btn search-query-call hidden-md-down" (click)="searchData(searchQuery, searchTag)">
+          <i class="fa fa-search"></i>
+        </button>
+        <button class="form-control btn search-query-reset hidden-md-down" (click)="do_reset()">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <p class="ml-2 pt-1 mb-0 float-left hidden-md-down">{{searchErr}}</p>
+        <h5 class="pull-right m-0 pt-1">Promocodes : {{total_record}}</h5>
+        <md-select placeholder=" " [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-2 pull-right" (change)="itemPerPageChanged(itemsPerPage)">
+          <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
+            {{items.itemPerPageName}}
+          </md-option>
+        </md-select>
+      </div>
+    </div>
+    <div class="row pr-0 pl-0">
+      <div class="col-sm-12 card-1 pl-0 pr-0 table-responsive mb-3 table-style scroll">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr class="table-inverse">
+              <th>#</th>
+              <th class="cursor-pointer" (click)="sortBy('promo_code', order_type == true ? 'ASC' : 'DESC')">Promo code</th>
+              <th class="cursor-pointer" (click)="sortBy('package_name', order_type == true ? 'ASC' : 'DESC')">Package name</th>
+              <th class="cursor-pointer" (click)="sortBy('device_udid', order_type == true ? 'ASC' : 'DESC')">Device UDID</th>
+              <th class="text-center cursor-pointer" (click)="sortBy('device_platform', order_type == true ? 'ASC' : 'DESC')">Platform</th>
+              <th class="text-center cursor-pointer" (click)="sortBy('status', order_type == true ? 'ASC' : 'DESC')">Status</th>
+              <th class="text-center cursor-pointer" (click)="sortBy('create_time', order_type == true ? 'ASC' : 'DESC')">Create time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let promocode of promocode_list; let i = index;">
+              <td>{{i+1+(itemsPerPage * (currentPage-1))}}</td>
+              <td>{{promocode.promo_code}}</td>
+              <td>{{promocode.package_name}}</td>
+              <td>{{promocode.device_udid}}</td>
+              <td class="text-center">
+                <span *ngIf="promocode.device_platform==1">android</span>
+                <span *ngIf="promocode.device_platform==2">ios</span>
+              </td>
+              <td class="text-center">
+                <span *ngIf="promocode.status==0">New</span>
+                <span *ngIf="promocode.status==1">Redeemed</span>
+              </td>
+              <td class="text-center">{{promocode.create_time}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+          No Data Found
+        </h5>
+      </div>
+    </div>
+    <div class="row pr-0 pl-0">
+      <div class="col-12 text-center">
+        <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage"
+          [directionLinks]="false" [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="inline-block mt-3"></ngb-pagination>
+      </div>
+    </div>
+  </div>
+  <div class="row pr-0 pl-0">
+    <button md-fab class="btn add-button" (click)="addCategory()">
+      <i class="fa fa-plus fa-2x"></i>
+    </button>
+  </div>
