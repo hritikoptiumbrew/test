@@ -723,4 +723,27 @@ class VerificationController extends Controller
 
         return $response;
     }
+
+    public function checkIfPromoCodeExist($promo_code, $package_name)
+    {
+        try
+        {
+            $result = DB::select('SELECT * from promocode_master WHERE promo_code = ?',[$promo_code, $package_name]);
+            if(count($result)>=1)
+            {
+                $response = Response::json(array('code'=>'201','message'=>'Promo code already exists.','cause'=>'','response'=>json_decode("{}")));
+            }
+            else
+            {
+                $response = '';
+            }
+        }
+        catch(Exception $e)
+        {
+            Log::error("checkIfPromoCodeExist Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            return  Response::json(array('code'=>'201','message'=>$e->getMessage(),'cause'=>'','response'=>json_decode("{}")));
+        }
+
+        return $response;
+    }
 }

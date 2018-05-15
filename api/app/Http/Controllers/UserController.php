@@ -1173,6 +1173,80 @@ class UserController extends Controller
         return $response;
     }
 
+    /**
+     * @api {post} verifyPromoCode   verifyPromoCode
+     * @apiName verifyPromoCode
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "promo_code":"123", //compulsory
+     * "package_name":"com.bg.invitationcardmaker", //compulsory
+     * "device_udid":"e9e24a9ce6ca5498", //compulsory
+     * "device_platform":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Promo code verified successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function verifyPromoCode(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('promo_code', 'package_name', 'device_udid', 'device_platform'), $request)) != '')
+                return $response;
+
+            $promo_code = $request->promo_code;
+            $package_name = $request->package_name;
+            $device_udid = $request->device_udid;
+            $device_platform = $request->device_platform;
+
+            $is_matched = DB::select('SELECT * FROM promocode_master WHERE
+                                          promo_code = ? AND
+                                          package_name = ? AND
+                                          device_udid = ? AND
+                                          device_platform = ?', [$promo_code, $package_name, $device_udid, $device_platform]);
+
+            if (count($is_matched) > 0) {
+                if ($is_matched[0]->status == 0) {
+                    DB::beginTransaction();
+                    DB::update('UPDATE promocode_master SET status = 1 WHERE id = ?', [$is_matched[0]->id]);
+                    DB::commit();
+                    $response = Response::json(array('code' => 200, 'message' => 'Promo code verified successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+                } else {
+                    $response = Response::json(array('code' => 201, 'message' => 'Promo code already used.', 'cause' => '', 'data' => json_decode("{}")));
+
+                }
+            }
+            else
+            {
+                $response = Response::json(array('code' => 201, 'message' => 'Invalid promo code.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+
+        } catch (Exception $e) {
+            Log::error("verifyPromoCode Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'verify promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
 
 
 }

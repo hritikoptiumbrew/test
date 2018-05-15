@@ -47,6 +47,11 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
 
     Route::post('changePassword', 'LoginController@changePassword');
 
+    //Promo code
+    Route::post('addPromoCode', 'AdminController@addPromoCode');
+    Route::post('getAllPromoCode', 'AdminController@getAllPromoCode');
+    Route::post('searchPromoCode', 'AdminController@searchPromoCode');
+
     //category
     Route::post('addCategory', 'AdminController@addCategory');
     Route::post('updateCategory', 'AdminController@updateCategory');
@@ -184,7 +189,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     Route::post('appPurchasePaymentForIos', 'SubscriptionPaymentController@appPurchasePaymentForIos');
 
     Route::post('clearBadgeCountData', 'NotificationController@clearBadgeCountData');
-
+    Route::post('verifyPromoCode', 'UserController@verifyPromoCode');
 
 
 });

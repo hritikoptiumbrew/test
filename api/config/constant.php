@@ -9,9 +9,9 @@ return [
 
     //////////////////////////////Change Server Configuration////////////////////////////////////////////////////////
 
-    'ACTIVATION_LINK_PATH'=>'https://'.$_SERVER['HTTP_HOST'],     //live
+    //'ACTIVATION_LINK_PATH'=>'https://'.$_SERVER['HTTP_HOST'],     //live
 
-    //'ACTIVATION_LINK_PATH'=>'http://'.$_SERVER['HTTP_HOST'].'/'.basename(dirname(dirname(__DIR__))),     //local
+    'ACTIVATION_LINK_PATH'=>'http://'.$_SERVER['HTTP_HOST'].'/'.basename(dirname(dirname(__DIR__))),     //local
 
     'FORGOT_PASSWORD_SVN_PATH' => 'http://'.$_SERVER['HTTP_HOST'].'/'.basename(dirname(dirname(__DIR__))).'/api/public/activeProfile/',   //local
 

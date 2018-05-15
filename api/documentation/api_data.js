@@ -291,6 +291,35 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "addPromoCode",
+    "title": "addPromoCode",
+    "name": "addPromoCode",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"promo_code\":\"123\",\n\"package_name\":\"com.bg.invitationcardmaker\",\n\"device_udid\":\"e9e24a9ce6ca5498\",\n\"device_platform\":1 //1=android, 2=ios\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Promo code added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "changePassword",
     "title": "changePassword",
     "name": "changePassword",
@@ -566,7 +595,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"keys_list\": [\n{\n\"key\": \"obpl:getImagesByCatalogId33-1\"\n},\n{\n\"key\": \"obpl:getImagesByCatalogId51-1\"\n},\n{\n\"key\":\"obpl:getImagesByCatalogId57-1\"\n}\n\n]\n}",
+          "content": "{\n\"keys_list\": [\n{\n\"key\": \"pel:getImagesByCatalogId33-1\"\n},\n{\n\"key\": \"pel:getImagesByCatalogId51-1\"\n},\n{\n\"key\":\"pel:getImagesByCatalogId57-1\"\n}\n\n]\n}",
           "type": "json"
         },
         {
@@ -929,6 +958,35 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "getAllPromoCode",
+    "title": "getAllPromoCode",
+    "name": "getAllPromoCode",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"page\":1, //compulsory\n\"item_count\":10, //compulsory\n\"order_type\":\"asc\",\n\"order_by\":\"promo_code\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Promo codes fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"is_next_page\": false,\n\"result\": [\n{\n\"promo_code_id\": 1,\n\"promo_code\": \"123\",\n\"package_name\": \"com.bg.invitationcardmaker\",\n\"device_udid\": \"e9e24a9ce6ca5498\",\n\"device_platform\": 1,\n\"status\": 0,\n\"create_time\": \"2018-05-15 09:50:49\",\n\"update_time\": \"2018-05-15 09:50:49\"\n},\n{\n\"promo_code_id\": 2,\n\"promo_code\": \"test 1\",\n\"package_name\": \"test 2\",\n\"device_udid\": \"test 3\",\n\"device_platform\": 1,\n\"status\": 0,\n\"create_time\": \"2018-05-15 10:02:35\",\n\"update_time\": \"2018-05-15 10:02:35\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "getAllRestoreDevice",
     "title": "getAllRestoreDevice",
     "name": "getAllRestoreDevice",
@@ -1175,7 +1233,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"key\": \"obpl:getSubCategoryByCategoryId9-1\"\n}",
+          "content": "{\n\"key\": \"pel:getSubCategoryByCategoryId9-1\"\n}",
           "type": "json"
         },
         {
@@ -1209,7 +1267,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Redis Keys Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"keys_list\": [\n\"obpl:I4IGClzRXZAjA9u8\",\n\"obpl:getCatalogBySubCategoryId56-1\",\n\"obpl:getAllCategory1\",\n\"obpl:AV4SJwr8Rrf8O60a\",\n\"obpl:getBackgroundCategory1\",\n\"obpl:598068d3311b6315293306:standard_ref\",\n\"obpl:tag:role_user:key\",\n\"obpl:getLinkiOS-1\",\n\"obpl:Btr0iNfysqBDree8\",\n\"obpl:hNBS6Vxc66wL3Dux\"\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Redis Keys Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"keys_list\": [\n\"pel:I4IGClzRXZAjA9u8\",\n\"pel:getCatalogBySubCategoryId56-1\",\n\"pel:getAllCategory1\",\n\"pel:AV4SJwr8Rrf8O60a\",\n\"pel:getBackgroundCategory1\",\n\"pel:598068d3311b6315293306:standard_ref\",\n\"pel:tag:role_user:key\",\n\"pel:getLinkiOS-1\",\n\"pel:Btr0iNfysqBDree8\",\n\"pel:hNBS6Vxc66wL3Dux\"\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1442,6 +1500,35 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"search category fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"category_list\": [\n{\n\"category_id\": 1,\n\"name\": \"Featured\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "searchPromoCode",
+    "title": "searchPromoCode",
+    "name": "searchPromoCode",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"search_type\":\"promo_code\", //compulsory\n\"search_query\":\"12\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Promo code fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"promo_code_id\": 1,\n\"promo_code\": \"123\",\n\"package_name\": \"com.bg.invitationcardmaker\",\n\"device_udid\": \"e9e24a9ce6ca5498\",\n\"device_platform\": 1,\n\"status\": 0,\n\"create_time\": \"2018-05-15 09:50:49\",\n\"update_time\": \"2018-05-15 09:50:49\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2078,35 +2165,6 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "User"
-  },
-  {
-    "type": "post",
-    "url": "getDeletedCatalogId",
-    "title": "getDeletedCatalogId",
-    "name": "getDeletedCatalogId",
-    "group": "User",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"catalog_id_list\":[ //compulsory\n75,\n76\n]\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Deleted catalog id fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"catalog_id_list\": [\n75,\n76\n]\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
     "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
@@ -2136,7 +2194,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -2223,7 +2281,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -2252,7 +2310,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -2281,7 +2339,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -2310,7 +2368,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -2393,6 +2451,35 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Image saved successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "verifyPromoCode",
+    "title": "verifyPromoCode",
+    "name": "verifyPromoCode",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"promo_code\":\"123\", //compulsory\n\"package_name\":\"com.bg.invitationcardmaker\", //compulsory\n\"device_udid\":\"e9e24a9ce6ca5498\", //compulsory\n\"device_platform\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Promo code verified successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
