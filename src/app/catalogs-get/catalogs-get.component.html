@@ -27,11 +27,11 @@
     <div class="row pr-0 pl-0">
       <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of catalog_list">
         <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
-          <img class="background-card-sticker cursor-pointer" [src]="category.compressed_img" (click)="dataService.viewImage(category.original_img)"
+          <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img" (click)="dataService.viewImage(category.original_img)"
             alt="{{category.name}} thumbnail image">
           <h6 class="pt-2 pb-2 m-0">{{category.catalog_id}}. {{category.name}}</h6>
           <div class="row title-bar pt-2 pb-2 font-18 align-middle">
-            <div class="col-12">
+            <div class="col-12 col-12 p-0">
               <a title="View">
                 <i class="fa fa-folder-open-o font-24 pr-2 text-success cursor-pointer" (click)="viewCatalog(category)"></i>
               </a>
@@ -43,6 +43,9 @@
               </a>
               <a title="Link this catelog">
                 <i class="fa fa-link font-20 text-calm pr-2 cursor-pointer" (click)="linkCatalog(category)"></i>
+              </a>
+              <a title="Migrate content ">
+                <i class="fa fa-clipboard font-20 text-white pr-2 cursor-pointer" (click)="addAppContentViaMigration(category)"></i>
               </a>
             </div>
           </div>

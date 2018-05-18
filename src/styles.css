@@ -492,3 +492,15 @@ img {
 .c-no-wrap {
     white-space: nowrap !important;
 }
+
+.snack-error {
+    background: #d40808 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.5);
+}
+
+.snack-success {
+    background: green !important;
+    color: #fff !important;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.5);
+}

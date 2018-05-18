@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MdButtonModule, MdInputModule, MdDialogModule, MdRadioModule, MdSidenavModule, MdSelectModule, MdTabsModule, MdCheckboxModule } from '@angular/material';
+import { MdButtonModule, MdInputModule, MdDialogModule, MdRadioModule, MdSidenavModule, MdSelectModule, MdTabsModule, MdCheckboxModule, MdSnackBarModule, MdSnackBarConfig } from '@angular/material';
 import { AngularFontAwesomeModule } from 'angular-font-awesome/angular-font-awesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutes } from './app.routes';
@@ -61,6 +61,7 @@ import { UserGeneratedDesignsComponent } from './user-generated-designs/user-gen
 import { DeleteUserGeneratedComponent } from './delete-user-generated/delete-user-generated.component';
 import { PromocodeManagementComponent } from './promocode-management/promocode-management.component';
 import { PromocodeAddComponent } from './promocode-add/promocode-add.component';
+import { ConfirmActionComponent } from './confirm-action/confirm-action.component';
 
 @NgModule({
   declarations: [
@@ -113,6 +114,7 @@ import { PromocodeAddComponent } from './promocode-add/promocode-add.component';
     DeleteUserGeneratedComponent,
     PromocodeManagementComponent,
     PromocodeAddComponent,
+    ConfirmActionComponent,
   ],
   imports: [
     BrowserModule,
@@ -127,6 +129,7 @@ import { PromocodeAddComponent } from './promocode-add/promocode-add.component';
     MdSidenavModule,
     MdSelectModule,
     MdTabsModule,
+    MdSnackBarModule,
     MdCheckboxModule,
     NgbModule.forRoot(),
     RouterModule.forRoot(AppRoutes, { useHash: true })
@@ -159,6 +162,7 @@ import { PromocodeAddComponent } from './promocode-add/promocode-add.component';
     ViewImageComponent,
     DeleteUserGeneratedComponent,
     PromocodeAddComponent,
+    ConfirmActionComponent
   ],
   providers: [DataService, AuthenticationService],
   bootstrap: [AppComponent]

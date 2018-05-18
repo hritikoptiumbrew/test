@@ -1,6 +1,6 @@
 import { Component, OnInit, Renderer, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MdDialog, MdDialogRef, MdSnackBar, MdSnackBarConfig } from '@angular/material';
 import { Http, RequestOptions, Headers, Response, RequestMethod, RequestOptionsArgs } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { DataService } from '../data.service';
@@ -9,6 +9,7 @@ import { LoadingComponent } from '../loading/loading.component';
 import { CatalogsAddComponent } from '../catalogs-add/catalogs-add.component';
 import { CatalogsUpdateComponent } from '../catalogs-update/catalogs-update.component';
 import { CatalogsDeleteComponent } from '../catalogs-delete/catalogs-delete.component';
+import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
 import { LinkCatelogComponent } from '../link-catelog/link-catelog.component';
 
 @Component({
@@ -37,7 +38,7 @@ export class CatalogsGetComponent implements OnInit {
   loading: any;
   current_path: any = "";
 
-  constructor(public route: ActivatedRoute, private dataService: DataService, private router: Router, public dialog: MdDialog) {
+  constructor(public route: ActivatedRoute, private dataService: DataService, public snackBar: MdSnackBar, private router: Router, public dialog: MdDialog) {
     this.loading = this.dialog.open(LoadingComponent);
   }
 
@@ -106,6 +107,50 @@ export class CatalogsGetComponent implements OnInit {
         console.log(error.status);
         console.log(error);
       });
+  }
+
+  addAppContentViaMigration(category) {
+    console.log(category);
+    let dialogRef = this.dialog.open(ConfirmActionComponent, { disableClose: true });
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        this.loading = this.dialog.open(LoadingComponent);
+        this.token = localStorage.getItem('photoArtsAdminToken');
+        this.dataService.postData('addAppContentViaMigration',
+          {
+            "catalog_id": category.catalog_id
+          }, {
+            headers: {
+              'Authorization': 'Bearer ' + this.token
+            }
+          }).subscribe(results => {
+            if (results.code == 200) {
+              this.errorMsg = "";
+              this.showSuccess(results.message, false);
+              this.getAllCatalogs(this.subCategoryId);
+            }
+            else if (results.code == 400) {
+              this.loading.close();
+              localStorage.removeItem("photoArtsAdminToken");
+              this.router.navigate(['/admin']);
+            }
+            else if (results.code == 401) {
+              this.token = results.data.new_token;
+              localStorage.setItem("photoArtsAdminToken", this.token);
+              this.getAllCatalogs(this.subCategoryId);
+            }
+            else {
+              this.loading.close();
+              this.successMsg = "";
+              this.showError(results.message, false);
+              this.errorMsg = results.message;
+            }
+          }, error => {
+            console.log(error.status);
+            console.log(error);
+          });
+      }
+    });
   }
 
   viewCatalog(catalog) {
@@ -192,6 +237,24 @@ export class CatalogsGetComponent implements OnInit {
     this.searchTag = "";
     this.currentPage = 1;
     this.getAllCatalogs(this.categoryId);
+  }
+
+  showError(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-error'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
+  }
+
+  showSuccess(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-success'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
   }
 
   getLocalStorageData() {
