@@ -6069,6 +6069,155 @@ class AdminController extends Controller
         return $response;
     }
 
+    /* =====================================| Content Migrations |=============================================*/
+
+    /**
+     * @api {post} addAppContentViaMigration   addAppContentViaMigration
+     * @apiName addAppContentViaMigration
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "sub_category_id":1,
+     * "is_free":1,//optional
+     * "name":"Nature-2017",
+     * "is_featured":1 //compulsory
+     * }
+     * file:image.jpeg
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "sub category added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addAppContentViaMigration(Request $request)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+
+            //Log::info("Request Data:", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+
+
+
+
+                $result = DB::select('SELECT
+                              im.id,
+                              scm.sub_category_id,
+                              im.image,
+                              im.original_img,
+                              im.display_img,
+                              im.image_type,
+                              im.json_data,
+                              im.created_at,
+                              im.updated_at
+                            FROM images AS im,
+                               sub_category_catalog AS scm WHERE scm.catalog_id = im.catalog_id AND scm.catalog_id = ?', [$catalog_id]);
+
+                $sub_category_and_catalog = DB::select('SELECT
+                                                          DISTINCT scm.id,
+                                                          cm.image AS catalog_image,
+                                                          sc.image AS sub_category_image,
+                                                          scm.sub_category_id
+                                                        FROM
+                                                          sub_category_catalog AS scm,
+                                                          catalog_master AS cm,
+                                                          sub_category AS sc
+                                                          WHERE sc.id = scm.sub_category_id AND cm.id = scm.catalog_id AND scm.catalog_id = ?', [$catalog_id]);
+                foreach($sub_category_and_catalog as $key){
+
+                    if ($key->sub_category_image) {
+
+                        (new ImageController())->saveImageInToSpaces($key->sub_category_image);
+
+
+                    }
+
+                }
+
+                if (count($sub_category_and_catalog) > 0) {
+
+                    /*if ($sub_category_and_catalog[0]->sub_category_image) {
+
+                        (new ImageController())->saveImageInToSpaces($sub_category_and_catalog[0]->sub_category_image);
+
+
+                    }*/
+
+                    if ($sub_category_and_catalog[0]->catalog_image) {
+
+                        (new ImageController())->saveImageInToSpaces($sub_category_and_catalog[0]->catalog_image);
+                    }
+
+                }
+
+                foreach ($result as $key) {
+
+
+                    if ($key->image) {
+
+                        (new ImageController())->saveImageInToSpaces($key->image);
+
+
+                    }
+
+                    if ($key->original_img) {
+
+                        (new ImageController())->saveImageInToSpaces($key->original_img);
+
+
+                    }
+
+                    if ($key->display_img) {
+
+                        (new ImageController())->saveImageInToSpaces($key->display_img);
+
+
+                    }
+
+                    /*if($key->json_data){
+
+                        $data = array(json_decode($key->json_data));
+                        dd($data['image_sticker_json']);
+
+
+                    }*/
+
+                }
+
+            if (count($result) > 0) {
+
+                $response = Response::json(array('code' => 200, 'message' => 'Content uploaded successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+            } else {
+                $response = Response::json(array('code' => 201, 'message' => 'Invalid catalog id.', 'cause' => '', 'data' => json_decode('{}')));
+
+            }
+
+
+        } catch (Exception $e) {
+            Log::error("addAppContentViaMigration Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+    }
+
     /* =====================================| Redis Cache Operation |==============================================*/
 
     /**

@@ -438,7 +438,8 @@ class ImageController extends Controller
         $original_image_path = '../..'.Config::get('constant.ORIGINAL_IMAGES_DIRECTORY').$image_array;
 
         //Log::info('path : ',['path' => $image_array]);
-        if (File::exists($original_image_path)) {
+        //if (File::exists($original_image_path)) {
+        if (fopen($original_image_path, "r")) {
             //File::delete($image_path);
             unlink($original_image_path);
         }
@@ -449,14 +450,16 @@ class ImageController extends Controller
 
         $compressed_image_path = '../..'.Config::get('constant.COMPRESSED_IMAGES_DIRECTORY').$image_array;
 
-        if (File::exists($compressed_image_path)) {
+        //if (File::exists($compressed_image_path)) {
+        if (fopen($compressed_image_path, "r")) {
             //File::delete($image_path);
             unlink($compressed_image_path);
         }
 
         $thumbnail_image_path = '../..'.Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY').$image_array;
 
-        if (File::exists($thumbnail_image_path)) {
+        //if (File::exists($thumbnail_image_path)) {
+        if (fopen($thumbnail_image_path, "r")) {
             //File::delete($image_path);
             unlink($thumbnail_image_path);
         }
@@ -467,23 +470,49 @@ class ImageController extends Controller
     //unlinkImage from image_bucket
     public function saveImageInToSpaces($image)
     {
-        $base_url = (new ImageController())->getBaseUrl();
+        try
+        {
+            $base_url = (new ImageController())->getBaseUrl();
 
-        $original_sourceFile = $base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
-        $compressed_sourceFile = $base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $image;
-        $thumbnail_sourceFile = $base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image;
 
-        //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
-        $disk = Storage::disk('spaces');
-        $original_targetFile = "photoeditorlab/original/" . $image;
-        $compressed_targetFile = "photoeditorlab/compressed/" . $image;
-        $thumbnail_targetFile = "photoeditorlab/thumbnail/" . $image;
 
-        $disk->put($original_targetFile, file_get_contents($original_sourceFile),'public');
-        $disk->put($compressed_targetFile, file_get_contents($compressed_sourceFile),'public');
-        $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile),'public');
+            $original_sourceFile = $base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
+            $compressed_sourceFile = $base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $image;
+            $thumbnail_sourceFile = $base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image;
 
-        (new ImageController())->unlinkfile($image);
+            //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
+
+            $disk = Storage::disk('spaces');
+            if (fopen($original_sourceFile, "r")){
+
+                $original_targetFile = "photoeditorlab/original/" . $image;
+                $disk->put($original_targetFile, file_get_contents($original_sourceFile),'public');
+
+            }
+
+            if (fopen($compressed_sourceFile, "r")){
+
+                $compressed_targetFile = "photoeditorlab/compressed/" . $image;
+                $disk->put($compressed_targetFile, file_get_contents($compressed_sourceFile),'public');
+
+            }
+
+            if (fopen($thumbnail_sourceFile, "r")){
+
+                $thumbnail_targetFile = "photoeditorlab/thumbnail/" . $image;
+                $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile),'public');
+
+            }
+
+            (new ImageController())->unlinkfile($image);
+        }
+        catch(Exception $e)
+        {
+            Log::error("saveImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+
+        }
+
+
     }
 
 
