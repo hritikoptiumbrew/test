@@ -731,7 +731,7 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($category_img);
                 (new ImageController())->saveCompressedImage($category_img);
                 (new ImageController())->saveThumbnailImage($category_img);
-                (new ImageController())->saveImageInToSpaces($category_img);
+                //(new ImageController())->saveImageInToSpaces($category_img);
 
             }
 
@@ -811,7 +811,7 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($sub_category_img);
                 (new ImageController())->saveCompressedImage($sub_category_img);
                 (new ImageController())->saveThumbnailImage($sub_category_img);
-                (new ImageController())->saveImageInToSpaces($sub_category_img);
+                //(new ImageController())->saveImageInToSpaces($sub_category_img);
 
                 $result = DB::select('select image from sub_category where id = ?', [$sub_category_id]);
                 $image_name = $result[0]->image;
@@ -1250,7 +1250,7 @@ class AdminController extends Controller
                 (new ImageController())->saveCompressedImage($catalog_img);
                 (new ImageController())->saveThumbnailImage($catalog_img);
 
-                (new ImageController())->saveImageInToSpaces($catalog_img);
+                //(new ImageController())->saveImageInToSpaces($catalog_img);
 
             }
 
@@ -1355,7 +1355,7 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($catalog_img);
                 (new ImageController())->saveCompressedImage($catalog_img);
                 (new ImageController())->saveThumbnailImage($catalog_img);
-                (new ImageController())->saveImageInToSpaces($catalog_img);
+                //(new ImageController())->saveImageInToSpaces($catalog_img);
 
                 $result = DB::select('select image from catalog_master where id = ?', [$catalog_id]);
                 $image_name = $result[0]->image;
@@ -2036,7 +2036,7 @@ class AdminController extends Controller
 
                     (new ImageController())->saveCompressedImage($catalog_image);
                     (new ImageController())->saveThumbnailImage($catalog_image);
-                    (new ImageController())->saveImageInToSpaces($catalog_image);
+                    //(new ImageController())->saveImageInToSpaces($catalog_image);
 
 
                     DB::insert('INSERT
@@ -2116,7 +2116,7 @@ class AdminController extends Controller
                     (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
                     (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
                     (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-                    (new ImageController())->saveImageInToSpaces($original_img);
+                    //(new ImageController())->saveImageInToSpaces($original_img);
 
                 }
                 if ($request_body->hasFile('display_img')) {
@@ -2132,7 +2132,7 @@ class AdminController extends Controller
                     (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                     (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
 
-                    (new ImageController())->saveImageInToSpaces($display_img);
+                    //(new ImageController())->saveImageInToSpaces($display_img);
 
 
                 }
@@ -2218,7 +2218,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-                (new ImageController())->saveImageInToSpaces($original_img);
+                //(new ImageController())->saveImageInToSpaces($original_img);
 
             }
             if ($request_body->hasFile('display_img')) {
@@ -2234,7 +2234,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
 
-                (new ImageController())->saveImageInToSpaces($display_img);
+                //(new ImageController())->saveImageInToSpaces($display_img);
 
             }
 
@@ -2312,7 +2312,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-                (new ImageController())->saveImageInToSpaces($original_img);
+                //(new ImageController())->saveImageInToSpaces($original_img);
                 DB::beginTransaction();
                 DB::update('update images set original_img = ?,image_type = ?,created_at = ? where id = ?', [$original_img, $image_type, $created_at, $img_id]);
 
@@ -2332,7 +2332,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($display_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
-                (new ImageController())->saveImageInToSpaces($display_img);
+                //(new ImageController())->saveImageInToSpaces($display_img);
 
                 DB::update('update images set display_img = ?,image_type = ?,created_at = ? where id = ?', [$display_img, $image_type, $created_at, $img_id]);
 
@@ -2407,7 +2407,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-                (new ImageController())->saveImageInToSpaces($original_img);
+                //(new ImageController())->saveImageInToSpaces($original_img);
 
             }
             if ($request_body->hasFile('display_img')) {
@@ -2423,7 +2423,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
 
-                (new ImageController())->saveImageInToSpaces($display_img);
+                //(new ImageController())->saveImageInToSpaces($display_img);
 
             }
 
@@ -2728,7 +2728,7 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($catalog_img);
                 (new ImageController())->saveCompressedImage($catalog_img);
                 (new ImageController())->saveThumbnailImage($catalog_img);
-                (new ImageController())->saveImageInToSpaces($catalog_img);
+                //(new ImageController())->saveImageInToSpaces($catalog_img);
 
 
                 $result = DB::select('select image from images where id = ?', [$img_id]);
@@ -3508,7 +3508,7 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($app_image);
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
-                (new ImageController())->saveImageInToSpaces($app_image);
+                //(new ImageController())->saveImageInToSpaces($app_image);
 
 
             }
@@ -3526,7 +3526,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($app_logo, 'logo_file');
                 (new ImageController())->saveCompressedImage($app_logo);
                 (new ImageController())->saveThumbnailImage($app_logo);
-                (new ImageController())->saveImageInToSpaces($app_logo);
+                //(new ImageController())->saveImageInToSpaces($app_logo);
             }
 
             $data = array('name' => $name,
@@ -3580,7 +3580,7 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($app_image);
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
-                (new ImageController())->saveImageInToSpaces($app_image);
+                //(new ImageController())->saveImageInToSpaces($app_image);
 
             }
 
@@ -3598,7 +3598,7 @@ class AdminController extends Controller
                 (new ImageController())->saveCompressedImage($app_logo);
                 (new ImageController())->saveThumbnailImage($app_logo);
 
-                (new ImageController())->saveImageInToSpaces($app_logo);
+                //(new ImageController())->saveImageInToSpaces($app_logo);
 
             }
 
@@ -3774,7 +3774,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($app_image, 'file');
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
-                (new ImageController())->saveImageInToSpaces($app_image);
+                //(new ImageController())->saveImageInToSpaces($app_image);
 
                 $result = DB::select('select image from advertise_links where id = ?', [$advertise_link_id]);
                 $image_name = $result[0]->image;
@@ -3800,7 +3800,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
-                (new ImageController())->saveImageInToSpaces($logo_image);
+                //(new ImageController())->saveImageInToSpaces($logo_image);
 
                 $result = DB::select('select app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
                 $logo_image_name = $result[0]->app_logo_img;
@@ -3832,13 +3832,13 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($app_image);
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
-                (new ImageController())->saveImageInToSpaces($app_image);
+                //(new ImageController())->saveImageInToSpaces($app_image);
 
 
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
-                (new ImageController())->saveImageInToSpaces($logo_image);
+                //(new ImageController())->saveImageInToSpaces($logo_image);
 
 
                 $result = DB::select('select image,app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
@@ -3925,7 +3925,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($app_image, 'file');
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
-                (new ImageController())->saveImageInToSpaces($app_image);
+                //(new ImageController())->saveImageInToSpaces($app_image);
 
                 $result = DB::select('select image from advertise_links where id = ?', [$advertise_link_id]);
                 $image_name = $result[0]->image;
@@ -3951,7 +3951,7 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
-                (new ImageController())->saveImageInToSpaces($logo_image);
+                //(new ImageController())->saveImageInToSpaces($logo_image);
 
                 $result = DB::select('select app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
                 $logo_image_name = $result[0]->app_logo_img;
@@ -3983,12 +3983,12 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($app_image);
                 (new ImageController())->saveCompressedImage($app_image);
                 (new ImageController())->saveThumbnailImage($app_image);
-                (new ImageController())->saveImageInToSpaces($app_image);
+                //(new ImageController())->saveImageInToSpaces($app_image);
 
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
-                (new ImageController())->saveImageInToSpaces($logo_image);
+                //(new ImageController())->saveImageInToSpaces($logo_image);
 
                 $result = DB::select('select image,app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
                 $image_name = $result[0]->image;
@@ -5121,7 +5121,7 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($profile_img);
                 (new ImageController())->saveCompressedImage($profile_img);
                 (new ImageController())->saveThumbnailImage($profile_img);
-                (new ImageController())->saveImageInToSpaces($profile_img);
+                //(new ImageController())->saveImageInToSpaces($profile_img);
 
             } else {
                 $result = DB::table("user_detail")->where('user_id', $user_id)->get();
@@ -5452,7 +5452,7 @@ class AdminController extends Controller
 
                 (new ImageController())->saveCompressedImage($catalog_image);
                 (new ImageController())->saveThumbnailImage($catalog_image);
-                (new ImageController())->saveImageInToSpaces($catalog_image);
+                //(new ImageController())->saveImageInToSpaces($catalog_image);
 
 
                 DB::insert('INSERT
@@ -5565,7 +5565,7 @@ class AdminController extends Controller
 
                 (new ImageController())->saveCompressedImage($catalog_image);
                 (new ImageController())->saveThumbnailImage($catalog_image);
-                (new ImageController())->saveImageInToSpaces($catalog_image);
+                //(new ImageController())->saveImageInToSpaces($catalog_image);
 
                 //Log::info('Encoded json_data', ['json_data' => json_encode($json_data)]);
 
@@ -6115,7 +6115,7 @@ class AdminController extends Controller
 
             $catalog_id = $request->catalog_id;
 
-            //(new ImageController())->saveImageInToSpacesForMigration('5aac98f036be9_sub_category_img_1521260784.png');
+            ////(new ImageController())->saveImageInToSpacesForMigration('5aac98f036be9_sub_category_img_1521260784.png');
 
 
                 $result = DB::select('SELECT
@@ -6145,7 +6145,7 @@ class AdminController extends Controller
 
                     if ($key->sub_category_image) {
 
-                        (new ImageController())->saveImageInToSpacesForMigration($key->sub_category_image);
+                        //(new ImageController())->saveImageInToSpacesForMigration($key->sub_category_image);
 
                     }
 
@@ -6155,14 +6155,14 @@ class AdminController extends Controller
 
                     /*if ($sub_category_and_catalog[0]->sub_category_image) {
 
-                        (new ImageController())->saveImageInToSpaces($sub_category_and_catalog[0]->sub_category_image);
+                        //(new ImageController())->saveImageInToSpaces($sub_category_and_catalog[0]->sub_category_image);
 
 
                     }*/
 
                     if ($sub_category_and_catalog[0]->catalog_image) {
 
-                        (new ImageController())->saveImageInToSpacesForMigration($sub_category_and_catalog[0]->catalog_image);
+                        //(new ImageController())->saveImageInToSpacesForMigration($sub_category_and_catalog[0]->catalog_image);
                     }
 
                 }
@@ -6172,21 +6172,21 @@ class AdminController extends Controller
 
                     if ($key->image) {
 
-                        (new ImageController())->saveImageInToSpacesForMigration($key->image);
+                        //(new ImageController())->saveImageInToSpacesForMigration($key->image);
 
 
                     }
 
                     if ($key->original_img) {
 
-                        (new ImageController())->saveImageInToSpacesForMigration($key->original_img);
+                        //(new ImageController())->saveImageInToSpacesForMigration($key->original_img);
 
 
                     }
 
                     if ($key->display_img) {
 
-                        (new ImageController())->saveImageInToSpacesForMigration($key->display_img);
+                        //(new ImageController())->saveImageInToSpacesForMigration($key->display_img);
 
 
                     }

@@ -796,7 +796,7 @@ class UserController extends Controller
                 (new ImageController())->saveOriginalImage($image);
                 (new ImageController())->saveCompressedImage($image);
                 (new ImageController())->saveThumbnailImage($image);
-                (new ImageController())->saveImageInToSpaces($image);
+                //(new ImageController())->saveImageInToSpaces($image);
 
             }
 
