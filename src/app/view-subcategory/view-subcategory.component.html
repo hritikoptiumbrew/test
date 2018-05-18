@@ -32,7 +32,7 @@
     <div class="row pr-0 pl-0">
       <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of sub_category_list">
         <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
-          <img class="background-card-sticker cursor-pointer" [src]="category.compressed_img" (click)="dataService.viewImage(category.original_img)"
+          <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img" (click)="dataService.viewImage(category.original_img)"
             alt="thumbnail image">
           <div class="row title-bar pt-2 pb-2 font-18 align-middle">
             <div class="col-12">
