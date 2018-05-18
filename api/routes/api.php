@@ -47,6 +47,8 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
 
     Route::post('changePassword', 'LoginController@changePassword');
 
+    Route::post('addAppContentViaMigration', 'AdminController@addAppContentViaMigration');
+
     //Promo code
     Route::post('addPromoCode', 'AdminController@addPromoCode');
     Route::post('getAllPromoCode', 'AdminController@getAllPromoCode');
