@@ -433,36 +433,44 @@ class ImageController extends Controller
     //unlinkImage from image_bucket
     public function unlinkfile($image_array)
     {
-        //$bg_image = $image_array->getClientOriginalName();
+        try{
 
-        $original_image_path = '../..'.Config::get('constant.ORIGINAL_IMAGES_DIRECTORY').$image_array;
+            //$bg_image = $image_array->getClientOriginalName();
 
-        //Log::info('path : ',['path' => $image_array]);
-        //if (File::exists($original_image_path)) {
-        if (fopen($original_image_path, "r")) {
-            //File::delete($image_path);
-            unlink($original_image_path);
+            $original_image_path = '../..'.Config::get('constant.ORIGINAL_IMAGES_DIRECTORY').$image_array;
+
+            //Log::info('path : ',['path' => $image_array]);
+            //if (File::exists($original_image_path)) {
+            if (fopen($original_image_path, "r")) {
+                //File::delete($image_path);
+                unlink($original_image_path);
+            }
+            else
+            {
+                return 1;
+            }
+
+            $compressed_image_path = '../..'.Config::get('constant.COMPRESSED_IMAGES_DIRECTORY').$image_array;
+
+            //if (File::exists($compressed_image_path)) {
+            if (fopen($compressed_image_path, "r")) {
+                //File::delete($image_path);
+                unlink($compressed_image_path);
+            }
+
+            $thumbnail_image_path = '../..'.Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY').$image_array;
+
+            //if (File::exists($thumbnail_image_path)) {
+            if (fopen($thumbnail_image_path, "r")) {
+                //File::delete($image_path);
+                unlink($thumbnail_image_path);
+            }
+
         }
-        else
-        {
-            return 1;
+        catch(Exception $e){
+
         }
 
-        $compressed_image_path = '../..'.Config::get('constant.COMPRESSED_IMAGES_DIRECTORY').$image_array;
-
-        //if (File::exists($compressed_image_path)) {
-        if (fopen($compressed_image_path, "r")) {
-            //File::delete($image_path);
-            unlink($compressed_image_path);
-        }
-
-        $thumbnail_image_path = '../..'.Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY').$image_array;
-
-        //if (File::exists($thumbnail_image_path)) {
-        if (fopen($thumbnail_image_path, "r")) {
-            //File::delete($image_path);
-            unlink($thumbnail_image_path);
-        }
 
 
     }
