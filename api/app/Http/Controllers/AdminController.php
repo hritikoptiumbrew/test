@@ -6115,7 +6115,7 @@ class AdminController extends Controller
 
             $catalog_id = $request->catalog_id;
 
-
+            //(new ImageController())->saveImageInToSpacesForMigration('5aac98f036be9_sub_category_img_1521260784.png');
 
 
                 $result = DB::select('SELECT
@@ -6145,8 +6145,7 @@ class AdminController extends Controller
 
                     if ($key->sub_category_image) {
 
-                        (new ImageController())->saveImageInToSpaces($key->sub_category_image);
-
+                        (new ImageController())->saveImageInToSpacesForMigration($key->sub_category_image);
 
                     }
 
@@ -6163,7 +6162,7 @@ class AdminController extends Controller
 
                     if ($sub_category_and_catalog[0]->catalog_image) {
 
-                        (new ImageController())->saveImageInToSpaces($sub_category_and_catalog[0]->catalog_image);
+                        (new ImageController())->saveImageInToSpacesForMigration($sub_category_and_catalog[0]->catalog_image);
                     }
 
                 }
@@ -6173,21 +6172,21 @@ class AdminController extends Controller
 
                     if ($key->image) {
 
-                        (new ImageController())->saveImageInToSpaces($key->image);
+                        (new ImageController())->saveImageInToSpacesForMigration($key->image);
 
 
                     }
 
                     if ($key->original_img) {
 
-                        (new ImageController())->saveImageInToSpaces($key->original_img);
+                        (new ImageController())->saveImageInToSpacesForMigration($key->original_img);
 
 
                     }
 
                     if ($key->display_img) {
 
-                        (new ImageController())->saveImageInToSpaces($key->display_img);
+                        (new ImageController())->saveImageInToSpacesForMigration($key->display_img);
 
 
                     }

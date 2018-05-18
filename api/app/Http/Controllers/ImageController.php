@@ -523,6 +523,57 @@ class ImageController extends Controller
 
     }
 
+    //unlinkImage from image_bucket
+    public function saveImageInToSpacesForMigration($image)
+    {
+        try
+        {
+            //$base_url = (new ImageController())->getBaseUrl();
+            $base_url = 'http://138.197.11.186/ob_photolab_backend';
+
+
+
+            $original_sourceFile = $base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
+            $compressed_sourceFile = $base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $image;
+            $thumbnail_sourceFile = $base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image;
+
+
+
+            //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
+
+            $disk = Storage::disk('spaces');
+            if (fopen($original_sourceFile, "r")){
+
+                $original_targetFile = "photoeditorlab/original/" . $image;
+                $disk->put($original_targetFile, file_get_contents($original_sourceFile),'public');
+
+            }
+
+            if (fopen($compressed_sourceFile, "r")){
+
+                $compressed_targetFile = "photoeditorlab/compressed/" . $image;
+                $disk->put($compressed_targetFile, file_get_contents($compressed_sourceFile),'public');
+
+            }
+
+            if (fopen($thumbnail_sourceFile, "r")){
+
+                $thumbnail_targetFile = "photoeditorlab/thumbnail/" . $image;
+                $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile),'public');
+
+            }
+
+            (new ImageController())->unlinkfile($image);
+        }
+        catch(Exception $e)
+        {
+            Log::error("saveImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+
+        }
+
+
+    }
+
 
 
 }
