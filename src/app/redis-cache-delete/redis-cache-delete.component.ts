@@ -41,7 +41,7 @@ export class RedisCacheDeleteComponent {
         }
         else {
           this.dialogRef.close();
-          console.log(results.message);
+          /* console.log(results.message); */
         }
       });
   }

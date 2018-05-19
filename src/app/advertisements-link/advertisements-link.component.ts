@@ -32,7 +32,7 @@ export class AdvertisementsLinkComponent implements OnInit {
   }
 
   getAllSubCategoryWithLinkDetails(advertisement_data, selected_sub_catagory) {
-    console.log(advertisement_data, selected_sub_catagory);
+    /* console.log(advertisement_data, selected_sub_catagory); */
     this.errorMsg = "";
     this.successMsg = "";
     this.dataService.postData('getAllAdvertisementToLinkAdvertisement',
@@ -79,7 +79,7 @@ export class AdvertisementsLinkComponent implements OnInit {
   }
 
   linkCatalogWithSubCategory(selected_sub_catagory, API_NAME, advertisement_details) {
-    console.log(selected_sub_catagory, API_NAME, advertisement_details);
+    /* console.log(selected_sub_catagory, API_NAME, advertisement_details); */
     this.errorMsg = "";
     this.successMsg = "";
     this.loading = this.dialog.open(LoadingComponent);

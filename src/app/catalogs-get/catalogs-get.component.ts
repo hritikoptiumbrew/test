@@ -104,13 +104,13 @@ export class CatalogsGetComponent implements OnInit {
           this.errorMsg = results.message;
         }
       }, error => {
-        console.log(error.status);
-        console.log(error);
+        /* console.log(error.status); */
+        /* console.log(error); */
       });
   }
 
   addAppContentViaMigration(category) {
-    console.log(category);
+    /* console.log(category); */
     let dialogRef = this.dialog.open(ConfirmActionComponent, { disableClose: true });
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
@@ -146,8 +146,8 @@ export class CatalogsGetComponent implements OnInit {
               this.errorMsg = results.message;
             }
           }, error => {
-            console.log(error.status);
-            console.log(error);
+            /* console.log(error.status); */
+            /* console.log(error); */
           });
       }
     });

@@ -108,8 +108,8 @@ export class UserGeneratedDesignsComponent implements OnInit {
           this.errorMsg = results.message;
         }
       }, error => {
-        console.log(error.status);
-        console.log(error);
+        /* console.log(error.status); */
+        /* console.log(error); */
       });
   }
 
@@ -122,7 +122,7 @@ export class UserGeneratedDesignsComponent implements OnInit {
   }
 
   deleteUserFeeds(category, API_NAME) {
-    console.log(category.user_feeds_id);
+    /* console.log(category.user_feeds_id); */
     let tmp_request_data = {
       "user_feeds_id": category.user_feeds_id
     };

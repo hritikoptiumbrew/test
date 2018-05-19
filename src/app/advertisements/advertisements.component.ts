@@ -96,8 +96,8 @@ export class AdvertisementsComponent implements OnInit {
           this.errorMsg = results.message;
         }
       }, error => {
-        console.log(error.status);
-        console.log(error);
+        /* console.log(error.status); */
+        /* console.log(error); */
       });
   }
 
@@ -113,8 +113,8 @@ export class AdvertisementsComponent implements OnInit {
   }
 
   getAllAdvertisementToLinkAdvertisement(sub_category_id, platform) {
-    console.log(sub_category_id);
-    console.log(platform);
+    /* console.log(sub_category_id); */
+    /* console.log(platform); */
     let dialogRef = this.dialog.open(AdvertisementsLinkComponent);
     let selected_sub_catagory = JSON.parse(localStorage.getItem("selected_sub_catagory"));
     dialogRef.componentInstance.selected_sub_catagory = selected_sub_catagory;

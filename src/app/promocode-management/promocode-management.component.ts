@@ -124,8 +124,8 @@ export class PromocodeManagementComponent implements OnInit {
           this.errorMsg = results.message;
         }
       }, error => {
-        console.log(error.status);
-        console.log(error);
+        /* console.log(error.status); */
+        /* console.log(error); */
       });
   }
 

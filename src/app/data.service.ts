@@ -26,7 +26,7 @@ export class DataService {
     return this.http.post(HOST.BASE_URL + q, object, headers)
       .map((results: Response) => {
         if (results.status < 200 || results.status >= 300) {
-          console.log("in result.status<200||result.status>300...");
+          /* console.log("in result.status<200||result.status>300..."); */
           throw new Error('This request has failed ' + results.status);
         }
         else {

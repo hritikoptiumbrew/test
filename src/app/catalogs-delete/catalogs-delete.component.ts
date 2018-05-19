@@ -40,7 +40,7 @@ export class CatalogsDeleteComponent {
           this.deleteCatalog(catalog_id);
         }
         else {
-          console.log(results.message);
+          /* console.log(results.message); */
         }
       });
   }

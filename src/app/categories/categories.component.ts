@@ -67,8 +67,8 @@ export class CategoriesComponent implements OnInit {
           this.errorMsg = results.message;
         }
       }, error => {
-        console.log(error.status);
-        console.log(error);
+        /* console.log(error.status); */
+        /* console.log(error); */
       });
   }
 
@@ -108,7 +108,7 @@ export class CategoriesComponent implements OnInit {
   }
 
   itemPerPageChanged(itemsPerPage) {
-    console.log(itemsPerPage);
+    /* console.log(itemsPerPage); */
   }
 
   searchData(searchQuery) {

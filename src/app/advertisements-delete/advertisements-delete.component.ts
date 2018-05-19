@@ -39,7 +39,7 @@ export class AdvertisementsDeleteComponent {
           this.deleteAd(advertise_link_id);
         }
         else {
-          console.log(results.message);
+          /* console.log(results.message); */
         }
       });
   }

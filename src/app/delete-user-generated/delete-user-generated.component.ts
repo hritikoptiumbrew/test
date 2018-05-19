@@ -51,7 +51,7 @@ export class DeleteUserGeneratedComponent implements OnInit {
         else {
           this.loading.close();
           this.dialogRef.close();
-          console.log(results.message);
+          /* console.log(results.message); */
         }
       });
   }

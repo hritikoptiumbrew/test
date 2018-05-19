@@ -126,8 +126,8 @@ export class UsersPremiumComponent implements OnInit {
           this.loading.close();
         }
       }, error => {
-        console.log(error.status);
-        console.log(error);
+        /* console.log(error.status); */
+        /* console.log(error); */
       });
   }
 

@@ -40,7 +40,7 @@ export class DeleteSubCategoryByCategoryIdComponent {
           this.deleteSubCategory(sub_category_id);
         }
         else {
-          console.log(results.message);
+          /* console.log(results.message); */
         }
       });
   }

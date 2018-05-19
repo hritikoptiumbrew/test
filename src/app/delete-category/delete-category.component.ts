@@ -39,7 +39,7 @@ export class DeleteCategoryComponent {
           this.deleteCategory(category_id);
         }
         else {
-          console.log(results.message);
+          /* console.log(results.message); */
         }
       });
   }

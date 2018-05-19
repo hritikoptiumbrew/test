@@ -32,7 +32,7 @@ export class UpdateJsonDataComponent implements OnInit {
   ngOnInit() {
     this.token = localStorage.getItem('photoArtsAdminToken');
     this.catalog_data.json_data = JSON.stringify(this.catalog_data.json_data);
-    console.log(this.catalog_data);
+    /* console.log(this.catalog_data); */
   }
 
   onImageClicked(event) {

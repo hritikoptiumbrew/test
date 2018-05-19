@@ -30,7 +30,7 @@ export class AddJsonDataComponent implements OnInit {
 
   ngOnInit() {
     this.token = localStorage.getItem('photoArtsAdminToken');
-    console.log(this.catalog_data);
+    /* console.log(this.catalog_data); */
   }
 
   onImageClicked(event) {
@@ -81,9 +81,9 @@ export class AddJsonDataComponent implements OnInit {
     else {
       this.errorMsg = "";
       this.loading = this.dialog.open(LoadingComponent);
-      console.log(catalog_data_tmp.json_data);
+      /* console.log(catalog_data_tmp.json_data); */
       catalog_data_tmp.json_data = JSON.parse(catalog_data_tmp.json_data);
-      console.log(catalog_data_tmp.json_data);
+      /* console.log(catalog_data_tmp.json_data); */
       let request_data = {
         "is_free": catalog_data_tmp.is_free,
         "is_featured": catalog_data_tmp.is_featured,
