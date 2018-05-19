@@ -5335,7 +5335,7 @@ class AdminController extends Controller
                     $resourceFile = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
 
 
-                    //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
+                    /*//return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
                     $disk = Storage::disk('spaces');
                     //Storage::delete(public_path($path));
 
@@ -5343,7 +5343,7 @@ class AdminController extends Controller
                     $resourceFile_targetFile = "photoeditorlab/resource/" . $bg_image;
 
                     $disk->delete(public_path($resourceFile_targetFile));
-                    $disk->put($resourceFile_targetFile, file_get_contents($resourceFile), 'public');
+                    $disk->put($resourceFile_targetFile, file_get_contents($resourceFile), 'public');*/
 
                     //(new ImageController())->unlinkfile($bg_image);
                 }

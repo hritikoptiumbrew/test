@@ -174,7 +174,7 @@ class UserController extends Controller
                     if ($this->catalog_id == 0) {
                         $result = DB::select('SELECT
                                                   id as json_id,
-                                                  IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                                  IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                   is_free,
                                                   is_featured,
                                                   is_portrait
@@ -187,7 +187,7 @@ class UserController extends Controller
                     } else {
                         $result = DB::select('SELECT
                                                id as json_id,
-                                               IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                               IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                is_free,
                                                is_featured,
                                                is_portrait
@@ -602,7 +602,7 @@ class UserController extends Controller
                     if ($this->catalog_id == 0) {
                         $result = DB::select('SELECT
                                                   id as json_id,
-                                                  IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                                  IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                   is_free,
                                                   is_featured,
                                                   is_portrait
@@ -617,7 +617,7 @@ class UserController extends Controller
                     } else {
                         $result = DB::select('SELECT
                                                id as json_id,
-                                               IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                               IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                is_free,
                                                is_featured,
                                                is_portrait
