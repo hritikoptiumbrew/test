@@ -174,7 +174,7 @@ class UserController extends Controller
                     if ($this->catalog_id == 0) {
                         $result = DB::select('SELECT
                                                   id as json_id,
-                                                  IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                                  IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                   is_free,
                                                   is_featured,
                                                   is_portrait
@@ -187,7 +187,7 @@ class UserController extends Controller
                     } else {
                         $result = DB::select('SELECT
                                                id as json_id,
-                                               IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                               IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                is_free,
                                                is_featured,
                                                is_portrait
@@ -602,7 +602,7 @@ class UserController extends Controller
                     if ($this->catalog_id == 0) {
                         $result = DB::select('SELECT
                                                   id as json_id,
-                                                  IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                                  IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                   is_free,
                                                   is_featured,
                                                   is_portrait
@@ -617,7 +617,7 @@ class UserController extends Controller
                     } else {
                         $result = DB::select('SELECT
                                                id as json_id,
-                                               IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                               IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                is_free,
                                                is_featured,
                                                is_portrait
@@ -796,7 +796,7 @@ class UserController extends Controller
                 (new ImageController())->saveOriginalImage($image);
                 (new ImageController())->saveCompressedImage($image);
                 (new ImageController())->saveThumbnailImage($image);
-                (new ImageController())->saveImageInToSpaces($image);
+                //(new ImageController())->saveImageInToSpaces($image);
 
             }
 
@@ -1068,6 +1068,80 @@ class UserController extends Controller
         } catch (Exception $e) {
             Log::error("deleteAllUserFeeds Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete all image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getDeletedCatalogId   getDeletedCatalogId
+     * @apiName getDeletedCatalogId
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "catalog_id_list":[ //compulsory
+     * 75,
+     * 76
+     * ]
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Deleted catalog id fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "catalog_id_list": [
+     * 75,
+     * 76
+     * ]
+     * }
+     * }
+     */
+    public function getDeletedCatalogId(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            $catalog_id_list = $request->catalog_id_list;
+            $new_array = array();
+            foreach ($catalog_id_list as $key) {
+
+                $result = DB::select('SELECT id AS catalog_id
+                                        FROM
+                                          catalog_master
+                                        WHERE
+                                          is_featured = 1 AND
+                                          id = ?', [$key]);
+
+                if (count($result) == 0) {
+                    $new_array[] = $key;
+                }
+            }
+
+            $result_array = array('catalog_id_list' => $new_array);
+            $result = json_decode(json_encode($result_array), true);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Deleted catalog id fetched successfully.', 'cause' => '', 'data' => $result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+
+            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch
+        (Exception $e) {
+            Log::error("getDeletedCatalogId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalog json id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
