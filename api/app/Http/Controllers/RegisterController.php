@@ -89,7 +89,7 @@ class RegisterController extends Controller
             //Log::info('registerUserDeviceByDeviceUdid', ['total device having udid from request' => sizeof($result)]);
             if (sizeof($result) == 0) {
                 //Log::info('registerUserDeviceByDeviceUdid', ['device_reg_id' => $device_reg_id]);
-                DB::insert('INSERT INTO device_master
+                /*DB::insert('INSERT INTO device_master
                             (sub_category_id,
                             user_id,
                             device_reg_id,
@@ -125,12 +125,12 @@ class RegisterController extends Controller
                         $device_application_version,
                         $device_type,
                         $device_registration_date
-                    ]);
+                    ]);*/
             } else {
-                DB::update('UPDATE device_master
+                /*DB::update('UPDATE device_master
                             SET device_reg_id = ?
                                 WHERE device_udid = ? AND sub_category_id = ?',
-                    [$device_reg_id, $device_udid, $sub_category_id]);
+                    [$device_reg_id, $device_udid, $sub_category_id]);*/
             }
 
             DB::commit();

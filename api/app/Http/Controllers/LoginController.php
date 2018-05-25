@@ -368,11 +368,11 @@ class LoginController extends Controller
             $device_result = DB::select('SELECT device_id FROM device_master WHERE  device_udid = ?', [$device_udid]);
 
             if (count($device_result) != 0) {
-                DB::update('UPDATE device_master SET device_reg_id = ? WHERE device_udid = ? AND sub_category_id = ?',
-                    [$device_reg_id, $device_udid,$sub_category_id]);
+                /*DB::update('UPDATE device_master SET device_reg_id = ? WHERE device_udid = ? AND sub_category_id = ?',
+                    [$device_reg_id, $device_udid,$sub_category_id]);*/
                 $response = $device_result[0]->device_id;
             } else {
-                $results = DB::table('device_master')->insertGetId(
+                $results = '';/*DB::table('device_master')->insertGetId(
                     array( //'user_id' => $user_id,
                         'sub_category_id' => $sub_category_id,
                         'device_reg_id' => $device_reg_id,
@@ -389,7 +389,7 @@ class LoginController extends Controller
                         'device_application_version' => $device_application_version,
                         'device_type' => $device_type,
                         'device_registration_date' => $device_registration_date)
-                );
+                );*/
                 $response = $results;
                 //Log::info($response);
             }
