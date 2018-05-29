@@ -669,6 +669,7 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
+     * "device_info":"", //optional
      * "json_id_list":[
      * 101,
      * 102,
@@ -705,30 +706,43 @@ class UserController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            $json_id_list = $request->json_id_list;
-            $new_array = array();
 
-            //Log::debug('request of getDeletedJsonId : ',[$request]);
+            if($request != NULL)
+            {
+                $json_id_list = $request->json_id_list;
+                $new_array = array();
 
-            foreach ($json_id_list as $key) {
+                //Log::info('Request data of getDeletedJsonId :',['request' => $request]);
 
-                $result = DB::select('SELECT id AS json_id
+
+                foreach ($json_id_list as $key) {
+
+                    $result = DB::select('SELECT id AS json_id
                                                     FROM images
                                                     WHERE id = ?', [$key]);
 
-                if (count($result) == 0) {
-                    $new_array[] = $key;
+                    if (count($result) == 0) {
+                        $new_array[] = $key;
+                    }
                 }
+
+                $result_array = array('json_id_list' => $new_array);
+                $result = json_decode(json_encode($result_array), true);
+
+                $response = Response::json(array('code' => 200, 'message' => 'Deleted json id fetched successfully.', 'cause' => '', 'data' => $result));
+
+
+                //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
+            }
+            else
+            {
+                $response = Response::json(array('code' => 201, 'message' => 'Invalid request parameter.', 'cause' => '', 'data' => json_decode("{}")));
+
             }
 
-            $result_array = array('json_id_list' => $new_array);
-            $result = json_decode(json_encode($result_array), true);
-
-            $response = Response::json(array('code' => 200, 'message' => 'Deleted json id fetched successfully.', 'cause' => '', 'data' => $result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
-
-            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
@@ -1085,6 +1099,7 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
+     * "device_info":"", //optional
      * "catalog_id_list":[ //compulsory
      * 75,
      * 76
@@ -1113,30 +1128,44 @@ class UserController extends Controller
 
             $request = json_decode($request_body->getContent());
 
-            $catalog_id_list = $request->catalog_id_list;
-            $new_array = array();
-            foreach ($catalog_id_list as $key) {
+            if($request != NULL)
+            {
 
-                $result = DB::select('SELECT id AS catalog_id
+                $catalog_id_list = $request->catalog_id_list;
+                //Log::info('Request data of getDeletedCatalogId :',['request' => $request]);
+
+                $new_array = array();
+                foreach ($catalog_id_list as $key) {
+
+                    $result = DB::select('SELECT id AS catalog_id
                                         FROM
                                           catalog_master
                                         WHERE
                                           is_featured = 1 AND
                                           id = ?', [$key]);
 
-                if (count($result) == 0) {
-                    $new_array[] = $key;
+                    if (count($result) == 0) {
+                        $new_array[] = $key;
+                    }
                 }
+
+                $result_array = array('catalog_id_list' => $new_array);
+                $result = json_decode(json_encode($result_array), true);
+
+                $response = Response::json(array('code' => 200, 'message' => 'Deleted catalog id fetched successfully.', 'cause' => '', 'data' => $result));
+
+
+                //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
             }
+            else
+            {
+                $response = Response::json(array('code' => 201, 'message' => 'Invalid request parameter.', 'cause' => '', 'data' => json_decode("{}")));
 
-            $result_array = array('catalog_id_list' => $new_array);
-            $result = json_decode(json_encode($result_array), true);
-
-            $response = Response::json(array('code' => 200, 'message' => 'Deleted catalog id fetched successfully.', 'cause' => '', 'data' => $result));
+            }
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
 
-            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
