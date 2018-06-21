@@ -5740,7 +5740,7 @@ class AdminController extends Controller
                     DB::update('UPDATE
                                 images SET attribute1 = ?
                                 WHERE id = ?', [$file_name, $img_id]);
-                    Log::info('file already exist1');
+
 
                 }
 
