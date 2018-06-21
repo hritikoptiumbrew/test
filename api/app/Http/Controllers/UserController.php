@@ -657,6 +657,116 @@ class UserController extends Controller
         return $response;
     }
 
+    public function getJsonSampleDataWithLastSyncTime_webp(Request $request_body)
+    {
+
+        try {
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'catalog_id', 'page', 'item_count', 'last_sync_time'), $request)) != '')
+                return $response;
+
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $this->catalog_id = $request->catalog_id;
+            $this->sub_category_id = $request->sub_category_id;
+            $this->last_sync_date = $request->last_sync_time;
+
+            $this->item_count = $request->item_count;
+            $this->page = $request->page;
+            $this->order_by = isset($request->order_by) ? $request->order_by : 'size';
+            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            if ($this->catalog_id == 0) {
+                $total_row_result = DB::select('SELECT COUNT(*) AS total
+                                                    FROM images
+                                                    WHERE catalog_id IN (SELECT catalog_id
+                                                                     FROM sub_category_catalog
+                                                                     WHERE sub_category_id = ?) AND is_featured = 1 and updated_at >= ?', [$this->sub_category_id, $request->last_sync_time]);
+                $total_row = $total_row_result[0]->total;
+            } else {
+                $total_row_result = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $request->last_sync_time]);
+                $total_row = $total_row_result[0]->total;
+            }
+
+            $last_created_record = DB::select('SELECT updated_at FROM images WHERE catalog_id = ? ORDER BY updated_at DESC LIMIT 1', [$this->catalog_id]);
+
+            if (count($last_created_record) >= 1) {
+                $last_sync_time = $last_created_record[0]->updated_at;
+
+            } else {
+                $last_sync_time = date("Y-m-d H:i:s");
+            }
+
+
+            //Log::info('request_data', ['request_data' => $request]);
+
+            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
+                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+
+                    if ($this->catalog_id == 0) {
+                        $result = DB::select('SELECT
+                                                  id as json_id,
+                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                                  is_free,
+                                                  is_featured,
+                                                  is_portrait
+                                                FROM
+                                                  images
+                                                WHERE
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ?) and
+                                                  is_featured = 1 AND
+                                                  updated_at >= ?
+                                                order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+                    } else {
+                        $result = DB::select('SELECT
+                                               id as json_id,
+                                               IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                               is_free,
+                                               is_featured,
+                                               is_portrait
+                                                FROM
+                                                images
+                                                WHERE
+                                                catalog_id = ? AND
+                                                updated_at >= ?
+                                                order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+
+
+                    }
+
+                    return $result;
+                });
+            }
+
+            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+            $response = Response::json(array('code' => 200, 'message' => 'All json fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'last_sync_time' => $last_sync_time, 'data' => $redis_result]));
+            //$response = Response::json(array('code' => 200, 'message' => 'Sample images fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+
+            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch
+        (Exception $e) {
+            Log::error("getJsonSampleDataWithLastSyncTime_webp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get json data with last_sync_time.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     /**
      * @api {post} getDeletedJsonId   getDeletedJsonId
      * @apiName getDeletedJsonId

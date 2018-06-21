@@ -110,7 +110,30 @@ class ImageController extends Controller
         Input::file('file')->move($original_path, $img);
         $path = $original_path.$img;
         $this->saveImageDetails($path,'original');
+        $original_img_size = filesize($path);
 
+        //convert image into .webp format
+        $file_data = pathinfo(basename($path));
+        $webp_name = $file_data['filename'];
+        $webp_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY').$webp_name.'.webp';
+        $webp = Image::make($path);
+        $webp->save($webp_path, 75);
+        $webp_img_size = $webp->filesize();
+
+
+        if($webp_img_size > $original_img_size){
+
+            unlink($webp_path);
+            $webp_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY').$img;
+            File::copy($path,$webp_path);
+            return $img;
+
+        }
+        else
+        {
+            return $webp_name.'.webp';
+
+        }
 
     }
 // Save encoded Image
@@ -190,6 +213,14 @@ class ImageController extends Controller
 
             //use for Image Details
             $this->saveImageDetails($thumbnail_path,'thumbnail');
+
+            $file_data = pathinfo(basename($thumbnail_path));
+            //convert image into .webp format
+            $webp_name = $file_data['filename'];
+            $webp = Image::make($thumbnail_path);
+            $webp_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY').$webp_name.'.webp';
+            $webp->save($webp_path, 75);
+
 
         }catch (Exception $e){
             $dest1 = '../..'.Config::get('constant.ORIGINAL_IMAGES_DIRECTORY').$professional_img;
@@ -571,6 +602,37 @@ class ImageController extends Controller
 
         }
 
+
+    }
+
+    // Save webp Image
+    public function saveWebpImage($img){
+        $original_path = '../..'.Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+        $path = $original_path.$img;
+        $original_img_size = filesize($path);
+
+        //convert image into .webp format
+        $file_data = pathinfo(basename($path));
+        $webp_name = $file_data['filename'];
+        $webp_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY').$webp_name.'.webp';
+        $webp = Image::make($path);
+        $webp->save($webp_path, 75);
+        $webp_img_size = $webp->filesize();
+
+
+        if($webp_img_size > $original_img_size){
+
+            unlink($webp_path);
+            $webp_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY').$img;
+            File::copy($path,$webp_path);
+            return $img;
+
+        }
+        else
+        {
+            return $webp_name.'.webp';
+
+        }
 
     }
 

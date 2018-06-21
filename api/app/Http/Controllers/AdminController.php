@@ -5445,6 +5445,81 @@ class AdminController extends Controller
                     return $response;
 
                 $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
+                $file_name = (new ImageController())->saveOriginalImage($catalog_image);
+
+                /*$original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+                $image_array->move($original_path, $catalog_image);*/
+
+                (new ImageController())->saveCompressedImage($catalog_image);
+                (new ImageController())->saveThumbnailImage($catalog_image);
+                //(new ImageController())->saveImageInToSpaces($catalog_image);
+
+
+                DB::insert('INSERT
+                                INTO
+                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at, $file_name]);
+
+
+                DB::commit();
+            }
+
+            if (strstr($file_name, '.webp')) {
+
+                $response = Response::json(array('code' => 200, 'message' => 'Json added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+
+            } else {
+                $response = Response::json(array('code' => 200, 'message' => 'Json added successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' => json_decode('{}')));
+
+            }
+
+
+        } catch
+        (Exception $e) {
+            Log::error("addJson Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function addJsonOld(Request $request_body)
+    {
+
+        try {
+            $request = json_decode($request_body->input('request_data'));
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free'), $request)) != '')
+                return $response;
+
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $catalog_id = $request->catalog_id;
+            //dd($json_list);
+
+            $json_data = $request->json_data;
+            $is_free = $request->is_free;
+            $is_featured = $request->is_featured;
+            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
+            $created_at = date('Y-m-d H:i:s');
+
+            //Log::info('request_data', ['request_data' => $request]);
+
+
+            DB::beginTransaction();
+            if (!$request_body->hasFile('file')) {
+                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+
+                $image_array = Input::file('file');
+                //return $images_array;
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
                 //(new ImageController())->saveOriginalImage($background_img);
 
                 $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
@@ -5525,6 +5600,75 @@ class AdminController extends Controller
      * "data": {}
      * }
      */
+    public function editJsonDataOld(Request $request_body)
+    {
+
+        try {
+            $request = json_decode($request_body->input('request_data'));
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('is_featured', 'is_free', 'img_id'), $request)) != '')
+                return $response;
+
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            //$catalog_id = $request->catalog_id;
+            //dd($json_list);
+            $img_id = $request->img_id;
+            $json_data = isset($request->json_data) ? $request->json_data : '';
+            $is_free = $request->is_free;
+            $is_featured = $request->is_featured;
+            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
+            $created_at = date('Y-m-d H:i:s');
+
+            //Log::info('request_data', ['request_data' => $request]);
+
+
+            DB::beginTransaction();
+            if ($request_body->hasFile('file')) {
+                $image_array = Input::file('file');
+                //return $images_array;
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
+                (new ImageController())->saveOriginalImage($catalog_image);
+
+                /*$original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+                $image_array->move($original_path, $catalog_image);*/
+
+                (new ImageController())->saveCompressedImage($catalog_image);
+                (new ImageController())->saveThumbnailImage($catalog_image);
+                //(new ImageController())->saveImageInToSpaces($catalog_image);
+
+                //Log::info('Encoded json_data', ['json_data' => json_encode($json_data)]);
+
+                DB::update('UPDATE
+                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
+
+            } else {
+
+                DB::update('UPDATE
+                                images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
+                                WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
+
+
+            }
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch
+        (Exception $e) {
+            Log::error("editJsonData Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     public function editJsonData(Request $request_body)
     {
 
@@ -5558,10 +5702,10 @@ class AdminController extends Controller
                     return $response;
 
                 $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
-                //(new ImageController())->saveOriginalImage($background_img);
+                $file_name = (new ImageController())->saveOriginalImage($catalog_image);
 
-                $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-                $image_array->move($original_path, $catalog_image);
+                /*$original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+                $image_array->move($original_path, $catalog_image);*/
 
                 (new ImageController())->saveCompressedImage($catalog_image);
                 (new ImageController())->saveThumbnailImage($catalog_image);
@@ -5569,21 +5713,49 @@ class AdminController extends Controller
 
                 //Log::info('Encoded json_data', ['json_data' => json_encode($json_data)]);
 
-                DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
 
+                DB::update('UPDATE
+                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $file_name, $img_id]);
+                DB::commit();
+
+                if (strstr($file_name, '.webp')) {
+
+                    $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+
+                } else {
+                    $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' => json_decode('{}')));
+
+                }
             } else {
+
+                $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND attribute1 IS NULL', [$img_id]);
+                DB::beginTransaction();
+                if (count($is_exist) > 0) {
+
+
+                    $file_name = (new ImageController())->saveWebpImage($is_exist[0]->image);
+
+                    DB::update('UPDATE
+                                images SET attribute1 = ?
+                                WHERE id = ?', [$file_name, $img_id]);
+                    Log::info('file already exist1');
+
+                }
+
 
                 DB::update('UPDATE
                                 images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
                                 WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
 
+                DB::commit();
+
+                $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
             }
             DB::commit();
 
-            $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
@@ -6118,7 +6290,7 @@ class AdminController extends Controller
             ////(new ImageController())->saveImageInToSpacesForMigration('5aac98f036be9_sub_category_img_1521260784.png');
 
 
-                $result = DB::select('SELECT
+            $result = DB::select('SELECT
                               im.id,
                               scm.sub_category_id,
                               im.image,
@@ -6131,7 +6303,7 @@ class AdminController extends Controller
                             FROM images AS im,
                                sub_category_catalog AS scm WHERE scm.catalog_id = im.catalog_id AND scm.catalog_id = ?', [$catalog_id]);
 
-                $sub_category_and_catalog = DB::select('SELECT
+            $sub_category_and_catalog = DB::select('SELECT
                                                           DISTINCT scm.id,
                                                           cm.image AS catalog_image,
                                                           sc.image AS sub_category_image,
@@ -6141,65 +6313,65 @@ class AdminController extends Controller
                                                           catalog_master AS cm,
                                                           sub_category AS sc
                                                           WHERE sc.id = scm.sub_category_id AND cm.id = scm.catalog_id AND scm.catalog_id = ?', [$catalog_id]);
-                foreach($sub_category_and_catalog as $key){
+            foreach ($sub_category_and_catalog as $key) {
 
-                    if ($key->sub_category_image) {
+                if ($key->sub_category_image) {
 
-                        //(new ImageController())->saveImageInToSpacesForMigration($key->sub_category_image);
-
-                    }
+                    //(new ImageController())->saveImageInToSpacesForMigration($key->sub_category_image);
 
                 }
 
-                if (count($sub_category_and_catalog) > 0) {
+            }
 
-                    /*if ($sub_category_and_catalog[0]->sub_category_image) {
+            if (count($sub_category_and_catalog) > 0) {
 
-                        //(new ImageController())->saveImageInToSpaces($sub_category_and_catalog[0]->sub_category_image);
+                /*if ($sub_category_and_catalog[0]->sub_category_image) {
+
+                    //(new ImageController())->saveImageInToSpaces($sub_category_and_catalog[0]->sub_category_image);
 
 
-                    }*/
+                }*/
 
-                    if ($sub_category_and_catalog[0]->catalog_image) {
+                if ($sub_category_and_catalog[0]->catalog_image) {
 
-                        //(new ImageController())->saveImageInToSpacesForMigration($sub_category_and_catalog[0]->catalog_image);
-                    }
+                    //(new ImageController())->saveImageInToSpacesForMigration($sub_category_and_catalog[0]->catalog_image);
+                }
+
+            }
+
+            foreach ($result as $key) {
+
+
+                if ($key->image) {
+
+                    //(new ImageController())->saveImageInToSpacesForMigration($key->image);
+
 
                 }
 
-                foreach ($result as $key) {
+                if ($key->original_img) {
 
+                    //(new ImageController())->saveImageInToSpacesForMigration($key->original_img);
 
-                    if ($key->image) {
-
-                        //(new ImageController())->saveImageInToSpacesForMigration($key->image);
-
-
-                    }
-
-                    if ($key->original_img) {
-
-                        //(new ImageController())->saveImageInToSpacesForMigration($key->original_img);
-
-
-                    }
-
-                    if ($key->display_img) {
-
-                        //(new ImageController())->saveImageInToSpacesForMigration($key->display_img);
-
-
-                    }
-
-                    /*if($key->json_data){
-
-                        $data = array(json_decode($key->json_data));
-                        dd($data['image_sticker_json']);
-
-
-                    }*/
 
                 }
+
+                if ($key->display_img) {
+
+                    //(new ImageController())->saveImageInToSpacesForMigration($key->display_img);
+
+
+                }
+
+                /*if($key->json_data){
+
+                    $data = array(json_decode($key->json_data));
+                    dd($data['image_sticker_json']);
+
+
+                }*/
+
+            }
 
             if (count($result) > 0) {
 
