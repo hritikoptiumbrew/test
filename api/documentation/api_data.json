@@ -2189,7 +2189,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"last_sync_time\": \"2017-11-28 06:55:14\",\n\"category_list\": [\n{\n\"catalog_id\": 168,\n\"name\": \"Business Card Catalog2\",\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"is_free\": 1,\n\"is_featured\": 0\n},\n{\n\"catalog_id\": 167,\n\"name\": \"Business Card Catalog1\",\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a17fab520a09_catalog_img_1511520949.png\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a17fab520a09_catalog_img_1511520949.png\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a17fab520a09_catalog_img_1511520949.png\",\n\"is_free\": 1,\n\"is_featured\": 1\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"last_sync_time\": \"2017-11-28 06:55:14\",\n\"category_list\": [\n{\n\"catalog_id\": 168,\n\"name\": \"Business Card Catalog2\",\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"catalog_id\": 167,\n\"name\": \"Business Card Catalog1\",\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a17fab520a09_catalog_img_1511520949.png\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a17fab520a09_catalog_img_1511520949.png\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a17fab520a09_catalog_img_1511520949.png\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2213,7 +2213,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"catalog_id_list\":[ //compulsory\n75,\n76\n]\n}",
+          "content": "{\n\"device_info\":\"\", //optional\n\"catalog_id_list\":[ //compulsory\n75,\n76\n]\n}",
           "type": "json"
         },
         {
@@ -2242,7 +2242,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"json_id_list\":[\n101,\n102,\n103,\n104,\n105,\n95,\n106\n]\n}",
+          "content": "{\n\"device_info\":\"\", //optional\n\"json_id_list\":[\n101,\n102,\n103,\n104,\n105,\n95,\n106\n]\n}",
           "type": "json"
         },
         {
@@ -2363,7 +2363,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All Link Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 3,\n\"is_next_page\": false,\n\"data\": [\n{\n\"json_id\": 355,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7faa3b1bc_catalog_image_1510834090.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1\n},\n{\n\"json_id\": 354,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7f89953aa_catalog_image_1510834057.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1\n},\n{\n\"json_id\": 342,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a059c4cbadaa_catalog_image_1510317132.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"All Link Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 3,\n\"is_next_page\": false,\n\"data\": [\n{\n\"json_id\": 355,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7faa3b1bc_catalog_image_1510834090.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"json_id\": 354,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7f89953aa_catalog_image_1510834057.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"json_id\": 342,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a059c4cbadaa_catalog_image_1510317132.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2392,7 +2392,36 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All Link Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 18,\n\"is_next_page\": true,\n\"last_sync_time\": \"2017-11-28 06:42:11\",\n\"data\": [\n{\n\"json_id\": 407,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfe841fd30_json_image_1511849604.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1\n},\n{\n\"json_id\": 406,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfd7fadfc0_json_image_1511849343.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1\n},\n{\n\"json_id\": 405,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfc994b4bd_json_image_1511849113.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1\n},\n{\n\"json_id\": 404,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cf9656d54c_json_image_1511848293.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1\n},\n{\n\"json_id\": 401,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cefcb29a2b_json_image_1511845835.jpg\",\n\"is_free\": 0,\n\"is_featured\": 1,\n\"is_portrait\": 0\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"All Link Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 18,\n\"is_next_page\": true,\n\"last_sync_time\": \"2017-11-28 06:42:11\",\n\"data\": [\n{\n\"json_id\": 407,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfe841fd30_json_image_1511849604.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"json_id\": 406,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfd7fadfc0_json_image_1511849343.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"json_id\": 405,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfc994b4bd_json_image_1511849113.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"json_id\": 404,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cf9656d54c_json_image_1511848293.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"json_id\": 401,\n\"sample_image\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cefcb29a2b_json_image_1511845835.jpg\",\n\"is_free\": 0,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"updated_at\": \"2018-06-21 12:04:36\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getJsonSampleDataWithLastSyncTime_webp",
+    "title": "getJsonSampleDataWithLastSyncTime_webp",
+    "name": "getJsonSampleDataWithLastSyncTime_webp",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"page\":2,\n\"item_count\":10,\n\"catalog_id\":167,\n\"sub_category_id\":51,\n\"last_sync_time\": \"2017-11-28 00:00:00\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All json fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 23,\n\"is_next_page\": true,\n\"last_sync_time\": \"2018-06-21 12:04:36\",\n\"data\": [\n{\n\"json_id\": 1190,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0ae54e2105_json_image_1521528404.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"json_id\": 1185,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0af12d9bae_json_image_1521528594.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"updated_at\": \"2018-06-21 12:04:32\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]

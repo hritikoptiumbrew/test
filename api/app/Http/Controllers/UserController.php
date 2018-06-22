@@ -113,19 +113,22 @@ class UserController extends Controller
      * "json_id": 355,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7faa3b1bc_catalog_image_1510834090.jpg",
      * "is_free": 1,
-     * "is_featured": 1
+     * "is_featured": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 354,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7f89953aa_catalog_image_1510834057.jpg",
      * "is_free": 1,
-     * "is_featured": 1
+     * "is_featured": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 342,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a059c4cbadaa_catalog_image_1510317132.jpg",
      * "is_free": 1,
-     * "is_featured": 1
+     * "is_featured": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * }
      * ]
      * }
@@ -177,7 +180,8 @@ class UserController extends Controller
                                                   IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                   is_free,
                                                   is_featured,
-                                                  is_portrait
+                                                  is_portrait,
+                                                  updated_at
                                                 FROM
                                                   images
                                                 WHERE
@@ -190,7 +194,8 @@ class UserController extends Controller
                                                IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                is_free,
                                                is_featured,
-                                               is_portrait
+                                               is_portrait,
+                                               updated_at
                                                 FROM
                                                 images
                                                 WHERE
@@ -296,12 +301,9 @@ class UserController extends Controller
                                                 WHERE
                                                 id= ?
                                                 order by updated_at DESC', [$this->json_id_to_get_json_data]);
-                    if(count($result) > 0)
-                    {
+                    if (count($result) > 0) {
                         return json_decode($result[0]->json_data);
-                    }
-                    else
-                    {
+                    } else {
                         return json_decode("{}");
                     }
 
@@ -366,7 +368,8 @@ class UserController extends Controller
      * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png",
      * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png",
      * "is_free": 1,
-     * "is_featured": 0
+     * "is_featured": 0,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "catalog_id": 167,
@@ -375,7 +378,8 @@ class UserController extends Controller
      * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a17fab520a09_catalog_img_1511520949.png",
      * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a17fab520a09_catalog_img_1511520949.png",
      * "is_free": 1,
-     * "is_featured": 1
+     * "is_featured": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * }
      * ]
      * }
@@ -431,7 +435,8 @@ class UserController extends Controller
                                           IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
                                           IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                           ct.is_free,
-                                          ct.is_featured
+                                          ct.is_featured,
+                                          ct.updated_at
                                         FROM
                                           catalog_master as ct,
                                           sub_category_catalog as sct
@@ -448,7 +453,8 @@ class UserController extends Controller
                                           IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
                                           IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                           ct.is_free,
-                                          ct.is_featured
+                                          ct.is_featured,
+                                          ct.updated_at
                                         FROM
                                           catalog_master as ct,
                                           sub_category_catalog as sct
@@ -515,35 +521,40 @@ class UserController extends Controller
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfe841fd30_json_image_1511849604.jpg",
      * "is_free": 1,
      * "is_featured": 1,
-     * "is_portrait": 1
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 406,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfd7fadfc0_json_image_1511849343.jpg",
      * "is_free": 1,
      * "is_featured": 1,
-     * "is_portrait": 1
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 405,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfc994b4bd_json_image_1511849113.jpg",
      * "is_free": 1,
      * "is_featured": 1,
-     * "is_portrait": 1
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 404,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cf9656d54c_json_image_1511848293.jpg",
      * "is_free": 1,
      * "is_featured": 1,
-     * "is_portrait": 1
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 401,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cefcb29a2b_json_image_1511845835.jpg",
      * "is_free": 0,
      * "is_featured": 1,
-     * "is_portrait": 0
+     * "is_portrait": 0,
+     * "updated_at": "2018-06-21 12:04:36"
      * }
      * ]
      * }
@@ -605,7 +616,8 @@ class UserController extends Controller
                                                   IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                   is_free,
                                                   is_featured,
-                                                  is_portrait
+                                                  is_portrait,
+                                                  updated_at
                                                 FROM
                                                   images
                                                 WHERE
@@ -620,7 +632,8 @@ class UserController extends Controller
                                                IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                is_free,
                                                is_featured,
-                                               is_portrait
+                                               is_portrait,
+                                               updated_at
                                                 FROM
                                                 images
                                                 WHERE
@@ -657,6 +670,54 @@ class UserController extends Controller
         return $response;
     }
 
+    /**
+     * @api {post} getJsonSampleDataWithLastSyncTime_webp   getJsonSampleDataWithLastSyncTime_webp
+     * @apiName getJsonSampleDataWithLastSyncTime_webp
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "page":2,
+     * "item_count":10,
+     * "catalog_id":167,
+     * "sub_category_id":51,
+     * "last_sync_time": "2017-11-28 00:00:00"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All json fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 23,
+     * "is_next_page": true,
+     * "last_sync_time": "2018-06-21 12:04:36",
+     * "data": [
+     * {
+     * "json_id": 1190,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0ae54e2105_json_image_1521528404.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:36"
+     * },
+     * {
+     * "json_id": 1185,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0af12d9bae_json_image_1521528594.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:32"
+     * }
+     * ]
+     * }
+     * }
+     */
     public function getJsonSampleDataWithLastSyncTime_webp(Request $request_body)
     {
 
@@ -713,7 +774,8 @@ class UserController extends Controller
                                                   IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
                                                   is_free,
                                                   is_featured,
-                                                  is_portrait
+                                                  is_portrait,
+                                                  updated_at
                                                 FROM
                                                   images
                                                 WHERE
@@ -728,14 +790,14 @@ class UserController extends Controller
                                                IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
                                                is_free,
                                                is_featured,
-                                               is_portrait
+                                               is_portrait,
+                                               updated_at
                                                 FROM
                                                 images
                                                 WHERE
                                                 catalog_id = ? AND
                                                 updated_at >= ?
                                                 order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
-
 
 
                     }
@@ -817,8 +879,7 @@ class UserController extends Controller
 
             $request = json_decode($request_body->getContent());
 
-            if($request != NULL)
-            {
+            if ($request != NULL) {
                 $json_id_list = $request->json_id_list;
                 $new_array = array();
 
@@ -844,9 +905,7 @@ class UserController extends Controller
 
                 //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
-            }
-            else
-            {
+            } else {
                 $response = Response::json(array('code' => 201, 'message' => 'Invalid request parameter.', 'cause' => '', 'data' => json_decode("{}")));
 
             }
@@ -1238,8 +1297,7 @@ class UserController extends Controller
 
             $request = json_decode($request_body->getContent());
 
-            if($request != NULL)
-            {
+            if ($request != NULL) {
 
                 $catalog_id_list = $request->catalog_id_list;
                 //Log::info('Request data of getDeletedCatalogId :',['request' => $request]);
@@ -1267,14 +1325,11 @@ class UserController extends Controller
 
                 //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
-            }
-            else
-            {
+            } else {
                 $response = Response::json(array('code' => 201, 'message' => 'Invalid request parameter.', 'cause' => '', 'data' => json_decode("{}")));
 
             }
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
 
 
         } catch
@@ -1445,9 +1500,7 @@ class UserController extends Controller
                     $response = Response::json(array('code' => 201, 'message' => 'Promo code already used.', 'cause' => '', 'data' => json_decode("{}")));
 
                 }
-            }
-            else
-            {
+            } else {
                 $response = Response::json(array('code' => 201, 'message' => 'Invalid promo code.', 'cause' => '', 'data' => json_decode("{}")));
             }
 
