@@ -405,23 +405,22 @@ class UserController extends Controller
 
             //return $this->last_sync_time.$this->sub_category_id;
 
-            $total_row_result = DB::select('SELECT COUNT(*) AS total
+            /*$total_row_result = DB::select('SELECT COUNT(*) AS total
                                                 FROM sub_category_catalog
                                                 WHERE sub_category_id = ? AND
-                                                created_at >= ? AND
+                                                updated_at >= ? AND
                                                 is_active = 1
                                                 ', [$request->sub_category_id, $request->last_sync_time, 1]);
-            $total_row = $total_row_result[0]->total;
+            $total_row = $total_row_result[0]->total;*/
             //return $total_row;
-            $last_created_record = DB::select('SELECT created_at FROM sub_category_catalog WHERE sub_category_id = ? ORDER BY created_at DESC LIMIT 1', [$this->sub_category_id]);
+            /*$last_created_record = DB::select('SELECT updated_at FROM sub_category_catalog WHERE sub_category_id = ? ORDER BY updated_at DESC LIMIT 1', [$this->sub_category_id]);
 
             if (count($last_created_record) >= 1) {
-                $last_sync_time = $last_created_record[0]->created_at;
+                $last_sync_time = $last_created_record[0]->updated_at;
 
             } else {
                 $last_sync_time = date("Y-m-d H:i:s");
-            }
-
+            }*/
 
             if (!Cache::has("pel:getCatalogBySubCategoryIdWithLastSyncTime$request->sub_category_id:$request->last_sync_time")) {
                 $result = Cache::rememberforever("getCatalogBySubCategoryIdWithLastSyncTime$request->sub_category_id:$request->last_sync_time", function () {
@@ -462,8 +461,11 @@ class UserController extends Controller
                                           sct.sub_category_id = ? AND
                                           sct.catalog_id=ct.id AND
                                           sct.is_active=1 AND
-                                          sct.created_at >= ?
-                                        order by ct.updated_at DESC', [$this->sub_category_id, $this->last_sync_time]);
+                                          (ct.updated_at >= ? OR
+                                          sct.created_at >= ?)
+                                        order by ct.updated_at DESC', [$this->sub_category_id, $this->last_sync_time, $this->last_sync_time]);
+
+
                     }
 
 
@@ -478,7 +480,16 @@ class UserController extends Controller
                 $redis_result = [];
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'last_sync_time' => $last_sync_time, 'category_list' => $redis_result]));
+
+            if (count($redis_result) >= 1) {
+                $last_sync_time = $redis_result[0]->updated_at;
+
+            } else {
+                $last_sync_time = date("Y-m-d H:i:s");
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'last_sync_time' => $last_sync_time, 'category_list' => $redis_result]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
@@ -1268,7 +1279,7 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "device_info":"", //optional
+     * "sub_category_id":81, //optional
      * "catalog_id_list":[ //compulsory
      * 75,
      * 76
@@ -1300,25 +1311,50 @@ class UserController extends Controller
             if ($request != NULL) {
 
                 $catalog_id_list = $request->catalog_id_list;
+                $sub_category_id = isset($request->sub_category_id) ? $request->sub_category_id : '';
                 //Log::info('Request data of getDeletedCatalogId :',['request' => $request]);
 
-                $new_array = array();
-                foreach ($catalog_id_list as $key) {
+                if($sub_category_id != '')
+                {
+                    $new_array = array();
+                    foreach ($catalog_id_list as $key) {
 
-                    $result = DB::select('SELECT id AS catalog_id
+                        $result = DB::select('SELECT catalog_id
+                                                FROM sub_category_catalog
+                                                WHERE
+                                                  sub_category_id = ? AND
+                                                  catalog_id = ? AND
+                                                  is_active = 1
+                                                ', [$sub_category_id, $key]);
+
+                        if (count($result) == 0) {
+                            $new_array[] = $key;
+                        }
+                    }
+
+                    $result_array = array('catalog_id_list' => $new_array);
+                    $result = json_decode(json_encode($result_array), true);
+                }
+                else
+                {
+                    $new_array = array();
+                    foreach ($catalog_id_list as $key) {
+
+                        $result = DB::select('SELECT id AS catalog_id
                                         FROM
                                           catalog_master
                                         WHERE
                                           is_featured = 1 AND
                                           id = ?', [$key]);
 
-                    if (count($result) == 0) {
-                        $new_array[] = $key;
+                        if (count($result) == 0) {
+                            $new_array[] = $key;
+                        }
                     }
-                }
 
-                $result_array = array('catalog_id_list' => $new_array);
-                $result = json_decode(json_encode($result_array), true);
+                    $result_array = array('catalog_id_list' => $new_array);
+                    $result = json_decode(json_encode($result_array), true);
+                }
 
                 $response = Response::json(array('code' => 200, 'message' => 'Deleted catalog id fetched successfully.', 'cause' => '', 'data' => $result));
 
