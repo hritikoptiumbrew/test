@@ -1190,9 +1190,9 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "getImagesByCatalogId",
-    "title": "getImagesByCatalogId",
-    "name": "getImagesByCatalogId",
+    "url": "getImagesByCatalogIdForAdmin",
+    "title": "getImagesByCatalogIdForAdmin",
+    "name": "getImagesByCatalogIdForAdmin",
     "group": "Admin",
     "version": "1.0.0",
     "success": {
@@ -2213,7 +2213,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"device_info\":\"\", //optional\n\"catalog_id_list\":[ //compulsory\n75,\n76\n]\n}",
+          "content": "{\n\"sub_category_id\":81, //optional\n\"catalog_id_list\":[ //compulsory\n75,\n76\n]\n}",
           "type": "json"
         },
         {

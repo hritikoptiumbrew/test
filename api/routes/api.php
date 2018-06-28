@@ -77,6 +77,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('addCatalogImages', 'AdminController@addCatalogImages');
     Route::post('updateCatalogImage', 'AdminController@updateCatalogImage');
     Route::post('deleteCatalogImage', 'AdminController@deleteCatalogImage');
+    Route::post('getImagesByCatalogIdForAdmin', 'AdminController@getImagesByCatalogIdForAdmin');
 
     /* Common API */
 
