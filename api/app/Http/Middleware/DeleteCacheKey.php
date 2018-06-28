@@ -274,6 +274,15 @@ class DeleteCacheKey
                     //Log::info("pel:getImagesByCatalogId Key Deleted");
                 }
 
+                //getImagesByCatalogIdForAdmin
+                $keys = Redis::keys('pel:getImagesByCatalogIdForAdmin*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                if (count($keys) === 0) {
+                    //Log::info("pel:getImagesByCatalogIdForAdmin Key Deleted");
+                }
+
                 //Category Wise Images Key
                 $keys = Redis::keys('pel:getCatalogBySubCategoryIdWithLastSyncTime*');
                 foreach ($keys as $key) {

@@ -2816,8 +2816,8 @@ class AdminController extends Controller
     }
 
     /**
-     * @api {post} getImagesByCatalogId   getImagesByCatalogId
-     * @apiName getImagesByCatalogId
+     * @api {post} getImagesByCatalogIdForAdmin   getImagesByCatalogIdForAdmin
+     * @apiName getImagesByCatalogIdForAdmin
      * @apiGroup Admin
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
@@ -2942,6 +2942,67 @@ class AdminController extends Controller
      * }
      * }
      */
+    public function getImagesByCatalogIdForAdmin(Request $request_body)
+    {
+        try {
+            $request = json_decode($request_body->getContent());
+            //Log::info("getImagesByCatalogId Request :", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $this->catalog_id = $request->catalog_id;
+
+            if (!Cache::has("pel:getImagesByCatalogIdForAdmin$this->catalog_id")) {
+                $result = Cache::rememberforever("getImagesByCatalogIdForAdmin$this->catalog_id", function () {
+                    $result = DB::select('SELECT
+                                          im.id as img_id,
+                                          IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as thumbnail_img,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                          IF(im.json_data IS NOT NULL,1,0) as is_json_data,
+                                          coalesce(im.json_data,"") as json_data,
+                                          coalesce(im.is_featured,"") as is_featured,
+                                          coalesce(im.is_free,0) as is_free,
+                                          coalesce(im.is_portrait,0) as is_portrait
+                                        FROM
+                                          images as im
+                                        where
+                                          im.is_active = 1 AND
+                                          im.catalog_id = ? AND
+                                          isnull(im.original_img) AND
+                                          isnull(im.display_img)
+                                        order by im.updated_at DESC', [$this->catalog_id]);
+
+                    foreach ($result as $key) {
+                        if ($key->json_data != "") {
+                            $key->json_data = json_decode($key->json_data);
+                        }
+
+                    }
+                    return $result;
+                });
+            }
+            $redis_result = Cache::get("getImagesByCatalogIdForAdmin$this->catalog_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog Images Fetched Successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getImagesByCatalogIdForAdmin Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' Fetched Image By Catalog Id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /**
      * @api {post} getImagesByCatalogId   getImagesByCatalogId
      * @apiName getImagesByCatalogId
@@ -3045,6 +3106,9 @@ class AdminController extends Controller
         }
         return $response;
     }
+
+
+
 
     /* ======================================== Link Catalog ===================================== */
 
