@@ -113,19 +113,22 @@ class UserController extends Controller
      * "json_id": 355,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7faa3b1bc_catalog_image_1510834090.jpg",
      * "is_free": 1,
-     * "is_featured": 1
+     * "is_featured": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 354,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7f89953aa_catalog_image_1510834057.jpg",
      * "is_free": 1,
-     * "is_featured": 1
+     * "is_featured": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 342,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a059c4cbadaa_catalog_image_1510317132.jpg",
      * "is_free": 1,
-     * "is_featured": 1
+     * "is_featured": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * }
      * ]
      * }
@@ -177,7 +180,8 @@ class UserController extends Controller
                                                   IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                   is_free,
                                                   is_featured,
-                                                  is_portrait
+                                                  is_portrait,
+                                                  updated_at
                                                 FROM
                                                   images
                                                 WHERE
@@ -190,7 +194,8 @@ class UserController extends Controller
                                                IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                is_free,
                                                is_featured,
-                                               is_portrait
+                                               is_portrait,
+                                               updated_at
                                                 FROM
                                                 images
                                                 WHERE
@@ -296,12 +301,9 @@ class UserController extends Controller
                                                 WHERE
                                                 id= ?
                                                 order by updated_at DESC', [$this->json_id_to_get_json_data]);
-                    if(count($result) > 0)
-                    {
+                    if (count($result) > 0) {
                         return json_decode($result[0]->json_data);
-                    }
-                    else
-                    {
+                    } else {
                         return json_decode("{}");
                     }
 
@@ -366,7 +368,8 @@ class UserController extends Controller
      * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png",
      * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png",
      * "is_free": 1,
-     * "is_featured": 0
+     * "is_featured": 0,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "catalog_id": 167,
@@ -375,7 +378,8 @@ class UserController extends Controller
      * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a17fab520a09_catalog_img_1511520949.png",
      * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a17fab520a09_catalog_img_1511520949.png",
      * "is_free": 1,
-     * "is_featured": 1
+     * "is_featured": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * }
      * ]
      * }
@@ -401,23 +405,22 @@ class UserController extends Controller
 
             //return $this->last_sync_time.$this->sub_category_id;
 
-            $total_row_result = DB::select('SELECT COUNT(*) AS total
+            /*$total_row_result = DB::select('SELECT COUNT(*) AS total
                                                 FROM sub_category_catalog
                                                 WHERE sub_category_id = ? AND
-                                                created_at >= ? AND
+                                                updated_at >= ? AND
                                                 is_active = 1
                                                 ', [$request->sub_category_id, $request->last_sync_time, 1]);
-            $total_row = $total_row_result[0]->total;
+            $total_row = $total_row_result[0]->total;*/
             //return $total_row;
-            $last_created_record = DB::select('SELECT created_at FROM sub_category_catalog WHERE sub_category_id = ? ORDER BY created_at DESC LIMIT 1', [$this->sub_category_id]);
+            /*$last_created_record = DB::select('SELECT updated_at FROM sub_category_catalog WHERE sub_category_id = ? ORDER BY updated_at DESC LIMIT 1', [$this->sub_category_id]);
 
             if (count($last_created_record) >= 1) {
-                $last_sync_time = $last_created_record[0]->created_at;
+                $last_sync_time = $last_created_record[0]->updated_at;
 
             } else {
                 $last_sync_time = date("Y-m-d H:i:s");
-            }
-
+            }*/
 
             if (!Cache::has("pel:getCatalogBySubCategoryIdWithLastSyncTime$request->sub_category_id:$request->last_sync_time")) {
                 $result = Cache::rememberforever("getCatalogBySubCategoryIdWithLastSyncTime$request->sub_category_id:$request->last_sync_time", function () {
@@ -431,7 +434,8 @@ class UserController extends Controller
                                           IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
                                           IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                           ct.is_free,
-                                          ct.is_featured
+                                          ct.is_featured,
+                                          ct.updated_at
                                         FROM
                                           catalog_master as ct,
                                           sub_category_catalog as sct
@@ -448,7 +452,8 @@ class UserController extends Controller
                                           IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
                                           IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                           ct.is_free,
-                                          ct.is_featured
+                                          ct.is_featured,
+                                          ct.updated_at
                                         FROM
                                           catalog_master as ct,
                                           sub_category_catalog as sct
@@ -456,8 +461,11 @@ class UserController extends Controller
                                           sct.sub_category_id = ? AND
                                           sct.catalog_id=ct.id AND
                                           sct.is_active=1 AND
-                                          sct.created_at >= ?
-                                        order by ct.updated_at DESC', [$this->sub_category_id, $this->last_sync_time]);
+                                          (ct.updated_at >= ? OR
+                                          sct.created_at >= ?)
+                                        order by ct.updated_at DESC', [$this->sub_category_id, $this->last_sync_time, $this->last_sync_time]);
+
+
                     }
 
 
@@ -472,7 +480,16 @@ class UserController extends Controller
                 $redis_result = [];
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'last_sync_time' => $last_sync_time, 'category_list' => $redis_result]));
+
+            if (count($redis_result) >= 1) {
+                $last_sync_time = $redis_result[0]->updated_at;
+
+            } else {
+                $last_sync_time = date("Y-m-d H:i:s");
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'last_sync_time' => $last_sync_time, 'category_list' => $redis_result]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
@@ -515,35 +532,40 @@ class UserController extends Controller
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfe841fd30_json_image_1511849604.jpg",
      * "is_free": 1,
      * "is_featured": 1,
-     * "is_portrait": 1
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 406,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfd7fadfc0_json_image_1511849343.jpg",
      * "is_free": 1,
      * "is_featured": 1,
-     * "is_portrait": 1
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 405,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cfc994b4bd_json_image_1511849113.jpg",
      * "is_free": 1,
      * "is_featured": 1,
-     * "is_portrait": 1
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 404,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cf9656d54c_json_image_1511848293.jpg",
      * "is_free": 1,
      * "is_featured": 1,
-     * "is_portrait": 1
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:36"
      * },
      * {
      * "json_id": 401,
      * "sample_image": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1cefcb29a2b_json_image_1511845835.jpg",
      * "is_free": 0,
      * "is_featured": 1,
-     * "is_portrait": 0
+     * "is_portrait": 0,
+     * "updated_at": "2018-06-21 12:04:36"
      * }
      * ]
      * }
@@ -605,7 +627,8 @@ class UserController extends Controller
                                                   IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                   is_free,
                                                   is_featured,
-                                                  is_portrait
+                                                  is_portrait,
+                                                  updated_at
                                                 FROM
                                                   images
                                                 WHERE
@@ -620,7 +643,8 @@ class UserController extends Controller
                                                IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
                                                is_free,
                                                is_featured,
-                                               is_portrait
+                                               is_portrait,
+                                               updated_at
                                                 FROM
                                                 images
                                                 WHERE
@@ -658,6 +682,165 @@ class UserController extends Controller
     }
 
     /**
+     * @api {post} getJsonSampleDataWithLastSyncTime_webp   getJsonSampleDataWithLastSyncTime_webp
+     * @apiName getJsonSampleDataWithLastSyncTime_webp
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "page":2,
+     * "item_count":10,
+     * "catalog_id":167,
+     * "sub_category_id":51,
+     * "last_sync_time": "2017-11-28 00:00:00"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All json fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 23,
+     * "is_next_page": true,
+     * "last_sync_time": "2018-06-21 12:04:36",
+     * "data": [
+     * {
+     * "json_id": 1190,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0ae54e2105_json_image_1521528404.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:36"
+     * },
+     * {
+     * "json_id": 1185,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0af12d9bae_json_image_1521528594.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "updated_at": "2018-06-21 12:04:32"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getJsonSampleDataWithLastSyncTime_webp(Request $request_body)
+    {
+
+        try {
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'catalog_id', 'page', 'item_count', 'last_sync_time'), $request)) != '')
+                return $response;
+
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $this->catalog_id = $request->catalog_id;
+            $this->sub_category_id = $request->sub_category_id;
+            $this->last_sync_date = $request->last_sync_time;
+
+            $this->item_count = $request->item_count;
+            $this->page = $request->page;
+            $this->order_by = isset($request->order_by) ? $request->order_by : 'size';
+            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            if ($this->catalog_id == 0) {
+                $total_row_result = DB::select('SELECT COUNT(*) AS total
+                                                    FROM images
+                                                    WHERE catalog_id IN (SELECT catalog_id
+                                                                     FROM sub_category_catalog
+                                                                     WHERE sub_category_id = ?) AND is_featured = 1 and updated_at >= ?', [$this->sub_category_id, $request->last_sync_time]);
+                $total_row = $total_row_result[0]->total;
+            } else {
+                $total_row_result = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $request->last_sync_time]);
+                $total_row = $total_row_result[0]->total;
+            }
+
+            $last_created_record = DB::select('SELECT updated_at FROM images WHERE catalog_id = ? ORDER BY updated_at DESC LIMIT 1', [$this->catalog_id]);
+
+            if (count($last_created_record) >= 1) {
+                $last_sync_time = $last_created_record[0]->updated_at;
+
+            } else {
+                $last_sync_time = date("Y-m-d H:i:s");
+            }
+
+
+            //Log::info('request_data', ['request_data' => $request]);
+
+            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
+                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+
+                    if ($this->catalog_id == 0) {
+                        $result = DB::select('SELECT
+                                                  id as json_id,
+                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                                  is_free,
+                                                  is_featured,
+                                                  is_portrait,
+                                                  updated_at
+                                                FROM
+                                                  images
+                                                WHERE
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ?) and
+                                                  is_featured = 1 AND
+                                                  updated_at >= ?
+                                                order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+                    } else {
+                        $result = DB::select('SELECT
+                                               id as json_id,
+                                               IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                               is_free,
+                                               is_featured,
+                                               is_portrait,
+                                               updated_at
+                                                FROM
+                                                images
+                                                WHERE
+                                                catalog_id = ? AND
+                                                updated_at >= ?
+                                                order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+
+                    }
+
+                    return $result;
+                });
+            }
+
+            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+            $response = Response::json(array('code' => 200, 'message' => 'All json fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'last_sync_time' => $last_sync_time, 'data' => $redis_result]));
+            //$response = Response::json(array('code' => 200, 'message' => 'Sample images fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+
+            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch
+        (Exception $e) {
+            Log::error("getJsonSampleDataWithLastSyncTime_webp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get json data with last_sync_time.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
      * @api {post} getDeletedJsonId   getDeletedJsonId
      * @apiName getDeletedJsonId
      * @apiGroup User
@@ -669,6 +852,7 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
+     * "device_info":"", //optional
      * "json_id_list":[
      * 101,
      * 102,
@@ -705,30 +889,40 @@ class UserController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            $json_id_list = $request->json_id_list;
-            $new_array = array();
 
-            //Log::debug('request of getDeletedJsonId : ',[$request]);
+            if ($request != NULL) {
+                $json_id_list = $request->json_id_list;
+                $new_array = array();
 
-            foreach ($json_id_list as $key) {
+                //Log::info('Request data of getDeletedJsonId :',['request' => $request]);
 
-                $result = DB::select('SELECT id AS json_id
+
+                foreach ($json_id_list as $key) {
+
+                    $result = DB::select('SELECT id AS json_id
                                                     FROM images
                                                     WHERE id = ?', [$key]);
 
-                if (count($result) == 0) {
-                    $new_array[] = $key;
+                    if (count($result) == 0) {
+                        $new_array[] = $key;
+                    }
                 }
+
+                $result_array = array('json_id_list' => $new_array);
+                $result = json_decode(json_encode($result_array), true);
+
+                $response = Response::json(array('code' => 200, 'message' => 'Deleted json id fetched successfully.', 'cause' => '', 'data' => $result));
+
+
+                //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
+            } else {
+                $response = Response::json(array('code' => 201, 'message' => 'Invalid request parameter.', 'cause' => '', 'data' => json_decode("{}")));
+
             }
 
-            $result_array = array('json_id_list' => $new_array);
-            $result = json_decode(json_encode($result_array), true);
-
-            $response = Response::json(array('code' => 200, 'message' => 'Deleted json id fetched successfully.', 'cause' => '', 'data' => $result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
-
-            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
@@ -1085,6 +1279,7 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
+     * "sub_category_id":81, //optional
      * "catalog_id_list":[ //compulsory
      * 75,
      * 76
@@ -1113,30 +1308,65 @@ class UserController extends Controller
 
             $request = json_decode($request_body->getContent());
 
-            $catalog_id_list = $request->catalog_id_list;
-            $new_array = array();
-            foreach ($catalog_id_list as $key) {
+            if ($request != NULL) {
 
-                $result = DB::select('SELECT id AS catalog_id
+                $catalog_id_list = $request->catalog_id_list;
+                $sub_category_id = isset($request->sub_category_id) ? $request->sub_category_id : '';
+                //Log::info('Request data of getDeletedCatalogId :',['request' => $request]);
+
+                if($sub_category_id != '')
+                {
+                    $new_array = array();
+                    foreach ($catalog_id_list as $key) {
+
+                        $result = DB::select('SELECT catalog_id
+                                                FROM sub_category_catalog
+                                                WHERE
+                                                  sub_category_id = ? AND
+                                                  catalog_id = ? AND
+                                                  is_active = 1
+                                                ', [$sub_category_id, $key]);
+
+                        if (count($result) == 0) {
+                            $new_array[] = $key;
+                        }
+                    }
+
+                    $result_array = array('catalog_id_list' => $new_array);
+                    $result = json_decode(json_encode($result_array), true);
+                }
+                else
+                {
+                    $new_array = array();
+                    foreach ($catalog_id_list as $key) {
+
+                        $result = DB::select('SELECT id AS catalog_id
                                         FROM
                                           catalog_master
                                         WHERE
                                           is_featured = 1 AND
                                           id = ?', [$key]);
 
-                if (count($result) == 0) {
-                    $new_array[] = $key;
+                        if (count($result) == 0) {
+                            $new_array[] = $key;
+                        }
+                    }
+
+                    $result_array = array('catalog_id_list' => $new_array);
+                    $result = json_decode(json_encode($result_array), true);
                 }
+
+                $response = Response::json(array('code' => 200, 'message' => 'Deleted catalog id fetched successfully.', 'cause' => '', 'data' => $result));
+
+
+                //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
+            } else {
+                $response = Response::json(array('code' => 201, 'message' => 'Invalid request parameter.', 'cause' => '', 'data' => json_decode("{}")));
+
             }
-
-            $result_array = array('catalog_id_list' => $new_array);
-            $result = json_decode(json_encode($result_array), true);
-
-            $response = Response::json(array('code' => 200, 'message' => 'Deleted catalog id fetched successfully.', 'cause' => '', 'data' => $result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
-
-            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
@@ -1306,9 +1536,7 @@ class UserController extends Controller
                     $response = Response::json(array('code' => 201, 'message' => 'Promo code already used.', 'cause' => '', 'data' => json_decode("{}")));
 
                 }
-            }
-            else
-            {
+            } else {
                 $response = Response::json(array('code' => 201, 'message' => 'Invalid promo code.', 'cause' => '', 'data' => json_decode("{}")));
             }
 

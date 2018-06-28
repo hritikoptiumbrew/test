@@ -193,5 +193,8 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     Route::post('clearBadgeCountData', 'NotificationController@clearBadgeCountData');
     Route::post('verifyPromoCode', 'UserController@verifyPromoCode');
 
+    //webp
+    Route::post('getJsonSampleDataWithLastSyncTime_webp', 'UserController@getJsonSampleDataWithLastSyncTime_webp');
+
 
 });

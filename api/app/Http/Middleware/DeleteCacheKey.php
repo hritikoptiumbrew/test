@@ -310,6 +310,15 @@ class DeleteCacheKey
                     //Log::info("pel:getJsonSampleDataWithLastSyncTime Key Deleted");
                 }
 
+                //getJsonSampleDataWithLastSyncTime_webp
+                $keys = Redis::keys('pel:getJsonSampleDataWithLastSyncTime_webp*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                if (count($keys) === 0) {
+                    //Log::info("pel:getJsonSampleDataWithLastSyncTime_webp Key Deleted");
+                }
+
                 //Category Wise Images Key
                 $keys = Redis::keys('pel:getFeaturedJsonImages*');
                 foreach ($keys as $key) {
