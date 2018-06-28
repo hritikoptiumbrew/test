@@ -9,28 +9,27 @@
             width: 100%;
             height: 0;
             padding-bottom: 51%;
-            margin-top: 30px;
-            margin-top: 30px;
+            margin-top: 10px;
+            border-radius: 0px;
             -webkit-box-shadow: 0 9px 32px 0 rgba(0, 0, 0, 0.14), 0 7px 15px -2px rgba(0, 0, 0, 0.12), 0 4px 9px 0 rgba(0, 0, 0, 0.2);
             box-shadow: 0 9px 32px 0 rgba(0, 0, 0, 0.14), 0 7px 15px -2px rgba(0, 0, 0, 0.12), 0 4px 9px 0 rgba(0, 0, 0, 0.2);
         }
 
         .aspect-ratio iframe {
             position: absolute;
+            margin-bottom: -5px;
             width: 100%;
-            height: 100%;
+            height: 101%;
             left: 0;
             top: 0;
-            -webkit-box-shadow: 0 9px 32px 0 rgba(0, 0, 0, 0.14), 0 7px 15px -2px rgba(0, 0, 0, 0.12), 0 4px 9px 0 rgba(0, 0, 0, 0.2);
-            box-shadow: 0 9px 32px 0 rgba(0, 0, 0, 0.14), 0 7px 15px -2px rgba(0, 0, 0, 0.12), 0 4px 9px 0 rgba(0, 0, 0, 0.2);
+            border-radius: 0px;
         }
 
         .loader {
-            border: 16px solid #f3f3f3;
             border-radius: 50%;
-            border-top: 16px solid #3498db;
-            width: 120px;
-            height: 120px;
+            border-top: 6px solid #3498db;
+            width: 60px;
+            height: 60px;
             -webkit-animation: spin 2s linear infinite;
             /* Safari */
             animation: spin 2s linear infinite;
@@ -83,6 +82,7 @@
         <div class="loader"></div>
         <div id="youtube-player3" class="tmp" data-id="oVBwT_6vFWc"></div>
     </div>
+    </div>
 </body>
 
 <script>
@@ -102,7 +102,10 @@
             tmp = new YT.Player('youtube-player' + n, {
                 height: '100%',
                 width: '100%',
+                fs:1,
+                allowsInlineMediaPlayback:true, 
                 videoId: player[n].getAttribute('data-id'),
+                playerVars:{rel: 0},
                 events: {
                     'onReady': onPlayerReady,
                     'onStateChange': onPlayerStateChange
