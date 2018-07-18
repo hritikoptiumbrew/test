@@ -24,6 +24,160 @@ class UserController extends Controller
 
     /* =================================| Json |=============================*/
 
+    /**
+     * @api {post} getLinkWithLastSyncTime   getLinkWithLastSyncTime
+     * @apiName getLinkWithLastSyncTime
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id": 85,
+     * "platform": "Android",
+     * "last_sync_time": "2017-11-28 00:00:00",
+     * "advertise_id_list": [
+     * 70,
+     * 71,
+     * 72,
+     * 77,
+     * 100,
+     * 200
+     * ]
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise Link Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 2,
+     * "link_list": [
+     * {
+     * "advertise_link_id": 77,
+     * "name": "Romantic Love Photo Editor",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1e813f47368_banner_image_1511948607.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1e813f47368_banner_image_1511948607.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1e813f47368_banner_image_1511948607.png",
+     * "app_logo_thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1e814000aa9_app_logo_image_1511948608.png",
+     * "app_logo_compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1e814000aa9_app_logo_image_1511948608.png",
+     * "app_logo_original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1e814000aa9_app_logo_image_1511948608.png",
+     * "url": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.lovephotoeditor",
+     * "platform": "Android",
+     * "app_description": "Romantic Love Photo Editor - Realistic Photo Effects, Beautiful Photo Frames, Stickers, etc.",
+     * "updated_at": "2018-06-25 10:55:05"
+     * }
+     * ],
+     * "last_sync_time": "2018-06-25 10:55:05",
+     * "advertise_id_list": [
+     * 100
+     * ]
+     * }
+     * }
+     */
+    public function getLinkWithLastSyncTime(Request $request_body)
+    {
+
+        try {
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'platform', 'last_sync_time'), $request)) != '')
+                return $response;
+
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $this->platform = $request->platform;
+            $this->sub_category_id = $request->sub_category_id;
+            $this->last_sync_time = $request->last_sync_time;
+            $this->advertise_id_list = $request->advertise_id_list;
+            $new_array = array();
+
+            if (!Cache::has("pel:getLinkWithLastSyncTime$this->platform:$this->sub_category_id:$this->last_sync_time")) {
+                $result = Cache::rememberforever("getLinkWithLastSyncTime$this->platform:$this->sub_category_id:$this->last_sync_time", function () {
+
+                    if (count($this->advertise_id_list) > 0) {
+
+                        foreach ($this->advertise_id_list as $key) {
+
+                            $result = DB::select('SELECT advertise_link_id
+                                            FROM sub_category_advertise_links
+                                            WHERE advertise_link_id = ? AND
+                                            sub_category_id = ?', [$key, $this->sub_category_id]);
+
+                            if (count($result) == 0) {
+                                $new_array[] = $key;
+                            }
+                        }
+
+                    }
+
+
+                    $result = DB::select('SELECT
+                                        adl.id as advertise_link_id,
+                                        adl.name,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
+                                        adl.url,
+                                        adl.platform,
+                                        if(adl.app_description!="",adl.app_description,"") as app_description,
+                                        sadl.updated_at
+                                      FROM
+                                        advertise_links as adl,
+                                        sub_category_advertise_links as sadl
+                                      WHERE
+                                        adl.platform = ? AND
+                                        sadl.advertise_link_id=adl.id AND
+                                        sadl.sub_category_id = ? AND
+                                        sadl.is_active = 1 AND
+                                        sadl.updated_at >= ?
+                                      order by sadl.updated_at DESC', [$this->platform, $this->sub_category_id, $this->last_sync_time]);
+
+
+                    $result_array = array('link_list' => $result, 'advertise_id_list' => $new_array);
+
+                    return $result_array;
+                });
+            }
+
+            $redis_result = Cache::get("getLinkWithLastSyncTime$this->platform:$this->sub_category_id:$this->last_sync_time");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            if (count($redis_result) >= 1) {
+                $result = $redis_result['link_list'];
+                $last_sync_time = $result[0]->updated_at;
+
+            } else {
+                $last_sync_time = date("Y-m-d H:i:s");
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise Link Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'link_list' => $redis_result['link_list'], 'last_sync_time' => $last_sync_time, 'advertise_id_list' => $redis_result['advertise_id_list']]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+
+        } catch
+        (Exception $e) {
+            Log::error("getLinkWithLastSyncTime Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get advertise link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /* =================================| Json |=============================*/
+
     public function getFeaturedJsonImages(Request $request_body)
     {
 
@@ -333,7 +487,6 @@ class UserController extends Controller
         }
         return $response;
     }
-
 
     /* =====================================| Api with last_sync_time(catalog and json data) |==================================*/
 
@@ -1314,8 +1467,7 @@ class UserController extends Controller
                 $sub_category_id = isset($request->sub_category_id) ? $request->sub_category_id : '';
                 //Log::info('Request data of getDeletedCatalogId :',['request' => $request]);
 
-                if($sub_category_id != '')
-                {
+                if ($sub_category_id != '') {
                     $new_array = array();
                     foreach ($catalog_id_list as $key) {
 
@@ -1334,9 +1486,7 @@ class UserController extends Controller
 
                     $result_array = array('catalog_id_list' => $new_array);
                     $result = json_decode(json_encode($result_array), true);
-                }
-                else
-                {
+                } else {
                     $new_array = array();
                     foreach ($catalog_id_list as $key) {
 
@@ -1546,6 +1696,81 @@ class UserController extends Controller
         } catch (Exception $e) {
             Log::error("verifyPromoCode Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'verify promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =================================| Advertise Server Id |============================= */
+
+    /**
+     * @api {post} getAdvertiseServerIdForUser   getAdvertiseServerIdForUser
+     * @apiName getAdvertiseServerIdForUser
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * }
+     */
+    public function getAdvertiseServerIdForUser(Request $request)
+    {
+        try {
+
+            $request = json_decode($request->getContent());
+            //Log::info("getAllAdvertisementToLinkAdvertisement Request :", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $this->sub_category_id = $request->sub_category_id;
+
+
+            //return $total_row;
+
+            if (!Cache::has("pel:getAdvertiseServerIdForUser$this->sub_category_id")) {
+                $result = Cache::rememberforever("getAdvertiseServerIdForUser$this->sub_category_id", function () {
+
+                    return DB::select('SELECT
+                                          id AS sub_category_advertise_server_id,
+                                          advertise_category_id,
+                                          sub_category_id,
+                                          server_id,
+                                          is_active,
+                                          create_time,
+                                          update_time
+                                        FROM
+                                          sub_category_advertise_server_id_master
+                                        WHERE
+                                          sub_category_id = ? AND
+                                          is_active=1
+                                        order by update_time DESC', [$this->sub_category_id]);
+                });
+
+            }
+
+            $redis_result = Cache::get("getAdvertiseServerIdForUser$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAdvertiseServerIdForUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }

@@ -157,6 +157,15 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('deleteUserFeeds', 'UserController@deleteUserFeeds');
     Route::post('deleteAllUserFeeds', 'UserController@deleteAllUserFeeds');
 
+    //Advertise Server Id
+    Route::post('addAdvertisementCategory', 'AdminController@addAdvertisementCategory');
+    Route::post('editAdvertisementCategory', 'AdminController@editAdvertisementCategory');
+    Route::post('deleteAdvertisementCategory', 'AdminController@deleteAdvertisementCategory');
+    Route::post('getAllAdvertiseCategory', 'AdminController@getAllAdvertiseCategory');
+    Route::post('addAdvertiseServerId', 'AdminController@addAdvertiseServerId');
+    Route::post('updateAdvertiseServerId', 'AdminController@updateAdvertiseServerId');
+    Route::post('deleteAdvertiseServerId', 'AdminController@deleteAdvertiseServerId');
+    Route::post('getAdvertiseServerIdForAdmin', 'AdminController@getAdvertiseServerIdForAdmin');
 
 
 });
@@ -197,5 +206,18 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     //webp
     Route::post('getJsonSampleDataWithLastSyncTime_webp', 'UserController@getJsonSampleDataWithLastSyncTime_webp');
 
+    //Fetch images from Pixabay
+    Route::post('getImagesFromPixabay', 'PixabayController@getImagesFromPixabay');
+
+    //Fetch videos from Pixabay
+    Route::post('getVideosFromPixabay', 'PixabayController@getVideosFromPixabay');
+
+    //Advertise Server Id
+    Route::post('getAdvertiseServerIdForUser', 'UserController@getAdvertiseServerIdForUser');
+
+    //Advertisements with last_sync_time
+    Route::post('getLinkWithLastSyncTime', 'UserController@getLinkWithLastSyncTime');
+
 
 });
+

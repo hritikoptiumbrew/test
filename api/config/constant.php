@@ -94,4 +94,9 @@ return [
     /* for live server */
     'receipt_validator_endpoint' => 'https://buy.itunes.apple.com/verifyReceipt',
 
+    /*api key of pixabay*/
+    //'PIXABAY_API_KEY' => '9366777-8d4a537113175da05770fd05e,9420810-0fe767598d152bba00a385ade,9420912-5544c439271da9cb408f85869',
+    'PIXABAY_API_KEY' => env('PIXABAY_API_KEY'),
+    'PIXABAY_API_URL'=> 'https://pixabay.com/api/',
+
 ];
