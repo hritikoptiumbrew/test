@@ -16,6 +16,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { AdvManagementComponent } from './adv-management/adv-management.component';
 import { PromocodeManagementComponent } from './promocode-management/promocode-management.component';
 import { UserGeneratedDesignsComponent } from './user-generated-designs/user-generated-designs.component';
+import { AdmobAdsComponent } from './admob-ads/admob-ads.component';
 
 export const AppRoutes = [
     { path: '', component: LoginComponent, pathMatch: 'full' },
@@ -36,4 +37,5 @@ export const AppRoutes = [
     { path: 'admin/categories/:categoryId/user-designs', component: UserGeneratedDesignsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/redis-cache', component: RedisCacheComponent, canActivate: [AuthenticationService] },
     { path: 'admin/settings', component: SettingsComponent, canActivate: [AuthenticationService] },
+    { path: 'admin/admob-ads', component: AdmobAdsComponent, canActivate: [AuthenticationService] },
 ]

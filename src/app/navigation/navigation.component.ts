@@ -56,6 +56,9 @@ export class NavigationComponent implements OnInit {
     if (this.router.url == "/admin/categories/:", this.categoryId) {
       this.selected_nav_categories = "selected";
     }
+    if (this.router.url == "/admin/admob-ads") {
+      this.selected_nav_categories = "selected";
+    }
     if (this.router.url == "/admin/users/:", this.sub_category_id) {
       this.selected_nav_categories = "selected";
     }

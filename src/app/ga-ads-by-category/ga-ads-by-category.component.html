@@ -1,0 +1,33 @@
+<div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center width-768">
+  <h5 class="title-bar m-0"> {{ad_category_data.advertise_category}} IDs </h5>
+</div>
+<div class="col-12 pr-4 pl-4 pb-2 pt-4 width-768">
+  <div class="row pb-2">
+    <div class="col-sm-12 pl-0 pr-0" *ngFor="let ad_id of ad_category_data.server_id_list; let i = index;">
+      <input type="text" [(ngModel)]="ad_id.server_id" placeholder="Enter {{ad_category_data.advertise_category}} Ad ID" (keydown.enter)="addAdvertisement(ad_id)"
+        class="form-control ad-inputs mb-2" maxlength="150">
+      <a class="btn title-bar text-white pl-2 pr-2" (click)="addAdvertisement(ad_id)">
+        Save
+      </a>
+      <a class="btn btn-danger text-white" (click)="removeAdvertisementField(ad_id, i)">
+        <i class="fa fa-trash-o"></i>
+      </a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 pl-0 pr-0 text-center">
+      <a md-raised-button class="btn title-bar" (click)="addAdvertisementField()">
+        <i class="fa fa-plus"></i>
+      </a>
+      <button md-raised-button class="btn" [md-dialog-close]="true">Close</button>
+    </div>
+  </div>
+  <div class="row pt-2 text-center text-info">
+    <div class="col-sm-12 text-danger">
+      {{errorMsg}}
+    </div>
+    <div class="col-sm-12 text-success">
+      {{successMsg}}
+    </div>
+  </div>
+</div>

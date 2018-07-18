@@ -62,6 +62,8 @@ import { DeleteUserGeneratedComponent } from './delete-user-generated/delete-use
 import { PromocodeManagementComponent } from './promocode-management/promocode-management.component';
 import { PromocodeAddComponent } from './promocode-add/promocode-add.component';
 import { ConfirmActionComponent } from './confirm-action/confirm-action.component';
+import { AdmobAdsComponent } from './admob-ads/admob-ads.component';
+import { GaAdsByCategoryComponent } from './ga-ads-by-category/ga-ads-by-category.component';
 
 @NgModule({
   declarations: [
@@ -115,6 +117,8 @@ import { ConfirmActionComponent } from './confirm-action/confirm-action.componen
     PromocodeManagementComponent,
     PromocodeAddComponent,
     ConfirmActionComponent,
+    AdmobAdsComponent,
+    GaAdsByCategoryComponent,
   ],
   imports: [
     BrowserModule,
@@ -162,7 +166,8 @@ import { ConfirmActionComponent } from './confirm-action/confirm-action.componen
     ViewImageComponent,
     DeleteUserGeneratedComponent,
     PromocodeAddComponent,
-    ConfirmActionComponent
+    ConfirmActionComponent,
+    GaAdsByCategoryComponent,
   ],
   providers: [DataService, AuthenticationService],
   bootstrap: [AppComponent]

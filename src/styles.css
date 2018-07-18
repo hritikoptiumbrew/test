@@ -263,6 +263,11 @@ body {
     max-width: 289px !important;
 }
 
+.width-768 {
+    width: 768px !important;
+}
+
+
 .inline-block {
     display: inline-block !important;
 }

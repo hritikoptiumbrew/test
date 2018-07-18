@@ -143,6 +143,11 @@ export class ViewCategoriesComponent implements OnInit {
     this.router.navigate(['/admin/categories/', this.categoryId, 'user-designs']);
   }
 
+  viewAdmobAds(category) {
+    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    this.router.navigate(['/admin/admob-ads/']);
+  }
+
   addSubCategory() {
     let dialogRef = this.dialog.open(AddSubCategoryByCategoryIdComponent);
     dialogRef.componentInstance.category_id = this.categoryId;

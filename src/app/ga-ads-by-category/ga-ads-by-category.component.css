@@ -1,0 +1,5 @@
+.ad-inputs{
+    width: calc(100% - 125px);
+    display: inline-block;
+    margin-right: 15px;
+}
