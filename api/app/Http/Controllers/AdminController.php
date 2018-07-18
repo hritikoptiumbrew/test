@@ -6709,6 +6709,7 @@ class AdminController extends Controller
      * "sub_category_id":10, //compulsory
      * "server_id":"vdfjdsjhfbhjbjd" //compulsory
      * "sub_category_advertise_server_id":"vdfjdsjhfbhjbjd"
+     * "device_platform":1 //compulsory 1=Ios, 2=Android
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -6718,34 +6719,6 @@ class AdminController extends Controller
      * "data": {}
      * }
      */
-    public function addAdvertiseServerIdOld(Request $request_body)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category_id', 'sub_category_id', 'server_id'), $request)) != '')
-                return $response;
-
-            $advertise_category_id = $request->advertise_category_id;
-            $sub_category_id = $request->sub_category_id;
-            $server_id = $request->server_id;
-            $create_time = date('Y-m-d H:i:s');
-
-            DB::beginTransaction();
-            DB::insert('insert into sub_category_advertise_server_id_master (advertise_category_id, sub_category_id, server_id, is_active, create_time)    VALUES(?, ?, ?, ?, ?)', [$advertise_category_id, $sub_category_id, $server_id, 1, $create_time]);
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id added successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("addAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
     public function addAdvertiseServerId(Request $request_body)
     {
         try {
@@ -6753,34 +6726,32 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category_id', 'sub_category_id', 'server_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category_id', 'sub_category_id', 'server_id', 'device_platform'), $request)) != '')
                 return $response;
 
             $advertise_category_id = $request->advertise_category_id;
             $sub_category_id = $request->sub_category_id;
             $server_id = $request->server_id;
+            $device_platform = $request->device_platform;
             $sub_category_advertise_server_id = isset($request->sub_category_advertise_server_id) ? $request->sub_category_advertise_server_id : 0;
 
             if (($response = (new VerificationController())->validateAdvertiseServerId($server_id)) != '')
                 return $response;
 
-            if($sub_category_advertise_server_id === 0)
-            {
+            if ($sub_category_advertise_server_id === 0) {
                 $create_time = date('Y-m-d H:i:s');
 
                 DB::beginTransaction();
-                DB::insert('insert into sub_category_advertise_server_id_master (advertise_category_id, sub_category_id, server_id, is_active, create_time)    VALUES(?, ?, ?, ?, ?)', [$advertise_category_id, $sub_category_id, $server_id, 1, $create_time]);
+                DB::insert('insert into sub_category_advertise_server_id_master (advertise_category_id, sub_category_id, server_id, device_platform, is_active, create_time)    VALUES(?, ?, ?, ?, ?, ?)', [$advertise_category_id, $sub_category_id, $server_id, $device_platform, 1, $create_time]);
                 DB::commit();
 
                 $response = Response::json(array('code' => 200, 'message' => 'Advertise server id added successfully.', 'cause' => '', 'data' => json_decode('{}')));
-            }
-            else
-            {
+            } else {
                 if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_advertise_server_id'), $request)) != '')
                     return $response;
 
                 DB::beginTransaction();
-                DB::update('UPDATE sub_category_advertise_server_id_master SET advertise_category_id = ?, server_id = ? WHERE id = ?', [$advertise_category_id, $server_id, $sub_category_advertise_server_id]);
+                DB::update('UPDATE sub_category_advertise_server_id_master SET server_id = ? WHERE id = ?', [$server_id, $sub_category_advertise_server_id]);
                 DB::commit();
 
                 $response = Response::json(array('code' => 200, 'message' => 'Advertise server id updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -6919,7 +6890,19 @@ class AdminController extends Controller
      * "is_active": 1,
      * "create_time": "2018-07-16 09:07:07",
      * "update_time": "2018-07-16 09:07:07",
-     * "server_id_list": []
+     * "android": [],
+     * "ios": [
+     * {
+     * "sub_category_advertise_server_id": 1,
+     * "advertise_category_id": 3,
+     * "sub_category_id": 66,
+     * "server_id": "Test Rewarded Video Ad Id 1",
+     * "device_platform": 1,
+     * "is_active": 1,
+     * "create_time": "2018-07-18 09:09:22",
+     * "update_time": "2018-07-18 09:09:22"
+     * }
+     * ]
      * },
      * {
      * "advertise_category_id": 1,
@@ -6927,17 +6910,19 @@ class AdminController extends Controller
      * "is_active": 1,
      * "create_time": "2018-07-16 09:06:47",
      * "update_time": "2018-07-16 09:06:47",
-     * "server_id_list": [
+     * "android": [
      * {
-     * "sub_category_advertise_server_id": 5,
+     * "sub_category_advertise_server_id": 2,
      * "advertise_category_id": 1,
      * "sub_category_id": 66,
-     * "server_id": "vdfjdsjhfbhjbjd",
+     * "server_id": "Test Banner Ad Id 1",
+     * "device_platform": 2,
      * "is_active": 1,
-     * "create_time": "2018-07-16 10:38:47",
-     * "update_time": "2018-07-16 10:38:47"
+     * "create_time": "2018-07-18 09:10:23",
+     * "update_time": "2018-07-18 09:10:23"
      * }
-     * ]
+     * ],
+     * "ios": []
      * },
      * {
      * "advertise_category_id": 2,
@@ -6945,7 +6930,8 @@ class AdminController extends Controller
      * "is_active": 1,
      * "create_time": "2018-07-16 09:06:47",
      * "update_time": "2018-07-16 09:06:47",
-     * "server_id_list": []
+     * "android": [],
+     * "ios": []
      * }
      * ]
      * }
@@ -6985,11 +6971,12 @@ class AdminController extends Controller
                                         order by update_time DESC');
 
                     foreach ($category as $key) {
-                        $server_id_group_by = DB::select('SELECT
+                        $android_server_id = DB::select('SELECT
                                           id AS sub_category_advertise_server_id,
                                           advertise_category_id,
                                           sub_category_id,
                                           server_id,
+                                          device_platform,
                                           is_active,
                                           create_time,
                                           update_time
@@ -6998,10 +6985,30 @@ class AdminController extends Controller
                                         WHERE
                                           sub_category_id = ? AND
                                           advertise_category_id = ? AND
+                                          device_platform = 2 AND
                                           is_active=1
                                         order by update_time DESC', [$this->sub_category_id, $key->advertise_category_id]);
 
-                        $key->server_id_list = $server_id_group_by;
+                        $ios_server_id = DB::select('SELECT
+                                          id AS sub_category_advertise_server_id,
+                                          advertise_category_id,
+                                          sub_category_id,
+                                          server_id,
+                                          device_platform,
+                                          is_active,
+                                          create_time,
+                                          update_time
+                                        FROM
+                                          sub_category_advertise_server_id_master
+                                        WHERE
+                                          sub_category_id = ? AND
+                                          advertise_category_id = ? AND
+                                          device_platform = 1 AND
+                                          is_active=1
+                                        order by update_time DESC', [$this->sub_category_id, $key->advertise_category_id]);
+
+                        $key->android = $android_server_id;
+                        $key->ios = $ios_server_id;
                     }
                     return $category;
 

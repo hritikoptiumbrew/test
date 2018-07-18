@@ -102,7 +102,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"advertise_category_id\":1, //compulsory\n\"sub_category_id\":10, //compulsory\n\"server_id\":\"vdfjdsjhfbhjbjd\" //compulsory\n\"sub_category_advertise_server_id\":\"vdfjdsjhfbhjbjd\"\n}",
+          "content": "{\n\"advertise_category_id\":1, //compulsory\n\"sub_category_id\":10, //compulsory\n\"server_id\":\"vdfjdsjhfbhjbjd\" //compulsory\n\"sub_category_advertise_server_id\":\"vdfjdsjhfbhjbjd\"\n\"device_platform\":1 //compulsory 1=Ios, 2=Android\n}",
           "type": "json"
         },
         {
@@ -977,7 +977,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Advertise server id fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"advertise_category_id\": 3,\n\"advertise_category\": \"Rewarded Video\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:07:07\",\n\"update_time\": \"2018-07-16 09:07:07\",\n\"server_id_list\": []\n},\n{\n\"advertise_category_id\": 1,\n\"advertise_category\": \"Banner\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\",\n\"server_id_list\": [\n{\n\"sub_category_advertise_server_id\": 5,\n\"advertise_category_id\": 1,\n\"sub_category_id\": 66,\n\"server_id\": \"vdfjdsjhfbhjbjd\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 10:38:47\",\n\"update_time\": \"2018-07-16 10:38:47\"\n}\n]\n},\n{\n\"advertise_category_id\": 2,\n\"advertise_category\": \"Intertial\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\",\n\"server_id_list\": []\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Advertise server id fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"advertise_category_id\": 3,\n\"advertise_category\": \"Rewarded Video\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:07:07\",\n\"update_time\": \"2018-07-16 09:07:07\",\n\"android\": [],\n\"ios\": [\n{\n\"sub_category_advertise_server_id\": 1,\n\"advertise_category_id\": 3,\n\"sub_category_id\": 66,\n\"server_id\": \"Test Rewarded Video Ad Id 1\",\n\"device_platform\": 1,\n\"is_active\": 1,\n\"create_time\": \"2018-07-18 09:09:22\",\n\"update_time\": \"2018-07-18 09:09:22\"\n}\n]\n},\n{\n\"advertise_category_id\": 1,\n\"advertise_category\": \"Banner\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\",\n\"android\": [\n{\n\"sub_category_advertise_server_id\": 2,\n\"advertise_category_id\": 1,\n\"sub_category_id\": 66,\n\"server_id\": \"Test Banner Ad Id 1\",\n\"device_platform\": 2,\n\"is_active\": 1,\n\"create_time\": \"2018-07-18 09:10:23\",\n\"update_time\": \"2018-07-18 09:10:23\"\n}\n],\n\"ios\": []\n},\n{\n\"advertise_category_id\": 2,\n\"advertise_category\": \"Intertial\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\",\n\"android\": [],\n\"ios\": []\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2204,6 +2204,34 @@ define({ "api": [
     "groupTitle": "Admin"
   },
   {
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "varname1",
+            "description": "<p>No type.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "varname2",
+            "description": "<p>With type.</p>"
+          }
+        ]
+      }
+    },
+    "type": "",
+    "url": "",
+    "version": "0.0.0",
+    "filename": "./documentation/main.js",
+    "group": "C__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
+    "groupTitle": "C__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
+    "name": ""
+  },
+  {
     "type": "post",
     "url": "appPurchasePayment",
     "title": "appPurchasePayment",
@@ -2330,12 +2358,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":1 //compulsory\n}",
+          "content": "{\n\"sub_category_id\":1 //compulsory\n\"device_platform\":1 //compulsory 1=ios, 2=android\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Advertise server id fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"advertise_category_id\": 3,\n\"advertise_category\": \"Rewarded Video\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:07:07\",\n\"update_time\": \"2018-07-16 09:07:07\",\n\"server_id_list\": [\n{\n\"sub_category_advertise_server_id\": 14,\n\"advertise_category_id\": 3,\n\"sub_category_id\": 66,\n\"server_id\": \"test Rewarded Video ID 0\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 13:35:49\",\n\"update_time\": \"2018-07-16 13:42:45\"\n}\n]\n},\n{\n\"advertise_category_id\": 1,\n\"advertise_category\": \"Banner\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\",\n\"server_id_list\": [\n{\n\"sub_category_advertise_server_id\": 16,\n\"advertise_category_id\": 1,\n\"sub_category_id\": 66,\n\"server_id\": \"test Banner ID 2\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 13:38:24\",\n\"update_time\": \"2018-07-16 13:38:24\"\n}\n]\n},\n{\n\"advertise_category_id\": 2,\n\"advertise_category\": \"Intertial\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\",\n\"server_id_list\": []\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2893,33 +2921,5 @@ define({ "api": [
     },
     "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
-  },
-  {
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "optional": false,
-            "field": "varname1",
-            "description": "<p>No type.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "varname2",
-            "description": "<p>With type.</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "./documentation/main.js",
-    "group": "c__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
-    "groupTitle": "c__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
-    "name": ""
   }
 ] });

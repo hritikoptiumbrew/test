@@ -1715,6 +1715,7 @@ class UserController extends Controller
      * @apiSuccessExample Request-Body:
      * {
      * "sub_category_id":1 //compulsory
+     * "device_platform":1 //compulsory 1=ios, 2=android
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -1778,19 +1779,20 @@ class UserController extends Controller
             $request = json_decode($request->getContent());
             //Log::info("getAllAdvertisementToLinkAdvertisement Request :", [$request]);
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','device_platform'), $request)) != '')
                 return $response;
 
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
             $this->sub_category_id = $request->sub_category_id;
+            $this->device_platform = $request->device_platform;
 
 
             //return $total_row;
 
-            if (!Cache::has("pel:getAdvertiseServerIdForUser$this->sub_category_id")) {
-                $result = Cache::rememberforever("getAdvertiseServerIdForUser$this->sub_category_id", function () {
+            if (!Cache::has("pel:getAdvertiseServerIdForUser$this->sub_category_id:$this->device_platform")) {
+                $result = Cache::rememberforever("getAdvertiseServerIdForUser$this->sub_category_id:$this->device_platform", function () {
 
                     $category = DB::select('SELECT
                                           id AS advertise_category_id,
@@ -1818,8 +1820,9 @@ class UserController extends Controller
                                         WHERE
                                           sub_category_id = ? AND
                                           advertise_category_id = ? AND
+                                          device_platform = ? AND
                                           is_active=1
-                                        order by update_time DESC', [$this->sub_category_id, $key->advertise_category_id]);
+                                        order by update_time DESC', [$this->sub_category_id, $key->advertise_category_id, $this->device_platform]);
 
                         $key->server_id_list = $server_id_group_by;
                     }
@@ -1829,7 +1832,7 @@ class UserController extends Controller
 
             }
 
-            $redis_result = Cache::get("getAdvertiseServerIdForUser$this->sub_category_id");
+            $redis_result = Cache::get("getAdvertiseServerIdForUser$this->sub_category_id:$this->device_platform");
 
             if (!$redis_result) {
                 $redis_result = [];
