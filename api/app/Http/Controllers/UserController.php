@@ -1718,6 +1718,57 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Success-Response:
      * {
+     * "code": 200,
+     * "message": "Advertise server id fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "advertise_category_id": 3,
+     * "advertise_category": "Rewarded Video",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:07:07",
+     * "update_time": "2018-07-16 09:07:07",
+     * "server_id_list": [
+     * {
+     * "sub_category_advertise_server_id": 14,
+     * "advertise_category_id": 3,
+     * "sub_category_id": 66,
+     * "server_id": "test Rewarded Video ID 0",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 13:35:49",
+     * "update_time": "2018-07-16 13:42:45"
+     * }
+     * ]
+     * },
+     * {
+     * "advertise_category_id": 1,
+     * "advertise_category": "Banner",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:06:47",
+     * "update_time": "2018-07-16 09:06:47",
+     * "server_id_list": [
+     * {
+     * "sub_category_advertise_server_id": 16,
+     * "advertise_category_id": 1,
+     * "sub_category_id": 66,
+     * "server_id": "test Banner ID 2",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 13:38:24",
+     * "update_time": "2018-07-16 13:38:24"
+     * }
+     * ]
+     * },
+     * {
+     * "advertise_category_id": 2,
+     * "advertise_category": "Intertial",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:06:47",
+     * "update_time": "2018-07-16 09:06:47",
+     * "server_id_list": []
+     * }
+     * ]
+     * }
      * }
      */
     public function getAdvertiseServerIdForUser(Request $request)
@@ -1741,7 +1792,20 @@ class UserController extends Controller
             if (!Cache::has("pel:getAdvertiseServerIdForUser$this->sub_category_id")) {
                 $result = Cache::rememberforever("getAdvertiseServerIdForUser$this->sub_category_id", function () {
 
-                    return DB::select('SELECT
+                    $category = DB::select('SELECT
+                                          id AS advertise_category_id,
+                                          advertise_category,
+                                          is_active,
+                                          create_time,
+                                          update_time
+                                        FROM
+                                          advertise_category_master
+                                        WHERE
+                                          is_active=1
+                                        order by update_time DESC');
+
+                    foreach ($category as $key) {
+                        $server_id_group_by = DB::select('SELECT
                                           id AS sub_category_advertise_server_id,
                                           advertise_category_id,
                                           sub_category_id,
@@ -1753,8 +1817,14 @@ class UserController extends Controller
                                           sub_category_advertise_server_id_master
                                         WHERE
                                           sub_category_id = ? AND
+                                          advertise_category_id = ? AND
                                           is_active=1
-                                        order by update_time DESC', [$this->sub_category_id]);
+                                        order by update_time DESC', [$this->sub_category_id, $key->advertise_category_id]);
+
+                        $key->server_id_list = $server_id_group_by;
+                    }
+                    return $category;
+
                 });
 
             }
