@@ -746,4 +746,53 @@ class VerificationController extends Controller
 
         return $response;
     }
+
+    //validateItemCount
+    public function validateItemCount($item_count)
+    {
+        try
+        {
+
+            if($item_count < 3 or $item_count > 200)
+            {
+                $response = Response::json(array('code'=>'201','message'=>'Item count must be >= 3 and <= 200.','cause'=>'','response'=>json_decode("{}")));
+            }
+            else
+            {
+                $response = '';
+            }
+        }
+        catch(Exception $e)
+        {
+            Log::error("validateItemCount Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            return  Response::json(array('code'=>'201','message'=>$e->getMessage(),'cause'=>'','response'=>json_decode("{}")));
+        }
+
+        return $response;
+    }
+
+    //validateItemCount
+    public function validateAdvertiseServerId($server_id)
+    {
+        try
+        {
+
+            $result = DB::select('SELECT * from sub_category_advertise_server_id_master WHERE server_id = ?',[$server_id]);
+            if(count($result)>=1)
+            {
+                $response = Response::json(array('code'=>'201','message'=>'Server id already exists.','cause'=>'','response'=>json_decode("{}")));
+            }
+            else
+            {
+                $response = '';
+            }
+        }
+        catch(Exception $e)
+        {
+            Log::error("validateAdvertiseServerId Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            return  Response::json(array('code'=>'201','message'=>$e->getMessage(),'cause'=>'','response'=>json_decode("{}")));
+        }
+
+        return $response;
+    }
 }

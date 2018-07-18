@@ -6456,6 +6456,576 @@ class AdminController extends Controller
         return $response;
     }
 
+    /* =========================================| Advertise Category |=========================================*/
+
+    /**
+     * @api {post} addAdvertisementCategory   addAdvertisementCategory
+     * @apiName addAdvertisementCategory
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "category_id":1,
+     * "name":"Nature"
+     * }
+     * file:image.jpeg
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "sub category added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addAdvertisementCategory(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category'), $request)) != '')
+                return $response;
+
+            $advertise_category = $request->advertise_category;
+            $create_at = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
+            DB::insert('insert into advertise_category_master (advertise_category, is_active, create_time)  VALUES(?, ?, ?)', [$advertise_category, 1, $create_at]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addAdvertisementCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} editAdvertisementCategory   editAdvertisementCategory
+     * @apiName editAdvertisementCategory
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "category_id":1,
+     * "name":"Nature"
+     * }
+     * file:image.jpeg
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "sub category added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function editAdvertisementCategory(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category', 'advertise_category_id'), $request)) != '')
+                return $response;
+
+            $advertise_category = $request->advertise_category;
+            $advertise_category_id = $request->advertise_category_id;
+
+            DB::beginTransaction();
+            DB::update('UPDATE advertise_category_master SET advertise_category = ? WHERE id = ?', [$advertise_category, $advertise_category_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("editAdvertisementCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteAdvertisementCategory   deleteAdvertisementCategory
+     * @apiName deleteAdvertisementCategory
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "category_id":1,
+     * "name":"Nature"
+     * }
+     * file:image.jpeg
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "sub category added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteAdvertisementCategory(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category_id'), $request)) != '')
+                return $response;
+
+            $advertise_category_id = $request->advertise_category_id;
+
+            DB::beginTransaction();
+            DB::delete('DELETE FROM advertise_category_master WHERE id = ?', [$advertise_category_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise category deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteAdvertisementCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllAdvertiseCategory   getAllAdvertiseCategory
+     * @apiName getAllAdvertiseCategory
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise categories fetched successfully.",
+     * "cause": "",
+     * "data": [
+     * {
+     * "advertise_category_id": 3,
+     * "advertise_category": "Rewarded Video",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:07:07",
+     * "update_time": "2018-07-16 09:07:07"
+     * },
+     * {
+     * "advertise_category_id": 1,
+     * "advertise_category": "Banner",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:06:47",
+     * "update_time": "2018-07-16 09:06:47"
+     * },
+     * {
+     * "advertise_category_id": 2,
+     * "advertise_category": "Intertial",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:06:47",
+     * "update_time": "2018-07-16 09:06:47"
+     * }
+     * ]
+     * }
+     */
+    public function getAllAdvertiseCategory(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!Cache::has("pel:getAllAdvertiseCategory")) {
+                $result = Cache::rememberforever("getAllAdvertiseCategory", function () {
+
+                    return DB::select('SELECT
+                                          id AS advertise_category_id,
+                                          advertise_category,
+                                          is_active,
+                                          create_time,
+                                          update_time
+                                        FROM
+                                          advertise_category_master
+                                        WHERE
+                                          is_active=1
+                                        order by update_time DESC');
+                });
+
+            }
+
+            $redis_result = Cache::get("getAllAdvertiseCategory");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise categories fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllAdvertiseCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all advertise categories.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =========================================| Link Advertise Category |=========================================*/
+
+    /**
+     * @api {post} addAdvertiseServerId   addAdvertiseServerId
+     * @apiName addAdvertiseServerId
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "advertise_category_id":1, //compulsory
+     * "sub_category_id":10, //compulsory
+     * "server_id":"vdfjdsjhfbhjbjd" //compulsory
+     * "sub_category_advertise_server_id":"vdfjdsjhfbhjbjd"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise server id added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addAdvertiseServerIdOld(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category_id', 'sub_category_id', 'server_id'), $request)) != '')
+                return $response;
+
+            $advertise_category_id = $request->advertise_category_id;
+            $sub_category_id = $request->sub_category_id;
+            $server_id = $request->server_id;
+            $create_time = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
+            DB::insert('insert into sub_category_advertise_server_id_master (advertise_category_id, sub_category_id, server_id, is_active, create_time)    VALUES(?, ?, ?, ?, ?)', [$advertise_category_id, $sub_category_id, $server_id, 1, $create_time]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function addAdvertiseServerId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category_id', 'sub_category_id', 'server_id'), $request)) != '')
+                return $response;
+
+            $advertise_category_id = $request->advertise_category_id;
+            $sub_category_id = $request->sub_category_id;
+            $server_id = $request->server_id;
+            $sub_category_advertise_server_id = isset($request->sub_category_advertise_server_id) ? $request->sub_category_advertise_server_id : 0;
+
+            if (($response = (new VerificationController())->validateAdvertiseServerId($server_id)) != '')
+                return $response;
+
+            if($sub_category_advertise_server_id === 0)
+            {
+                $create_time = date('Y-m-d H:i:s');
+
+                DB::beginTransaction();
+                DB::insert('insert into sub_category_advertise_server_id_master (advertise_category_id, sub_category_id, server_id, is_active, create_time)    VALUES(?, ?, ?, ?, ?)', [$advertise_category_id, $sub_category_id, $server_id, 1, $create_time]);
+                DB::commit();
+
+                $response = Response::json(array('code' => 200, 'message' => 'Advertise server id added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+            else
+            {
+                if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_advertise_server_id'), $request)) != '')
+                    return $response;
+
+                DB::beginTransaction();
+                DB::update('UPDATE sub_category_advertise_server_id_master SET advertise_category_id = ?, server_id = ? WHERE id = ?', [$advertise_category_id, $server_id, $sub_category_advertise_server_id]);
+                DB::commit();
+
+                $response = Response::json(array('code' => 200, 'message' => 'Advertise server id updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+        } catch (Exception $e) {
+            Log::error("addAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add or update advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateAdvertiseServerId   updateAdvertiseServerId
+     * @apiName updateAdvertiseServerId
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_advertise_server_id":1, //compulsory
+     * "advertise_category_id":1, //compulsory
+     * "server_id":"absdjdfgjfj" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     *{
+     * "code": 200,
+     * "message": "Advertise server id updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateAdvertiseServerId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_advertise_server_id', 'advertise_category_id', 'server_id'), $request)) != '')
+                return $response;
+
+            $sub_category_advertise_server_id = $request->sub_category_advertise_server_id;
+            $advertise_category_id = $request->advertise_category_id;
+            $server_id = $request->server_id;
+
+            DB::beginTransaction();
+            DB::update('UPDATE sub_category_advertise_server_id_master SET advertise_category_id = ?, server_id = ? WHERE id = ?', [$advertise_category_id, $server_id, $sub_category_advertise_server_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("updateAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteAdvertiseServerId   deleteAdvertiseServerId
+     * @apiName deleteAdvertiseServerId
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_advertise_server_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise server id deleted successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteAdvertiseServerId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_advertise_server_id'), $request)) != '')
+                return $response;
+
+            $sub_category_advertise_server_id = $request->sub_category_advertise_server_id;
+
+            DB::beginTransaction();
+            DB::delete('DELETE FROM sub_category_advertise_server_id_master WHERE id = ?', [$sub_category_advertise_server_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAdvertiseServerIdForAdmin   getAdvertiseServerIdForAdmin
+     * @apiName getAdvertiseServerIdForAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "sub_category_id":66 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise server id fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "advertise_category_id": 3,
+     * "advertise_category": "Rewarded Video",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:07:07",
+     * "update_time": "2018-07-16 09:07:07",
+     * "server_id_list": []
+     * },
+     * {
+     * "advertise_category_id": 1,
+     * "advertise_category": "Banner",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:06:47",
+     * "update_time": "2018-07-16 09:06:47",
+     * "server_id_list": [
+     * {
+     * "sub_category_advertise_server_id": 5,
+     * "advertise_category_id": 1,
+     * "sub_category_id": 66,
+     * "server_id": "vdfjdsjhfbhjbjd",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 10:38:47",
+     * "update_time": "2018-07-16 10:38:47"
+     * }
+     * ]
+     * },
+     * {
+     * "advertise_category_id": 2,
+     * "advertise_category": "Intertial",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:06:47",
+     * "update_time": "2018-07-16 09:06:47",
+     * "server_id_list": []
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAdvertiseServerIdForAdmin(Request $request)
+    {
+        try {
+
+            $request = json_decode($request->getContent());
+            //Log::info("getAllAdvertisementToLinkAdvertisement Request :", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $this->sub_category_id = $request->sub_category_id;
+
+
+            //return $total_row;
+
+            if (!Cache::has("pel:getAdvertiseServerIdForAdmin$this->sub_category_id")) {
+                $result = Cache::rememberforever("getAdvertiseServerIdForAdmin$this->sub_category_id", function () {
+
+                    $category = DB::select('SELECT
+                                          id AS advertise_category_id,
+                                          advertise_category,
+                                          is_active,
+                                          create_time,
+                                          update_time
+                                        FROM
+                                          advertise_category_master
+                                        WHERE
+                                          is_active=1
+                                        order by update_time DESC');
+
+                    foreach ($category as $key) {
+                        $server_id_group_by = DB::select('SELECT
+                                          id AS sub_category_advertise_server_id,
+                                          advertise_category_id,
+                                          sub_category_id,
+                                          server_id,
+                                          is_active,
+                                          create_time,
+                                          update_time
+                                        FROM
+                                          sub_category_advertise_server_id_master
+                                        WHERE
+                                          sub_category_id = ? AND
+                                          advertise_category_id = ? AND
+                                          is_active=1
+                                        order by update_time DESC', [$this->sub_category_id, $key->advertise_category_id]);
+
+                        $key->server_id_list = $server_id_group_by;
+                    }
+                    return $category;
+
+
+                });
+
+            }
+
+            $redis_result = Cache::get("getAdvertiseServerIdForAdmin$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAdvertiseServerIdForAdmin Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /* =====================================| Redis Cache Operation |==============================================*/
 
     /**

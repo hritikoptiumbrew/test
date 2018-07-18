@@ -88,6 +88,64 @@
   },
   {
     "type": "post",
+    "url": "addAdvertiseServerId",
+    "title": "addAdvertiseServerId",
+    "name": "addAdvertiseServerId",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"advertise_category_id\":1, //compulsory\n\"sub_category_id\":10, //compulsory\n\"server_id\":\"vdfjdsjhfbhjbjd\" //compulsory\n\"sub_category_advertise_server_id\":\"vdfjdsjhfbhjbjd\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Advertise server id added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "addAdvertisementCategory",
+    "title": "addAdvertisementCategory",
+    "name": "addAdvertisementCategory",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "request_data:{\n\"category_id\":1,\n\"name\":\"Nature\"\n}\nfile:image.jpeg",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"sub category added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "addAppContentViaMigration",
     "title": "addAppContentViaMigration",
     "name": "addAppContentViaMigration",
@@ -398,6 +456,64 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Redis Keys Deleted Successfully.\",\n\"cause\": \"\",\n\"data\": \"{}\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "deleteAdvertiseServerId",
+    "title": "deleteAdvertiseServerId",
+    "name": "deleteAdvertiseServerId",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_advertise_server_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Advertise server id deleted successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "deleteAdvertisementCategory",
+    "title": "deleteAdvertisementCategory",
+    "name": "deleteAdvertisementCategory",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "request_data:{\n\"category_id\":1,\n\"name\":\"Nature\"\n}\nfile:image.jpeg",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"sub category added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -755,6 +871,35 @@
   },
   {
     "type": "post",
+    "url": "editAdvertisementCategory",
+    "title": "editAdvertisementCategory",
+    "name": "editAdvertisementCategory",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "request_data:{\n\"category_id\":1,\n\"name\":\"Nature\"\n}\nfile:image.jpeg",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"sub category added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "editJsonData",
     "title": "editJsonData",
     "name": "editJsonData",
@@ -804,6 +949,64 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Advertise Link Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"link_list\": [\n{\n\"advertise_link_id\": 44,\n\"name\": \"Suitescene\",\n\"platform\": \"iOS\",\n\"linked\": 1\n},\n{\n\"advertise_link_id\": 41,\n\"name\": \"Bhavesh Gabani\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 40,\n\"name\": \"Visa\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 39,\n\"name\": \"QR Code Scanner : Barcode QR-Code Generator App\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 38,\n\"name\": \"Photo Editor Lab � Stickers , Filters & Frames\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 37,\n\"name\": \"QR Barcode Scanner : QR Bar Code Generator App\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 36,\n\"name\": \"Cut Paste - Background Eraser\",\n\"platform\": \"iOS\",\n\"linked\": 0\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getAdvertiseServerIdForAdmin",
+    "title": "getAdvertiseServerIdForAdmin",
+    "name": "getAdvertiseServerIdForAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":66 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Advertise server id fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"advertise_category_id\": 3,\n\"advertise_category\": \"Rewarded Video\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:07:07\",\n\"update_time\": \"2018-07-16 09:07:07\",\n\"server_id_list\": []\n},\n{\n\"advertise_category_id\": 1,\n\"advertise_category\": \"Banner\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\",\n\"server_id_list\": [\n{\n\"sub_category_advertise_server_id\": 5,\n\"advertise_category_id\": 1,\n\"sub_category_id\": 66,\n\"server_id\": \"vdfjdsjhfbhjbjd\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 10:38:47\",\n\"update_time\": \"2018-07-16 10:38:47\"\n}\n]\n},\n{\n\"advertise_category_id\": 2,\n\"advertise_category\": \"Intertial\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\",\n\"server_id_list\": []\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getAllAdvertiseCategory",
+    "title": "getAllAdvertiseCategory",
+    "name": "getAllAdvertiseCategory",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Advertise categories fetched successfully.\",\n\"cause\": \"\",\n\"data\": [\n{\n\"advertise_category_id\": 3,\n\"advertise_category\": \"Rewarded Video\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:07:07\",\n\"update_time\": \"2018-07-16 09:07:07\"\n},\n{\n\"advertise_category_id\": 1,\n\"advertise_category\": \"Banner\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\"\n},\n{\n\"advertise_category_id\": 2,\n\"advertise_category\": \"Intertial\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\"\n}\n]\n}",
           "type": "json"
         }
       ]
@@ -1741,6 +1944,35 @@
   },
   {
     "type": "post",
+    "url": "updateAdvertiseServerId",
+    "title": "updateAdvertiseServerId",
+    "name": "updateAdvertiseServerId",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_advertise_server_id\":1, //compulsory\n\"advertise_category_id\":1, //compulsory\n\"server_id\":\"absdjdfgjfj\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Advertise server id updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "updateCatalog",
     "title": "updateCatalog",
     "name": "updateCatalog",
@@ -1972,34 +2204,6 @@
     "groupTitle": "Admin"
   },
   {
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "optional": false,
-            "field": "varname1",
-            "description": "<p>No type.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "varname2",
-            "description": "<p>With type.</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "./documentation/main.js",
-    "group": "C__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
-    "groupTitle": "C__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
-    "name": ""
-  },
-  {
     "type": "post",
     "url": "appPurchasePayment",
     "title": "appPurchasePayment",
@@ -2108,6 +2312,35 @@
       ]
     },
     "filename": "./app/Http/Controllers/LoginController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getAdvertiseServerIdForUser",
+    "title": "getAdvertiseServerIdForUser",
+    "name": "getAdvertiseServerIdForUser",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -2315,6 +2548,35 @@
   },
   {
     "type": "post",
+    "url": "getImagesFromPixabay",
+    "title": "getImagesFromPixabay",
+    "name": "getImagesFromPixabay",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"category\":\"flower\",\n\"page\":1,\n\"item_count\":3\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Images are fatched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"is_cache\": 0,\n\"result\": {\n\"totalHits\": 500,\n\"hits\": [\n{\n\"largeImageURL\": \"https://pixabay.com/get/e831b30f2afc1c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_1280.jpg\",\n\"webformatHeight\": 640,\n\"webformatWidth\": 425,\n\"likes\": 182,\n\"imageWidth\": 2136,\n\"id\": 142028,\n\"user_id\": 41549,\n\"views\": 45888,\n\"comments\": 15,\n\"pageURL\": \"https://pixabay.com/en/lotus-pink-lotus-flower-plant-flowers-lo-142028/\",\n\"imageHeight\": 3216,\n\"webformatURL\": \"https://pixabay.com/get/e831b30f2afc1c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 150,\n\"tags\": \"lotus pink lotus flower plant flowers lotus flower flower flower flowers flowers flowers flowers flowers\",\n\"downloads\": 12277,\n\"user\": \"artzhangqingfeng\",\n\"favorites\": 173,\n\"imageSize\": 978322,\n\"previewWidth\": 100,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2017/08/17/18-37-52-458_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2013/06/29/06/24/lotus-142028_150.jpg\"\n},\n{\n\"largeImageURL\": \"https://pixabay.com/get/ef30b9082df51c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_1280.jpg\",\n\"webformatHeight\": 640,\n\"webformatWidth\": 612,\n\"likes\": 164,\n\"imageWidth\": 2200,\n\"id\": 658751,\n\"user_id\": 784204,\n\"views\": 37932,\n\"comments\": 20,\n\"pageURL\": \"https://pixabay.com/en/bells-flower-flowers-blue-flower-black-n-658751/\",\n\"imageHeight\": 2300,\n\"webformatURL\": \"https://pixabay.com/get/ef30b9082df51c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 150,\n\"tags\": \"bells flower flowers blue flower black nature spring blue purple flower blue flower background flowers flowers flowers flowers flowers blue flower flower\",\n\"downloads\": 18587,\n\"user\": \"Catharina77\",\n\"favorites\": 197,\n\"imageSize\": 294501,\n\"previewWidth\": 144,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/11/27/12-31-26-612_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2015/03/04/12/59/bells-flower-658751_150.jpg\"\n},\n{\n\"largeImageURL\": \"https://pixabay.com/get/ea37b1072ff01c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_1280.jpg\",\n\"webformatHeight\": 640,\n\"webformatWidth\": 437,\n\"likes\": 159,\n\"imageWidth\": 1365,\n\"id\": 320874,\n\"user_id\": 217857,\n\"views\": 38553,\n\"comments\": 19,\n\"pageURL\": \"https://pixabay.com/en/tulip-flower-bloom-pink-flowers-spring-n-320874/\",\n\"imageHeight\": 2000,\n\"webformatURL\": \"https://pixabay.com/get/ea37b1072ff01c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 150,\n\"tags\": \"tulip flower bloom pink flowers spring nature tulip tulip tulip flower flower flower flowers flowers flowers flowers flowers spring spring nature\",\n\"downloads\": 13673,\n\"user\": \"Anelka\",\n\"favorites\": 159,\n\"imageSize\": 420525,\n\"previewWidth\": 102,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2014/04/10/14-20-41-498_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2014/04/10/11/27/tulip-320874_150.jpg\"\n}\n],\n\"total\": 16885\n}\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/PixabayController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "getJsonData",
     "title": "getJsonData",
     "name": "getJsonData",
@@ -2460,6 +2722,35 @@
   },
   {
     "type": "post",
+    "url": "getLinkWithLastSyncTime",
+    "title": "getLinkWithLastSyncTime",
+    "name": "getLinkWithLastSyncTime",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\": 85,\n\"platform\": \"Android\",\n\"last_sync_time\": \"2017-11-28 00:00:00\",\n\"advertise_id_list\": [\n70,\n71,\n72,\n77,\n100,\n200\n]\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Advertise Link Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"link_list\": [\n{\n\"advertise_link_id\": 77,\n\"name\": \"Romantic Love Photo Editor\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1e813f47368_banner_image_1511948607.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1e813f47368_banner_image_1511948607.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1e813f47368_banner_image_1511948607.png\",\n\"app_logo_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1e814000aa9_app_logo_image_1511948608.png\",\n\"app_logo_compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1e814000aa9_app_logo_image_1511948608.png\",\n\"app_logo_original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1e814000aa9_app_logo_image_1511948608.png\",\n\"url\": \"https://play.google.com/store/apps/details?id=com.optimumbrewlab.lovephotoeditor\",\n\"platform\": \"Android\",\n\"app_description\": \"Romantic Love Photo Editor - Realistic Photo Effects, Beautiful Photo Frames, Stickers, etc.\",\n\"updated_at\": \"2018-06-25 10:55:05\"\n}\n],\n\"last_sync_time\": \"2018-06-25 10:55:05\",\n\"advertise_id_list\": [\n100\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "getSampleImagesForMobile",
     "title": "getSampleImagesForMobile",
     "name": "getSampleImagesForMobile",
@@ -2485,6 +2776,35 @@
       ]
     },
     "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getVideosFromPixabay",
+    "title": "getVideosFromPixabay",
+    "name": "getVideosFromPixabay",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"category\":\"water\",\n\"page\":1,\n\"item_count\":3\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"videos are fatched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"is_cache\": 0,\n\"result\": {\n\"totalHits\": 500,\n\"hits\": [\n{\n\"picture_id\": \"529921736\",\n\"videos\": {\n\"large\": {\n\"url\": \"\",\n\"width\": 0,\n\"size\": 0,\n\"height\": 0\n},\n\"small\": {\n\"url\": \"https://player.vimeo.com/external/135733055.sd.mp4?s=4755d2adc868862c3e5bb601a4841c32debe22c8&profile_id=112\",\n\"width\": 640,\n\"size\": 3709798,\n\"height\": 310\n},\n\"medium\": {\n\"url\": \"https://player.vimeo.com/external/135733055.hd.mp4?s=d8ad3de28c7bda1746059d926a2cde7d4198348c&profile_id=113\",\n\"width\": 1280,\n\"size\": 11624131,\n\"height\": 620\n},\n\"tiny\": {\n\"url\": \"https://player.vimeo.com/external/135733055.mobile.mp4?s=326829edd29f45b58f45cfaaa1107d13ecb17eb6&profile_id=116\",\n\"width\": 480,\n\"size\": 1747635,\n\"height\": 232\n}\n},\n\"tags\": \"rain, thunder, water\",\n\"downloads\": 34362,\n\"likes\": 256,\n\"favorites\": 204,\n\"duration\": 36,\n\"id\": 78,\n\"user_id\": 1280814,\n\"views\": 92826,\n\"comments\": 41,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/08/07/22-32-32-276_250x250.jpg\",\n\"pageURL\": \"https://pixabay.com/videos/id-78/\",\n\"type\": \"film\",\n\"user\": \"DistillVideos\"\n},\n{\n\"picture_id\": \"583481279\",\n\"videos\": {\n\"large\": {\n\"url\": \"https://player.vimeo.com/external/176282263.hd.mp4?s=5ae9c441e89ee36646286c22fddc6c8781946c7d&profile_id=169\",\n\"width\": 1920,\n\"size\": 32514692,\n\"height\": 1080\n},\n\"small\": {\n\"url\": \"https://player.vimeo.com/external/176282263.sd.mp4?s=eae20877d2f66cd5b7481c8e9ac2b4b10fd92bef&profile_id=165\",\n\"width\": 960,\n\"size\": 7392540,\n\"height\": 540\n},\n\"medium\": {\n\"url\": \"https://player.vimeo.com/external/176282263.hd.mp4?s=5ae9c441e89ee36646286c22fddc6c8781946c7d&profile_id=174\",\n\"width\": 1280,\n\"size\": 12518329,\n\"height\": 720\n},\n\"tiny\": {\n\"url\": \"https://player.vimeo.com/external/176282263.sd.mp4?s=eae20877d2f66cd5b7481c8e9ac2b4b10fd92bef&profile_id=164\",\n\"width\": 640,\n\"size\": 2470905,\n\"height\": 360\n}\n},\n\"tags\": \"sea, wave, golden\",\n\"downloads\": 54973,\n\"likes\": 341,\n\"favorites\": 291,\n\"duration\": 40,\n\"id\": 4006,\n\"user_id\": 1024927,\n\"views\": 108996,\n\"comments\": 64,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2017/10/03/16-01-13-529_250x250.png\",\n\"pageURL\": \"https://pixabay.com/videos/id-4006/\",\n\"type\": \"film\",\n\"user\": \"outlinez\"\n},\n{\n\"picture_id\": \"540200545\",\n\"videos\": {\n\"large\": {\n\"url\": \"https://player.vimeo.com/external/142801793.hd.mp4?s=7fb230aa374b14694792fc7ab23e31ca40cd4117&profile_id=119\",\n\"width\": 1920,\n\"size\": 8542568,\n\"height\": 1080\n},\n\"small\": {\n\"url\": \"https://player.vimeo.com/external/142801793.sd.mp4?s=452bc0b5bb4ddc978189a41e1eacdc3409edb7e8&profile_id=112\",\n\"width\": 640,\n\"size\": 1448790,\n\"height\": 360\n},\n\"medium\": {\n\"url\": \"https://player.vimeo.com/external/142801793.hd.mp4?s=7fb230aa374b14694792fc7ab23e31ca40cd4117&profile_id=113\",\n\"width\": 1280,\n\"size\": 4826988,\n\"height\": 720\n},\n\"tiny\": {\n\"url\": \"https://player.vimeo.com/external/142801793.mobile.mp4?s=b7f949c7dab73b2c48da20ee73d10c48a6f68a18&profile_id=116\",\n\"width\": 480,\n\"size\": 579502,\n\"height\": 270\n}\n},\n\"tags\": \"bubbles, air, underwater\",\n\"downloads\": 33843,\n\"likes\": 219,\n\"favorites\": 231,\n\"duration\": 15,\n\"id\": 1085,\n\"user_id\": 1283884,\n\"views\": 64453,\n\"comments\": 29,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/08/09/12-33-44-788_250x250.png\",\n\"pageURL\": \"https://pixabay.com/videos/id-1085/\",\n\"type\": \"film\",\n\"user\": \"Vimeo-Free-Videos\"\n}\n],\n\"total\": 1159\n}\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/PixabayController.php",
     "groupTitle": "User"
   },
   {
@@ -2573,5 +2893,33 @@
     },
     "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
+  },
+  {
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "varname1",
+            "description": "<p>No type.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "varname2",
+            "description": "<p>With type.</p>"
+          }
+        ]
+      }
+    },
+    "type": "",
+    "url": "",
+    "version": "0.0.0",
+    "filename": "./documentation/main.js",
+    "group": "c__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
+    "groupTitle": "c__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
+    "name": ""
   }
 ]

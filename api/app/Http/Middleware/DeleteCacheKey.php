@@ -440,6 +440,30 @@ class DeleteCacheKey
                 }
             }
 
+            //getAdvertiseServerIdForAdmin
+            if ($api == '/api/addAdvertiseServerId' or $api == '/api/updateAdvertiseServerId' or $api == '/api/deleteAdvertiseServerId' or $api == '/api/addAdvertisementCategory' or $api == '/api/editAdvertisementCategory' or $api == '/api/deleteAdvertisementCategory') {
+
+                //getAllAdvertiseCategory
+                $keys = Redis::keys('pel:getAllAdvertiseCategory*');
+                //Log::info("pel:getAllAdvertiseCategory Key Deleted",['key' =>$keys]);
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                if (count($keys) === 0) {
+                    //Log::info("pel:getAllAdvertiseCategory Key Deleted");
+                }
+
+                //getAdvertiseServerIdForAdmin
+                $keys = Redis::keys('pel:getAdvertiseServerIdForAdmin*');
+                //Log::info("pel:getAdvertiseServerIdForAdmin Key Deleted",['key' =>$keys]);
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                if (count($keys) === 0) {
+                    //Log::info("pel:getAdvertiseServerIdForAdmin Key Deleted");
+                }
+            }
+
 
             //Advertise Link
             if ($api == '/api/addLink' or $api == '/api/updateLink' or $api == '/api/deleteLink' or $api == '/api/addAdvertiseLink' or $api == '/api/unlinkAdvertise' or $api == '/api/linkAdvertisementWithSubCategory' or $api == '/api/deleteLinkedAdvertisement') {
@@ -461,6 +485,15 @@ class DeleteCacheKey
                 }
                 if (count($keys) === 0) {
                     //Log::info("pel:getLink Key Deleted");
+                }
+
+                //getLinkWithLastSyncTime
+                $keys = Redis::keys('pel:getLinkWithLastSyncTime*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                if (count($keys) === 0) {
+                    //Log::info("pel:getLinkWithLastSyncTime Key Deleted");
                 }
 
 
