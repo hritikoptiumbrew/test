@@ -108,9 +108,8 @@ export class AdmobAdsComponent implements OnInit {
     let tmp_current_path = tmp_selected_catagory.name + " / " + tmp_selected_sub_catagory.name + " / admob-ads";
     return tmp_current_path;
   }
-
   viewCategory(category) {
-    console.log(category);
+    /* console.log(category); */
     localStorage.setItem("selected_admob_catagory", JSON.stringify(category));
     /* this.router.navigate(['/admin/admob-ads/', tmp_url_data]); */
     let dialogRef = this.dialog.open(GaAdsByCategoryComponent);
