@@ -606,6 +606,8 @@ class AdminController extends Controller
         return $response;
     }
 
+    /* ========================================= Store image into s3 bucket =========================================*/
+
     public function storeFileIntoS3Bucket(Request $request_body)
     {
         try {
@@ -619,7 +621,7 @@ class AdminController extends Controller
                 if (($response = (new ImageController())->verifyImage($file)) != '')
                     return $response;
 
-                $image = (new ImageController())->generateNewFileName('post_img', $file);
+                $image = (new ImageController())->generateNewFileName('test_image', $file);
                 (new ImageController())->saveOriginalImage($image);
                 (new ImageController())->saveCompressedImage($image);
                 (new ImageController())->saveThumbnailImage($image);
@@ -629,10 +631,11 @@ class AdminController extends Controller
                 $thumbnail_sourceFile = $base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image;
 
                 //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
-                $disk = Storage::disk('spaces');
-                $original_targetFile = "photoeditorlab/original/" . $image;
-                $compressed_targetFile = "photoeditorlab/compressed/" . $image;
-                $thumbnail_targetFile = "photoeditorlab/thumbnail/" . $image;
+                $disk = Storage::disk('s3');
+                $original_targetFile = "imageflyer/original/" . $image;
+                $compressed_targetFile = "imageflyer/compressed/" . $image;
+                $thumbnail_targetFile = "imageflyer/thumbnail/" . $image;
+
                 $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
                 $disk->put($compressed_targetFile, file_get_contents($compressed_sourceFile), 'public');
                 $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile), 'public');
@@ -645,9 +648,9 @@ class AdminController extends Controller
             //$contents = Storage::get();
 
             //https://s3-ap-southeast-1.amazonaws.com/maystr/original/5ac1b68fe3738_post_img_1522644623.png
-            $value = "photoeditorlab/original/" . $image;
-            $disk = \Storage::disk('spaces');
-            $config = \Config::get('filesystems.disks.spaces.bucket');
+            $value = "imageflyer/original/" . $image;
+            $disk = \Storage::disk('s3');
+            $config = \Config::get('filesystems.disks.s3.bucket');
             if ($disk->exists($value)) {
 
                 $url = "'" . $disk->getDriver()->getAdapter()->getClient()->getObjectUrl($config, $value) . "'";
@@ -733,6 +736,10 @@ class AdminController extends Controller
                 (new ImageController())->saveThumbnailImage($category_img);
                 //(new ImageController())->saveImageInToSpaces($category_img);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($category_img);
+                }
+
             }
 
             $category_id = $request->category_id;
@@ -812,6 +819,12 @@ class AdminController extends Controller
                 (new ImageController())->saveCompressedImage($sub_category_img);
                 (new ImageController())->saveThumbnailImage($sub_category_img);
                 //(new ImageController())->saveImageInToSpaces($sub_category_img);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+
+                    (new ImageController())->saveImageInToSpaces($sub_category_img);
+                }
+
 
                 $result = DB::select('select image from sub_category where id = ?', [$sub_category_id]);
                 $image_name = $result[0]->image;
@@ -1252,6 +1265,10 @@ class AdminController extends Controller
 
                 //(new ImageController())->saveImageInToSpaces($catalog_img);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($catalog_img);
+                }
+
             }
 
             $sub_category_id = $request->sub_category_id;
@@ -1356,6 +1373,10 @@ class AdminController extends Controller
                 (new ImageController())->saveCompressedImage($catalog_img);
                 (new ImageController())->saveThumbnailImage($catalog_img);
                 //(new ImageController())->saveImageInToSpaces($catalog_img);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($catalog_img);
+                }
 
                 $result = DB::select('select image from catalog_master where id = ?', [$catalog_id]);
                 $image_name = $result[0]->image;
@@ -2038,6 +2059,9 @@ class AdminController extends Controller
                     (new ImageController())->saveThumbnailImage($catalog_image);
                     //(new ImageController())->saveImageInToSpaces($catalog_image);
 
+                    if (env('STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveImageInToSpaces($catalog_image);
+                    }
 
                     DB::insert('INSERT
                                 INTO
@@ -2118,6 +2142,10 @@ class AdminController extends Controller
                     (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
                     //(new ImageController())->saveImageInToSpaces($original_img);
 
+                    if (env('STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveImageInToSpaces($original_img);
+                    }
+
                 }
                 if ($request_body->hasFile('display_img')) {
 
@@ -2133,6 +2161,10 @@ class AdminController extends Controller
                     (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
 
                     //(new ImageController())->saveImageInToSpaces($display_img);
+
+                    if (env('STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveImageInToSpaces($display_img);
+                    }
 
 
                 }
@@ -2220,6 +2252,10 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
                 //(new ImageController())->saveImageInToSpaces($original_img);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($original_img);
+                }
+
             }
             if ($request_body->hasFile('display_img')) {
 
@@ -2233,6 +2269,10 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($display_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($display_img);
+                }
 
                 //(new ImageController())->saveImageInToSpaces($display_img);
 
@@ -2313,6 +2353,11 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
                 //(new ImageController())->saveImageInToSpaces($original_img);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($original_img);
+                }
+
                 DB::beginTransaction();
                 DB::update('update images set original_img = ?,image_type = ?,created_at = ? where id = ?', [$original_img, $image_type, $created_at, $img_id]);
 
@@ -2333,6 +2378,10 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
                 //(new ImageController())->saveImageInToSpaces($display_img);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($display_img);
+                }
 
                 DB::update('update images set display_img = ?,image_type = ?,created_at = ? where id = ?', [$display_img, $image_type, $created_at, $img_id]);
 
@@ -2409,6 +2458,10 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
                 //(new ImageController())->saveImageInToSpaces($original_img);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($original_img);
+                }
+
             }
             if ($request_body->hasFile('display_img')) {
 
@@ -2424,6 +2477,10 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
 
                 //(new ImageController())->saveImageInToSpaces($display_img);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($display_img);
+                }
 
             }
 
@@ -2730,6 +2787,9 @@ class AdminController extends Controller
                 (new ImageController())->saveThumbnailImage($catalog_img);
                 //(new ImageController())->saveImageInToSpaces($catalog_img);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($catalog_img);
+                }
 
                 $result = DB::select('select image from images where id = ?', [$img_id]);
                 $image_name = $result[0]->image;
@@ -3574,6 +3634,10 @@ class AdminController extends Controller
                 (new ImageController())->saveThumbnailImage($app_image);
                 //(new ImageController())->saveImageInToSpaces($app_image);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($app_image);
+                }
+
 
             }
 
@@ -3591,6 +3655,10 @@ class AdminController extends Controller
                 (new ImageController())->saveCompressedImage($app_logo);
                 (new ImageController())->saveThumbnailImage($app_logo);
                 //(new ImageController())->saveImageInToSpaces($app_logo);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($app_logo);
+                }
             }
 
             $data = array('name' => $name,
@@ -3646,6 +3714,10 @@ class AdminController extends Controller
                 (new ImageController())->saveThumbnailImage($app_image);
                 //(new ImageController())->saveImageInToSpaces($app_image);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($app_image);
+                }
+
             }
 
             //Logo Image
@@ -3663,6 +3735,10 @@ class AdminController extends Controller
                 (new ImageController())->saveThumbnailImage($app_logo);
 
                 //(new ImageController())->saveImageInToSpaces($app_logo);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($app_logo);
+                }
 
             }
 
@@ -3840,6 +3916,10 @@ class AdminController extends Controller
                 (new ImageController())->saveThumbnailImage($app_image);
                 //(new ImageController())->saveImageInToSpaces($app_image);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($app_image);
+                }
+
                 $result = DB::select('select image from advertise_links where id = ?', [$advertise_link_id]);
                 $image_name = $result[0]->image;
 
@@ -3865,6 +3945,10 @@ class AdminController extends Controller
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
                 //(new ImageController())->saveImageInToSpaces($logo_image);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($logo_image);
+                }
 
                 $result = DB::select('select app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
                 $logo_image_name = $result[0]->app_logo_img;
@@ -3898,11 +3982,21 @@ class AdminController extends Controller
                 (new ImageController())->saveThumbnailImage($app_image);
                 //(new ImageController())->saveImageInToSpaces($app_image);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($app_image);
+                }
+
+
 
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
                 //(new ImageController())->saveImageInToSpaces($logo_image);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($logo_image);
+                }
+
 
 
                 $result = DB::select('select image,app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
@@ -4017,6 +4111,11 @@ class AdminController extends Controller
                 (new ImageController())->saveThumbnailImage($logo_image);
                 //(new ImageController())->saveImageInToSpaces($logo_image);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($logo_image);
+                }
+
+
                 $result = DB::select('select app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
                 $logo_image_name = $result[0]->app_logo_img;
 
@@ -4049,10 +4148,18 @@ class AdminController extends Controller
                 (new ImageController())->saveThumbnailImage($app_image);
                 //(new ImageController())->saveImageInToSpaces($app_image);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($app_image);
+                }
+
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
                 //(new ImageController())->saveImageInToSpaces($logo_image);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($logo_image);
+                }
 
                 $result = DB::select('select image,app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
                 $image_name = $result[0]->image;
@@ -5187,6 +5294,10 @@ class AdminController extends Controller
                 (new ImageController())->saveThumbnailImage($profile_img);
                 //(new ImageController())->saveImageInToSpaces($profile_img);
 
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($profile_img);
+                }
+
             } else {
                 $result = DB::table("user_detail")->where('user_id', $user_id)->get();
                 $profile_img = isset($result[0]->profile_img) ? $result[0]->profile_img : "";
@@ -5394,10 +5505,13 @@ class AdminController extends Controller
 
                     $bg_image = $image_array->getClientOriginalName();
 
-                    $base_url = (new ImageController())->getBaseUrl();
+                    if (env('STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveResourceImageInToSpaces($bg_image);
+                    }
 
-                    $resourceFile = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
+                    //$base_url = (new ImageController())->getBaseUrl();
 
+                    //$resourceFile = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
 
                     /*//return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
                     $disk = Storage::disk('spaces');
@@ -5515,8 +5629,14 @@ class AdminController extends Controller
                 $image_array->move($original_path, $catalog_image);*/
 
                 (new ImageController())->saveCompressedImage($catalog_image);
-                (new ImageController())->saveThumbnailImage($catalog_image);
+                $dimension = (new ImageController())->saveThumbnailImage($catalog_image);
                 //(new ImageController())->saveImageInToSpaces($catalog_image);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($catalog_image);
+                    (new ImageController())->saveWebpImageInToSpaces($file_name);
+                }
+
 
 
                 DB::insert('INSERT
@@ -5772,10 +5892,15 @@ class AdminController extends Controller
                 $image_array->move($original_path, $catalog_image);*/
 
                 (new ImageController())->saveCompressedImage($catalog_image);
-                (new ImageController())->saveThumbnailImage($catalog_image);
+                $dimension = (new ImageController())->saveThumbnailImage($catalog_image);
                 //(new ImageController())->saveImageInToSpaces($catalog_image);
 
                 //Log::info('Encoded json_data', ['json_data' => json_encode($json_data)]);
+
+                if (env('STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToSpaces($catalog_image);
+                    (new ImageController())->saveWebpImageInToSpaces($file_name);
+                }
 
 
                 DB::update('UPDATE
@@ -5799,14 +5924,32 @@ class AdminController extends Controller
                 if (count($is_exist) > 0) {
 
 
-                    $file_name = (new ImageController())->saveWebpImage($is_exist[0]->image);
+                    $file_data = (new ImageController())->saveWebpImage($is_exist[0]->image);
+
+                    if (env('STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveWebpImageInToSpaces($file_data);
+                    }
+
 
                     DB::update('UPDATE
                                 images SET attribute1 = ?
-                                WHERE id = ?', [$file_name, $img_id]);
-
+                                WHERE id = ?', [$file_data, $img_id]);
+                    DB::commit();
 
                 }
+
+                /*$is_exist = DB::select('SELECT * FROM images WHERE id = ? AND width IS NULL AND height IS NULL', [$img_id]);
+                if (count($is_exist) > 0) {
+
+                    $dimension = (new ImageController())->saveWebpThumbnailImage($is_exist[0]->image);
+
+                    //Log::info('dimension : ',['dimension' => $dimension]);
+
+                    DB::update('UPDATE
+                                images SET height = ?, width =?
+                                WHERE id = ?', [$dimension['height'], $dimension['width'], $img_id]);
+                    DB::commit();
+                }*/
 
 
                 DB::update('UPDATE
