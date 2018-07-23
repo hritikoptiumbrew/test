@@ -61,6 +61,10 @@ return [
             'secret' => env('AWS_SECRET'),
             'region' => env('AWS_REGION'),
             'bucket' => env('AWS_BUCKET'),
+            'options' => [
+                'CacheControl' => 'max_age=31536000'
+            ],
+
         ],
 
         'spaces' => [
