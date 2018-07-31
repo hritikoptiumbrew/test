@@ -27,6 +27,11 @@ Route::post('doLogout', 'LoginController@doLogout');
 Route::post('registerUserDeviceByDeviceUdid', 'RegisterController@registerUserDeviceByDeviceUdid');
 Route::post('storeFileIntoS3Bucket', 'AdminController@storeFileIntoS3Bucket');
 
+//get advertisement without token
+Route::post('getLinkWithoutToken', 'UserController@getLinkWithoutToken');
+
+
+
 Route::get('/clear-cache', function() {
     $exitCode = Artisan::call('cache:clear');
     return $exitCode;
