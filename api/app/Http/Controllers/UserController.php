@@ -1933,7 +1933,7 @@ class UserController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getLink$this->platform->$this->sub_category_id");
+            $redis_result = Cache::get("getLinkWithoutToken$this->platform->$this->sub_category_id");
 
             if (!$redis_result) {
                 $redis_result = [];
