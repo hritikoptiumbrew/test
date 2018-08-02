@@ -487,6 +487,15 @@ class DeleteCacheKey
                     //Log::info("pel:getLink Key Deleted");
                 }
 
+                //getLinkWithoutToken
+                $keys = Redis::keys('pel:getLinkWithoutToken*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                if (count($keys) === 0) {
+                    //Log::info("pel:getLinkWithoutToken Key Deleted");
+                }
+
                 //getLinkWithLastSyncTime
                 $keys = Redis::keys('pel:getLinkWithLastSyncTime*');
                 foreach ($keys as $key) {

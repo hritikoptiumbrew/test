@@ -21,6 +21,12 @@ use Illuminate\Support\Facades\Redis;
 class UserController extends Controller
 {
     //
+    public function __construct()
+    {
+        $this->item_count = Config::get('constant.PAGINATION_ITEM_LIMIT');
+        $this->base_url = (new ImageController())->getBaseUrl();
+
+    }
 
     /* =================================| Json |=============================*/
 
@@ -1779,7 +1785,7 @@ class UserController extends Controller
             $request = json_decode($request->getContent());
             //Log::info("getAllAdvertisementToLinkAdvertisement Request :", [$request]);
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','device_platform'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'device_platform'), $request)) != '')
                 return $response;
 
             $token = JWTAuth::getToken();
@@ -1848,5 +1854,99 @@ class UserController extends Controller
         return $response;
     }
 
+    /**
+     * @api {post} getLinkWithoutToken   getLinkWithoutToken
+     * @apiName getLinkWithoutToken
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":2,
+     * "platform":"Android" //Or iOS
+     * }
+     * @apiSuccessExample Success-Response:
+     *{
+     * "code": 200,
+     * "message": "Advertise Link Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 14,
+     * "link_list": [
+     * {
+     * "advertise_link_id": 77,
+     * "name": "Romantic Love Photo Editor",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1e813f47368_banner_image_1511948607.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1e813f47368_banner_image_1511948607.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1e813f47368_banner_image_1511948607.png",
+     * "app_logo_thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1e814000aa9_app_logo_image_1511948608.png",
+     * "app_logo_compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1e814000aa9_app_logo_image_1511948608.png",
+     * "app_logo_original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1e814000aa9_app_logo_image_1511948608.png",
+     * "url": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.lovephotoeditor",
+     * "platform": "Android",
+     * "app_description": "Romantic Love Photo Editor - Realistic Photo Effects, Beautiful Photo Frames, Stickers, etc."
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getLinkWithoutToken(Request $request_body)
+    {
+        try {
+            $request = json_decode($request_body->getContent());
+            //Log::info([$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'platform'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->platform = $request->platform;
+
+
+            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  advertise_links as adl, sub_category_advertise_links as sadl WHERE adl.platform = ? AND sadl.advertise_link_id=adl.id AND sadl.sub_category_id = ? AND sadl.is_active = ?', [$this->platform, $this->sub_category_id, 1]);
+            $total_row = $total_row_result[0]->total;
+
+            if (!Cache::has("pel:getLinkWithoutToken$this->platform->$this->sub_category_id")) {
+                $result = Cache::rememberforever("getLinkWithoutToken$this->platform->$this->sub_category_id", function () {
+                    return DB::select('SELECT
+                                        adl.id as advertise_link_id,
+                                        adl.name,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
+                                        adl.url,
+                                        adl.platform,
+                                        if(adl.app_description!="",adl.app_description,"") as app_description
+                                      FROM
+                                        advertise_links as adl,
+                                        sub_category_advertise_links as sadl
+                                      WHERE
+                                        adl.platform = ? AND
+                                        sadl.advertise_link_id=adl.id AND
+                                        sadl.sub_category_id = ? AND
+                                        sadl.is_active = 1
+                                      order by adl.updated_at DESC', [$this->platform, $this->sub_category_id]);
+                });
+            }
+
+            $redis_result = Cache::get("getLinkWithoutToken$this->platform->$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise Link Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'link_list' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
 
 }

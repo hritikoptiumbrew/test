@@ -2779,6 +2779,35 @@
   },
   {
     "type": "post",
+    "url": "getLinkWithoutToken",
+    "title": "getLinkWithoutToken",
+    "name": "getLinkWithoutToken",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":2,\n\"platform\":\"Android\" //Or iOS\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Advertise Link Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 14,\n\"link_list\": [\n{\n\"advertise_link_id\": 77,\n\"name\": \"Romantic Love Photo Editor\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1e813f47368_banner_image_1511948607.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1e813f47368_banner_image_1511948607.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1e813f47368_banner_image_1511948607.png\",\n\"app_logo_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1e814000aa9_app_logo_image_1511948608.png\",\n\"app_logo_compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1e814000aa9_app_logo_image_1511948608.png\",\n\"app_logo_original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1e814000aa9_app_logo_image_1511948608.png\",\n\"url\": \"https://play.google.com/store/apps/details?id=com.optimumbrewlab.lovephotoeditor\",\n\"platform\": \"Android\",\n\"app_description\": \"Romantic Love Photo Editor - Realistic Photo Effects, Beautiful Photo Frames, Stickers, etc.\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "getSampleImagesForMobile",
     "title": "getSampleImagesForMobile",
     "name": "getSampleImagesForMobile",
