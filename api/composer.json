@@ -13,7 +13,6 @@
         "rap2hpoutre/laravel-log-viewer": "^0.6.1",
         "rap2hpoutre/laravel-epilog": "^0.0.6",
         "intervention/image": "^2.3",
-        "aporat/store-receipt-validator": "dev-master",
         "predis/predis": "^1.1",
         "illuminate/redis": "5.4.*",
         "illuminate/cache": "5.4.*",
