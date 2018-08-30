@@ -247,7 +247,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\nfile[]:1.jpg,\nfile[]:2.jpg,\nfile[]:3.jpg,\nfile[]:4.jpg\n}",
+          "content": "{\nrequest_data:{\n\"is_replace\":0 //compulsory 0=do not replace the existing file, 2=replace the existing file\n},\nfile[]:1.jpg,\nfile[]:2.jpg,\nfile[]:3.jpg,\nfile[]:4.jpg\n}",
           "type": "json"
         },
         {
@@ -403,6 +403,35 @@ define({ "api": [
       ]
     },
     "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "addZipFile",
+    "title": "addZipFile",
+    "name": "addZipFile",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\nfile[]:1.jpg,\nfile[]:2.jpg,\nfile[]:3.jpg,\nfile[]:4.jpg\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Json images added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1964,6 +1993,35 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Advertise server id updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "updateAllSampleImages",
+    "title": "updateAllSampleImages",
+    "name": "updateAllSampleImages",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "request_data:{\n\"img_id\": 356,\n\"is_free\": 1,\n\"is_featured\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 800,\n\"width\": 500\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_15.7\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_15.7\",\n\"is_featured\": 0,\n\"height\": 800,\n\"width\": 800\n}\n},\nfile:image1.jpeg\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Json data updated successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]

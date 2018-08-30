@@ -3987,7 +3987,6 @@ class AdminController extends Controller
                 }
 
 
-
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
@@ -3996,7 +3995,6 @@ class AdminController extends Controller
                 if (env('STORAGE') === 'S3_BUCKET') {
                     (new ImageController())->saveImageInToSpaces($logo_image);
                 }
-
 
 
                 $result = DB::select('select image,app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
@@ -5470,6 +5468,9 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
+     * request_data:{
+     * "is_replace":0 //compulsory 0=do not replace the existing file, 2=replace the existing file
+     * },
      * file[]:1.jpg,
      * file[]:2.jpg,
      * file[]:3.jpg,
@@ -5490,8 +5491,25 @@ class AdminController extends Controller
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
+            //Required parameter
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'response' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('is_replace'), $request)) != '')
+                return $response;
+
+            $is_replace = $request->is_replace;
+
             if ($request_body->hasFile('file')) {
                 $images_array = Input::file('file');
+
+                if ($is_replace == 0) {
+                    if (($response = (new ImageController())->checkIsImageExist($images_array)) != '')
+                        return $response;
+                }
+
                 //return $images_array;
                 foreach ($images_array as $image_array) {
 
@@ -5638,11 +5656,16 @@ class AdminController extends Controller
                 }
 
 
+                /*DB::insert('INSERT
+                                INTO
+                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at, $file_name]);*/
+
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at, attribute1)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at, $file_name]);
+                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, height, width, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $dimension['height'], $dimension['width'], $created_at, $file_name]);
 
 
                 DB::commit();
@@ -5903,9 +5926,13 @@ class AdminController extends Controller
                 }
 
 
-                DB::update('UPDATE
+                /*DB::update('UPDATE
                                 images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $file_name, $img_id]);
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
+
+                DB::update('UPDATE
+                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, height = ?, width = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $dimension['height'], $dimension['width'], $file_name, $img_id]);
                 DB::commit();
 
                 if (strstr($file_name, '.webp')) {
@@ -5923,25 +5950,30 @@ class AdminController extends Controller
                 DB::beginTransaction();
                 if (count($is_exist) > 0) {
 
-
+                    //Log::info('webp original');
                     $file_data = (new ImageController())->saveWebpImage($is_exist[0]->image);
 
                     if (env('STORAGE') === 'S3_BUCKET') {
-                        (new ImageController())->saveWebpImageInToSpaces($file_data);
+                        (new ImageController())->saveWebpImageInToSpaces($file_data['filename']);
                     }
 
-
                     DB::update('UPDATE
-                                images SET attribute1 = ?
-                                WHERE id = ?', [$file_data, $img_id]);
+                                images SET height = ?, width = ?, attribute1 = ?
+                                WHERE id = ?', [$file_data['height'], $file_data['width'], $file_data['filename'], $img_id]);
                     DB::commit();
 
                 }
 
-                /*$is_exist = DB::select('SELECT * FROM images WHERE id = ? AND width IS NULL AND height IS NULL', [$img_id]);
+                $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND width IS NULL AND height IS NULL AND attribute1 IS NOT NULL', [$img_id]);
                 if (count($is_exist) > 0) {
 
+                    //Log::info('webp thumbnail');
                     $dimension = (new ImageController())->saveWebpThumbnailImage($is_exist[0]->image);
+
+                    if (env('STORAGE') === 'S3_BUCKET') {
+                        //(new ImageController())->saveWebpImageInToSpaces($is_exist[0]->attribute1);
+                        (new ImageController())->saveWebpThumbnailImageInToSpaces($is_exist[0]->attribute1);
+                    }
 
                     //Log::info('dimension : ',['dimension' => $dimension]);
 
@@ -5949,7 +5981,7 @@ class AdminController extends Controller
                                 images SET height = ?, width =?
                                 WHERE id = ?', [$dimension['height'], $dimension['width'], $img_id]);
                     DB::commit();
-                }*/
+                }
 
 
                 DB::update('UPDATE
@@ -7172,6 +7204,131 @@ class AdminController extends Controller
         } catch (Exception $e) {
             Log::error("getAdvertiseServerIdForAdmin Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =====================================| Update All Sample Images |==============================================*/
+
+    /**
+     * @api {post} updateAllSampleImages   updateAllSampleImages
+     * @apiName updateAllSampleImages
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "img_id": 356,
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "json_data": {
+     * "text_json": [],
+     * "sticker_json": [],
+     * "image_sticker_json": [
+     * {
+     * "xPos": 0,
+     * "yPos": 0,
+     * "image_sticker_image": "",
+     * "angle": 0,
+     * "is_round": 0,
+     * "height": 800,
+     * "width": 500
+     * }
+     * ],
+     * "frame_json": {
+     * "frame_image": "frame_15.7"
+     * },
+     * "background_json": {},
+     * "sample_image": "sample_15.7",
+     * "is_featured": 0,
+     * "height": 800,
+     * "width": 800
+     * }
+     * },
+     * file:image1.jpeg
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Json data updated successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateAllSampleImages(Request $request)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+
+            $sample_images = DB::select('SELECT i.*
+                                    FROM images AS i,
+                                        sub_category_catalog AS scc
+                                    WHERE
+                                    i.json_data IS NOT NULL AND
+                                    i.json_data !="" AND
+                                    i.catalog_id = scc.catalog_id AND
+                                    scc.sub_category_id = ? AND scc.is_active = 1
+                                    ORDER BY i.updated_at', [$sub_category_id]);
+            $count = 0;
+            $remaining_images = array();
+            foreach ($sample_images as $key) {
+                Log::info('sample images : ',['image' => $key->image]);
+
+                $file_name = (new ImageController())->saveOriginalImageFromToS3($key->image);
+
+                if ($file_name != "") {
+                    $dimension = (new ImageController())->saveThumbnailImage($key->image);
+                    $dimension = (new ImageController())->saveThumbnailImageFromS3($key->image);
+                    if ($dimension != "") {
+                        if (env('STORAGE') === 'S3_BUCKET') {
+
+                            (new ImageController())->saveWebpImageInToSpaces($file_name);
+
+                            (new ImageController())->unlinkfile($key->image);
+                        }
+
+                        DB::beginTransaction();
+                        DB::update('UPDATE
+                                images SET height = ?, width = ?, attribute1 = ?
+                                WHERE id = ?', [$dimension['height'], $dimension['width'], $file_name, $key->id]);
+                        DB::commit();
+                        $count = $count + 1;
+                    }
+                    else
+                    {
+                        $remaining_images[] = $key->image;
+                    }
+                }
+                else
+                {
+                    $remaining_images[] = $key->image;
+                }
+            }
+
+            $result_array = array('total_updated_images' => $count, 'remaining_images' => $remaining_images);
+            $result = json_decode(json_encode($result_array), true);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Sample images updated successfully!.', 'cause' => '', 'data' => $result));
+
+        } catch
+        (Exception $e) {
+            Log::error("updateAllSampleImages Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
         }
         return $response;
     }

@@ -172,6 +172,9 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('deleteAdvertiseServerId', 'AdminController@deleteAdvertiseServerId');
     Route::post('getAdvertiseServerIdForAdmin', 'AdminController@getAdvertiseServerIdForAdmin');
 
+    //update all sample images using libwebp
+    Route::post('updateAllSampleImages', 'AdminController@updateAllSampleImages');
+
 
 });
 
@@ -210,6 +213,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
 
     //webp
     Route::post('getJsonSampleDataWithLastSyncTime_webp', 'UserController@getJsonSampleDataWithLastSyncTime_webp');
+    Route::post('getJsonSampleDataWithLastSyncTime_webpIos', 'UserController@getJsonSampleDataWithLastSyncTime_webpIos');
 
     //Fetch images from Pixabay
     Route::post('getImagesFromPixabay', 'PixabayController@getImagesFromPixabay');
@@ -223,6 +227,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     //Advertisements with last_sync_time
     Route::post('getLinkWithLastSyncTime', 'UserController@getLinkWithLastSyncTime');
 
+    Route::post('addZipFile', 'UserController@addZipFile');
 
 });
 

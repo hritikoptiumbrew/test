@@ -114,23 +114,44 @@ class ImageController extends Controller
         //convert image into .webp format
         $file_data = pathinfo(basename($path));
         $webp_name = $file_data['filename'];
-        $webp_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
-        $webp = Image::make($path);
-        $webp->save($webp_path, 75);
-        $webp_img_size = $webp->filesize();
 
+        /*
+             *  -q Set image quality
+             *  -o Output file name
+         */
+
+        $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH') . $webp_name . '.webp';
+        $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $img;
+        $quality = Config::get('constant.QUALITY');
+        $libwebp = Config::get('constant.PATH_OF_CWEBP');
+
+        $cmd = "$libwebp -q $quality $org_path -o $webp_path";
+
+        if (env('APP_ENV') != 'local') {
+            $result = (!shell_exec($cmd));
+        } else {
+            $result = (!exec($cmd));
+        }
+
+        $base_url = (new ImageController())->getBaseUrl();
+
+        $webp_org_path = $base_url . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
+
+        $headers = get_headers($webp_org_path, true);
+        $webp_img_size = $headers['Content-Length'];
 
         if ($webp_img_size > $original_img_size) {
 
-            unlink($webp_path);
-            $webp_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $img;
-            File::copy($path, $webp_path);
+            unlink($webp_org_path);
+            $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $img;
+            File::copy($path, $webp_org_path);
             return $img;
 
         } else {
             return $webp_name . '.webp';
 
         }
+
 
     }
 
@@ -219,15 +240,46 @@ class ImageController extends Controller
             $file_data = pathinfo(basename($thumbnail_path));
             //convert image into .webp format
             $webp_name = $file_data['filename'];
-            $webp_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $webp_name . '.webp';
             $image_size = getimagesize($original_path);
-            $width_orig = ($image_size[0] * 25) / 100;
-            $height_orig = ($image_size[1] * 25) / 100;
-            $webp_test = Image::make($original_path)->resize($width_orig, $height_orig);
-            $webp_test->save($webp_path, 75);
+            $width_orig = ($image_size[0] * 50) / 100;
+            $height_orig = ($image_size[1] * 50) / 100;
 
-            return array('height' => $height_orig, 'width' => $width_orig);
 
+            /*
+             *  -q Set image quality
+             *  -o Output file name
+             *  -resize  Resize the image
+             */
+
+            $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH') . $webp_name . '.webp';
+            $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $professional_img;
+            $quality = Config::get('constant.QUALITY');
+            $libwebp = Config::get('constant.PATH_OF_CWEBP');
+
+
+            if ($width_orig < 200 or $height_orig < 200) {
+
+                $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_path";
+                if (env('APP_ENV') != 'local') {
+                    //For Linux
+                    $result = (!shell_exec($cmd));
+                } else {
+                    // For windows
+                    $result = (!exec($cmd));
+                }
+                return array('height' => $height, 'width' => $width);
+            } else {
+
+                $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
+                if (env('APP_ENV') != 'local') {
+                    //For Linux
+                    $result = (!shell_exec($cmd));
+                } else {
+                    // For windows
+                    $result = (!exec($cmd));
+                }
+                return array('height' => $height_orig, 'width' => $width_orig);
+            }
 
         } catch (Exception $e) {
             $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
@@ -236,6 +288,7 @@ class ImageController extends Controller
                 chmod($dest1, 0777);
                 copy($dest1, $dest2);
             }
+            return "";
         }
     }
 
@@ -548,7 +601,7 @@ class ImageController extends Controller
 
             }
 
-            //(new ImageController())->unlinkfile($image);
+            (new ImageController())->unlinkfile($image);
 
         } catch (Exception $e) {
             Log::error("saveImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
@@ -563,7 +616,6 @@ class ImageController extends Controller
     {
         try {
             $base_url = (new ImageController())->getBaseUrl();
-
 
 
             $old_file = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $image;
@@ -638,78 +690,223 @@ class ImageController extends Controller
     // Save webp Image
     public function saveWebpImage($img)
     {
-        $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+
+        $original_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN');
         $path = $original_path . $img;
-        $original_img_size = filesize($path);
+        //$original_img_size = filesize($path);
+        $headers = get_headers($path, true);
+        $original_img_size = $headers['Content-Length'];
+        $array = $this->getThumbnailWidthHeightForWebp($img);
+        $width = $array['width'];
+        $height = $array['height'];
 
         //convert image into .webp format
         $file_data = pathinfo(basename($path));
         $webp_name = $file_data['filename'];
-        $webp_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
-        $webp = Image::make($path);
-        $webp->save($webp_path, 75);
-        $webp_img_size = $webp->filesize();
-
-
-        $webp_thumbnail_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $webp_name . '.webp';
         $image_size = getimagesize($path);
-        $width_orig = ($image_size[0] * 25) / 100;
-        $height_orig = ($image_size[1] * 25) / 100;
-        $webp_thumbnail = Image::make($path)->resize($width_orig, $height_orig);
-        $webp_thumbnail->save($webp_thumbnail_path, 75);
+        $width_orig = round(($image_size[0] * 50) / 100);
+        $height_orig = round(($image_size[1] * 50) / 100);
 
+        /*
+        *  -q Set image quality
+        *  -o Output file name
+        *  -resize  Resize the image
+        */
 
-        if ($webp_img_size > $original_img_size) {
+        $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH') . $webp_name . '.webp';
+        $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') .$img ;
+        //$org_path = $path;
+        $quality = Config::get('constant.QUALITY');
+        $libwebp = Config::get('constant.PATH_OF_CWEBP');
+        $cmd = "$libwebp -q $quality $org_path -o $webp_path";
 
-            unlink($webp_path);
-            $webp_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $img;
-            File::copy($path, $webp_path);
-            //return array('height' => $height_orig, 'width' => $width_orig, 'filename' => $img);
-            return $img;
-
+        Log::info($cmd);
+        if (env('APP_ENV') != 'local') {
+            $result = (!shell_exec($cmd));
         } else {
-            //return array('height' => $height_orig, 'width' => $width_orig, 'filename' => $webp_name . '.webp');
-            return $webp_name . '.webp';
-
-
+            $result = (!exec($cmd));
         }
 
+        $base_url = (new ImageController())->getBaseUrl();
+        $webp_org_path = $base_url . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
+        $headers = get_headers($webp_org_path, true);
+        $webp_img_size = $headers['Content-Length'];
+
+
+        /* save webp_thumbnail */
+        $webp_thumb_path = Config::get('constant.IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH') . $webp_name . '.webp';
+        $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') .$img ;//$path;
+        $quality = Config::get('constant.QUALITY');
+        $libwebp = Config::get('constant.PATH_OF_CWEBP');
+
+
+        if ($width_orig < 200 or $height_orig < 200) {
+
+            $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_thumb_path";
+            if (env('APP_ENV') != 'local') {
+                //For Linux
+                $result = (!shell_exec($cmd));
+            } else {
+                // For windows
+                $result = (!exec($cmd));
+            }
+
+            if ($webp_img_size > $original_img_size) {
+
+                unlink($webp_org_path);
+                $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $img;
+                File::copy($path, $webp_org_path);
+                return array('height' => $height, 'width' => $width, 'filename' => $img);
+            } else {
+                return array('height' => $height, 'width' => $width, 'filename' => $webp_name . '.webp');
+
+            }
+
+        } else {
+
+            $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_thumb_path";
+
+            if (env('APP_ENV') != 'local') {
+                //For Linux
+                $result = (!shell_exec($cmd));
+            } else {
+                // For windows
+                $result = (!exec($cmd));
+            }
+
+            if ($webp_img_size > $original_img_size) {
+
+                unlink($webp_org_path);
+                $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $img;
+                File::copy($path, $webp_org_path);
+                return array('height' => $height_orig, 'width' => $width_orig, 'filename' => $img);
+            } else {
+                return array('height' => $height_orig, 'width' => $width_orig, 'filename' => $webp_name . '.webp');
+
+            }
+        }
     }
 
     // Save webp Image
     public function saveWebpThumbnailImage($img)
     {
-        $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-        $path = $original_path . $img;
-        $original_img_size = filesize($path);
+        try {
+            $original_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN');
+            $path = $original_path . $img;
+            //$original_img_size = filesize($path);
 
-        //convert image into .webp format
-        $file_data = pathinfo(basename($path));
-        $webp_name = $file_data['filename'];
-        $webp_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $webp_name . '.webp';
+            //convert image into .webp format
+            $file_data = pathinfo(basename($path));
+            $webp_name = $file_data['filename'];
+            $webp_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $webp_name . '.webp';
 
-        if (fopen($webp_path, "r")) {
+            try {
 
-            unlink($webp_path);
+                if (fopen($webp_path, "r")) {
+
+                    unlink($webp_path);
+                }
+            } catch (Exception $e) {
+                Log::error("saveWebpThumbnailImage Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            }
 
             $image_size = getimagesize($path);
-            $width_orig = ($image_size[0] * 25) / 100;
-            $height_orig = ($image_size[1] * 25) / 100;
-            $webp = Image::make($path)->resize($width_orig, $height_orig);
-            $webp->save($webp_path, 75);
+            $width_orig = round(($image_size[0] * 50) / 100);
+            $height_orig = round(($image_size[1] * 50) / 100);
+
+            $array = $this->getThumbnailWidthHeightForWebp($img);
+            $width = $array['width'];
+            $height = $array['height'];
 
 
-        } else {
+            /*
+           *  -q Set image quality
+           *  -o Output file name
+           *  -resize  Resize the image
+           */
+
+            $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH') . $webp_name . '.webp';
+            $org_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $img;
+            $quality = Config::get('constant.QUALITY');
+            $libwebp = Config::get('constant.PATH_OF_CWEBP');
+
+            if ($width_orig < 200 or $height_orig < 200) {
+
+                $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_path";
+                //Log::info('cmd 1: ',['cmd' => $cmd]);
+                if (env('APP_ENV') != 'local') {
+                    //For Linux
+                    $result = (!shell_exec($cmd));
+                } else {
+                    // For windows
+                    $result = (!exec($cmd));
+                }
+                return array('height' => $height, 'width' => $width);
+
+
+            } else {
+
+                $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
+                //Log::info('cmd 2: ',['cmd' => $cmd]);
+                if (env('APP_ENV') != 'local') {
+                    //For Linux
+                    $result = (!shell_exec($cmd));
+                } else {
+                    // For windows
+                    $result = (!exec($cmd));
+                }
+                return array('height' => $height_orig, 'width' => $width_orig);
+            }
+
+        } catch (Exception $e) {
+
+            Log::error("saveWebpImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $image_size = getimagesize($path);
-            $width_orig = ($image_size[0] * 25) / 100;
-            $height_orig = ($image_size[1] * 25) / 100;
-            $webp = Image::make($path)->resize($width_orig, $height_orig);
-            $webp->save($webp_path, 75);
+            $width_orig = round(($image_size[0] * 50) / 100);
+            $height_orig = round(($image_size[1] * 50) / 100);
+
+            $array = $this->getThumbnailWidthHeightForWebp($img);
+            $width = $array['width'];
+            $height = $array['height'];
+
+
+            /*
+          *  -q Set image quality
+          *  -o Output file name
+          *  -resize  Resize the image
+          */
+
+            $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH') . $webp_name . '.webp';
+            $org_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $img;
+            $quality = Config::get('constant.QUALITY');
+            $libwebp = Config::get('constant.PATH_OF_CWEBP');
+
+
+            if ($width_orig < 200 or $height_orig < 200) {
+
+                $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_path";
+                if (env('APP_ENV') != 'local') {
+                    //For Linux
+                    $result = (!shell_exec($cmd));
+                } else {
+                    // For windows
+                    $result = (!exec($cmd));
+                }
+                return array('height' => $height, 'width' => $width);
+            } else {
+
+                $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
+                if (env('APP_ENV') != 'local') {
+                    //For Linux
+                    $result = (!shell_exec($cmd));
+                } else {
+                    // For windows
+                    $result = (!exec($cmd));
+                }
+                return array('height' => $height_orig, 'width' => $width_orig);
+            }
 
         }
-
-        return array('height' => $height_orig, 'width' => $width_orig);
-
     }
 
     //unlinkImage from image_bucket
@@ -734,6 +931,7 @@ class ImageController extends Controller
 
                 if (fopen($original_image_path, "r")) {
                     //File::delete($image_path);
+                    //Log::info('s3');
                     unlink($original_image_path);
                 }
 
@@ -766,5 +964,275 @@ class ImageController extends Controller
 
     }
 
+    //verify zip file
+    public function verifyZipFile($image_array)
+    {
+
+        $file_type = $image_array->getMimeType();
+        $file_size = $image_array->getSize();
+        Log::info('extension : ', ['extension' => $file_type]);
+        //Log::info("Image Size",[$image_size]);
+        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
+
+        if (!($file_type == 'application/zip'))
+            $response = Response::json(array('code' => '201', 'message' => 'Please select zip file.', 'cause' => '', 'response' => json_decode("{}")));
+        elseif ($file_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => '201', 'message' => 'File size is greater then 10MB', 'cause' => '', 'response' => json_decode("{}")));
+        else
+            $response = '';
+        return $response;
+    }
+
+    public function saveZipFile($file_data)
+    {
+        $file = $file_data->getClientOriginalName();
+        $file_path = '../..' . Config::get('constant.ZIP_FILE_DIRECTORY');
+        $file_data->move($file_path, $file);
+
+    }
+
+    // Get Thumbnail Width Height
+    public function getThumbnailWidthHeightForWebp($img)
+    {
+
+        $original_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $img;
+        $image_size = getimagesize($original_path);
+        $width_orig = $image_size[0];
+        $height_orig = $image_size[1];
+        $ratio_orig = $width_orig / $height_orig;
+
+        $width = $width_orig < Config::get('constant.THUMBNAIL_WIDTH') ? $width_orig : Config::get('constant.THUMBNAIL_WIDTH');
+        $height = $height_orig < Config::get('constant.THUMBNAIL_HEIGHT') ? $height_orig : Config::get('constant.THUMBNAIL_HEIGHT');
+
+        if ($width / $height > $ratio_orig)
+            $width = $height * $ratio_orig;
+        else
+            $height = $width / $ratio_orig;
+
+        $array = array('width' => $width, 'height' => $height);
+        return $array;
+    }
+
+    //saveWebpThumbnailImageInToSpaces
+    public function saveWebpThumbnailImageInToSpaces($image)
+    {
+        try {
+            $base_url = (new ImageController())->getBaseUrl();
+
+            $thumbnail_sourceFile = $base_url . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $image;
+
+            $disk = Storage::disk('s3');
+
+            if (fopen($thumbnail_sourceFile, "r")) {
+
+                $thumbnail_targetFile = "imageflyer/webp_thumbnail/" . $image;
+                $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile), 'public');
+
+                $thumbnail_image_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $image;
+
+                if (fopen($thumbnail_image_path, "r")) {
+                    //File::delete($image_path);
+                    unlink($thumbnail_image_path);
+                }
+
+
+            }
+
+            //(new ImageController())->unlinkfile($image);
+
+
+        } catch (Exception $e) {
+            Log::error("saveWebpThumbnailImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+
+        }
+
+
+    }
+
+    //saveWebpThumbnailImageInToSpaces
+    public function saveOriginalImageFromToS3($image)
+    {
+        try {
+            $base_url = (new ImageController())->getBaseUrl();
+
+            $original_img_of_s3 = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $image;
+
+            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+            $path = $original_path.$image;
+            try{
+                if (fopen($path, "r")) {
+
+                    if (env('STORAGE') === 'S3_BUCKET') {
+                        unlink($path);
+                    }
+
+                }
+            }
+            catch(Exception $e)
+            {
+                Log::error("saveOriginalImageFromToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            }
+
+            //Input::file('file')->move($original_path, $image);
+            copy($original_img_of_s3, $path);
+
+            $this->saveImageDetails($path, 'original');
+            $original_img_size = filesize($path);
+
+            //convert image into .webp format
+            $file_data = pathinfo(basename($path));
+            $webp_name = $file_data['filename'];
+
+            /*
+                 *  -q Set image quality
+                 *  -o Output file name
+             */
+
+            $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH') . $webp_name . '.webp';
+            $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $image;
+            $quality = Config::get('constant.QUALITY');
+            $libwebp = Config::get('constant.PATH_OF_CWEBP');
+
+            $cmd = "$libwebp -q $quality $org_path -o $webp_path";
+
+            if (env('APP_ENV') != 'local') {
+                $result = (!shell_exec($cmd));
+            } else {
+                $result = (!exec($cmd));
+            }
+
+            $base_url = (new ImageController())->getBaseUrl();
+
+            $webp_org_path = $base_url . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $webp_name . '.webp';
+
+            $headers = get_headers($webp_org_path, true);
+            $webp_img_size = $headers['Content-Length'];
+
+            if ($webp_img_size > $original_img_size) {
+
+                unlink($webp_org_path);
+                $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $image;
+                File::copy($path, $webp_org_path);
+                return $image;
+
+            } else {
+                return $webp_name . '.webp';
+
+            }
+
+        } catch (Exception $e) {
+
+            Log::error("saveOriginalImageFromToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            return "";
+
+        }
+
+
+    }
+
+    public function checkIsImageExist($image_array)
+    {
+        try {
+            $exist_files_array = array();
+            $base_url = (new ImageController())->getBaseUrl();
+            foreach ($image_array as $key) {
+
+                $bg_image = $key->getClientOriginalName();
+
+                $image_path = '../..' . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
+                //$image_path = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
+
+                if (File::exists($image_path)) {
+
+                    $exist_files_array[] = array('url' => $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image, 'name' => $bg_image);
+                }
+
+
+            }
+            if (sizeof($exist_files_array) > 0) {
+                $array = array('existing_files' => $exist_files_array);
+
+                $result = json_decode(json_encode($array), true);
+                return $response = Response::json(array('code' => 420, 'message' => 'File already exists.', 'cause' => '', 'data' => $result));
+            } else {
+                return $response = '';
+            }
+        } catch (Exception $e) {
+            Log::error("checkIsImageExist Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            return $response = '';
+        }
+
+
+    }
+
+    // Save Thumbnail Image into webp_thumbnail_new
+    public function saveThumbnailImageFromS3($professional_img)
+    {
+        try {
+            $array = $this->getThumbnailWidthHeight($professional_img);
+            $width = $array['width'];
+            $height = $array['height'];
+            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
+            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
+            $img = Image::make($original_path)->resize($width, $height);
+            $img->save($thumbnail_path);
+
+            //use for Image Details
+            $this->saveImageDetails($thumbnail_path, 'thumbnail');
+
+            $file_data = pathinfo(basename($thumbnail_path));
+            //convert image into .webp format
+            $webp_name = $file_data['filename'];
+            $image_size = getimagesize($original_path);
+            $width_orig = ($image_size[0] * 50) / 100;
+            $height_orig = ($image_size[1] * 50) / 100;
+
+
+            /*
+             *  -q Set image quality
+             *  -o Output file name
+             *  -resize  Resize the image
+             */
+
+            $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH') . $webp_name . '.webp';
+            $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $professional_img;
+            $quality = Config::get('constant.QUALITY');
+            $libwebp = Config::get('constant.PATH_OF_CWEBP');
+
+
+            if ($width_orig < 200 or $height_orig < 200) {
+
+                $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_path";
+                if (env('APP_ENV') != 'local') {
+                    //For Linux
+                    $result = (!shell_exec($cmd));
+                } else {
+                    // For windows
+                    $result = (!exec($cmd));
+                }
+                return array('height' => $height, 'width' => $width);
+            } else {
+
+                $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
+                if (env('APP_ENV') != 'local') {
+                    //For Linux
+                    $result = (!shell_exec($cmd));
+                } else {
+                    // For windows
+                    $result = (!exec($cmd));
+                }
+                return array('height' => $height_orig, 'width' => $width_orig);
+            }
+
+        } catch (Exception $e) {
+            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
+            $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
+            foreach ($_FILES['file'] as $check) {
+                chmod($dest1, 0777);
+                copy($dest1, $dest2);
+            }
+            return "";
+        }
+    }
 
 }
