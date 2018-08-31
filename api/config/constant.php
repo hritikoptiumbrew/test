@@ -108,26 +108,13 @@ return [
     /* quality of image compression */
     'QUALITY'=> '75',
 
-
-    /* linux server path for command */
-    'IMAGE_BUCKET_ORIGINAL_IMG_PATH'=> '/var/www/html/photo_editor_lab_backend/image_bucket/original/',
-    'IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH'=> '/var/www/html/photo_editor_lab_backend/image_bucket/webp_original/',
-    'IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH'=> '/var/www/html/photo_editor_lab_backend/image_bucket/webp_thumbnail/',
-    'IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH'=> '/var/www/html/photo_editor_lab_backend/image_bucket/webp_original_new/',
-    'IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH'=> '/var/www/html/photo_editor_lab_backend/image_bucket/webp_thumbnail_new/',
-    'PATH_OF_CWEBP'=> 'cwebp',
-    'FFMPEG_PATH'=> '/usr/bin/ffmpeg',
-    'FFPROBE_PATH'=> '/usr/bin/ffprobe',
-
-    /* windows server path for command */
-    /*'IMAGE_BUCKET_ORIGINAL_IMG_PATH'=> 'C:\wamp64\www\photo_editor_lab_backend\image_bucket\original\\',
-    'IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH'=> 'C:\wamp64\www\photo_editor_lab_backend\image_bucket\webp_original\\',
-    'IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH'=> 'C:\wamp64\www\photo_editor_lab_backend\image_bucket\webp_thumbnail\\',
-    'IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH'=> 'C:\wamp64\www\photo_editor_lab_backend\image_bucket\webp_original_new\\',
-    'IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH'=> 'C:\wamp64\www\photo_editor_lab_backend\image_bucket\webp_thumbnail_new\\',
-    'PATH_OF_CWEBP'=> 'C:\\libwebp\\bin\\cwebp',
-    'FFMPEG_PATH'=> 'C:\\ffmpeg\\bin\\ffmpeg.exe',
-    'FFPROBE_PATH'=> 'C:\\ffmpeg\\bin\\ffprobe.exe',*/
-
+    'IMAGE_BUCKET_ORIGINAL_IMG_PATH'=> env('IMAGE_BUCKET_ORIGINAL_IMG_PATH'),
+    'IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH'=> env('IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH'),
+    'IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH'=> env('IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH'),
+    'IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH'=> env('IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH'),
+    'IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH'=> env('IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH'),
+    'PATH_OF_CWEBP'=> env('PATH_OF_CWEBP'),
+    'FFMPEG_PATH'=> env('FFMPEG_PATH'),
+    'FFPROBE_PATH'=> env('FFPROBE_PATH')
 
 ];
