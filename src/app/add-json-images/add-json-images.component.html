@@ -15,8 +15,10 @@
     </div>
   </div>
   <div class="row pt-2 text-center text-info">
-    <div class="col-sm-12 text-danger pb-2">
-      {{errorMsg}}
+    <div class="col-sm-12 pb-2">
+      <span class="text-danger">{{errorMsg}} </span> <a class="btn" *ngIf="existing_files.length>0" (click)="viewExistingImages(existing_files)">View
+        Images
+      </a>
     </div>
   </div>
 </div>

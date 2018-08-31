@@ -509,3 +509,66 @@ img {
     color: #fff !important;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.5);
 }
+
+
+.image-list-container {
+    border-bottom: 5px solid #bfbfbf;
+    background: rgba(0, 188, 202, 0.75);
+    overflow: auto;
+    position: fixed;
+    max-height: 90vh;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    z-index: 99999;
+    color: #fff;
+    width: 600px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.image-list-container img {
+    max-width: 100%;
+}
+
+.image-list-container div {
+    max-width: 100%;
+    border: 5px solid #bfbfbf;
+    padding: 15px 15px 15px 15px;
+    border-bottom: 0;
+}
+
+.frame {
+    background: #f3f3f3;
+    height: 80vh;
+    width: 60vw;
+    overflow: hidden;
+    padding: 0;
+}
+
+.inner-scroll {
+    width: 100%;
+    margin: 0;
+    list-style-type: none;
+    position: absolute;
+    bottom: 0;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    top: 50px;
+    overflow-y: scroll;
+}
+
+.chat-close-btn {
+    font-size: 30px;
+    position: absolute;
+    color: #fff !important;
+    top: 6px;
+    right: 7px;
+    cursor: pointer;
+}

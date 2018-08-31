@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DataService } from '../data.service';
 import { HOST } from '../app.constants';
 import { LoadingComponent } from '../loading/loading.component';
+import { ExistingImagesListComponent } from '../existing-images-list/existing-images-list.component';
 
 @Component({
   selector: 'app-add-json-images',
@@ -17,9 +18,13 @@ export class AddJsonImagesComponent implements OnInit {
   fileList: any;
   file: any;
   formData = new FormData();
+  existing_files: any = [];
   successMsg: any;
   errorMsg: any;
   loading: any;
+  request_data = {
+    "is_replace": 0
+  };
 
   constructor(public dialogRef: MdDialogRef<AddJsonImagesComponent>, private dataService: DataService, private router: Router, public dialog: MdDialog) {
 
@@ -32,19 +37,28 @@ export class AddJsonImagesComponent implements OnInit {
   fileChange(event) {
     this.formData = new FormData();
     this.fileList = event.target.files;
-    for (let i = 0; i < this.fileList.length; i++) {
-      this.formData.append('file[]', this.fileList[i]);
+    if (this.fileList && this.fileList.length > 0) {
+      for (let i = 0; i < this.fileList.length; i++) {
+        this.formData.append('file[]', this.fileList[i]);
+      }
+    }
+    else {
+      this.fileList = [];
+      this.errorMsg = "";
+      this.existing_files = [];
     }
   }
 
   addImages() {
-    if (typeof this.fileList == 'undefined' || this.fileList == "" || this.fileList == null) {
+    this.existing_files = [];
+    if (typeof this.fileList == 'undefined' || this.fileList == "" || this.fileList == null || this.fileList.length <= 0) {
       this.errorMsg = "Please select one or multiple images";
       return false;
     }
     else {
       this.errorMsg = "";
       this.loading = this.dialog.open(LoadingComponent);
+      this.formData.append("request_data", JSON.stringify(this.request_data));
       this.dataService.postData('addCatalogImagesForJson', this.formData,
         {
           headers: {
@@ -59,6 +73,7 @@ export class AddJsonImagesComponent implements OnInit {
           else if (results.code == 400) {
             this.loading.close();
             localStorage.removeItem("photoArtsAdminToken");
+            this.dialog.closeAll();
             this.router.navigate(['/admin']);
           }
           else if (results.code == 401) {
@@ -67,12 +82,37 @@ export class AddJsonImagesComponent implements OnInit {
             localStorage.setItem("photoArtsAdminToken", this.token);
             this.addImages();
           }
+          else if (results.code == 420) {
+            this.loading.close();
+            this.errorMsg = results.message;
+            this.existing_files = results.data.existing_files;
+            for (var i = 0, file; file = this.fileList[i]; i++) {
+              this.existing_files.forEach(element => {
+                if (file.name == element.name) {
+                  element.new_image = file;
+                }
+              });
+            }
+            console.log(this.existing_files);
+          }
           else {
             this.loading.close();
             this.errorMsg = results.message;
           }
         });
     }
+  }
+
+  viewExistingImages(existing_files) {
+    console.log(existing_files);
+    let dialogRef = this.dialog.open(ExistingImagesListComponent, { disableClose: true });
+    dialogRef.componentInstance.existing_files = existing_files;
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result);
+      if (!result) {
+        this.dialogRef.close();
+      }
+    });
   }
 
 }

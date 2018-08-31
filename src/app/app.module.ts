@@ -64,6 +64,7 @@ import { PromocodeAddComponent } from './promocode-add/promocode-add.component';
 import { ConfirmActionComponent } from './confirm-action/confirm-action.component';
 import { AdmobAdsComponent } from './admob-ads/admob-ads.component';
 import { GaAdsByCategoryComponent } from './ga-ads-by-category/ga-ads-by-category.component';
+import { ExistingImagesListComponent } from './existing-images-list/existing-images-list.component';
 
 @NgModule({
   declarations: [
@@ -119,6 +120,7 @@ import { GaAdsByCategoryComponent } from './ga-ads-by-category/ga-ads-by-categor
     ConfirmActionComponent,
     AdmobAdsComponent,
     GaAdsByCategoryComponent,
+    ExistingImagesListComponent,
   ],
   imports: [
     BrowserModule,
@@ -168,6 +170,7 @@ import { GaAdsByCategoryComponent } from './ga-ads-by-category/ga-ads-by-categor
     PromocodeAddComponent,
     ConfirmActionComponent,
     GaAdsByCategoryComponent,
+    ExistingImagesListComponent,
   ],
   providers: [DataService, AuthenticationService],
   bootstrap: [AppComponent]

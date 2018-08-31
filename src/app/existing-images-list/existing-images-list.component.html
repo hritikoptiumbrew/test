@@ -1,0 +1,41 @@
+<div class="row">
+  <div class="col-sm-12 p-0">
+    <i class="fa fa-times-circle chat-close-btn" (click)="dialogRef.close(true)"></i>
+    <table class="table table-hover m-0 table-fixed">
+      <thead class="p-2 title-bar" style="display: table-header-group;">
+        <tr>
+          <th style="width: 60px;">#</th>
+          <th>Title</th>
+          <th class="text-center">Existing image</th>
+          <th class="text-center">New image</th>
+          <th class="text-center">Replace
+            <input type="checkbox" class="d-inline-block align-middle" [(ngModel)]="is_all_checked" (change)="selectAll(is_all_checked)"
+            />
+          </th>
+        </tr>
+      </thead>
+      <tbody class="scroll">
+        <tr *ngFor="let image_details of existing_files; let i = index;">
+          <td style="width: 60px;">{{i+1}}</td>
+          <td>{{image_details.name}}</td>
+          <td class="text-center">
+            <img [src]="image_details.url" style="max-height:80px; max-width:120px;" (click)="dataservice.viewImage(image_details.url)"
+              class="cursor-pointer" alt="">
+          </td>
+          <td class="text-center">
+            <img [src]="image_details.new_image_url" style="max-height:80px; max-width:120px;" (click)="dataservice.viewImage(image_details.new_image_url)"
+              class="cursor-pointer" alt="">
+          </td>
+          <td class="text-center">
+            <input type="checkbox" class="form-control" [(ngModel)]="image_details.is_checked" (change)="valueChanged(image_details)"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-12 pl-0 pr-0 pt-2 pb-2 text-center">
+    <a md-raised-button class="btn title-bar" (click)="replaceImages(existing_files)">Replace</a>
+    <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+.table-fixed tbody {
+    display: block !important;
+    max-height: 70vh !important;
+    overflow: auto !important;
+}
+
+.table-fixed thead,
+.table-fixed tbody tr {
+    display: table !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+}
+
+.table-fixed thead {
+    width: 100% !important;
+}
+
+.table-fixed thead tr th {
+    border: 0 !important;
+}
