@@ -7269,10 +7269,24 @@ class AdminController extends Controller
 
             $request = json_decode($request->getContent());
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','item_count','page'), $request)) != '')
                 return $response;
 
             $sub_category_id = $request->sub_category_id;
+            $item_count = $request->item_count;
+            $page = $request->page;
+            $offset = ($page - 1) * $item_count;
+
+            $total_sample_images = DB::select('SELECT i.*
+                                    FROM images AS i,
+                                        sub_category_catalog AS scc
+                                    WHERE
+                                    i.json_data IS NOT NULL AND
+                                    i.json_data !="" AND
+                                    i.catalog_id = scc.catalog_id AND
+                                    scc.sub_category_id = ? AND scc.is_active = 1
+                                    ORDER BY i.id', [$sub_category_id]);
+
 
             $sample_images = DB::select('SELECT i.*
                                     FROM images AS i,
@@ -7282,9 +7296,12 @@ class AdminController extends Controller
                                     i.json_data !="" AND
                                     i.catalog_id = scc.catalog_id AND
                                     scc.sub_category_id = ? AND scc.is_active = 1
-                                    ORDER BY i.updated_at', [$sub_category_id]);
+                                    ORDER BY i.id DESC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
+
+
             $count = 0;
             $remaining_images = array();
+            $updated_images = array();
             foreach ($sample_images as $key) {
                 //Log::info('sample images : ',['image' => $key->image]);
 
@@ -7306,6 +7323,7 @@ class AdminController extends Controller
                                 WHERE id = ?', [$dimension['height'], $dimension['width'], $file_name, $key->id]);
                         DB::commit();
                         $count = $count + 1;
+                        $updated_images[] = $key->image;
                     }
                     else
                     {
@@ -7318,7 +7336,7 @@ class AdminController extends Controller
                 }
             }
 
-            $result_array = array('total_updated_images' => $count, 'remaining_images' => $remaining_images);
+            $result_array = array('total_updated_images' => count($total_sample_images), 'updated_images' => $updated_images, 'remaining_images' => $remaining_images);
             $result = json_decode(json_encode($result_array), true);
 
             $response = Response::json(array('code' => 200, 'message' => 'Sample images updated successfully!.', 'cause' => '', 'data' => $result));
