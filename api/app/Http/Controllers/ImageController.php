@@ -1235,4 +1235,58 @@ class ImageController extends Controller
         }
     }
 
+    //unlinkImage from image_bucket
+    public function saveNewWebpImageInToSpaces($image)
+    {
+        try {
+            $base_url = (new ImageController())->getBaseUrl();
+
+
+            $original_sourceFile = $base_url . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $image;
+            $thumbnail_sourceFile = $base_url . Config::get('constant.WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY') . $image;
+
+            //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
+
+            $disk = Storage::disk('s3');
+            if (fopen($original_sourceFile, "r")) {
+
+                $original_targetFile = "imageflyer/webp_original_new/" . $image;
+                $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
+
+                $original_image_path = '../..' . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $image;
+
+                if (fopen($original_image_path, "r")) {
+                    //File::delete($image_path);
+                    //Log::info('s3');
+                    unlink($original_image_path);
+                }
+
+
+            }
+
+            if (fopen($thumbnail_sourceFile, "r")) {
+
+                $thumbnail_targetFile = "imageflyer/webp_thumbnail_new/" . $image;
+                $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile), 'public');
+
+                $thumbnail_image_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY') . $image;
+
+                if (fopen($thumbnail_image_path, "r")) {
+                    //File::delete($image_path);
+                    unlink($thumbnail_image_path);
+                }
+
+
+            }
+
+            //(new ImageController())->unlinkfile($image);
+
+
+        } catch (Exception $e) {
+            Log::error("saveNewWebpImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+
+        }
+
+
+    }
 }

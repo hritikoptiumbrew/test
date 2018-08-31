@@ -46,6 +46,9 @@ return [
     'RESOURCE_IMAGES_DIRECTORY' => '/image_bucket/resource/',
     'WEBP_ORIGINAL_IMAGES_DIRECTORY' => '/image_bucket/webp_original/',
     'WEBP_THUMBNAIL_IMAGES_DIRECTORY' => '/image_bucket/webp_thumbnail/',
+    'WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY' => '/image_bucket/webp_original_new/',
+    'WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY' => '/image_bucket/webp_thumbnail_new/',
+    //'ZIP_FILE_DIRECTORY' => '/image_bucket/zip/',
 
     /*'COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.nyc3.digitaloceanspaces.com/photoeditorlab/compressed/',
     'ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.nyc3.digitaloceanspaces.com/photoeditorlab/original/',
@@ -65,6 +68,8 @@ return [
     'RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
     'WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
     'WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
+    'WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
+    'WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
 
     /* static path of local server*/
     /*'COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/',
@@ -99,5 +104,30 @@ return [
     //'PIXABAY_API_KEY' => '9366777-8d4a537113175da05770fd05e,9420810-0fe767598d152bba00a385ade,9420912-5544c439271da9cb408f85869',
     'PIXABAY_API_KEY' => env('PIXABAY_API_KEY'),
     'PIXABAY_API_URL'=> 'https://pixabay.com/api/',
+
+    /* quality of image compression */
+    'QUALITY'=> '75',
+
+
+    /* linux server path for command */
+    'IMAGE_BUCKET_ORIGINAL_IMG_PATH'=> '/var/www/html/photo_editor_lab_backend/image_bucket/original/',
+    'IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH'=> '/var/www/html/photo_editor_lab_backend/image_bucket/webp_original/',
+    'IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH'=> '/var/www/html/photo_editor_lab_backend/image_bucket/webp_thumbnail/',
+    'IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH'=> '/var/www/html/photo_editor_lab_backend/image_bucket/webp_original_new/',
+    'IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH'=> '/var/www/html/photo_editor_lab_backend/image_bucket/webp_thumbnail_new/',
+    'PATH_OF_CWEBP'=> 'cwebp',
+    'FFMPEG_PATH'=> '/usr/bin/ffmpeg',
+    'FFPROBE_PATH'=> '/usr/bin/ffprobe',
+
+    /* windows server path for command */
+    /*'IMAGE_BUCKET_ORIGINAL_IMG_PATH'=> 'C:\wamp64\www\photo_editor_lab_backend\image_bucket\original\\',
+    'IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH'=> 'C:\wamp64\www\photo_editor_lab_backend\image_bucket\webp_original\\',
+    'IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH'=> 'C:\wamp64\www\photo_editor_lab_backend\image_bucket\webp_thumbnail\\',
+    'IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH'=> 'C:\wamp64\www\photo_editor_lab_backend\image_bucket\webp_original_new\\',
+    'IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH'=> 'C:\wamp64\www\photo_editor_lab_backend\image_bucket\webp_thumbnail_new\\',
+    'PATH_OF_CWEBP'=> 'C:\\libwebp\\bin\\cwebp',
+    'FFMPEG_PATH'=> 'C:\\ffmpeg\\bin\\ffmpeg.exe',
+    'FFPROBE_PATH'=> 'C:\\ffmpeg\\bin\\ffprobe.exe',*/
+
 
 ];

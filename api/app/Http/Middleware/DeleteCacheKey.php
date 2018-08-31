@@ -263,7 +263,7 @@ class DeleteCacheKey
             }
 
             //Sub Category Images
-            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api =='/api/addFeaturedBackgroundCatalogImage' or $api =='/api/updateFeaturedBackgroundCatalogImage' or $api =='/api/addJson' or $api =='/api/addCatalogImagesForJson' or $api =='/api/editJsonData') {
+            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api =='/api/addFeaturedBackgroundCatalogImage' or $api =='/api/updateFeaturedBackgroundCatalogImage' or $api =='/api/addJson' or $api =='/api/addCatalogImagesForJson' or $api =='/api/editJsonData' or $api =='/api/updateAllSampleImages') {
 
                 //Category Wise Images Key
                 $keys = Redis::keys('pel:getImagesByCatalogId*');

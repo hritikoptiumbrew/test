@@ -7286,17 +7286,16 @@ class AdminController extends Controller
             $count = 0;
             $remaining_images = array();
             foreach ($sample_images as $key) {
-                Log::info('sample images : ',['image' => $key->image]);
+                //Log::info('sample images : ',['image' => $key->image]);
 
                 $file_name = (new ImageController())->saveOriginalImageFromToS3($key->image);
 
                 if ($file_name != "") {
-                    $dimension = (new ImageController())->saveThumbnailImage($key->image);
                     $dimension = (new ImageController())->saveThumbnailImageFromS3($key->image);
                     if ($dimension != "") {
                         if (env('STORAGE') === 'S3_BUCKET') {
 
-                            (new ImageController())->saveWebpImageInToSpaces($file_name);
+                            (new ImageController())->saveNewWebpImageInToSpaces($file_name);
 
                             (new ImageController())->unlinkfile($key->image);
                         }
