@@ -7314,7 +7314,7 @@ class AdminController extends Controller
 
                             (new ImageController())->saveNewWebpImageInToSpaces($file_name);
 
-                            (new ImageController())->unlinkfile($key->image);
+                            //(new ImageController())->unlinkfile($key->image);
                         }
 
                         DB::beginTransaction();
