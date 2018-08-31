@@ -1063,7 +1063,7 @@ class ImageController extends Controller
                 if (fopen($path, "r")) {
 
                     if (env('STORAGE') === 'S3_BUCKET') {
-                        //unlink($path);
+                        unlink($path);
                     }
 
                 }
@@ -1094,7 +1094,7 @@ class ImageController extends Controller
             $libwebp = Config::get('constant.PATH_OF_CWEBP');
 
             $cmd = "$libwebp -q $quality $org_path -o $webp_path";
-            Log::info('webp command : ',['command' => $cmd]);
+            //Log::info('webp command : ',['command' => $cmd]);
 
             if (env('APP_ENV') != 'local') {
                 $result = (!shell_exec($cmd));
@@ -1102,7 +1102,7 @@ class ImageController extends Controller
                 $result = (!exec($cmd));
             }
 
-            Log::info('webp result : ',['return' => $result]);
+            //Log::info('webp result : ',['return' => $result]);
 
             $base_url = (new ImageController())->getBaseUrl();
 
@@ -1206,7 +1206,7 @@ class ImageController extends Controller
             if ($width_orig < 200 or $height_orig < 200) {
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_path";
-                Log::info('webp thumbnail command : ',['command' => $cmd]);
+                //Log::info('webp thumbnail command : ',['command' => $cmd]);
                 if (env('APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
@@ -1214,12 +1214,12 @@ class ImageController extends Controller
                     // For windows
                     $result = (!exec($cmd));
                 }
-                Log::info('webp thumbnail command result : ',['return' => $result]);
+                //Log::info('webp thumbnail command result : ',['return' => $result]);
                 return array('height' => $height, 'width' => $width);
             } else {
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
-                Log::info('webp thumbnail command (aspect ratio) : ',['command' => $cmd]);
+                //Log::info('webp thumbnail command (aspect ratio) : ',['command' => $cmd]);
                 if (env('APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
@@ -1227,7 +1227,7 @@ class ImageController extends Controller
                     // For windows
                     $result = (!exec($cmd));
                 }
-                Log::info('webp thumbnail command result (aspect ratio) : ',['return' => $result]);
+                //Log::info('webp thumbnail command result (aspect ratio) : ',['return' => $result]);
                 return array('height' => $height_orig, 'width' => $width_orig);
             }
 
@@ -1267,7 +1267,7 @@ class ImageController extends Controller
                 if (fopen($original_image_path, "r")) {
                     //File::delete($image_path);
                     //Log::info('s3');
-                    //unlink($original_image_path);
+                    unlink($original_image_path);
                 }
 
 
@@ -1282,7 +1282,7 @@ class ImageController extends Controller
 
                 if (fopen($thumbnail_image_path, "r")) {
                     //File::delete($image_path);
-                    //unlink($thumbnail_image_path);
+                    unlink($thumbnail_image_path);
                 }
 
 
