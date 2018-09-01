@@ -1143,8 +1143,8 @@ class UserController extends Controller
 
             //Log::info('request_data', ['request_data' => $request]);
 
-            if (!Cache::has("vf:getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
-                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webpIos$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
+                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webpIos$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
 
                     if ($this->catalog_id == 0) {
                         $result = DB::select('SELECT
@@ -1189,7 +1189,7 @@ class UserController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
+            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webpIos$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -1205,7 +1205,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getJsonSampleDataWithLastSyncTime_webp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getJsonSampleDataWithLastSyncTime_webpIos Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get json data with last_sync_time.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }

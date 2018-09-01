@@ -1113,6 +1113,7 @@ class ImageController extends Controller
 
             if ($webp_img_size > $original_img_size) {
 
+                $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY'). $webp_name . '.webp';
                 unlink($webp_org_path);
                 $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $image;
                 File::copy($path, $webp_org_path);
