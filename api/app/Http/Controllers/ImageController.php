@@ -142,6 +142,7 @@ class ImageController extends Controller
 
         if ($webp_img_size > $original_img_size) {
 
+            $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
             unlink($webp_org_path);
             $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $img;
             File::copy($path, $webp_org_path);
@@ -1266,7 +1267,7 @@ class ImageController extends Controller
                 if (fopen($original_image_path, "r")) {
                     //File::delete($image_path);
                     //Log::info('s3');
-                    unlink($original_image_path);
+                    //unlink($original_image_path);
                 }
 
 
@@ -1281,7 +1282,7 @@ class ImageController extends Controller
 
                 if (fopen($thumbnail_image_path, "r")) {
                     //File::delete($image_path);
-                    unlink($thumbnail_image_path);
+                    //unlink($thumbnail_image_path);
                 }
 
 
