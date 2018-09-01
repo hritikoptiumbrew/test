@@ -1138,19 +1138,17 @@ class ImageController extends Controller
     {
         try {
             $exist_files_array = array();
-            $base_url = (new ImageController())->getBaseUrl();
+            //$base_url = (new ImageController())->getBaseUrl();
             foreach ($image_array as $key) {
 
                 $bg_image = $key->getClientOriginalName();
 
-                $image_path = '../..' . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
+                $image_path = Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $bg_image;
                 //$image_path = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
 
-                if (File::exists($image_path)) {
-
-                    $exist_files_array[] = array('url' => $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image, 'name' => $bg_image);
+                if (fopen($image_path, "r")) {
+                    $exist_files_array[] = array('url' => Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $bg_image, 'name' => $bg_image);
                 }
-
 
             }
             if (sizeof($exist_files_array) > 0) {
