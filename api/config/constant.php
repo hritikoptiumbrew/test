@@ -82,6 +82,7 @@ return [
     'THUMBNAIL_WIDTH' => 320,
 
     'PAGINATION_ITEM_LIMIT' => '15',
+    'ITEM_COUNT_OF_FEATURED_JSON' => '5',
 
     'GCM_NOTIFICATION_URL' => 'https://fcm.googleapis.com/fcm/send',
 

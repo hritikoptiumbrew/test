@@ -1212,6 +1212,190 @@ class UserController extends Controller
         return $response;
     }
 
+    /**
+     * @api {post} getFeaturedJsonSampleData_webp   getFeaturedJsonSampleData_webp
+     * @apiName getFeaturedJsonSampleData_webp
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":51
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All json fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "catalog_id": 168,
+     * "name": "Business Card Catalog2",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1d0851d6d32_catalog_img_1511852113.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "updated_at": "2018-08-11 04:13:20",
+     * "featured_cards": [
+     * {
+     * "json_id": 414,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f9747c534f_json_image_1512019783.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-08-31 10:02:15"
+     * },
+     * {
+     * "json_id": 415,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f974dc5c1a_json_image_1512019789.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-08-31 10:02:03"
+     * },
+     * {
+     * "json_id": 417,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f97592443d_json_image_1512019801.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-08-31 10:02:03"
+     * },
+     * {
+     * "json_id": 418,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f975f6f461_json_image_1512019807.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-08-31 10:02:02"
+     * },
+     * {
+     * "json_id": 419,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f9765255c2_json_image_1512019813.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-08-31 10:02:02"
+     * }
+     * ]
+     * },
+     * {
+     * "catalog_id": 167,
+     * "name": "Business Card Catalog1",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a17fab520a09_catalog_img_1511520949.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a17fab520a09_catalog_img_1511520949.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a17fab520a09_catalog_img_1511520949.png",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "updated_at": "2017-11-28 07:42:02",
+     * "featured_cards": []
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getFeaturedJsonSampleData_webp(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_JSON');
+            $this->offset = 0;
+
+            //Log::info('request_data', ['request_data' => $request]);
+
+            if (!Cache::has("pel:getFeaturedJsonSampleData_webp$this->item_count:$this->sub_category_id")) {
+                $result = Cache::rememberforever("getFeaturedJsonSampleData_webp$this->item_count:$this->sub_category_id", function () {
+
+                    $catalogs = DB::select('SELECT
+                                                  ct.id as catalog_id,
+                                                  ct.name,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                                  ct.is_free,
+                                                  ct.is_featured,
+                                                  ct.updated_at
+                                                FROM
+                                                  catalog_master as ct,
+                                                  sub_category_catalog as sct
+                                                WHERE
+                                                  sct.sub_category_id = ? AND
+                                                  sct.catalog_id=ct.id AND
+                                                  sct.is_active=1 AND
+                                                  ct.is_featured = 1
+                                                order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                    foreach ($catalogs as $key) {
+                        $featured_cards = DB::select('SELECT
+                                               id as json_id,
+                                               IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                               is_free,
+                                               is_featured,
+                                               is_portrait,
+                                               coalesce(height,0) AS height,
+                                               coalesce(width,0) AS width,
+                                               updated_at
+                                                FROM
+                                                images
+                                                WHERE
+                                                catalog_id = ? AND
+                                                is_featured = 1
+                                                order by updated_at DESC LIMIT ?, ?', [$key->catalog_id, $this->offset, $this->item_count]);
+
+                        $key->featured_cards = $featured_cards;
+
+                    }
+
+
+                    return $catalogs;
+                });
+            }
+
+            $redis_result = Cache::get("getFeaturedJsonSampleData_webp$this->item_count:$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Featured cards fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+
+
+        } catch
+        (Exception $e) {
+            Log::error("getFeaturedJsonSampleData_webp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get featured json sample data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     /* =================================| User Feeds |=============================*/
 
     /**
