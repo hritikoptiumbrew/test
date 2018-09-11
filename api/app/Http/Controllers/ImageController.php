@@ -1082,7 +1082,10 @@ class ImageController extends Controller
             }
 
             //Input::file('file')->move($original_path, $image);
-            copy($original_img_of_s3, $path);
+            if (env('STORAGE') === 'S3_BUCKET') {
+                copy($original_img_of_s3, $path);
+            }
+
 
             $this->saveImageDetails($path, 'original');
             $original_img_size = filesize($path);
