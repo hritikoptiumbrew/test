@@ -133,7 +133,7 @@ class ImageController extends Controller
             $result = (!exec($cmd));
         }
 
-        $base_url = (new ImageController())->getBaseUrl();
+        /*$base_url = (new ImageController())->getBaseUrl();
 
         $webp_org_path = $base_url . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
 
@@ -151,7 +151,9 @@ class ImageController extends Controller
         } else {
             return $webp_name . '.webp';
 
-        }
+        }*/
+
+        return $webp_name . '.webp';
 
 
     }
@@ -283,6 +285,7 @@ class ImageController extends Controller
             }
 
         } catch (Exception $e) {
+            Log::error("saveThumbnailImage Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
             $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
             foreach ($_FILES['file'] as $check) {
@@ -752,7 +755,7 @@ class ImageController extends Controller
                 $result = (!exec($cmd));
             }
 
-            if ($webp_img_size > $original_img_size) {
+            /*if ($webp_img_size > $original_img_size) {
 
                 $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
                 unlink($webp_org_path);
@@ -762,7 +765,8 @@ class ImageController extends Controller
             } else {
                 return array('height' => $height, 'width' => $width, 'filename' => $webp_name . '.webp');
 
-            }
+            }*/
+            return array('height' => $height, 'width' => $width, 'filename' => $webp_name . '.webp');
 
         } else {
 
@@ -776,7 +780,7 @@ class ImageController extends Controller
                 $result = (!exec($cmd));
             }
 
-            if ($webp_img_size > $original_img_size) {
+            /*if ($webp_img_size > $original_img_size) {
 
                 $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
                 unlink($webp_org_path);
@@ -786,7 +790,8 @@ class ImageController extends Controller
             } else {
                 return array('height' => $height_orig, 'width' => $width_orig, 'filename' => $webp_name . '.webp');
 
-            }
+            }*/
+            return array('height' => $height_orig, 'width' => $width_orig, 'filename' => $webp_name . '.webp');
         }
     }
 
@@ -1107,7 +1112,7 @@ class ImageController extends Controller
 
             //Log::info('webp result : ',['return' => $result]);
 
-            $base_url = (new ImageController())->getBaseUrl();
+            /*$base_url = (new ImageController())->getBaseUrl();
 
             $webp_org_path = $base_url . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $webp_name . '.webp';
 
@@ -1125,7 +1130,8 @@ class ImageController extends Controller
             } else {
                 return $webp_name . '.webp';
 
-            }
+            }*/
+            return $webp_name . '.webp';
 
         } catch (Exception $e) {
 
