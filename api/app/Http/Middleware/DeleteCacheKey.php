@@ -167,6 +167,15 @@ class DeleteCacheKey
                     //Log::info("pel:getCatalogBySubCategoryId Key Deleted");
                 }
 
+                //getFeaturedJsonSampleData_webp
+                $keys = Redis::keys('pel:getFeaturedJsonSampleData_webp*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                if (count($keys) === 0) {
+                    //Log::info("pel:getFeaturedJsonSampleData_webp Key Deleted");
+                }
+
                 //getSampleImagesForAdmin
                 $keys = Redis::keys('pel:getSampleImagesForAdmin*');
                 foreach ($keys as $key) {
