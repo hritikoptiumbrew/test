@@ -7285,7 +7285,7 @@ class AdminController extends Controller
                                     i.json_data !="" AND
                                     i.catalog_id = scc.catalog_id AND
                                     scc.sub_category_id = ? AND scc.is_active = 1
-                                    ORDER BY i.updated_at', [$sub_category_id]);
+                                    ORDER BY i.updated_at ASC', [$sub_category_id]);
 
 
             $sample_images = DB::select('SELECT i.*
@@ -7296,7 +7296,7 @@ class AdminController extends Controller
                                     i.json_data !="" AND
                                     i.catalog_id = scc.catalog_id AND
                                     scc.sub_category_id = ? AND scc.is_active = 1
-                                    ORDER BY i.updated_at DESC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
+                                    ORDER BY i.updated_at ASC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
 
 
             $count = 0;
