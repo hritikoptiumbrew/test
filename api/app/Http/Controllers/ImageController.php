@@ -1188,11 +1188,14 @@ class ImageController extends Controller
             $height = $array['height'];
             $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
             $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
-            $img = Image::make($original_path)->resize($width, $height);
-            $img->save($thumbnail_path);
 
-            //use for Image Details
-            $this->saveImageDetails($thumbnail_path, 'thumbnail');
+            if (env('STORAGE') === 'S3_BUCKET') {
+                $img = Image::make($original_path)->resize($width, $height);
+                $img->save($thumbnail_path);
+
+                //use for Image Details
+                $this->saveImageDetails($thumbnail_path, 'thumbnail');
+            }
 
             $file_data = pathinfo(basename($thumbnail_path));
             //convert image into .webp format
@@ -1245,12 +1248,6 @@ class ImageController extends Controller
         } catch (Exception $e) {
 
             Log::error("saveThumbnailImageFromS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
-            $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
-            foreach ($_FILES['file'] as $check) {
-                chmod($dest1, 0777);
-                copy($dest1, $dest2);
-            }
             return "";
         }
     }

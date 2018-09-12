@@ -1363,8 +1363,7 @@ class UserController extends Controller
                                                 FROM
                                                 images
                                                 WHERE
-                                                catalog_id = ? AND
-                                                is_featured = 1
+                                                catalog_id = ?
                                                 order by updated_at DESC LIMIT ?, ?', [$key->catalog_id, $this->offset, $this->item_count]);
 
                         $key->featured_cards = $featured_cards;
