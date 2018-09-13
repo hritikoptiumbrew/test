@@ -7269,12 +7269,13 @@ class AdminController extends Controller
 
             $request = json_decode($request->getContent());
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','item_count','page'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','item_count','page', 'no_of_times_update'), $request)) != '')
                 return $response;
 
             $sub_category_id = $request->sub_category_id;
             $item_count = $request->item_count;
             $page = $request->page;
+            $no_of_times_update = $request->no_of_times_update;
             $offset = ($page - 1) * $item_count;
 
             $total_sample_images = DB::select('SELECT i.*
@@ -7316,11 +7317,12 @@ class AdminController extends Controller
 
                             (new ImageController())->unlinkfile($key->image);
                         }
+                        sleep(1);
 
                         DB::beginTransaction();
                         DB::update('UPDATE
-                                images SET height = ?, width = ?, attribute1 = ?
-                                WHERE id = ?', [$dimension['height'], $dimension['width'], $file_name, $key->id]);
+                                images SET height = ?, width = ?, attribute1 = ?, attribute2 = ?
+                                WHERE id = ?', [$dimension['height'], $dimension['width'], $file_name, $no_of_times_update, $key->id]);
                         DB::commit();
                         $count = $count + 1;
                         $updated_images[] = $key->image;
