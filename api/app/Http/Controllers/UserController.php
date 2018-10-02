@@ -1385,12 +1385,124 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
 
-
         } catch
         (Exception $e) {
             Log::error("getFeaturedJsonSampleData_webp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get featured json sample data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} searchCardsBySubCategoryId   searchCardsBySubCategoryId
+     * @apiName searchCardsBySubCategoryId
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":51
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Cards fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "json_id": 461,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a30c9cfe86bf_json_image_1513146831.webp",
+     * "is_free": 0,
+     * "is_featured": 1,
+     * "is_portrait": 1,
+     * "height": 400,
+     * "width": 325,
+     * "updated_at": "2018-10-02 11:12:18"
+     * },
+     * {
+     * "json_id": 462,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a30e65af3793_json_image_1513154138.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 1,
+     * "height": 400,
+     * "width": 325,
+     * "updated_at": "2018-10-02 11:11:14"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function searchCardsBySubCategoryId(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            //Log::info("getFeaturedCatalogBySubCategoryId Request:", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->search_category = "%" . $request->search_category . "%";
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            if (!Cache::has("pel:searchCardsBySubCategoryId$this->sub_category_id:$this->search_category:$this->offset:$this->item_count")) {
+                $result = Cache::rememberforever("searchCardsBySubCategoryId$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", function () {
+
+
+                    return DB::select('SELECT
+                                                  im.id as json_id,
+                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                  im.is_free,
+                                                  im.is_featured,
+                                                  im.is_portrait,
+                                                  coalesce(im.height,0) AS height,
+                                                  coalesce(im.width,0) AS width,
+                                                  im.updated_at
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img) AND
+                                                  im.search_category LIKE ?
+                                                ORDER BY im.updated_at DESC limit ?, ?', [$this->sub_category_id, $this->search_category, $this->offset, $this->item_count]);
+
+                });
+
+
+            }
+
+            $redis_result = Cache::get("searchCardsBySubCategoryId$this->sub_category_id:$this->search_category:$this->offset:$this->item_count");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Cards fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("searchCardsBySubCategoryId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search cards.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }

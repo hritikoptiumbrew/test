@@ -32,6 +32,7 @@ Route::post('getLinkWithoutToken', 'UserController@getLinkWithoutToken');
 
 
 
+
 Route::get('/clear-cache', function() {
     $exitCode = Artisan::call('cache:clear');
     return $exitCode;
@@ -229,6 +230,9 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     Route::post('getLinkWithLastSyncTime', 'UserController@getLinkWithLastSyncTime');
 
     Route::post('addZipFile', 'UserController@addZipFile');
+
+    //Search cards by sub_category_id
+    Route::post('searchCardsBySubCategoryId', 'UserController@searchCardsBySubCategoryId');
 
 });
 
