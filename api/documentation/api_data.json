@@ -407,6 +407,35 @@
   },
   {
     "type": "post",
+    "url": "addTag",
+    "title": "addTag",
+    "name": "addTag",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"tag_name\":\"Nature\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Tag added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "addZipFile",
     "title": "addZipFile",
     "name": "addZipFile",
@@ -833,6 +862,35 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"sub category deleted successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "deleteTag",
+    "title": "deleteTag",
+    "name": "deleteTag",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"tag_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Tag deleted successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -1355,6 +1413,35 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"SubCategory Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"category_list\": [\n{\n\"sub_category_id\": 13,\n\"name\": \"Background\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 12,\n\"name\": \"Frames\",\n\"linked\": 1\n},\n{\n\"sub_category_id\": 10,\n\"name\": \"Goggles\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 9,\n\"name\": \"Hair Style\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 4,\n\"name\": \"Tattoos\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 11,\n\"name\": \"Turbans\",\n\"linked\": 0\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getAllTags",
+    "title": "getAllTags",
+    "name": "getAllTags",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All tags fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 4,\n\"result\": [\n{\n\"tag_id\": 1,\n\"tag_name\": \"test\"\n},\n{\n\"tag_id\": 2,\n\"tag_name\": \"Offer & Sales\"\n},\n{\n\"tag_id\": 3,\n\"tag_name\": \"Mobile Apps\"\n},\n{\n\"tag_id\": 4,\n\"tag_name\": \"Photography\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2254,6 +2341,35 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Catalog Image Updated Successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "updateTag",
+    "title": "updateTag",
+    "name": "updateTag",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"tag_id\":1, //compulsory\n\"tag_name\":\"Featured\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Tag updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]

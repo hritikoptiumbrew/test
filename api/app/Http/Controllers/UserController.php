@@ -1552,7 +1552,8 @@ class UserController extends Controller
                                                   isnull(im.display_img)
                                                 ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                         $code = 427;
-                        $message = "Sorry, we couldn't find any templates for '$this->search_category', but we found some other templates you might like:";
+                        $search_text = trim($this->search_category,"%");
+                        $message = "Sorry, we couldn't find any templates for '$search_text', but we found some other templates you might like:";
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -2487,6 +2488,59 @@ class UserController extends Controller
         (Exception $e) {
             Log::error("addCatalogImagesForJson Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getZipFile   getZipFile
+     * @apiName getZipFile
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "file_name":"sample.zip" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Featured json images fetch successfully.",
+     * "cause": "",
+     * "data": {
+     * "url": "sample.zip"
+     * }
+     * }
+     */
+    public function getZipFile(Request $request_body)
+    {
+
+        try {
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('file_name'), $request)) != '')
+                return $response;
+
+            $file_name = $request->file_name;
+
+            $result_array = array('url' => Config::get('constant.ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN'). $file_name);
+
+            $result = json_decode(json_encode($result_array), true);
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Zip file fetched successfully.', 'cause' => '', 'data' => $result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch
+        (Exception $e) {
+            Log::error("getZipFile Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get zip file.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;

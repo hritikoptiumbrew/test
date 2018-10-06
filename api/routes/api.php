@@ -176,6 +176,12 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     //update all sample images using libwebp
     Route::post('updateAllSampleImages', 'AdminController@updateAllSampleImages');
 
+    //Search Tag
+    Route::post('addTag', 'AdminController@addTag');
+    Route::post('updateTag', 'AdminController@updateTag');
+    Route::post('deleteTag', 'AdminController@deleteTag');
+    Route::post('getAllTags', 'AdminController@getAllTags');
+
 
 });
 
@@ -236,3 +242,4 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
 
 });
 
+Route::post('getZipFile', 'UserController@getZipFile');

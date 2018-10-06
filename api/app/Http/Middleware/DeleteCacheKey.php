@@ -21,7 +21,7 @@ class DeleteCacheKey
     public function handle($request, Closure $next)
     {
         $api = $request->getPathInfo();
-        IF($api != "/api/logs/admin@gmail.com/demo@123"){
+        IF ($api != "/api/logs/admin@gmail.com/demo@123") {
             //Log::info("apicall :",[$api]);
         }
         return $next($request);
@@ -136,8 +136,7 @@ class DeleteCacheKey
             }
 
             //Catalog-Category
-            if ($api == '/api/addCatalog' or $api == '/api/updateCatalog' or $api == '/api/deleteCatalog' or $api == '/api/linkCatalog' or $api == '/api/deleteLinkedCatalog' or $api=='/api/addFeaturedBackgroundCatalogImage' or $api=='/api/updateFeaturedBackgroundCatalogImage') {
-
+            if ($api == '/api/addCatalog' or $api == '/api/updateCatalog' or $api == '/api/deleteCatalog' or $api == '/api/linkCatalog' or $api == '/api/deleteLinkedCatalog' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage') {
 
 
                 //getFeaturedBackgroundCatalog
@@ -200,7 +199,7 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
                 if (count($keys) === 0) {
-                   //Log::info("pel:getAllSubCategoryForLinkCatalog Key Deleted");
+                    //Log::info("pel:getAllSubCategoryForLinkCatalog Key Deleted");
                 }
 
 
@@ -272,7 +271,7 @@ class DeleteCacheKey
             }
 
             //Sub Category Images
-            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api =='/api/addFeaturedBackgroundCatalogImage' or $api =='/api/updateFeaturedBackgroundCatalogImage' or $api =='/api/addJson' or $api =='/api/addCatalogImagesForJson' or $api =='/api/editJsonData' or $api =='/api/updateAllSampleImages') {
+            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages') {
 
                 //Category Wise Images Key
                 $keys = Redis::keys('pel:getImagesByCatalogId*');
@@ -448,7 +447,7 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
                 if (count($keys) === 0) {
-                   //Log::info("pel:getPurchaseUser Key Deleted");
+                    //Log::info("pel:getPurchaseUser Key Deleted");
                 }
 
                 //All Restore Device Key
@@ -590,6 +589,19 @@ class DeleteCacheKey
                     //Log::info("pel:getAllAdvertisements Key Deleted");
                 }
 
+            }
+
+            //Category
+            if ($api == '/api/addTag' or $api == '/api/updateTag' or $api == '/api/deleteTag') {
+
+                //getAllTags
+                $keys = Redis::keys('pel:getAllTags*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                if (count($keys) === 0) {
+                    //Log::info("pel:getAllTags Key Deleted");
+                }
             }
 
 

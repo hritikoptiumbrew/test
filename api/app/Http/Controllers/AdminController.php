@@ -3134,7 +3134,7 @@ class AdminController extends Controller
                                           coalesce(im.is_featured,"") as is_featured,
                                           coalesce(im.is_free,0) as is_free,
                                           coalesce(im.is_portrait,0) as is_portrait,
-                                          coalesce(im.search_category,0) as search_category
+                                          coalesce(im.search_category,"") as search_category
                                         FROM
                                           images as im
                                         where
@@ -5631,8 +5631,10 @@ class AdminController extends Controller
             //$search_category = isset($request->search_category) ? $request->search_category : NULL;
             $search_category = $request->search_category;
             $created_at = date('Y-m-d H:i:s');
-
             //Log::info('request_data', ['request_data' => $request]);
+
+            if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
+                return $response;
 
 
             DB::beginTransaction();
@@ -5905,6 +5907,9 @@ class AdminController extends Controller
             $created_at = date('Y-m-d H:i:s');
 
             //Log::info('request_data', ['request_data' => $request]);
+
+            if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
+                return $response;
 
 
             DB::beginTransaction();
@@ -7469,6 +7474,258 @@ class AdminController extends Controller
             Log::error("createInvalidation Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'create invalidation.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
+        }
+        return $response;
+    }
+
+    /* ========================================= Tags =========================================*/
+
+    /**
+     * @api {post} addTag   addTag
+     * @apiName addTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_name":"Nature" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addTag(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            //Log::info("request data :", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_name'), $request)) != '')
+                return $response;
+
+            $tag_name = trim($request->tag_name);
+            $create_at = date('Y-m-d H:i:s');
+
+            $result = DB::select('SELECT * FROM tag_master WHERE tag_name = ?',[$tag_name]);
+            if(count($result) > 0)
+            {
+                return $response = Response::json(array('code' => 201, 'message' => 'Tag already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            DB::beginTransaction();
+
+            DB::insert('insert into tag_master (tag_name,is_active, create_time) VALUES(?, ?, ?)', [$tag_name, 1, $create_at]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addTag Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateTag   updateTag
+     * @apiName updateTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_id":1, //compulsory
+     * "tag_name":"Featured" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateTag(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            //Log::info("request data :", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_id', 'tag_name'), $request)) != '')
+                return $response;
+
+            $tag_id = $request->tag_id;
+            $tag_name = trim($request->tag_name);
+
+            $result = DB::select('SELECT * FROM tag_master WHERE tag_name = ? AND id != ?',[$tag_name, $tag_id]);
+            if(count($result) > 0)
+            {
+                return $response = Response::json(array('code' => 201, 'message' => 'Tag already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            DB::beginTransaction();
+
+            DB::update('UPDATE
+                              tag_master
+                            SET
+                              tag_name = ?
+                            WHERE
+                              id = ? ',
+                [$tag_name, $tag_id]);
+
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("updateTag Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteTag   deleteTag
+     * @apiName deleteTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag deleted successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteTag(Request $request_body)
+    {
+        try {
+            $request = json_decode($request_body->getContent());
+            //Log::info("request data :", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_id'), $request)) != '')
+                return $response;
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $tag_id = $request->tag_id;
+
+            DB::beginTransaction();
+
+            DB::delete('DELETE FROM tag_master where id = ? ', [$tag_id]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteTag Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllTags   getAllTags
+     * @apiName getAllTags
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All tags fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 4,
+     * "result": [
+     * {
+     * "tag_id": 1,
+     * "tag_name": "test"
+     * },
+     * {
+     * "tag_id": 2,
+     * "tag_name": "Offer & Sales"
+     * },
+     * {
+     * "tag_id": 3,
+     * "tag_name": "Mobile Apps"
+     * },
+     * {
+     * "tag_id": 4,
+     * "tag_name": "Photography"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllTags(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!Cache::has("pel:getAllTags")) {
+                $result = Cache::rememberforever("getAllTags", function () {
+                    return DB::select('SELECT
+                                        id AS tag_id,
+                                        tag_name
+                                        FROM
+                                        tag_master
+                                        WHERE is_active = ?', [1]);
+                });
+            }
+
+            $redis_result = Cache::get("getAllTags");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'All tags fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllTags Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all tags.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
