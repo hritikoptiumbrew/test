@@ -1406,34 +1406,39 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "sub_category_id":51
+     * "sub_category_id":56,//compulsory
+     * "search_category":"Wedd",//compulsory
+     * "page":1,//compulsory
+     * "item_count":10//compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
-     * "code": 200,
-     * "message": "Cards fetched successfully.",
+     * "code": 200, //return 427 when server not find any result related to your search_category
+     * "message": "Templates fetched successfully.",
      * "cause": "",
      * "data": {
+     * "total_record": 4,
+     * "is_next_page": false,
      * "result": [
      * {
-     * "json_id": 461,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a30c9cfe86bf_json_image_1513146831.webp",
-     * "is_free": 0,
-     * "is_featured": 1,
+     * "json_id": 470,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a30ceb599c91_json_image_1513148085.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
      * "is_portrait": 1,
      * "height": 400,
      * "width": 325,
-     * "updated_at": "2018-10-02 11:12:18"
+     * "updated_at": "2018-10-02 11:29:29"
      * },
      * {
-     * "json_id": 462,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a30e65af3793_json_image_1513154138.webp",
+     * "json_id": 463,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a30cbb7d3d62_json_image_1513147319.webp",
      * "is_free": 1,
-     * "is_featured": 1,
+     * "is_featured": 0,
      * "is_portrait": 1,
      * "height": 400,
      * "width": 325,
-     * "updated_at": "2018-10-02 11:11:14"
+     * "updated_at": "2018-10-02 11:28:40"
      * }
      * ]
      * }
@@ -1461,7 +1466,25 @@ class UserController extends Controller
                 $result = Cache::rememberforever("searchCardsBySubCategoryId$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", function () {
 
 
-                    return DB::select('SELECT
+                    $total_row_result = DB::select('SELECT count(*) as total
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img) AND
+                                                  im.search_category LIKE ?
+                                                ORDER BY im.updated_at DESC', [$this->sub_category_id, $this->search_category]);
+
+                    $total_row = $total_row_result[0]->total;
+
+                    $search_result = DB::select('SELECT
                                                   im.id as json_id,
                                                   IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                   im.is_free,
@@ -1483,8 +1506,61 @@ class UserController extends Controller
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
                                                   im.search_category LIKE ?
-                                                ORDER BY im.updated_at DESC limit ?, ?', [$this->sub_category_id, $this->search_category, $this->offset, $this->item_count]);
+                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->search_category, $this->offset, $this->item_count]);
+                    $code = 200;
+                    $message = "Templates fetched successfully.";
+                    if (count($search_result) <= 0) {
 
+
+                        $total_row_result = DB::select('SELECT count(*) as total
+                                                            FROM
+                                                              images as im,
+                                                              catalog_master AS cm,
+                                                              sub_category_catalog AS scc
+                                                            WHERE
+                                                              im.is_active = 1 AND
+                                                              im.catalog_id = scc.catalog_id AND
+                                                              cm.id = scc.catalog_id AND
+                                                              cm.is_featured = 1 AND
+                                                              scc.sub_category_id = ? AND
+                                                              isnull(im.original_img) AND
+                                                              isnull(im.display_img)
+                                                            ORDER BY im.updated_at DESC', [$this->sub_category_id]);
+
+                        $total_row = $total_row_result[0]->total;
+
+                        $search_result = DB::select('SELECT
+                                                  im.id as json_id,
+                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                  im.is_free,
+                                                  im.is_featured,
+                                                  im.is_portrait,
+                                                  coalesce(im.height,0) AS height,
+                                                  coalesce(im.width,0) AS width,
+                                                  im.updated_at
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img)
+                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+                        $code = 427;
+                        $message = "Sorry, we couldn't find any templates for '$this->search_category', but we found some other templates you might like:";
+                    }
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
+
+                    $result = array('result' => $search_result, 'code' => $code, 'message' => $message);
+
+                    return $result;
                 });
 
 
@@ -1495,9 +1571,9 @@ class UserController extends Controller
             if (!$redis_result) {
                 $redis_result = [];
             }
+            //return $redis_result['result'];
 
-
-            $response = Response::json(array('code' => 200, 'message' => 'Cards fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {

@@ -5614,7 +5614,7 @@ class AdminController extends Controller
         try {
             $request = json_decode($request_body->input('request_data'));
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free', 'search_category'), $request)) != '')
                 return $response;
 
 
@@ -5628,7 +5628,8 @@ class AdminController extends Controller
             $is_free = $request->is_free;
             $is_featured = $request->is_featured;
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
-            $search_category = isset($request->search_category) ? $request->search_category : NULL;
+            //$search_category = isset($request->search_category) ? $request->search_category : NULL;
+            $search_category = $request->search_category;
             $created_at = date('Y-m-d H:i:s');
 
             //Log::info('request_data', ['request_data' => $request]);
