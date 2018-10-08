@@ -1,12 +1,13 @@
-<div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center" style="width: 768px;">
+<div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center" style="width: 991px;">
   <h5 class="title-bar m-0">Update JSON Data</h5>
 </div>
-<div class="row pt-4 pb-4 p-3">
-  <div class="col-6 pl-0">
+<div class="row pt-4 pb-4 p-3 scroll" style="height: 60vh; overflow: auto">
+  <div class="col-5 pl-0">
     <div class="row pb-3 match-parent view-profile-img m-0-auto">
       <div class="col-12 text-center pr-0 pl-0 match-parent">
         <div class="match-parent">
-          <img *ngIf="catalog_data.compressed_img" [src]="catalog_data.compressed_img" class="pos-ab-img-upload img-240" #imageElement>
+          <img *ngIf="catalog_data.compressed_img" [src]="catalog_data.compressed_img" class="pos-ab-img-upload img-240"
+            #imageElement>
           <button type="button" class="add-image-btn" (click)="onImageClicked($event)">
             <p class="plus">
               <i class="fa fa-camera"></i>
@@ -55,8 +56,24 @@
         </md-radio-group>
       </div>
     </div>
+    <div class="row col-12 p-0">
+      <md-input-container class="w-100">
+        <input mdInput #input class="form-control" placeholder="Select / Enter New tag..." #fruitInput [formControl]="fruitCtrl"
+          (keyup.enter)="add(input)" [matAutocomplete]="auto" />
+      </md-input-container>
+      <md-chip-list #chipList>
+        <md-chip *ngFor="let fruit of selected_search_tags" [selectable]="selectable" [removable]="removable">{{fruit}}
+          <i class="fa fa-close text-danger cursor-pointer p-1" mdChipRemove *ngIf="removable" (click)="remove(fruit)"></i>
+        </md-chip>
+      </md-chip-list>
+      <md-autocomplete #auto="mdAutocomplete" class="scroll">
+        <md-option *ngFor="let fruit of filtered_search_tags | async" [value]="fruit" (click)="selected(fruit)">
+          {{fruit}}
+        </md-option>
+      </md-autocomplete>
+    </div>
   </div>
-  <div class="col-6 p-0">
+  <div class="col-7 p-0">
     <textarea class="form-control json-inputbox" [(ngModel)]="catalog_data.json_data"></textarea>
   </div>
 </div>

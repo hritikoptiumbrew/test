@@ -17,6 +17,7 @@ import { AdvManagementComponent } from './adv-management/adv-management.componen
 import { PromocodeManagementComponent } from './promocode-management/promocode-management.component';
 import { UserGeneratedDesignsComponent } from './user-generated-designs/user-generated-designs.component';
 import { AdmobAdsComponent } from './admob-ads/admob-ads.component';
+import { SearchTagsComponent } from './search-tags/search-tags.component';
 
 export const AppRoutes = [
     { path: '', component: LoginComponent, pathMatch: 'full' },
@@ -38,4 +39,5 @@ export const AppRoutes = [
     { path: 'admin/redis-cache', component: RedisCacheComponent, canActivate: [AuthenticationService] },
     { path: 'admin/settings', component: SettingsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/admob-ads', component: AdmobAdsComponent, canActivate: [AuthenticationService] },
+    { path: 'admin/search-tags', component: SearchTagsComponent, canActivate: [AuthenticationService] },
 ]

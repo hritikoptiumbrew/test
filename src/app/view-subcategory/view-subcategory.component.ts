@@ -26,6 +26,7 @@ export class ViewSubcategoryComponent implements OnInit {
   private catalogId: any;
   sub_category_list: any[];
   sub_category_name: any;
+  search_tag_list: any = [];
   catalogName: any;
   errorMsg: any;
   successMsg: any;
@@ -52,6 +53,41 @@ export class ViewSubcategoryComponent implements OnInit {
       });
   }
 
+  getAllSearchTags() {
+    this.token = localStorage.getItem('photoArtsAdminToken');
+    this.dataService.postData('getAllTags',
+      {}, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).subscribe(results => {
+        if (results.code == 200) {
+          this.search_tag_list = results.data.result;
+          localStorage.setItem("search_tag_list", JSON.stringify(this.search_tag_list));
+          this.loading.close();
+          this.errorMsg = "";
+        }
+        else if (results.code == 400) {
+          this.loading.close();
+          localStorage.removeItem("photoArtsAdminToken");
+          this.router.navigate(['/admin']);
+        }
+        else if (results.code == 401) {
+          this.token = results.data.new_token;
+          localStorage.setItem("photoArtsAdminToken", this.token);
+          this.getAllSearchTags();
+        }
+        else {
+          this.loading.close();
+          this.successMsg = "";
+          this.errorMsg = results.message;
+        }
+      }, error => {
+        /* console.log(error.status); */
+        /* console.log(error); */
+      });
+  }
+
   pageChanged(event) {
     this.loading = this.dialog.open(LoadingComponent);
     this.currentPage = event;
@@ -75,6 +111,7 @@ export class ViewSubcategoryComponent implements OnInit {
           this.errorMsg = "";
           this.successMsg = results.message;
           this.loading.close();
+          this.getAllSearchTags();
         }
         else if (results.code == 400) {
           this.loading.close();
@@ -106,7 +143,9 @@ export class ViewSubcategoryComponent implements OnInit {
   }
 
   openAddJSONData() {
-    let dialogRef = this.dialog.open(AddJsonDataComponent);
+    let dialogRef = this.dialog.open(AddJsonDataComponent, {
+      panelClass: 'add-json-dialog'
+    });
     dialogRef.componentInstance.catalog_data.catalog_id = this.catalogId;
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
@@ -128,7 +167,9 @@ export class ViewSubcategoryComponent implements OnInit {
   updateSubCategory(category) {
     if (category.is_json_data == 1 || category.is_json_data == "1") {
       let catalog_data = JSON.parse(JSON.stringify(category));
-      let dialogRef = this.dialog.open(UpdateJsonDataComponent);
+      let dialogRef = this.dialog.open(UpdateJsonDataComponent, {
+        panelClass: 'add-json-dialog'
+      });
       dialogRef.componentInstance.catalog_data = catalog_data;
       dialogRef.componentInstance.catalog_id = this.catalogId;
       dialogRef.afterClosed().subscribe(result => {

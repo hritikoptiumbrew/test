@@ -1,10 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MdButtonModule, MdInputModule, MdDialogModule, MdRadioModule, MdSidenavModule, MdSelectModule, MdTabsModule, MdCheckboxModule, MdSnackBarModule, MdSnackBarConfig } from '@angular/material';
+import { MdButtonModule, MdInputModule, MdDialogModule, MdRadioModule, MdSidenavModule, MdSelectModule, MdTabsModule, MdCheckboxModule, MdSnackBarModule, MdSnackBarConfig, MdAutocompleteModule, MdChipsModule } from '@angular/material';
 import { AngularFontAwesomeModule } from 'angular-font-awesome/angular-font-awesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutes } from './app.routes';
@@ -65,6 +65,7 @@ import { ConfirmActionComponent } from './confirm-action/confirm-action.componen
 import { AdmobAdsComponent } from './admob-ads/admob-ads.component';
 import { GaAdsByCategoryComponent } from './ga-ads-by-category/ga-ads-by-category.component';
 import { ExistingImagesListComponent } from './existing-images-list/existing-images-list.component';
+import { SearchTagsComponent } from './search-tags/search-tags.component';
 
 @NgModule({
   declarations: [
@@ -121,10 +122,12 @@ import { ExistingImagesListComponent } from './existing-images-list/existing-ima
     AdmobAdsComponent,
     GaAdsByCategoryComponent,
     ExistingImagesListComponent,
+    SearchTagsComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpModule,
     BrowserAnimationsModule,
     AngularFontAwesomeModule,
@@ -137,6 +140,8 @@ import { ExistingImagesListComponent } from './existing-images-list/existing-ima
     MdTabsModule,
     MdSnackBarModule,
     MdCheckboxModule,
+    MdAutocompleteModule,
+    MdChipsModule,
     NgbModule.forRoot(),
     RouterModule.forRoot(AppRoutes, { useHash: true })
   ],
@@ -173,6 +178,7 @@ import { ExistingImagesListComponent } from './existing-images-list/existing-ima
     ExistingImagesListComponent,
   ],
   providers: [DataService, AuthenticationService],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }

@@ -2,6 +2,7 @@
   <p *ngIf="API_NAME == 'deleteUserFeeds'">Are you sure you want to delete this image?</p>
   <p *ngIf="API_NAME == 'deleteAllUserFeeds'">Are you sure you want to delete all images?</p>
   <p *ngIf="API_NAME == 'deleteAdvertiseServerId'">Are you sure you want to delete this Ad ID?</p>
+  <p *ngIf="API_NAME == 'deleteTag'">Are you sure you want to delete this Search Tag?</p>
   <div class="row">
     <div class="col-sm-12 pl-0 pr-0 text-center">
       <a md-raised-button class="btn title-bar" (click)="deleteCategoryImage(delete_request_data, API_NAME)">Delete</a>

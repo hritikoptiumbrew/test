@@ -24,6 +24,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a (click)="nav_search_tags()" class="li-height" [ngClass]="selected_nav_search_tags">
+                        <i class="fa fa-search"></i>&nbsp;&nbsp; Search Tags
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a (click)="nav_images_with_details()" class="li-height" [ngClass]="selected_nav_images_with_details">
                         <i class="fa fa-info-circle font-18"></i>&nbsp;&nbsp; Image Details
                     </a>

@@ -93,7 +93,7 @@ export class AddJsonImagesComponent implements OnInit {
                 }
               });
             }
-            console.log(this.existing_files);
+            /* console.log(this.existing_files); */
           }
           else {
             this.loading.close();
@@ -104,11 +104,11 @@ export class AddJsonImagesComponent implements OnInit {
   }
 
   viewExistingImages(existing_files) {
-    console.log(existing_files);
+    /* console.log(existing_files); */
     let dialogRef = this.dialog.open(ExistingImagesListComponent, { disableClose: true });
     dialogRef.componentInstance.existing_files = existing_files;
     dialogRef.afterClosed().subscribe(result => {
-      console.log(result);
+      /* console.log(result); */
       if (!result) {
         this.dialogRef.close();
       }

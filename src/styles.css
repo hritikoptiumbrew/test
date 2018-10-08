@@ -267,7 +267,6 @@ body {
     width: 768px !important;
 }
 
-
 .inline-block {
     display: inline-block !important;
 }
@@ -482,6 +481,19 @@ input {
     height: 100%;
 }
 
+.add-json-dialog {
+    max-width: 991px;
+    width: 991px;
+}
+
+.mat-chip {
+    margin: 2px !important;
+}
+
+.mat-input-placeholder {
+    color: #616161 !important;
+}
+
 .code-icon {
     font-weight: bold;
     background: #15d3e0 !important;
@@ -509,7 +521,6 @@ img {
     color: #fff !important;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.5);
 }
-
 
 .image-list-container {
     border-bottom: 5px solid #bfbfbf;
