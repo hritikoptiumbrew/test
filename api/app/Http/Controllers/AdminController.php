@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Permission;
 use App\Role;
+use Aws\Credentials\Credentials;
+use GuzzleHttp\Client;
 use Response;
 use Config;
 use DB;
@@ -19,7 +21,7 @@ use Illuminate\Support\Facades\Redis;
 use Image;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Support\Facades\Storage;
-
+use Aws\CloudFront\CloudFrontClient;
 
 class AdminController extends Controller
 {
@@ -3131,7 +3133,8 @@ class AdminController extends Controller
                                           coalesce(im.json_data,"") as json_data,
                                           coalesce(im.is_featured,"") as is_featured,
                                           coalesce(im.is_free,0) as is_free,
-                                          coalesce(im.is_portrait,0) as is_portrait
+                                          coalesce(im.is_portrait,0) as is_portrait,
+                                          coalesce(im.search_category,"") as search_category
                                         FROM
                                           images as im
                                         where
@@ -5611,7 +5614,7 @@ class AdminController extends Controller
         try {
             $request = json_decode($request_body->input('request_data'));
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free', 'search_category'), $request)) != '')
                 return $response;
 
 
@@ -5625,9 +5628,13 @@ class AdminController extends Controller
             $is_free = $request->is_free;
             $is_featured = $request->is_featured;
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
+            //$search_category = isset($request->search_category) ? $request->search_category : NULL;
+            $search_category = $request->search_category;
             $created_at = date('Y-m-d H:i:s');
-
             //Log::info('request_data', ['request_data' => $request]);
+
+            if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
+                return $response;
 
 
             DB::beginTransaction();
@@ -5664,8 +5671,8 @@ class AdminController extends Controller
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, height, width, created_at, attribute1)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $dimension['height'], $dimension['width'], $created_at, $file_name]);
+                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, search_category, height, width, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $created_at, $file_name]);
 
 
                 DB::commit();
@@ -5896,9 +5903,13 @@ class AdminController extends Controller
             $is_free = $request->is_free;
             $is_featured = $request->is_featured;
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
+            $search_category = isset($request->search_category) ? $request->search_category : NULL;
             $created_at = date('Y-m-d H:i:s');
 
             //Log::info('request_data', ['request_data' => $request]);
+
+            if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
+                return $response;
 
 
             DB::beginTransaction();
@@ -5931,8 +5942,8 @@ class AdminController extends Controller
                                 WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
 
                 DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, height = ?, width = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $dimension['height'], $dimension['width'], $file_name, $img_id]);
+                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $file_name, $img_id]);
                 DB::commit();
 
                 if (strstr($file_name, '.webp')) {
@@ -5985,8 +5996,8 @@ class AdminController extends Controller
 
 
                 DB::update('UPDATE
-                                images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
-                                WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
+                                images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?
+                                WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $img_id]);
 
                 DB::commit();
 
@@ -7269,10 +7280,25 @@ class AdminController extends Controller
 
             $request = json_decode($request->getContent());
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'item_count', 'page', 'no_of_times_update'), $request)) != '')
                 return $response;
 
             $sub_category_id = $request->sub_category_id;
+            $item_count = $request->item_count;
+            $page = $request->page;
+            $no_of_times_update = $request->no_of_times_update;
+            $offset = ($page - 1) * $item_count;
+
+            $total_sample_images = DB::select('SELECT i.*
+                                    FROM images AS i,
+                                        sub_category_catalog AS scc
+                                    WHERE
+                                    i.json_data IS NOT NULL AND
+                                    i.json_data !="" AND
+                                    i.catalog_id = scc.catalog_id AND
+                                    scc.sub_category_id = ? AND scc.is_active = 1
+                                    ORDER BY i.updated_at ASC', [$sub_category_id]);
+
 
             $sample_images = DB::select('SELECT i.*
                                     FROM images AS i,
@@ -7282,9 +7308,12 @@ class AdminController extends Controller
                                     i.json_data !="" AND
                                     i.catalog_id = scc.catalog_id AND
                                     scc.sub_category_id = ? AND scc.is_active = 1
-                                    ORDER BY i.updated_at', [$sub_category_id]);
+                                    ORDER BY i.updated_at ASC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
+
+
             $count = 0;
             $remaining_images = array();
+            $updated_images = array();
             foreach ($sample_images as $key) {
                 //Log::info('sample images : ',['image' => $key->image]);
 
@@ -7299,26 +7328,24 @@ class AdminController extends Controller
 
                             (new ImageController())->unlinkfile($key->image);
                         }
+                        sleep(1);
 
                         DB::beginTransaction();
                         DB::update('UPDATE
-                                images SET height = ?, width = ?, attribute1 = ?
-                                WHERE id = ?', [$dimension['height'], $dimension['width'], $file_name, $key->id]);
+                                images SET height = ?, width = ?, attribute1 = ?, attribute2 = ?
+                                WHERE id = ?', [$dimension['height'], $dimension['width'], $file_name, $no_of_times_update, $key->id]);
                         DB::commit();
                         $count = $count + 1;
-                    }
-                    else
-                    {
+                        $updated_images[] = $key->image;
+                    } else {
                         $remaining_images[] = $key->image;
                     }
-                }
-                else
-                {
+                } else {
                     $remaining_images[] = $key->image;
                 }
             }
 
-            $result_array = array('total_updated_images' => $count, 'remaining_images' => $remaining_images);
+            $result_array = array('total_updated_images' => count($total_sample_images), 'updated_images' => $updated_images, 'remaining_images' => $remaining_images);
             $result = json_decode(json_encode($result_array), true);
 
             $response = Response::json(array('code' => 200, 'message' => 'Sample images updated successfully!.', 'cause' => '', 'data' => $result));
@@ -7328,6 +7355,377 @@ class AdminController extends Controller
             Log::error("updateAllSampleImages Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} createInvalidation   createInvalidation
+     * @apiName createInvalidation
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "img_id": 356,
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "json_data": {
+     * "text_json": [],
+     * "sticker_json": [],
+     * "image_sticker_json": [
+     * {
+     * "xPos": 0,
+     * "yPos": 0,
+     * "image_sticker_image": "",
+     * "angle": 0,
+     * "is_round": 0,
+     * "height": 800,
+     * "width": 500
+     * }
+     * ],
+     * "frame_json": {
+     * "frame_image": "frame_15.7"
+     * },
+     * "background_json": {},
+     * "sample_image": "sample_15.7",
+     * "is_featured": 0,
+     * "height": 800,
+     * "width": 800
+     * }
+     * },
+     * file:image1.jpeg
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Json data updated successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function createInvalidation(Request $request)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $base_url = (new ImageController())->getBaseUrl();
+            if ($request->hasFile('file')) {
+                $file = Input::file('file');
+                //$file_type = $file->getMimeType();
+
+                if (($response = (new ImageController())->verifyImage($file)) != '')
+                    return $response;
+
+                $image = $file->getClientOriginalName();//(new ImageController())->generateNewFileName('test_webp_image', $file);
+
+                (new ImageController())->saveOriginalImage($image);
+
+                $original_sourceFile = $base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
+
+                //return array($original_sourceFile);
+                $disk = Storage::disk('s3');
+                $original_targetFile = "imageflyer/webp_original_new/" . $image;
+
+                $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
+                return $response = Response::json(array('code' => 200, 'message' => 'File uploaded successfully.', 'cause' => '', 'data' => "http://d2738jkpoo0kon.cloudfront.net/imageflyer/webp_original_new/" . $image));
+
+            } else {
+                return $response = Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+
+            /*//$request = json_decode($request->getContent());
+            $client = CloudFrontClient::factory(array(
+                'credentials' => array(
+                    'key' => 'AKIAIATYIJ5MPKANS7QA',
+                    'secret' => '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',
+                ),
+                'region' => 'us-east-2',
+                'version' => 'latest',
+            ));
+
+            $caller_reference = time();
+
+
+            $result = $client->createInvalidation([
+                'DistributionId' => 'E1CURG7RSP7L0C', // REQUIRED
+                'InvalidationBatch' => [ // REQUIRED
+                    'CallerReference' => $caller_reference, // REQUIRED
+                    'Paths' => [ // REQUIRED
+                        'Items' => ['http://d2738jkpoo0kon.cloudfront.net/imageflyer/webp_original_new/best_wallpapers_for_girl.jpg'],
+                        'Quantity' => 1, // REQUIRED
+                    ],
+                ],
+            ]);
+
+            dd($result);*/
+
+
+        } catch
+        (Exception $e) {
+            Log::error("createInvalidation Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'create invalidation.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /* ========================================= Tags =========================================*/
+
+    /**
+     * @api {post} addTag   addTag
+     * @apiName addTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_name":"Nature" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addTag(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            //Log::info("request data :", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_name'), $request)) != '')
+                return $response;
+
+            $tag_name = trim($request->tag_name);
+            $create_at = date('Y-m-d H:i:s');
+
+            $result = DB::select('SELECT * FROM tag_master WHERE tag_name = ?',[$tag_name]);
+            if(count($result) > 0)
+            {
+                return $response = Response::json(array('code' => 201, 'message' => 'Tag already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            DB::beginTransaction();
+
+            DB::insert('insert into tag_master (tag_name,is_active, create_time) VALUES(?, ?, ?)', [$tag_name, 1, $create_at]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addTag Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateTag   updateTag
+     * @apiName updateTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_id":1, //compulsory
+     * "tag_name":"Featured" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateTag(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            //Log::info("request data :", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_id', 'tag_name'), $request)) != '')
+                return $response;
+
+            $tag_id = $request->tag_id;
+            $tag_name = trim($request->tag_name);
+
+            $result = DB::select('SELECT * FROM tag_master WHERE tag_name = ? AND id != ?',[$tag_name, $tag_id]);
+            if(count($result) > 0)
+            {
+                return $response = Response::json(array('code' => 201, 'message' => 'Tag already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            DB::beginTransaction();
+
+            DB::update('UPDATE
+                              tag_master
+                            SET
+                              tag_name = ?
+                            WHERE
+                              id = ? ',
+                [$tag_name, $tag_id]);
+
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("updateTag Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteTag   deleteTag
+     * @apiName deleteTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag deleted successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteTag(Request $request_body)
+    {
+        try {
+            $request = json_decode($request_body->getContent());
+            //Log::info("request data :", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_id'), $request)) != '')
+                return $response;
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $tag_id = $request->tag_id;
+
+            DB::beginTransaction();
+
+            DB::delete('DELETE FROM tag_master where id = ? ', [$tag_id]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteTag Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllTags   getAllTags
+     * @apiName getAllTags
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All tags fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 4,
+     * "result": [
+     * {
+     * "tag_id": 1,
+     * "tag_name": "test"
+     * },
+     * {
+     * "tag_id": 2,
+     * "tag_name": "Offer & Sales"
+     * },
+     * {
+     * "tag_id": 3,
+     * "tag_name": "Mobile Apps"
+     * },
+     * {
+     * "tag_id": 4,
+     * "tag_name": "Photography"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllTags(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!Cache::has("pel:getAllTags")) {
+                $result = Cache::rememberforever("getAllTags", function () {
+                    return DB::select('SELECT
+                                        id AS tag_id,
+                                        tag_name
+                                        FROM
+                                        tag_master
+                                        WHERE is_active = ?', [1]);
+                });
+            }
+
+            $redis_result = Cache::get("getAllTags");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'All tags fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllTags Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all tags.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }

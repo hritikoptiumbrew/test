@@ -133,7 +133,7 @@ class ImageController extends Controller
             $result = (!exec($cmd));
         }
 
-        $base_url = (new ImageController())->getBaseUrl();
+        /*$base_url = (new ImageController())->getBaseUrl();
 
         $webp_org_path = $base_url . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
 
@@ -142,6 +142,7 @@ class ImageController extends Controller
 
         if ($webp_img_size > $original_img_size) {
 
+            $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
             unlink($webp_org_path);
             $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $img;
             File::copy($path, $webp_org_path);
@@ -150,7 +151,9 @@ class ImageController extends Controller
         } else {
             return $webp_name . '.webp';
 
-        }
+        }*/
+
+        return $webp_name . '.webp';
 
 
     }
@@ -282,6 +285,7 @@ class ImageController extends Controller
             }
 
         } catch (Exception $e) {
+            Log::error("saveThumbnailImage Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
             $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
             foreach ($_FILES['file'] as $check) {
@@ -751,8 +755,9 @@ class ImageController extends Controller
                 $result = (!exec($cmd));
             }
 
-            if ($webp_img_size > $original_img_size) {
+            /*if ($webp_img_size > $original_img_size) {
 
+                $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
                 unlink($webp_org_path);
                 $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $img;
                 File::copy($path, $webp_org_path);
@@ -760,7 +765,8 @@ class ImageController extends Controller
             } else {
                 return array('height' => $height, 'width' => $width, 'filename' => $webp_name . '.webp');
 
-            }
+            }*/
+            return array('height' => $height, 'width' => $width, 'filename' => $webp_name . '.webp');
 
         } else {
 
@@ -774,8 +780,9 @@ class ImageController extends Controller
                 $result = (!exec($cmd));
             }
 
-            if ($webp_img_size > $original_img_size) {
+            /*if ($webp_img_size > $original_img_size) {
 
+                $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
                 unlink($webp_org_path);
                 $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $img;
                 File::copy($path, $webp_org_path);
@@ -783,7 +790,8 @@ class ImageController extends Controller
             } else {
                 return array('height' => $height_orig, 'width' => $width_orig, 'filename' => $webp_name . '.webp');
 
-            }
+            }*/
+            return array('height' => $height_orig, 'width' => $width_orig, 'filename' => $webp_name . '.webp');
         }
     }
 
@@ -1074,7 +1082,10 @@ class ImageController extends Controller
             }
 
             //Input::file('file')->move($original_path, $image);
-            copy($original_img_of_s3, $path);
+            if (env('STORAGE') === 'S3_BUCKET') {
+                copy($original_img_of_s3, $path);
+            }
+
 
             $this->saveImageDetails($path, 'original');
             $original_img_size = filesize($path);
@@ -1094,6 +1105,7 @@ class ImageController extends Controller
             $libwebp = Config::get('constant.PATH_OF_CWEBP');
 
             $cmd = "$libwebp -q $quality $org_path -o $webp_path";
+            //Log::info('webp command : ',['command' => $cmd]);
 
             if (env('APP_ENV') != 'local') {
                 $result = (!shell_exec($cmd));
@@ -1101,7 +1113,9 @@ class ImageController extends Controller
                 $result = (!exec($cmd));
             }
 
-            $base_url = (new ImageController())->getBaseUrl();
+            //Log::info('webp result : ',['return' => $result]);
+
+            /*$base_url = (new ImageController())->getBaseUrl();
 
             $webp_org_path = $base_url . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $webp_name . '.webp';
 
@@ -1110,6 +1124,7 @@ class ImageController extends Controller
 
             if ($webp_img_size > $original_img_size) {
 
+                $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY'). $webp_name . '.webp';
                 unlink($webp_org_path);
                 $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $image;
                 File::copy($path, $webp_org_path);
@@ -1118,7 +1133,8 @@ class ImageController extends Controller
             } else {
                 return $webp_name . '.webp';
 
-            }
+            }*/
+            return $webp_name . '.webp';
 
         } catch (Exception $e) {
 
@@ -1134,19 +1150,17 @@ class ImageController extends Controller
     {
         try {
             $exist_files_array = array();
-            $base_url = (new ImageController())->getBaseUrl();
+            //$base_url = (new ImageController())->getBaseUrl();
             foreach ($image_array as $key) {
 
                 $bg_image = $key->getClientOriginalName();
 
-                $image_path = '../..' . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
+                $image_path = Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $bg_image;
                 //$image_path = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
 
-                if (File::exists($image_path)) {
-
-                    $exist_files_array[] = array('url' => $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image, 'name' => $bg_image);
+                if (fopen($image_path, "r")) {
+                    $exist_files_array[] = array('url' => Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $bg_image, 'name' => $bg_image);
                 }
-
 
             }
             if (sizeof($exist_files_array) > 0) {
@@ -1174,11 +1188,14 @@ class ImageController extends Controller
             $height = $array['height'];
             $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
             $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
-            $img = Image::make($original_path)->resize($width, $height);
-            $img->save($thumbnail_path);
 
-            //use for Image Details
-            $this->saveImageDetails($thumbnail_path, 'thumbnail');
+            if (env('STORAGE') === 'S3_BUCKET') {
+                $img = Image::make($original_path)->resize($width, $height);
+                $img->save($thumbnail_path);
+
+                //use for Image Details
+                $this->saveImageDetails($thumbnail_path, 'thumbnail');
+            }
 
             $file_data = pathinfo(basename($thumbnail_path));
             //convert image into .webp format
@@ -1203,6 +1220,7 @@ class ImageController extends Controller
             if ($width_orig < 200 or $height_orig < 200) {
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_path";
+                //Log::info('webp thumbnail command : ',['command' => $cmd]);
                 if (env('APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
@@ -1210,10 +1228,12 @@ class ImageController extends Controller
                     // For windows
                     $result = (!exec($cmd));
                 }
+                //Log::info('webp thumbnail command result : ',['return' => $result]);
                 return array('height' => $height, 'width' => $width);
             } else {
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
+                //Log::info('webp thumbnail command (aspect ratio) : ',['command' => $cmd]);
                 if (env('APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
@@ -1221,16 +1241,13 @@ class ImageController extends Controller
                     // For windows
                     $result = (!exec($cmd));
                 }
+                //Log::info('webp thumbnail command result (aspect ratio) : ',['return' => $result]);
                 return array('height' => $height_orig, 'width' => $width_orig);
             }
 
         } catch (Exception $e) {
-            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
-            $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
-            foreach ($_FILES['file'] as $check) {
-                chmod($dest1, 0777);
-                copy($dest1, $dest2);
-            }
+
+            Log::error("saveThumbnailImageFromS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             return "";
         }
     }

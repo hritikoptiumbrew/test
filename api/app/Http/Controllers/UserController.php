@@ -1143,8 +1143,8 @@ class UserController extends Controller
 
             //Log::info('request_data', ['request_data' => $request]);
 
-            if (!Cache::has("vf:getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
-                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webpIos$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
+                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webpIos$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
 
                     if ($this->catalog_id == 0) {
                         $result = DB::select('SELECT
@@ -1189,7 +1189,7 @@ class UserController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
+            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webpIos$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -1205,9 +1205,381 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getJsonSampleDataWithLastSyncTime_webp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getJsonSampleDataWithLastSyncTime_webpIos Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get json data with last_sync_time.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getFeaturedJsonSampleData_webp   getFeaturedJsonSampleData_webp
+     * @apiName getFeaturedJsonSampleData_webp
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":51
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All json fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "catalog_id": 168,
+     * "name": "Business Card Catalog2",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1d0851d6d32_catalog_img_1511852113.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "updated_at": "2018-08-11 04:13:20",
+     * "featured_cards": [
+     * {
+     * "json_id": 414,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f9747c534f_json_image_1512019783.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-08-31 10:02:15"
+     * },
+     * {
+     * "json_id": 415,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f974dc5c1a_json_image_1512019789.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-08-31 10:02:03"
+     * },
+     * {
+     * "json_id": 417,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f97592443d_json_image_1512019801.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-08-31 10:02:03"
+     * },
+     * {
+     * "json_id": 418,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f975f6f461_json_image_1512019807.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-08-31 10:02:02"
+     * },
+     * {
+     * "json_id": 419,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f9765255c2_json_image_1512019813.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-08-31 10:02:02"
+     * }
+     * ]
+     * },
+     * {
+     * "catalog_id": 167,
+     * "name": "Business Card Catalog1",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a17fab520a09_catalog_img_1511520949.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a17fab520a09_catalog_img_1511520949.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a17fab520a09_catalog_img_1511520949.png",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "updated_at": "2017-11-28 07:42:02",
+     * "featured_cards": []
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getFeaturedJsonSampleData_webp(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_JSON');
+            $this->offset = 0;
+
+            //Log::info('request_data', ['request_data' => $request]);
+
+            if (!Cache::has("pel:getFeaturedJsonSampleData_webp$this->item_count:$this->sub_category_id")) {
+                $result = Cache::rememberforever("getFeaturedJsonSampleData_webp$this->item_count:$this->sub_category_id", function () {
+
+                    $catalogs = DB::select('SELECT
+                                                  ct.id as catalog_id,
+                                                  ct.name,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                                  ct.is_free,
+                                                  ct.is_featured,
+                                                  ct.updated_at
+                                                FROM
+                                                  catalog_master as ct,
+                                                  sub_category_catalog as sct
+                                                WHERE
+                                                  sct.sub_category_id = ? AND
+                                                  sct.catalog_id=ct.id AND
+                                                  sct.is_active=1 AND
+                                                  ct.is_featured = 1
+                                                order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                    foreach ($catalogs as $key) {
+                        $featured_cards = DB::select('SELECT
+                                               id as json_id,
+                                               IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                               is_free,
+                                               is_featured,
+                                               is_portrait,
+                                               coalesce(height,0) AS height,
+                                               coalesce(width,0) AS width,
+                                               updated_at
+                                                FROM
+                                                images
+                                                WHERE
+                                                catalog_id = ?
+                                                order by updated_at DESC LIMIT ?, ?', [$key->catalog_id, $this->offset, $this->item_count]);
+
+                        $key->featured_cards = $featured_cards;
+
+                    }
+
+
+                    return $catalogs;
+                });
+            }
+
+            $redis_result = Cache::get("getFeaturedJsonSampleData_webp$this->item_count:$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Featured cards fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+
+        } catch
+        (Exception $e) {
+            Log::error("getFeaturedJsonSampleData_webp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get featured json sample data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} searchCardsBySubCategoryId   searchCardsBySubCategoryId
+     * @apiName searchCardsBySubCategoryId
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":56,//compulsory
+     * "search_category":"Wedd",//compulsory
+     * "page":1,//compulsory
+     * "item_count":10//compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200, //return 427 when server not find any result related to your search_category
+     * "message": "Templates fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 4,
+     * "is_next_page": false,
+     * "result": [
+     * {
+     * "json_id": 470,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a30ceb599c91_json_image_1513148085.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "height": 400,
+     * "width": 325,
+     * "updated_at": "2018-10-02 11:29:29"
+     * },
+     * {
+     * "json_id": 463,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a30cbb7d3d62_json_image_1513147319.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "height": 400,
+     * "width": 325,
+     * "updated_at": "2018-10-02 11:28:40"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function searchCardsBySubCategoryId(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            //Log::info("getFeaturedCatalogBySubCategoryId Request:", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->search_category = "%" . $request->search_category . "%";
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            if (!Cache::has("pel:searchCardsBySubCategoryId$this->sub_category_id:$this->search_category:$this->offset:$this->item_count")) {
+                $result = Cache::rememberforever("searchCardsBySubCategoryId$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", function () {
+
+
+                    $total_row_result = DB::select('SELECT count(*) as total
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img) AND
+                                                  im.search_category LIKE ?
+                                                ORDER BY im.updated_at DESC', [$this->sub_category_id, $this->search_category]);
+
+                    $total_row = $total_row_result[0]->total;
+
+                    $search_result = DB::select('SELECT
+                                                  im.id as json_id,
+                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                  im.is_free,
+                                                  im.is_featured,
+                                                  im.is_portrait,
+                                                  coalesce(im.height,0) AS height,
+                                                  coalesce(im.width,0) AS width,
+                                                  im.updated_at
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img) AND
+                                                  im.search_category LIKE ?
+                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->search_category, $this->offset, $this->item_count]);
+                    $code = 200;
+                    $message = "Templates fetched successfully.";
+                    if (count($search_result) <= 0) {
+
+
+                        $total_row_result = DB::select('SELECT count(*) as total
+                                                            FROM
+                                                              images as im,
+                                                              catalog_master AS cm,
+                                                              sub_category_catalog AS scc
+                                                            WHERE
+                                                              im.is_active = 1 AND
+                                                              im.catalog_id = scc.catalog_id AND
+                                                              cm.id = scc.catalog_id AND
+                                                              cm.is_featured = 1 AND
+                                                              scc.sub_category_id = ? AND
+                                                              isnull(im.original_img) AND
+                                                              isnull(im.display_img)
+                                                            ORDER BY im.updated_at DESC', [$this->sub_category_id]);
+
+                        $total_row = $total_row_result[0]->total;
+
+                        $search_result = DB::select('SELECT
+                                                  im.id as json_id,
+                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                  im.is_free,
+                                                  im.is_featured,
+                                                  im.is_portrait,
+                                                  coalesce(im.height,0) AS height,
+                                                  coalesce(im.width,0) AS width,
+                                                  im.updated_at
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img)
+                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+                        $code = 427;
+                        $search_text = trim($this->search_category,"%");
+                        $message = "Sorry, we couldn't find any templates for '$search_text', but we found some other templates you might like:";
+                    }
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
+
+                    $result = array('result' => $search_result, 'code' => $code, 'message' => $message);
+
+                    return $result;
+                });
+
+
+            }
+
+            $redis_result = Cache::get("searchCardsBySubCategoryId$this->sub_category_id:$this->search_category:$this->offset:$this->item_count");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+            //return $redis_result['result'];
+
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("searchCardsBySubCategoryId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search cards.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -2116,6 +2488,59 @@ class UserController extends Controller
         (Exception $e) {
             Log::error("addCatalogImagesForJson Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getZipFile   getZipFile
+     * @apiName getZipFile
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "file_name":"sample.zip" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Featured json images fetch successfully.",
+     * "cause": "",
+     * "data": {
+     * "url": "sample.zip"
+     * }
+     * }
+     */
+    public function getZipFile(Request $request_body)
+    {
+
+        try {
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('file_name'), $request)) != '')
+                return $response;
+
+            $file_name = $request->file_name;
+
+            $result_array = array('url' => Config::get('constant.ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN'). $file_name);
+
+            $result = json_decode(json_encode($result_array), true);
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Zip file fetched successfully.', 'cause' => '', 'data' => $result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch
+        (Exception $e) {
+            Log::error("getZipFile Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get zip file.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;

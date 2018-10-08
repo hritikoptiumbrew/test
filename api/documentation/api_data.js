@@ -407,6 +407,35 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "addTag",
+    "title": "addTag",
+    "name": "addTag",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"tag_name\":\"Nature\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Tag added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "addZipFile",
     "title": "addZipFile",
     "name": "addZipFile",
@@ -485,6 +514,35 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Redis Keys Deleted Successfully.\",\n\"cause\": \"\",\n\"data\": \"{}\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "createInvalidation",
+    "title": "createInvalidation",
+    "name": "createInvalidation",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "request_data:{\n\"img_id\": 356,\n\"is_free\": 1,\n\"is_featured\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 800,\n\"width\": 500\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_15.7\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_15.7\",\n\"is_featured\": 0,\n\"height\": 800,\n\"width\": 800\n}\n},\nfile:image1.jpeg\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Json data updated successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -804,6 +862,35 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"sub category deleted successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "deleteTag",
+    "title": "deleteTag",
+    "name": "deleteTag",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"tag_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Tag deleted successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -1326,6 +1413,35 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"SubCategory Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"category_list\": [\n{\n\"sub_category_id\": 13,\n\"name\": \"Background\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 12,\n\"name\": \"Frames\",\n\"linked\": 1\n},\n{\n\"sub_category_id\": 10,\n\"name\": \"Goggles\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 9,\n\"name\": \"Hair Style\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 4,\n\"name\": \"Tattoos\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 11,\n\"name\": \"Turbans\",\n\"linked\": 0\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getAllTags",
+    "title": "getAllTags",
+    "name": "getAllTags",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All tags fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 4,\n\"result\": [\n{\n\"tag_id\": 1,\n\"tag_name\": \"test\"\n},\n{\n\"tag_id\": 2,\n\"tag_name\": \"Offer & Sales\"\n},\n{\n\"tag_id\": 3,\n\"tag_name\": \"Mobile Apps\"\n},\n{\n\"tag_id\": 4,\n\"tag_name\": \"Photography\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2234,6 +2350,35 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "updateTag",
+    "title": "updateTag",
+    "name": "updateTag",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"tag_id\":1, //compulsory\n\"tag_name\":\"Featured\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Tag updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "updateUserProfile",
     "title": "updateUserProfile",
     "name": "updateUserProfile",
@@ -2601,6 +2746,35 @@ define({ "api": [
       ]
     },
     "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getFeaturedJsonSampleData_webp",
+    "title": "getFeaturedJsonSampleData_webp",
+    "name": "getFeaturedJsonSampleData_webp",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":51\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All json fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"catalog_id\": 168,\n\"name\": \"Business Card Catalog2\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2018-08-11 04:13:20\",\n\"featured_cards\": [\n{\n\"json_id\": 414,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f9747c534f_json_image_1512019783.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2018-08-31 10:02:15\"\n},\n{\n\"json_id\": 415,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f974dc5c1a_json_image_1512019789.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2018-08-31 10:02:03\"\n},\n{\n\"json_id\": 417,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f97592443d_json_image_1512019801.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2018-08-31 10:02:03\"\n},\n{\n\"json_id\": 418,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f975f6f461_json_image_1512019807.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2018-08-31 10:02:02\"\n},\n{\n\"json_id\": 419,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f9765255c2_json_image_1512019813.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2018-08-31 10:02:02\"\n}\n]\n},\n{\n\"catalog_id\": 167,\n\"name\": \"Business Card Catalog1\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a17fab520a09_catalog_img_1511520949.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a17fab520a09_catalog_img_1511520949.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a17fab520a09_catalog_img_1511520949.png\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2017-11-28 07:42:02\",\n\"featured_cards\": []\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -2973,6 +3147,35 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Image saved successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "searchCardsBySubCategoryId",
+    "title": "searchCardsBySubCategoryId",
+    "name": "searchCardsBySubCategoryId",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":56,//compulsory\n\"search_category\":\"Wedd\",//compulsory\n\"page\":1,//compulsory\n\"item_count\":10//compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200, //return 427 when server not find any result related to your search_category\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 4,\n\"is_next_page\": false,\n\"result\": [\n{\n\"json_id\": 470,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a30ceb599c91_json_image_1513148085.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2018-10-02 11:29:29\"\n},\n{\n\"json_id\": 463,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a30cbb7d3d62_json_image_1513147319.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2018-10-02 11:28:40\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]

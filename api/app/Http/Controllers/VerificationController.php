@@ -795,4 +795,43 @@ class VerificationController extends Controller
 
         return $response;
     }
+
+    //verifySearchCategory
+    public function verifySearchCategory($search_category)
+    {
+        try
+        {
+            $count = 0;
+            $array_of_search_text = (explode(",",$search_category));
+            $result = array();
+            foreach($array_of_search_text as $key)
+            {
+                if(!in_array($key, $result) == true ){
+                    $result[] = $key;
+                }
+                else
+                {
+                    $count = $count + 1;
+                }
+            }
+
+            if($count > 0)
+            {
+                Log::info(1);
+               return $response = Response::json(array('code'=>201,'message'=>'Please remove duplicate entry of tag from selection.','cause'=>'','response'=>json_decode("{}")));
+            }
+            else
+            {
+                Log::info(0);
+                $response = '';
+            }
+        }
+        catch(Exception $e)
+        {
+            Log::error("verifySearchCategory Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            return  Response::json(array('code'=>'201','message'=>$e->getMessage(),'cause'=>'','response'=>json_decode("{}")));
+        }
+
+        return $response;
+    }
 }

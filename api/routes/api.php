@@ -32,6 +32,7 @@ Route::post('getLinkWithoutToken', 'UserController@getLinkWithoutToken');
 
 
 
+
 Route::get('/clear-cache', function() {
     $exitCode = Artisan::call('cache:clear');
     return $exitCode;
@@ -175,6 +176,12 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     //update all sample images using libwebp
     Route::post('updateAllSampleImages', 'AdminController@updateAllSampleImages');
 
+    //Search Tag
+    Route::post('addTag', 'AdminController@addTag');
+    Route::post('updateTag', 'AdminController@updateTag');
+    Route::post('deleteTag', 'AdminController@deleteTag');
+    Route::post('getAllTags', 'AdminController@getAllTags');
+
 
 });
 
@@ -214,6 +221,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     //webp
     Route::post('getJsonSampleDataWithLastSyncTime_webp', 'UserController@getJsonSampleDataWithLastSyncTime_webp');
     Route::post('getJsonSampleDataWithLastSyncTime_webpIos', 'UserController@getJsonSampleDataWithLastSyncTime_webpIos');
+    Route::post('getFeaturedJsonSampleData_webp', 'UserController@getFeaturedJsonSampleData_webp');
 
     //Fetch images from Pixabay
     Route::post('getImagesFromPixabay', 'PixabayController@getImagesFromPixabay');
@@ -229,5 +237,9 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
 
     Route::post('addZipFile', 'UserController@addZipFile');
 
+    //Search cards by sub_category_id
+    Route::post('searchCardsBySubCategoryId', 'UserController@searchCardsBySubCategoryId');
+
 });
 
+Route::post('getZipFile', 'UserController@getZipFile');
