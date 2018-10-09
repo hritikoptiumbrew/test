@@ -82,7 +82,7 @@ export class AddJsonDataComponent implements OnInit {
   }
 
   validateString(str) {
-    var regex = /^[a-z0-9& ]+$/i.test(str);
+    var regex = /^[a-z0-9&, ]+$/i.test(str);
     return regex;
   }
 
