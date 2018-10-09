@@ -7710,7 +7710,7 @@ class AdminController extends Controller
                                         tag_name
                                         FROM
                                         tag_master
-                                        WHERE is_active = ?', [1]);
+                                        WHERE is_active = ? ORDER BY update_time DESC', [1]);
                 });
             }
 
