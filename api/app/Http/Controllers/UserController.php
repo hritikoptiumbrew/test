@@ -1457,7 +1457,8 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = "%" . $request->search_category . "%";
+            //$this->search_category = "%" . $request->search_category . "%";
+            $this->search_category =$request->search_category;
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
@@ -1479,8 +1480,8 @@ class UserController extends Controller
                                                   scc.sub_category_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  im.search_category LIKE ?
-                                                ORDER BY im.updated_at DESC', [$this->sub_category_id, $this->search_category]);
+                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '")
+                                                ORDER BY im.updated_at DESC', [$this->sub_category_id]);
 
                     $total_row = $total_row_result[0]->total;
 
@@ -1505,8 +1506,8 @@ class UserController extends Controller
                                                   scc.sub_category_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  im.search_category LIKE ?
-                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->search_category, $this->offset, $this->item_count]);
+                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '")
+                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                     $code = 200;
                     $message = "Templates fetched successfully.";
                     if (count($search_result) <= 0) {
