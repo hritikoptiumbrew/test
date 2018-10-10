@@ -1481,7 +1481,7 @@ class UserController extends Controller
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
                                                   MATCH(im.search_category) AGAINST("' . $this->search_category . '")
-                                                ORDER BY im.updated_at DESC', [$this->sub_category_id]);
+                                                ORDER BY im.search_category DESC', [$this->sub_category_id]);
 
                     $total_row = $total_row_result[0]->total;
 
@@ -1493,7 +1493,8 @@ class UserController extends Controller
                                                   im.is_portrait,
                                                   coalesce(im.height,0) AS height,
                                                   coalesce(im.width,0) AS width,
-                                                  im.updated_at
+                                                  im.updated_at,
+                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '") AS search_text
                                                 FROM
                                                   images as im,
                                                   catalog_master AS cm,
@@ -1507,7 +1508,7 @@ class UserController extends Controller
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
                                                   MATCH(im.search_category) AGAINST("' . $this->search_category . '")
-                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+                                                ORDER BY search_text DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                     $code = 200;
                     $message = "Templates fetched successfully.";
                     if (count($search_result) <= 0) {
