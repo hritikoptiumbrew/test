@@ -682,6 +682,32 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function getHostName()
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $host = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+
+            $result_array = array('host_name' => $host);
+            $result = json_decode(json_encode($result_array), true);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Host name fetched successfully.', 'cause' => '', 'data' => $result));
+
+
+
+        } catch
+        (Exception $e) {
+            Log::error("getHostName Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get host name.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     /* ========================================= Sub Category =========================================*/
 
     /**
