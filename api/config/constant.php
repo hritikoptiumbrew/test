@@ -70,6 +70,7 @@ return [
     'WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
     'WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
     'WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
+    //'ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN' => env('ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN'),
 
     /* static path of local server*/
     /*'COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/',
@@ -85,6 +86,9 @@ return [
     'ITEM_COUNT_OF_FEATURED_JSON' => '5',
 
     'GCM_NOTIFICATION_URL' => 'https://fcm.googleapis.com/fcm/send',
+
+    /* host name of certificate maker to display sample image in jpg/png */
+    'HOST_NAME_OF_CERTIFICATE_MAKER' => 'www.graphicdesigns.co.in',
 
     /*for testing key and sender id*/
     /*'GCM_SERVER_KEY' => 'AIzaSyDRwopI1tXBr2OJL8AwaQgkGoKAvYq4dmg',

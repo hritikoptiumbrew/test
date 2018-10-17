@@ -893,13 +893,12 @@ class UserController extends Controller
 
         try {
 
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'catalog_id', 'page', 'item_count', 'last_sync_time'), $request)) != '')
                 return $response;
-
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
 
             $this->catalog_id = $request->catalog_id;
             $this->sub_category_id = $request->sub_category_id;
@@ -938,8 +937,33 @@ class UserController extends Controller
             if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
                 $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
 
+                    $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+                    $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
+
                     if ($this->catalog_id == 0) {
-                        $result = DB::select('SELECT
+                        if ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) {
+
+                            $result = DB::select('SELECT
+                                                  id as json_id,
+                                                  IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                                  is_free,
+                                                  is_featured,
+                                                  is_portrait,
+                                                  coalesce(height,0) AS height,
+                                                  coalesce(width,0) AS width,
+                                                  updated_at
+                                                FROM
+                                                  images
+                                                WHERE
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) and
+                                                  is_featured = 1 AND
+                                                  updated_at >= ?
+                                                order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+                        }
+                        else
+                        {
+                            $result = DB::select('SELECT
                                                   id as json_id,
                                                   IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
                                                   is_free,
@@ -951,13 +975,36 @@ class UserController extends Controller
                                                 FROM
                                                   images
                                                 WHERE
-                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ?) and
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) and
                                                   is_featured = 1 AND
                                                   updated_at >= ?
                                                 order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
+                        }
+
                     } else {
-                        $result = DB::select('SELECT
+                        if ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) {
+
+                            $result = DB::select('SELECT
+                                               id as json_id,
+                                               IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                               is_free,
+                                               is_featured,
+                                               is_portrait,
+                                               coalesce(height,0) AS height,
+                                               coalesce(width,0) AS width,
+                                               updated_at
+                                                FROM
+                                                images
+                                                WHERE
+                                                catalog_id = ? AND
+                                                updated_at >= ?
+                                                order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+                        }
+                        else
+                        {
+                            $result = DB::select('SELECT
                                                id as json_id,
                                                IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
                                                is_free,
@@ -973,6 +1020,7 @@ class UserController extends Controller
                                                 updated_at >= ?
                                                 order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
+                        }
 
                     }
 
