@@ -241,7 +241,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     Route::post('searchCardsBySubCategoryId', 'UserController@searchCardsBySubCategoryId');
 
     //Get host name
-    Route::post('getHostName', 'UserController@getHostName');
+    Route::post('getHostName', 'AdminController@getHostName');
 
 });
 
