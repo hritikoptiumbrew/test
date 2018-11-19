@@ -240,6 +240,9 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     //Search cards by sub_category_id
     Route::post('searchCardsBySubCategoryId', 'UserController@searchCardsBySubCategoryId');
 
+    //Get host name
+    Route::post('getHostName', 'AdminController@getHostName');
+
 });
 
 Route::post('getZipFile', 'UserController@getZipFile');

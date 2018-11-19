@@ -893,13 +893,12 @@ class UserController extends Controller
 
         try {
 
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'catalog_id', 'page', 'item_count', 'last_sync_time'), $request)) != '')
                 return $response;
-
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
 
             $this->catalog_id = $request->catalog_id;
             $this->sub_category_id = $request->sub_category_id;
@@ -938,8 +937,33 @@ class UserController extends Controller
             if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
                 $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
 
+                    $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+                    $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
+
                     if ($this->catalog_id == 0) {
-                        $result = DB::select('SELECT
+                        if ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) {
+
+                            $result = DB::select('SELECT
+                                                  id as json_id,
+                                                  IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                                  is_free,
+                                                  is_featured,
+                                                  is_portrait,
+                                                  coalesce(height,0) AS height,
+                                                  coalesce(width,0) AS width,
+                                                  updated_at
+                                                FROM
+                                                  images
+                                                WHERE
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) and
+                                                  is_featured = 1 AND
+                                                  updated_at >= ?
+                                                order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+                        }
+                        else
+                        {
+                            $result = DB::select('SELECT
                                                   id as json_id,
                                                   IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
                                                   is_free,
@@ -951,13 +975,36 @@ class UserController extends Controller
                                                 FROM
                                                   images
                                                 WHERE
-                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ?) and
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) and
                                                   is_featured = 1 AND
                                                   updated_at >= ?
                                                 order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
+                        }
+
                     } else {
-                        $result = DB::select('SELECT
+                        if ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) {
+
+                            $result = DB::select('SELECT
+                                               id as json_id,
+                                               IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
+                                               is_free,
+                                               is_featured,
+                                               is_portrait,
+                                               coalesce(height,0) AS height,
+                                               coalesce(width,0) AS width,
+                                               updated_at
+                                                FROM
+                                                images
+                                                WHERE
+                                                catalog_id = ? AND
+                                                updated_at >= ?
+                                                order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+                        }
+                        else
+                        {
+                            $result = DB::select('SELECT
                                                id as json_id,
                                                IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
                                                is_free,
@@ -973,6 +1020,7 @@ class UserController extends Controller
                                                 updated_at >= ?
                                                 order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
+                        }
 
                     }
 
@@ -1457,7 +1505,8 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = "%" . $request->search_category . "%";
+            //$this->search_category = "%" . $request->search_category . "%";
+            $this->search_category =$request->search_category;
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
@@ -1479,8 +1528,8 @@ class UserController extends Controller
                                                   scc.sub_category_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  im.search_category LIKE ?
-                                                ORDER BY im.updated_at DESC', [$this->sub_category_id, $this->search_category]);
+                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '")
+                                                ORDER BY im.search_category DESC', [$this->sub_category_id]);
 
                     $total_row = $total_row_result[0]->total;
 
@@ -1492,7 +1541,8 @@ class UserController extends Controller
                                                   im.is_portrait,
                                                   coalesce(im.height,0) AS height,
                                                   coalesce(im.width,0) AS width,
-                                                  im.updated_at
+                                                  im.updated_at,
+                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '") AS search_text
                                                 FROM
                                                   images as im,
                                                   catalog_master AS cm,
@@ -1505,8 +1555,8 @@ class UserController extends Controller
                                                   scc.sub_category_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  im.search_category LIKE ?
-                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->search_category, $this->offset, $this->item_count]);
+                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '")
+                                                ORDER BY search_text DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                     $code = 200;
                     $message = "Templates fetched successfully.";
                     if (count($search_result) <= 0) {
