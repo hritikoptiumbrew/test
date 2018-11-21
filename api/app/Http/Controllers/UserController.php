@@ -960,9 +960,7 @@ class UserController extends Controller
                                                   updated_at >= ?
                                                 order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
-                        }
-                        else
-                        {
+                        } else {
                             $result = DB::select('SELECT
                                                   id as json_id,
                                                   IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
@@ -1001,9 +999,7 @@ class UserController extends Controller
                                                 updated_at >= ?
                                                 order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
-                        }
-                        else
-                        {
+                        } else {
                             $result = DB::select('SELECT
                                                id as json_id,
                                                IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
@@ -1506,7 +1502,7 @@ class UserController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
             //$this->search_category = "%" . $request->search_category . "%";
-            $this->search_category =$request->search_category;
+            $this->search_category = $request->search_category;
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
@@ -1602,7 +1598,7 @@ class UserController extends Controller
                                                   isnull(im.display_img)
                                                 ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                         $code = 427;
-                        $search_text = trim($this->search_category,"%");
+                        $search_text = trim($this->search_category, "%");
                         $message = "Sorry, we couldn't find any templates for '$search_text', but we found some other templates you might like:";
                     }
 
@@ -2579,7 +2575,7 @@ class UserController extends Controller
 
             $file_name = $request->file_name;
 
-            $result_array = array('url' => Config::get('constant.ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN'). $file_name);
+            $result_array = array('url' => Config::get('constant.ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . $file_name);
 
             $result = json_decode(json_encode($result_array), true);
 

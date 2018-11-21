@@ -450,7 +450,7 @@ class PixabayController extends Controller
 
             if (!Cache::has("pel:currentKey:$this->currentKey")) {
                 $result = Cache::remember("currentKey:$this->currentKey",29, function () {
-                    Log::info('Current Key :'.$this->currentKey);
+                    //Log::info('Current Key :'.$this->currentKey);
                     return $this->currentKey;
                 });
             }
@@ -482,7 +482,7 @@ class PixabayController extends Controller
                     try{
                         $response = $client->request('get',$this->url);
                         $this->getRateRemaining = $response->getHeader('X-RateLimit-Remaining');
-                        Log::info('rate limit : ',['rate_limit' => $this->getRateRemaining]);
+                        //Log::info('rate limit : ',['rate_limit' => $this->getRateRemaining]);
 
                         if($this->getRateRemaining <= 100){
                             $redis_keys = Redis::keys('pel:currentKey:*');
@@ -582,7 +582,7 @@ class PixabayController extends Controller
                         $response = $client->request('get', $this->url);
                         $this->getRateRemaining = $response->getHeader('X-RateLimit-Remaining');
                         if ($this->getRateRemaining <= 100) {
-                            log::info('Rate Remaining :' . $this->getRateRemaining);
+                            //Log::info('Rate Remaining :' . $this->getRateRemaining);
                             $redis_keys = Redis::keys('pel:currentKey:*');
                             count($redis_keys) > 0 ? $this->currentKey = substr($redis_keys[0], -1) : $this->currentKey = 0;
                             $this->deleteRedisKey($redis_keys);

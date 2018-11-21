@@ -724,7 +724,7 @@ class ImageController extends Controller
         $libwebp = Config::get('constant.PATH_OF_CWEBP');
         $cmd = "$libwebp -q $quality $org_path -o $webp_path";
 
-        Log::info($cmd);
+        //Log::info($cmd);
         if (env('APP_ENV') != 'local') {
             $result = (!shell_exec($cmd));
         } else {
@@ -815,7 +815,7 @@ class ImageController extends Controller
                     unlink($webp_path);
                 }
             } catch (Exception $e) {
-                Log::error("saveWebpThumbnailImage Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+                Log::Debug("saveWebpThumbnailImage is_exist? :", ['Exception_msg : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             }
 
             $image_size = getimagesize($path);
@@ -978,7 +978,7 @@ class ImageController extends Controller
 
         $file_type = $image_array->getMimeType();
         $file_size = $image_array->getSize();
-        Log::info('extension : ', ['extension' => $file_type]);
+        //Log::info('extension : ', ['extension' => $file_type]);
         //Log::info("Image Size",[$image_size]);
         $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
 
@@ -1078,7 +1078,7 @@ class ImageController extends Controller
             }
             catch(Exception $e)
             {
-                Log::error("saveOriginalImageFromToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+                Log::Debug("saveOriginalImageFromToS3 is_exist? :", ['Exception_msg : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             }
 
             //Input::file('file')->move($original_path, $image);
@@ -1158,9 +1158,15 @@ class ImageController extends Controller
                 $image_path = Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $bg_image;
                 //$image_path = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
 
-                if (fopen($image_path, "r")) {
-                    $exist_files_array[] = array('url' => Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $bg_image, 'name' => $bg_image);
+                try{
+                    if (fopen($image_path, "r")) {
+                        $exist_files_array[] = array('url' => Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $bg_image, 'name' => $bg_image);
+                    }
+                }catch (Exception $e) {
+                    Log::Debug("checkIsImageExist :", ['Exception_msg : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+                    return $response = '';
                 }
+
 
             }
             if (sizeof($exist_files_array) > 0) {

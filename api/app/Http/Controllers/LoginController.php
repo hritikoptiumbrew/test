@@ -122,13 +122,22 @@ class LoginController extends Controller
 
             $credential = ['email_id' => $email_id, 'password' => $password];
             if (!$token = JWTAuth::attempt($credential))
-                return Response::json(array('code' => 201, 'message' => 'Invalid User Id or Password', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Invalid email or password', 'cause' => '', 'data' => json_decode("{}")));
 
             //JWTAuth::toUser($token)->id;
             $user_id = JWTAuth::toUser($token)->id;
+            if($user_id == 1)
+            {
+                $this->createNewSession($user_id, $token);
+                return Response::json(array('code' => 200, 'message' => 'Login successfully.', 'cause' => '', 'data' => ['token' => $token, 'user_detail' => JWTAuth::toUser($token)]));
+            }
+            else
+            {
+                return Response::json(array('code' => 201, 'message' => 'Invalid email or password', 'cause' => '', 'data' => json_decode("{}")));
 
-            $this->createNewSession($user_id, $token);
-            return Response::json(array('code' => 200, 'message' => 'Login Successfully.', 'cause' => '', 'data' => ['token' => $token, 'user_detail' => JWTAuth::toUser($token)]));
+            }
+
+
 
         } catch (Exception $e) {
             Log::error("doLogin Error:", ["Error : " => $e->getMessage(), "\nTraceAsString : " => $e->getTraceAsString()]);
@@ -292,7 +301,7 @@ class LoginController extends Controller
      * "cause": "",
      * "data": {
      * "user_details": [
-     * {
+     * {device_platform
      * "id": 1,
      * "first_name": "admin",
      * "last_name": "admin",

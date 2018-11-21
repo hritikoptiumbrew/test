@@ -666,9 +666,7 @@ class VerificationController extends Controller
 
 
             if(count($result) > 0){
-                //Yes, Schedule exits+
-
-                Log::info("Start_at ".$start_at." To ".$end_at);
+                //Log::info("Start_at ".$start_at." To ".$end_at);
                 if($result[0]->service_type != 3){
                     $response = '';
                 }else{
@@ -817,12 +815,10 @@ class VerificationController extends Controller
 
             if($count > 0)
             {
-                Log::info(1);
                return $response = Response::json(array('code'=>201,'message'=>'Please remove duplicate entry of tag from selection.','cause'=>'','response'=>json_decode("{}")));
             }
             else
             {
-                Log::info(0);
                 $response = '';
             }
         }
