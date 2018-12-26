@@ -1760,7 +1760,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"getUserProfile Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"user_details\": [\n{\n\"id\": 1,\n\"first_name\": \"admin\",\n\"last_name\": \"admin\",\n\"phone_number_1\": \"9173527938\",\n\"profile_img\": \"http://localhost/bgchanger/image_bucket/thumbnail/595b4076a8c8c_profile_img_1499152502.jpg\",\n\"about_me\": \"i'm Admin.\",\n\"address_line_1\": \"Rander Road\",\n\"city\": \"surat\",\n\"state\": \"gujarat\",\n\"zip_code\": \"395010\",\n\"contry\": \"India\",\n\"latitude\": \"\",\n\"longitude\": \"\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"getUserProfile Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"user_details\": [\n{device_platform\n\"id\": 1,\n\"first_name\": \"admin\",\n\"last_name\": \"admin\",\n\"phone_number_1\": \"9173527938\",\n\"profile_img\": \"http://localhost/bgchanger/image_bucket/thumbnail/595b4076a8c8c_profile_img_1499152502.jpg\",\n\"about_me\": \"i'm Admin.\",\n\"address_line_1\": \"Rander Road\",\n\"city\": \"surat\",\n\"state\": \"gujarat\",\n\"zip_code\": \"395010\",\n\"contry\": \"India\",\n\"latitude\": \"\",\n\"longitude\": \"\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2407,34 +2407,6 @@ define({ "api": [
     "groupTitle": "Admin"
   },
   {
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "optional": false,
-            "field": "varname1",
-            "description": "<p>No type.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "varname2",
-            "description": "<p>With type.</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "./documentation/main.js",
-    "group": "C__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
-    "groupTitle": "C__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
-    "name": ""
-  },
-  {
     "type": "post",
     "url": "appPurchasePayment",
     "title": "appPurchasePayment",
@@ -2491,6 +2463,673 @@ define({ "api": [
     },
     "filename": "./app/Http/Controllers/SubscriptionPaymentController.php",
     "groupTitle": "Payment_Subscription"
+  },
+  {
+    "type": "post",
+    "url": "addQuestionAnswer",
+    "title": "addQuestionAnswer",
+    "name": "addQuestionAnswer",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"question\":\"Test\", //compulsory\n\"answer\":\"<p>Test</p>\", //compulsory\n\"question_type\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Question and Answer added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "addQuestionType",
+    "title": "addQuestionType",
+    "name": "addQuestionType",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"request_data\":{\n\"question_type\":1 //compulsory\n},\n\"file\":\"1.jpg\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Question type added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "addYouTubeVideoURL",
+    "title": "addYouTubeVideoURL",
+    "name": "addYouTubeVideoURL",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"url\":\"https://www.youtube.com/watch?v=E78k_XDjFLA\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Video url added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/VideoController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "deleteQuestionAnswer",
+    "title": "deleteQuestionAnswer",
+    "name": "deleteQuestionAnswer",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"question_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Question and Answer deleted successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "deleteQuestionType",
+    "title": "deleteQuestionType",
+    "name": "deleteQuestionType",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"question_type_id\":7\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Question type deleted successfully\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "deleteYouTubeVideoURL",
+    "title": "deleteYouTubeVideoURL",
+    "name": "deleteYouTubeVideoURL",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"video_id\":9 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Video deleted successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/VideoController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "getAllQuestionAnswer",
+    "title": "getAllQuestionAnswer",
+    "name": "getAllQuestionAnswer",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All question and answer fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"question_id\": 5,\n\"question_type\": 1,\n\"question\": \"test\",\n\"answer\": \"<p style=\\\"margin: 0cm 0cm 15pt; line-height: 19.2pt; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial;\\\"><font color=\\\"#333333\\\" face=\\\"Georgia, serif\\\"><span style=\\\"font-size: 17.3333px;\\\">test</span></font></p>\",\n\"create_time\": \"2018-12-26 04:58:34\",\n\"update_time\": \"2018-12-26 04:58:34\"\n},\n{\n\"question_id\": 3,\n\"question_type\": 2,\n\"question\": \"Research the organization\",\n\"answer\": \"<p>test1</p>\",\n\"create_time\": \"2018-12-26 04:25:34\",\n\"update_time\": \"2018-12-26 04:30:49\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "getAllQuestionAnswerByTypeForAdmin",
+    "title": "getAllQuestionAnswerByTypeForAdmin",
+    "name": "getAllQuestionAnswerByTypeForAdmin",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"question_type_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All question and answer fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"question_id\": 5,\n\"question_type\": 1,\n\"question\": \"test\",\n\"answer\": \"<p style=\\\"margin: 0cm 0cm 15pt; line-height: 19.2pt; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial;\\\"><font color=\\\"#333333\\\" face=\\\"Georgia, serif\\\"><span style=\\\"font-size: 17.3333px;\\\">test</span></font></p>\",\n\"create_time\": \"2018-12-26 04:58:34\",\n\"update_time\": \"2018-12-26 04:58:34\"\n},\n{\n\"question_id\": 2,\n\"question_type\": 1,\n\"question\": \"Research the organization\",\n\"answer\": \"<p>Test</p>\",\n\"create_time\": \"2018-12-26 04:25:03\",\n\"update_time\": \"2018-12-26 04:25:03\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "getAllQuestionTypeForAdmin",
+    "title": "getAllQuestionTypeForAdmin",
+    "name": "getAllQuestionTypeForAdmin",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All question and answer fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"question_type_id\": 1,\n\"question_type\": \"Interview Prep Plan\",\n\"question_type_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c22f822b2c0d_question_type_1545795618.png\",\n\"create_time\": \"2018-11-28 10:38:41\",\n\"update_time\": \"2018-12-26 03:40:19\"\n},\n{\n\"question_type_id\": 2,\n\"question_type\": \"Most Common\",\n\"question_type_image\": \"\",\n\"create_time\": \"2018-11-28 10:38:47\",\n\"update_time\": \"2018-11-28 10:38:47\"\n},\n{\n\"question_type_id\": 3,\n\"question_type\": \"Behavioural\",\n\"question_type_image\": \"\",\n\"create_time\": \"2018-11-28 10:38:51\",\n\"update_time\": \"2018-11-28 10:38:51\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "getVideoIdByURL",
+    "title": "getVideoIdByURL",
+    "name": "getVideoIdByURL",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"url\":\"https://www.youtube.com/watch?v=yBtMwyQFXwA\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Video url added successfully.\",\n\"cause\": \"\",\n\"data\": \"yBtMwyQFXwA\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/VideoController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "getYouTubeVideoForInterviewForAdmin",
+    "title": "getYouTubeVideoForInterviewForAdmin",
+    "name": "getYouTubeVideoForInterviewForAdmin",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Video fatched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"video_id\": 9,\n\"youtube_video_id\": \"E78k_XDjFLA\",\n\"title\": \"How to act in an interview\",\n\"channel_name\": \"LoquaCommunications\",\n\"url\": \"https://www.youtube.com/watch?v=E78k_XDjFLA\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/E78k_XDjFLA/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2009-10-07 19:40:34\"\n},\n{\n\"video_id\": 8,\n\"youtube_video_id\": \"kayOhGRcNt4\",\n\"title\": \"Tell Me About Yourself - A Good Answer to This Interview Question\",\n\"channel_name\": \"Linda Raynier\",\n\"url\": \"https://www.youtube.com/watch?v=kayOhGRcNt4\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/kayOhGRcNt4/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2016-12-14 15:12:37\"\n},\n{\n\"video_id\": 7,\n\"youtube_video_id\": \"BkL98JHAO_w\",\n\"title\": \"Mock Job Interview Questions and Tips for a Successful Interview\",\n\"channel_name\": \"Virginia Western Community College\",\n\"url\": \"https://www.youtube.com/watch?v=BkL98JHAO_w\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/BkL98JHAO_w/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2009-09-25 20:36:08\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/VideoController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "searchQuestionAnswer",
+    "title": "searchQuestionAnswer",
+    "name": "searchQuestionAnswer",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"page\":1, //compulsory\n\"question_type\":1,\n\"search_query\":\"Test\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": \"200\",\n\"message\": \"Question and answer fetched successfully.\",\n\"cause\": \"\",\n\"response\": {\n\"total_record\": 1,\n\"is_next_page\": false,\n\"result\": [\n{\n\"question_id\": 5,\n\"question_type\": 1,\n\"question\": \"test\",\n\"answer\": \"<p style=\\\"margin: 0cm 0cm 15pt; line-height: 19.2pt; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial;\\\"><font color=\\\"#333333\\\" face=\\\"Georgia, serif\\\"><span style=\\\"font-size: 17.3333px;\\\">test</span></font></p>\",\n\"create_time\": \"2018-12-26 04:58:34\",\n\"update_time\": \"2018-12-26 04:58:34\",\n\"search_text\": 0.36247622966766\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "updateQuestionAnswer",
+    "title": "updateQuestionAnswer",
+    "name": "updateQuestionAnswer",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"question_id\":1, //compulsory\n\"question\":\"Test\", //compulsory\n\"answer\":\"<p>Test</p>\", //compulsory\n\"question_type\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Question and Answer updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "updateQuestionType",
+    "title": "updateQuestionType",
+    "name": "updateQuestionType",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"request_data\":{\n\"question_type_id\":1, //compulsory\n\"question_type\":1 //compulsory\n},\n\"file\":\"1.jpg\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Question type updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "updateYouTubeVideoURL",
+    "title": "updateYouTubeVideoURL",
+    "name": "updateYouTubeVideoURL",
+    "group": "Resume_Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"video_id\":1, //compulsory\n\"title\":\"How to Interview for a Job in American English, part 1/5 Test\",\n\"url\":\"https://www.youtube.com/watch?v=yBtMwyQFXwA test\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Video updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/VideoController.php",
+    "groupTitle": "Resume_Admin"
+  },
+  {
+    "type": "post",
+    "url": "getAllQuestionAnswerByType",
+    "title": "getAllQuestionAnswerByType",
+    "name": "getAllQuestionAnswerByType",
+    "group": "Resume_User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"question_type_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All question and answer fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"question_id\": 5,\n\"question_type\": 1,\n\"question\": \"test\",\n\"answer\": \"<p style=\\\"margin: 0cm 0cm 15pt; line-height: 19.2pt; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial;\\\"><font color=\\\"#333333\\\" face=\\\"Georgia, serif\\\"><span style=\\\"font-size: 17.3333px;\\\">test</span></font></p>\",\n\"create_time\": \"2018-12-26 04:58:34\",\n\"update_time\": \"2018-12-26 04:58:34\"\n},\n{\n\"question_id\": 2,\n\"question_type\": 1,\n\"question\": \"Research the organization\",\n\"answer\": \"<p>Test</p>\",\n\"create_time\": \"2018-12-26 04:25:03\",\n\"update_time\": \"2018-12-26 04:25:03\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_User"
+  },
+  {
+    "type": "post",
+    "url": "getAllQuestionType",
+    "title": "getAllQuestionType",
+    "name": "getAllQuestionType",
+    "group": "Resume_User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All question and answer fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"question_type_id\": 1,\n\"question_type\": \"Interview Prep Plan\",\n\"question_type_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c22f822b2c0d_question_type_1545795618.png\",\n\"create_time\": \"2018-11-28 10:38:41\",\n\"update_time\": \"2018-12-26 03:40:19\"\n},\n{\n\"question_type_id\": 2,\n\"question_type\": \"Most Common\",\n\"question_type_image\": \"\",\n\"create_time\": \"2018-11-28 10:38:47\",\n\"update_time\": \"2018-11-28 10:38:47\"\n},\n{\n\"question_type_id\": 3,\n\"question_type\": \"Behavioural\",\n\"question_type_image\": \"\",\n\"create_time\": \"2018-11-28 10:38:51\",\n\"update_time\": \"2018-11-28 10:38:51\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_User"
+  },
+  {
+    "type": "post",
+    "url": "getFeedFromTwitter",
+    "title": "getFeedFromTwitter",
+    "name": "getFeedFromTwitter",
+    "group": "Resume_User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"page\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Twitter post fatched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 1198,\n\"total_pages\": 60,\n\"is_next_page\": true,\n\"result\": [\n{\n\"id\": 1077628187000094700,\n\"created_at\": \"2018-12-25 18:12:35\",\n\"text\": \"Tech startups, ecommerce companies to step up hiring in 2019 #Jobs <a href=\\\"https://t.co/nJQY9q3krl\\\" target=\\\"_blank\\\">https://t.co/nJQY9q3krl</a>\",\n\"favorite_count\": 0,\n\"profile_image_url\": \"http://pbs.twimg.com/profile_images/795539118172160001/IbZPUHK9_400x400.jpg\",\n\"account_url\": \"https://twitter.com/ETJobNews\",\n\"media_url_https\": \"\",\n\"post_type\": 1,\n\"video_url\": \"\"\n},\n{\n\"id\": 1077625329257201700,\n\"created_at\": \"2018-12-25 18:01:14\",\n\"text\": \"Are you a talented Housekeeper in #Winchester? We want you on our team! #jobs <a href=\\\"https://t.co/TVZ2u7wjYi\\\" target=\\\"_blank\\\">https://t.co/TVZ2u7wjYi</a> <a href=\\\"https://t.co/2f2DEskXmy\\\" target=\\\"_blank\\\">https://t.co/2f2DEskXmy</a>\",\n\"favorite_count\": 1,\n\"profile_image_url\": \"http://pbs.twimg.com/profile_images/1056994307658432512/aGmzhHz4_400x400.jpg\",\n\"account_url\": \"https://twitter.com/MonsterJobs\",\n\"media_url_https\": \"https://pbs.twimg.com/media/DvR-hoaWsAErDTT.jpg\",\n\"post_type\": 2,\n\"video_url\": \"\"\n}\n],\n\"is_cache\": 1\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/NewsController.php",
+    "groupTitle": "Resume_User"
+  },
+  {
+    "type": "post",
+    "url": "getHomePageDetail",
+    "title": "getHomePageDetail",
+    "name": "getHomePageDetail",
+    "group": "Resume_User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":1, //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Home page detail fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"template\": [\n{\n\"json_id\": 2488,\n\"sample_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5b81064f6a5d3_json_image_1535182415.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2018-10-02 11:05:56\"\n},\n{\n\"json_id\": 711,\n\"sample_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a953eafef82b_json_image_1519730351.png\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2018-10-02 10:48:43\"\n},\n{\n\"json_id\": 3105,\n\"sample_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5b9787d634af2_json_image_1536657366.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 600,\n\"width\": 400,\n\"updated_at\": \"2018-09-11 09:16:07\"\n},\n{\n\"json_id\": 732,\n\"sample_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a9650b07f43d_json_image_1519800496.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2018-09-05 05:20:37\"\n},\n{\n\"json_id\": 731,\n\"sample_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a9650930c5a0_json_image_1519800467.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2018-09-05 05:20:33\"\n},\n{\n\"json_id\": 728,\n\"sample_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a965023e6c56_json_image_1519800355.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2018-09-05 05:20:24\"\n}\n],\n\"video\": [\n{\n\"video_id\": 20,\n\"youtube_video_id\": \"d6uzZqkcsa8\",\n\"title\": \"How To Interview Candidates For A Job\",\n\"channel_name\": \"Videojug\",\n\"url\": \"https://www.youtube.com/watch?v=d6uzZqkcsa8\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/d6uzZqkcsa8/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2011-04-12 13:51:31\"\n},\n{\n\"video_id\": 19,\n\"youtube_video_id\": \"htBDNsunGCY\",\n\"title\": \"How to Conduct an Interview\",\n\"channel_name\": \"HR360Inc\",\n\"url\": \"https://www.youtube.com/watch?v=htBDNsunGCY\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/htBDNsunGCY/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2014-06-09 15:08:05\"\n},\n{\n\"video_id\": 18,\n\"youtube_video_id\": \"2kNIlIrocrU\",\n\"title\": \"Hiring tutorial: Writing effective behavioral interview questions | lynda.com\",\n\"channel_name\": \"LinkedIn Learning\",\n\"url\": \"https://www.youtube.com/watch?v=2kNIlIrocrU\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/2kNIlIrocrU/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2013-06-18 21:54:24\"\n},\n{\n\"video_id\": 17,\n\"youtube_video_id\": \"5NVYg2HNAdA\",\n\"title\": \"\\\"Why Should We Hire You?\\\" How to Answer this Interview Question\",\n\"channel_name\": \"Fisher College of Business\",\n\"url\": \"https://www.youtube.com/watch?v=5NVYg2HNAdA\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/5NVYg2HNAdA/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2012-03-06 13:50:47\"\n},\n{\n\"video_id\": 16,\n\"youtube_video_id\": \"VFTNOF77bMs\",\n\"title\": \"Interview questions and answers\",\n\"channel_name\": \"JobTestPrep\",\n\"url\": \"https://www.youtube.com/watch?v=VFTNOF77bMs\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/VFTNOF77bMs/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2011-12-05 09:03:39\"\n},\n{\n\"video_id\": 15,\n\"youtube_video_id\": \"PCWVi5pAa30\",\n\"title\": \"7 body language tips to impress at your next job interview\",\n\"channel_name\": \"Cognitive Group Microsoft Talent Solutions\",\n\"url\": \"https://www.youtube.com/watch?v=PCWVi5pAa30\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/PCWVi5pAa30/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2016-03-16 07:56:32\"\n}\n],\n\"job_news\": [\n{\n\"id\": 1072922200905150500,\n\"created_at\": \"2018-12-12 18:32:41\",\n\"text\": \"RT <a class=\\\"tweet-author\\\" href=\\\"https://twitter.com/TwitterAPI\\\" target=\\\"_blank\\\">@TwitterAPI</a>: All app management is unifying on <a href=\\\"https://t.co/EfJLLFaLkk!\\\" target=\\\"_blank\\\">https://t.co/EfJLLFaLkk!</a> Beginning today: \\n\\n<a href=\\\"https://t.co/PCwEGWityX\\\" target=\\\"_blank\\\">https://t.co/PCwEGWityX</a>\\n&gt; will be redirected?,\n\"favorite_count\": 0,\n\"profile_image_url\": \"http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg\",\n\"account_url\": \"https://twitter.com/TwitterDev\",\n\"media_url_https\": \"\",\n\"post_type\": 1,\n\"video_url\": \"\"\n},\n{\n\"id\": 1070059276213702700,\n\"created_at\": \"2018-12-04 20:56:26\",\n\"text\": \"Celebrating the developer success story of <a class=\\\"tweet-author\\\" href=\\\"https://twitter.com/UnionMetrics\\\" target=\\\"_blank\\\">@UnionMetrics</a> platform whose underlying technology is built upon Twitter�<a href=\\\"https://t.co/lxA6ePkTMj\\\" target=\\\"_blank\\\">https://t.co/lxA6ePkTMj</a>\",\n\"favorite_count\": 48,\n\"profile_image_url\": \"http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg\",\n\"account_url\": \"https://twitter.com/TwitterDev\",\n\"media_url_https\": \"\",\n\"post_type\": 1,\n\"video_url\": \"\"\n},\n{\n\"id\": 1067094924124872700,\n\"created_at\": \"2018-11-26 16:37:10\",\n\"text\": \"Just getting started with Twitter APIs? Find out what you need in order to build an app. Watch this video! <a href=\\\"https://t.co/Hg8nkfoizN\\\" target=\\\"_blank\\\">https://t.co/Hg8nkfoizN</a>\",\n\"favorite_count\": 490,\n\"profile_image_url\": \"http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg\",\n\"account_url\": \"https://twitter.com/TwitterDev\",\n\"media_url_https\": \"https://pbs.twimg.com/media/DsZp7igVYAAyDHB.jpg\",\n\"post_type\": 3,\n\"video_url\": \"https://video.twimg.com/amplify_video/1064638969197977600/vid/1280x720/C1utUYBYhJ_4lwaq.mp4?tag=8\"\n},\n{\n\"id\": 1058408022936977400,\n\"created_at\": \"2018-11-02 17:18:31\",\n\"text\": \"RT <a class=\\\"tweet-author\\\" href=\\\"https://twitter.com/harmophone\\\" target=\\\"_blank\\\">@harmophone</a>: \\\"The innovative crowdsourcing that the Tagboard, Twitter and TEGNA collaboration enables is surfacing locally relevant conv?,\n\"favorite_count\": 0,\n\"profile_image_url\": \"http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg\",\n\"account_url\": \"https://twitter.com/TwitterDev\",\n\"media_url_https\": \"\",\n\"post_type\": 1,\n\"video_url\": \"\"\n},\n{\n\"id\": 1054884245578035200,\n\"created_at\": \"2018-10-23 23:56:17\",\n\"text\": \"RT <a class=\\\"tweet-author\\\" href=\\\"https://twitter.com/andypiper\\\" target=\\\"_blank\\\">@andypiper</a>: My coworker <a class=\\\"tweet-author\\\" href=\\\"https://twitter.com/jessicagarson\\\" target=\\\"_blank\\\">@jessicagarson</a> rocking Jupyter and Postman in her #TapIntoTwitterNYC demo! <a href=\\\"https://t.co/yuF4q2Czed\\\" target=\\\"_blank\\\">https://t.co/yuF4q2Czed</a>\",\n\"favorite_count\": 0,\n\"profile_image_url\": \"http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg\",\n\"account_url\": \"https://twitter.com/TwitterDev\",\n\"media_url_https\": \"https://pbs.twimg.com/media/DqOrzHJWsAAWDGE.jpg\",\n\"post_type\": 2,\n\"video_url\": \"\"\n},\n{\n\"id\": 1054884091227594800,\n\"created_at\": \"2018-10-23 23:55:40\",\n\"text\": \"RT <a class=\\\"tweet-author\\\" href=\\\"https://twitter.com/dgrreen\\\" target=\\\"_blank\\\">@dgrreen</a>: #TapintoTwitterNYC First up all the way from <a class=\\\"tweet-author\\\" href=\\\"https://twitter.com/TwitterBoulder\\\" target=\\\"_blank\\\">@TwitterBoulder</a>  <a class=\\\"tweet-author\\\" href=\\\"https://twitter.com/AdventureSteady\\\" target=\\\"_blank\\\">@AdventureSteady</a> with updates on how <a class=\\\"tweet-author\\\" href=\\\"https://twitter.com/TwitterDev\\\" target=\\\"_blank\\\">@TwitterDev</a> is protecting u?,\n\"favorite_count\": 0,\n\"profile_image_url\": \"http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg\",\n\"account_url\": \"https://twitter.com/TwitterDev\",\n\"media_url_https\": \"\",\n\"post_type\": 1,\n\"video_url\": \"\"\n}\n],\n\"interview_que_ans\": [\n{\n\"question_type_id\": 1,\n\"question_type\": \"Interview Prep Plan\",\n\"question_type_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c2056193c6c1_question_type_1545623065.png\",\n\"create_time\": \"2018-11-28 10:38:41\",\n\"update_time\": \"2018-12-24 03:44:26\"\n},\n{\n\"question_type_id\": 2,\n\"question_type\": \"Most Common\",\n\"question_type_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c2055a09edd4_question_type_1545622944.png\",\n\"create_time\": \"2018-11-28 10:38:47\",\n\"update_time\": \"2018-12-24 03:42:25\"\n},\n{\n\"question_type_id\": 3,\n\"question_type\": \"Behavioural\",\n\"question_type_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205563bc996_question_type_1545622883.png\",\n\"create_time\": \"2018-11-28 10:38:51\",\n\"update_time\": \"2018-12-24 03:41:24\"\n},\n{\n\"question_type_id\": 4,\n\"question_type\": \"Resume writing\",\n\"question_type_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c20554a6c98c_question_type_1545622858.png\",\n\"create_time\": \"2018-11-28 10:38:59\",\n\"update_time\": \"2018-12-24 03:40:59\"\n},\n{\n\"question_type_id\": 5,\n\"question_type\": \"Technical questions\",\n\"question_type_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205529e152d_question_type_1545622825.png\",\n\"create_time\": \"2018-11-28 10:39:04\",\n\"update_time\": \"2018-12-24 03:40:26\"\n},\n{\n\"question_type_id\": 6,\n\"question_type\": \"Personality\",\n\"question_type_image\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205504ef2a1_question_type_1545622788.png\",\n\"create_time\": \"2018-11-28 10:39:07\",\n\"update_time\": \"2018-12-24 03:39:49\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "Resume_User"
+  },
+  {
+    "type": "post",
+    "url": "getYouTubeVideoForInterview",
+    "title": "getYouTubeVideoForInterview",
+    "name": "getYouTubeVideoForInterview",
+    "group": "Resume_User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Video fatched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"video_id\": 9,\n\"youtube_video_id\": \"E78k_XDjFLA\",\n\"title\": \"How to act in an interview\",\n\"channel_name\": \"LoquaCommunications\",\n\"url\": \"https://www.youtube.com/watch?v=E78k_XDjFLA\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/E78k_XDjFLA/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2009-10-07 19:40:34\"\n},\n{\n\"video_id\": 8,\n\"youtube_video_id\": \"kayOhGRcNt4\",\n\"title\": \"Tell Me About Yourself - A Good Answer to This Interview Question\",\n\"channel_name\": \"Linda Raynier\",\n\"url\": \"https://www.youtube.com/watch?v=kayOhGRcNt4\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/kayOhGRcNt4/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2016-12-14 15:12:37\"\n},\n{\n\"video_id\": 7,\n\"youtube_video_id\": \"BkL98JHAO_w\",\n\"title\": \"Mock Job Interview Questions and Tips for a Successful Interview\",\n\"channel_name\": \"Virginia Western Community College\",\n\"url\": \"https://www.youtube.com/watch?v=BkL98JHAO_w\",\n\"thumbnail_url\": \"https://i.ytimg.com/vi/BkL98JHAO_w/hqdefault.jpg\",\n\"thumbnail_width\": 480,\n\"thumbnail_height\": 360,\n\"published_at\": \"2009-09-25 20:36:08\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/VideoController.php",
+    "groupTitle": "Resume_User"
+  },
+  {
+    "type": "post",
+    "url": "jobMultiSearchByUser",
+    "title": "jobMultiSearchByUser",
+    "name": "jobMultiSearchByUser",
+    "group": "Resume_User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"page\":1, //compulsory\n\"description\":\"Engineering\", //compulsory\n\"location\":\"chicago, il\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Job fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 104,\n\"total_pages\": 3,\n\"is_next_page\": true,\n\"result\": [\n{\n\"sourceId\": \"110671270\",\n\"company\": \"ExxonMobil\",\n\"company_logo\": \"\",\n\"company_url\": \"\",\n\"employmentType\": \"\",\n\"location\": \"\",\n\"source\": \"Careercast\",\n\"query\": \"engineering\",\n\"title\": \"Electrical Engineer\",\n\"job_name\": \"Electrical Engineer\",\n\"url\": \"http://jobs.blackenterprise.com/jobs/electrical-engineer-singapore-01-238510-110671270-d?rsite=careercast&rgroup=1&clientid=blackent&widget=1&type=job&\",\n\"created_at\": \"2018-12-24 09:00:00.000000\"\n},\n{\n\"sourceId\": \"109573702\",\n\"company\": \"Georgia Tech Research Institute (GTRI)\",\n\"company_logo\": \"https://secure.adicio.com/squisher.php?u=https%3A%2F%2Fslb.adicio.com%2Ffiles%2Fys-c-01%2F2017-07%2F27%2F13%2F37%2Fweb_597a4f033826597a4f039f910.jpg\",\n\"company_url\": \"/jobs/georgia-tech-research-institute-gtri-1096434-cd\",\n\"employmentType\": \"\",\n\"location\": \"Atlanta, GA\",\n\"source\": \"Ieee\",\n\"query\": \"engineering\",\n\"title\": \"Electronic Warfare and Avionics Software Engineer - ELSYS\",\n\"job_name\": \"Electronic Warfare and Avionics Software Engineer - ELSYS\",\n\"url\": \"https://jobs.ieee.org/jobs/electronic-warfare-and-avionics-software-engineer-elsys-atlanta-ga-109573702-d?widget=1&type=job&\",\n\"created_at\": \"2018-12-24 06:00:00.000000\"\n},\n{\n\"sourceId\": \"110122113\",\n\"company\": \"Georgia Tech Research Institute (GTRI)\",\n\"company_logo\": \"https://secure.adicio.com/squisher.php?u=https%3A%2F%2Fslb.adicio.com%2Ffiles%2Fys-c-01%2F2017-07%2F27%2F13%2F37%2Fweb_597a4f033826597a4f039f910.jpg\",\n\"company_url\": \"/jobs/georgia-tech-research-institute-gtri-1096434-cd\",\n\"employmentType\": \"\",\n\"location\": \"Huntsville, AL\",\n\"source\": \"Ieee\",\n\"query\": \"engineering\",\n\"title\": \"Radar Systems Engineer - Huntsville, AL - SEAL\",\n\"job_name\": \"Radar Systems Engineer - Huntsville, AL - SEAL\",\n\"url\": \"https://jobs.ieee.org/jobs/radar-systems-engineer-huntsville-al-seal-huntsville-al-110122113-d?widget=1&type=job&\",\n\"created_at\": \"2018-12-24 06:00:00.000000\"\n},\n{\n\"sourceId\": \"110529248\",\n\"company\": \"Georgia Tech Research Institute (GTRI)\",\n\"company_logo\": \"https://secure.adicio.com/squisher.php?u=https%3A%2F%2Fslb.adicio.com%2Ffiles%2Fys-c-01%2F2017-07%2F27%2F13%2F37%2Fweb_597a4f033826597a4f039f910.jpg\",\n\"company_url\": \"/jobs/georgia-tech-research-institute-gtri-1096434-cd\",\n\"employmentType\": \"\",\n\"location\": \"Smyrna, GA\",\n\"source\": \"Ieee\",\n\"query\": \"engineering\",\n\"title\": \"Algorithm Developer - SEAL\",\n\"job_name\": \"Algorithm Developer - SEAL\",\n\"url\": \"https://jobs.ieee.org/jobs/algorithm-developer-seal-smyrna-ga-110529248-d?widget=1&type=job&\",\n\"created_at\": \"2018-12-24 06:00:00.000000\"\n}\n],\n\"is_cache\": 0\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "Resume_User"
+  },
+  {
+    "type": "post",
+    "url": "jobMultiSearchByUserIndividually",
+    "title": "jobMultiSearchByUserIndividually",
+    "name": "jobMultiSearchByUserIndividually",
+    "group": "Resume_User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"page\":1, //compulsory\n\"description\":\"Engineering\", //compulsory\n\"provider\": \"Github\", //?areercast??ice??ithub??ovt??eee??obinventory??onster??tackoverflow?     * \"location\":\"chicago, il\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Job fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 1,\n\"result\": [\n{\n\"sourceId\": \"c307e4ca-d6a6-11e8-8f6e-f00ef74f7cb0\",\n\"company\": \"Squirro\",\n\"company_logo\": \"https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdFJYIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f57cd599eb0f28cd5bf62d1214102e55ef446841/728d2587-0eff-4cf3-bfc5-26581e0d58c2\",\n\"company_url\": \"https://www.squirro.com\",\n\"employmentType\": \"\",\n\"location\": \"Zurich\",\n\"source\": \"Github\",\n\"query\": \"Engineering\",\n\"title\": \"Senior Python Engineer\",\n\"job_name\": \"Senior Python Engineer\",\n\"url\": \"https://jobs.github.com/positions/c307e4ca-d6a6-11e8-8f6e-f00ef74f7cb0\",\n\"created_at\": \"2018-10-23 09:36:02.000000\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "Resume_User"
+  },
+  {
+    "type": "post",
+    "url": "searchQuestionAnswer",
+    "title": "searchQuestionAnswer",
+    "name": "searchQuestionAnswer",
+    "group": "Resume_User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"page\":1, //compulsory\n\"question_type\":1,\n\"search_query\":\"Test\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": \"200\",\n\"message\": \"Question and answer fetched successfully.\",\n\"cause\": \"\",\n\"response\": {\n\"total_record\": 1,\n\"is_next_page\": false,\n\"result\": [\n{\n\"question_id\": 5,\n\"question_type\": 1,\n\"question\": \"test\",\n\"answer\": \"<p style=\\\"margin: 0cm 0cm 15pt; line-height: 19.2pt; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial;\\\"><font color=\\\"#333333\\\" face=\\\"Georgia, serif\\\"><span style=\\\"font-size: 17.3333px;\\\">test</span></font></p>\",\n\"create_time\": \"2018-12-26 04:58:34\",\n\"update_time\": \"2018-12-26 04:58:34\",\n\"search_text\": 0.36247622966766\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/QnAController.php",
+    "groupTitle": "Resume_User"
   },
   {
     "type": "post",
@@ -2779,6 +3418,35 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "getImageByUnsplash",
+    "title": "getImageByUnsplash",
+    "name": "getImageByUnsplash",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"page\":1, //compulsory\n\"search_query\":\"car\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Images fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total\": 96294,\n\"total_pages\": 3210,\n\"results\": [\n{\n\"id\": \"8qEuawM_txg\",\n\"created_at\": \"2018-10-22T06:00:30-04:00\",\n\"updated_at\": \"2018-12-23T11:00:34-05:00\",\n\"width\": 3000,\n\"height\": 4000,\n\"color\": \"#061A1A\",\n\"description\": null,\n\"urls\": {\n\"raw\": \"https://images.unsplash.com/photo-1540202403-b7abd6747a18?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjQ3NDQ5fQ\",\n\"full\": \"https://images.unsplash.com/photo-1540202403-b7abd6747a18?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&ixid=eyJhcHBfaWQiOjQ3NDQ5fQ\",\n\"regular\": \"https://images.unsplash.com/photo-1540202403-b7abd6747a18?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjQ3NDQ5fQ\",\n\"small\": \"https://images.unsplash.com/photo-1540202403-b7abd6747a18?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjQ3NDQ5fQ\",\n\"thumb\": \"https://images.unsplash.com/photo-1540202403-b7abd6747a18?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjQ3NDQ5fQ\"\n},\n\"links\": {\n\"self\": \"https://api.unsplash.com/photos/8qEuawM_txg\",\n\"html\": \"https://unsplash.com/photos/8qEuawM_txg\",\n\"download\": \"https://unsplash.com/photos/8qEuawM_txg/download\",\n\"download_location\": \"https://api.unsplash.com/photos/8qEuawM_txg/download\"\n},\n\"categories\": [],\n\"sponsored\": true,\n\"sponsored_by\": {\n\"id\": \"MEbW0Mv5SHk\",\n\"updated_at\": \"2018-10-22T14:47:15-04:00\",\n\"username\": \"maldives\",\n\"name\": \"Maldives Tourism\",\n\"first_name\": \"Maldives Tourism\",\n\"last_name\": null,\n\"twitter_username\": null,\n\"portfolio_url\": null,\n\"bio\": \"The sunny side of life.\",\n\"location\": \"Mal�, Maldives\",\n\"links\": {\n\"self\": \"https://api.unsplash.com/users/maldives\",\n\"html\": \"https://unsplash.com/@maldives\",\n\"photos\": \"https://api.unsplash.com/users/maldives/photos\",\n\"likes\": \"https://api.unsplash.com/users/maldives/likes\",\n\"portfolio\": \"https://api.unsplash.com/users/maldives/portfolio\",\n\"following\": \"https://api.unsplash.com/users/maldives/following\",\n\"followers\": \"https://api.unsplash.com/users/maldives/followers\"\n},\n\"profile_image\": {\n\"small\": \"https://images.unsplash.com/profile-1540233904172-590b0facb2d0?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&cs=tinysrgb&fit=crop&h=32&w=32\",\n\"medium\": \"https://images.unsplash.com/profile-1540233904172-590b0facb2d0?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&cs=tinysrgb&fit=crop&h=64&w=64\",\n\"large\": \"https://images.unsplash.com/profile-1540233904172-590b0facb2d0?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&cs=tinysrgb&fit=crop&h=128&w=128\"\n},\n\"instagram_username\": null,\n\"total_collections\": 0,\n\"total_likes\": 0,\n\"total_photos\": 0,\n\"accepted_tos\": false\n},\n\"sponsored_impressions_id\": \"3282145\",\n\"likes\": 501,\n\"liked_by_user\": false,\n\"current_user_collections\": [],\n\"slug\": null,\n\"user\": {\n\"id\": \"cYNNst8ZosY\",\n\"updated_at\": \"2018-12-24T17:54:48-05:00\",\n\"username\": \"seefromthesky\",\n\"name\": \"Ishan @seefromthesky\",\n\"first_name\": \"Ishan\",\n\"last_name\": \"@seefromthesky\",\n\"twitter_username\": \"SeefromtheSky\",\n\"portfolio_url\": \"http://www.instagram.com/seefromthesky\",\n\"bio\": \"??? ?????? ????? ?????? ????????? ??????? ??????\\r\\n ��� \\r\\nPeace and love. ?? #seefromthesky\\r\\n? ishan@seefromthesky.com\\r\\n\",\n\"location\": \"maldives\",\n\"links\": {\n\"self\": \"https://api.unsplash.com/users/seefromthesky\",\n\"html\": \"https://unsplash.com/@seefromthesky\",\n\"photos\": \"https://api.unsplash.com/users/seefromthesky/photos\",\n\"likes\": \"https://api.unsplash.com/users/seefromthesky/likes\",\n\"portfolio\": \"https://api.unsplash.com/users/seefromthesky/portfolio\",\n\"following\": \"https://api.unsplash.com/users/seefromthesky/following\",\n\"followers\": \"https://api.unsplash.com/users/seefromthesky/followers\"\n},\n\"profile_image\": {\n\"small\": \"https://images.unsplash.com/profile-1470411901970-0f48a5d5e958?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&cs=tinysrgb&fit=crop&h=32&w=32\",\n\"medium\": \"https://images.unsplash.com/profile-1470411901970-0f48a5d5e958?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&cs=tinysrgb&fit=crop&h=64&w=64\",\n\"large\": \"https://images.unsplash.com/profile-1470411901970-0f48a5d5e958?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&cs=tinysrgb&fit=crop&h=128&w=128\"\n},\n\"instagram_username\": \"seefromthesky\",\n\"total_collections\": 0,\n\"total_likes\": 64,\n\"total_photos\": 91,\n\"accepted_tos\": false\n},\n\"tags\": [\n{\n\"title\": \"underwater\"\n},\n{\n\"title\": \"reef\"\n},\n{\n\"title\": \"coral\"\n},\n{\n\"title\": \"water\"\n},\n{\n\"title\": \"maldives\"\n}\n],\n\"photo_tags\": [\n{\n\"title\": \"underwater\"\n},\n{\n\"title\": \"reef\"\n},\n{\n\"title\": \"coral\"\n},\n{\n\"title\": \"water\"\n},\n{\n\"title\": \"maldives\"\n}\n]\n}\n],\n\"is_next_page\": true,\n\"is_cache\": 0\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UnsplashController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "getImagesByCatalogId",
     "title": "getImagesByCatalogId",
     "name": "getImagesByCatalogId",
@@ -2822,12 +3490,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"category\":\"flower\",\n\"page\":1,\n\"item_count\":3\n}",
+          "content": "{\n\"page\":1, //compulsory\n\"item_count\":4, //compulsory and must be >=3 && <=200\n\"search_query\":\"nature\"\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Images are fatched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"is_cache\": 0,\n\"result\": {\n\"totalHits\": 500,\n\"hits\": [\n{\n\"largeImageURL\": \"https://pixabay.com/get/e831b30f2afc1c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_1280.jpg\",\n\"webformatHeight\": 640,\n\"webformatWidth\": 425,\n\"likes\": 182,\n\"imageWidth\": 2136,\n\"id\": 142028,\n\"user_id\": 41549,\n\"views\": 45888,\n\"comments\": 15,\n\"pageURL\": \"https://pixabay.com/en/lotus-pink-lotus-flower-plant-flowers-lo-142028/\",\n\"imageHeight\": 3216,\n\"webformatURL\": \"https://pixabay.com/get/e831b30f2afc1c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 150,\n\"tags\": \"lotus pink lotus flower plant flowers lotus flower flower flower flowers flowers flowers flowers flowers\",\n\"downloads\": 12277,\n\"user\": \"artzhangqingfeng\",\n\"favorites\": 173,\n\"imageSize\": 978322,\n\"previewWidth\": 100,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2017/08/17/18-37-52-458_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2013/06/29/06/24/lotus-142028_150.jpg\"\n},\n{\n\"largeImageURL\": \"https://pixabay.com/get/ef30b9082df51c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_1280.jpg\",\n\"webformatHeight\": 640,\n\"webformatWidth\": 612,\n\"likes\": 164,\n\"imageWidth\": 2200,\n\"id\": 658751,\n\"user_id\": 784204,\n\"views\": 37932,\n\"comments\": 20,\n\"pageURL\": \"https://pixabay.com/en/bells-flower-flowers-blue-flower-black-n-658751/\",\n\"imageHeight\": 2300,\n\"webformatURL\": \"https://pixabay.com/get/ef30b9082df51c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 150,\n\"tags\": \"bells flower flowers blue flower black nature spring blue purple flower blue flower background flowers flowers flowers flowers flowers blue flower flower\",\n\"downloads\": 18587,\n\"user\": \"Catharina77\",\n\"favorites\": 197,\n\"imageSize\": 294501,\n\"previewWidth\": 144,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/11/27/12-31-26-612_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2015/03/04/12/59/bells-flower-658751_150.jpg\"\n},\n{\n\"largeImageURL\": \"https://pixabay.com/get/ea37b1072ff01c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_1280.jpg\",\n\"webformatHeight\": 640,\n\"webformatWidth\": 437,\n\"likes\": 159,\n\"imageWidth\": 1365,\n\"id\": 320874,\n\"user_id\": 217857,\n\"views\": 38553,\n\"comments\": 19,\n\"pageURL\": \"https://pixabay.com/en/tulip-flower-bloom-pink-flowers-spring-n-320874/\",\n\"imageHeight\": 2000,\n\"webformatURL\": \"https://pixabay.com/get/ea37b1072ff01c22d2524518b7454590e570e5d204b014439cf9c87caee8b6_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 150,\n\"tags\": \"tulip flower bloom pink flowers spring nature tulip tulip tulip flower flower flower flowers flowers flowers flowers flowers spring spring nature\",\n\"downloads\": 13673,\n\"user\": \"Anelka\",\n\"favorites\": 159,\n\"imageSize\": 420525,\n\"previewWidth\": 102,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2014/04/10/14-20-41-498_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2014/04/10/11/27/tulip-320874_150.jpg\"\n}\n],\n\"total\": 16885\n}\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Images fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"is_next_page\": true,\n\"is_cache\": 0,\n\"result\": {\n\"totalHits\": 500,\n\"hits\": [\n{\n\"largeImageURL\": \"https://pixabay.com/get/e835b60d20f6023ed1584d05fb1d4f95e571e5d21eac104491f5c678a4edbcbe_1280.jpg\",\n\"webformatHeight\": 373,\n\"webformatWidth\": 640,\n\"likes\": 1736,\n\"imageWidth\": 3160,\n\"id\": 1072823,\n\"user_id\": 1720744,\n\"views\": 455334,\n\"comments\": 199,\n\"pageURL\": \"https://pixabay.com/en/road-forest-season-autumn-fall-1072823/\",\n\"imageHeight\": 1846,\n\"webformatURL\": \"https://pixabay.com/get/e835b60d20f6023ed1584d05fb1d4f95e571e5d21eac104491f5c678a4edbcbe_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 87,\n\"tags\": \"road, forest, season\",\n\"downloads\": 180992,\n\"user\": \"valiunic\",\n\"favorites\": 1503,\n\"imageSize\": 3819762,\n\"previewWidth\": 150,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/12/01/20-20-44-483_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072823_150.jpg\"\n}\n],\n\"total\": 238950\n}\n}\n}",
           "type": "json"
         }
       ]
@@ -3069,9 +3737,9 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "getVideosFromPixabay",
-    "title": "getVideosFromPixabay",
-    "name": "getVideosFromPixabay",
+    "url": "getZipFile",
+    "title": "getZipFile",
+    "name": "getZipFile",
     "group": "User",
     "version": "1.0.0",
     "success": {
@@ -3083,17 +3751,17 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"category\":\"water\",\n\"page\":1,\n\"item_count\":3\n}",
+          "content": "{\n\"file_name\":\"sample.zip\" //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"videos are fatched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"is_cache\": 0,\n\"result\": {\n\"totalHits\": 500,\n\"hits\": [\n{\n\"picture_id\": \"529921736\",\n\"videos\": {\n\"large\": {\n\"url\": \"\",\n\"width\": 0,\n\"size\": 0,\n\"height\": 0\n},\n\"small\": {\n\"url\": \"https://player.vimeo.com/external/135733055.sd.mp4?s=4755d2adc868862c3e5bb601a4841c32debe22c8&profile_id=112\",\n\"width\": 640,\n\"size\": 3709798,\n\"height\": 310\n},\n\"medium\": {\n\"url\": \"https://player.vimeo.com/external/135733055.hd.mp4?s=d8ad3de28c7bda1746059d926a2cde7d4198348c&profile_id=113\",\n\"width\": 1280,\n\"size\": 11624131,\n\"height\": 620\n},\n\"tiny\": {\n\"url\": \"https://player.vimeo.com/external/135733055.mobile.mp4?s=326829edd29f45b58f45cfaaa1107d13ecb17eb6&profile_id=116\",\n\"width\": 480,\n\"size\": 1747635,\n\"height\": 232\n}\n},\n\"tags\": \"rain, thunder, water\",\n\"downloads\": 34362,\n\"likes\": 256,\n\"favorites\": 204,\n\"duration\": 36,\n\"id\": 78,\n\"user_id\": 1280814,\n\"views\": 92826,\n\"comments\": 41,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/08/07/22-32-32-276_250x250.jpg\",\n\"pageURL\": \"https://pixabay.com/videos/id-78/\",\n\"type\": \"film\",\n\"user\": \"DistillVideos\"\n},\n{\n\"picture_id\": \"583481279\",\n\"videos\": {\n\"large\": {\n\"url\": \"https://player.vimeo.com/external/176282263.hd.mp4?s=5ae9c441e89ee36646286c22fddc6c8781946c7d&profile_id=169\",\n\"width\": 1920,\n\"size\": 32514692,\n\"height\": 1080\n},\n\"small\": {\n\"url\": \"https://player.vimeo.com/external/176282263.sd.mp4?s=eae20877d2f66cd5b7481c8e9ac2b4b10fd92bef&profile_id=165\",\n\"width\": 960,\n\"size\": 7392540,\n\"height\": 540\n},\n\"medium\": {\n\"url\": \"https://player.vimeo.com/external/176282263.hd.mp4?s=5ae9c441e89ee36646286c22fddc6c8781946c7d&profile_id=174\",\n\"width\": 1280,\n\"size\": 12518329,\n\"height\": 720\n},\n\"tiny\": {\n\"url\": \"https://player.vimeo.com/external/176282263.sd.mp4?s=eae20877d2f66cd5b7481c8e9ac2b4b10fd92bef&profile_id=164\",\n\"width\": 640,\n\"size\": 2470905,\n\"height\": 360\n}\n},\n\"tags\": \"sea, wave, golden\",\n\"downloads\": 54973,\n\"likes\": 341,\n\"favorites\": 291,\n\"duration\": 40,\n\"id\": 4006,\n\"user_id\": 1024927,\n\"views\": 108996,\n\"comments\": 64,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2017/10/03/16-01-13-529_250x250.png\",\n\"pageURL\": \"https://pixabay.com/videos/id-4006/\",\n\"type\": \"film\",\n\"user\": \"outlinez\"\n},\n{\n\"picture_id\": \"540200545\",\n\"videos\": {\n\"large\": {\n\"url\": \"https://player.vimeo.com/external/142801793.hd.mp4?s=7fb230aa374b14694792fc7ab23e31ca40cd4117&profile_id=119\",\n\"width\": 1920,\n\"size\": 8542568,\n\"height\": 1080\n},\n\"small\": {\n\"url\": \"https://player.vimeo.com/external/142801793.sd.mp4?s=452bc0b5bb4ddc978189a41e1eacdc3409edb7e8&profile_id=112\",\n\"width\": 640,\n\"size\": 1448790,\n\"height\": 360\n},\n\"medium\": {\n\"url\": \"https://player.vimeo.com/external/142801793.hd.mp4?s=7fb230aa374b14694792fc7ab23e31ca40cd4117&profile_id=113\",\n\"width\": 1280,\n\"size\": 4826988,\n\"height\": 720\n},\n\"tiny\": {\n\"url\": \"https://player.vimeo.com/external/142801793.mobile.mp4?s=b7f949c7dab73b2c48da20ee73d10c48a6f68a18&profile_id=116\",\n\"width\": 480,\n\"size\": 579502,\n\"height\": 270\n}\n},\n\"tags\": \"bubbles, air, underwater\",\n\"downloads\": 33843,\n\"likes\": 219,\n\"favorites\": 231,\n\"duration\": 15,\n\"id\": 1085,\n\"user_id\": 1283884,\n\"views\": 64453,\n\"comments\": 29,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/08/09/12-33-44-788_250x250.png\",\n\"pageURL\": \"https://pixabay.com/videos/id-1085/\",\n\"type\": \"film\",\n\"user\": \"Vimeo-Free-Videos\"\n}\n],\n\"total\": 1159\n}\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Featured json images fetch successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"url\": \"sample.zip\"\n}\n}",
           "type": "json"
         }
       ]
     },
-    "filename": "./app/Http/Controllers/PixabayController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -3211,5 +3879,33 @@ define({ "api": [
     },
     "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
+  },
+  {
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "varname1",
+            "description": "<p>No type.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "varname2",
+            "description": "<p>With type.</p>"
+          }
+        ]
+      }
+    },
+    "type": "",
+    "url": "",
+    "version": "0.0.0",
+    "filename": "./documentation/main.js",
+    "group": "c__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
+    "groupTitle": "c__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
+    "name": ""
   }
 ] });

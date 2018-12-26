@@ -21,6 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('logs/{user_name}/{password}', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 
 //Login route
+//Route::post('doLoginForGuestNew', 'LoginController@doLoginForGuestNew');
 Route::post('doLoginForGuest', 'LoginController@doLoginForGuest');
 Route::post('doLogin', 'LoginController@doLogin');
 Route::post('doLogout', 'LoginController@doLogout');
@@ -183,7 +184,29 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('getAllTags', 'AdminController@getAllTags');
 
 
+    //Get youtube videos related to interview
+    Route::post('addYouTubeVideoURL','VideoController@addYouTubeVideoURL');
+    Route::post('updateYouTubeVideoURL','VideoController@updateYouTubeVideoURL');
+    Route::post('deleteYouTubeVideoURL','VideoController@deleteYouTubeVideoURL');
+    Route::post('getYouTubeVideoForInterviewForAdmin','VideoController@getYouTubeVideoForInterviewForAdmin');
+    Route::post('getVideoIdByURL','VideoController@getVideoIdByURL');
+
+    //Get interview questions
+    Route::post('addQuestionType','QnAController@addQuestionType');
+    Route::post('updateQuestionType','QnAController@updateQuestionType');
+    Route::post('deleteQuestionType','QnAController@deleteQuestionType');
+    Route::post('getAllQuestionTypeForAdmin','QnAController@getAllQuestionTypeForAdmin');
+
+    Route::post('deleteQuestionAnswer','QnAController@deleteQuestionAnswer');
+    Route::post('getAllQuestionAnswer','QnAController@getAllQuestionAnswer');
+    Route::post('getAllQuestionAnswerByTypeForAdmin','QnAController@getAllQuestionAnswerByTypeForAdmin');
+    Route::post('searchQuestionAnswerForAdmin','QnAController@searchQuestionAnswerForAdmin');
+
+
 });
+
+Route::post('addQuestionAnswer','QnAController@addQuestionAnswer');
+Route::post('updateQuestionAnswer','QnAController@updateQuestionAnswer');
 
 Route::post('addLinkWithAppLogo', 'AdminController@addLinkWithAppLogo');
 Route::post('updateLinkWithAppLogo', 'AdminController@updateLinkWithAppLogo');
@@ -225,6 +248,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
 
     //Fetch images from Pixabay
     Route::post('getImagesFromPixabay', 'PixabayController@getImagesFromPixabay');
+    Route::post('getImageByUnsplash', 'UnSplashController@getImageByUnsplash');
 
     //Fetch videos from Pixabay
     Route::post('getVideosFromPixabay', 'PixabayController@getVideosFromPixabay');
@@ -242,6 +266,20 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
 
     //Get host name
     Route::post('getHostName', 'AdminController@getHostName');
+
+    //Resume maker job search
+    Route::post('getHomePageDetail','UserController@getHomePageDetail');
+    Route::post('jobMultiSearchByUser','UserController@jobMultiSearchByUser');
+    Route::post('jobMultiSearchByUserIndividually','UserController@jobMultiSearchByUserIndividually');
+
+    Route::post('getFeedFromTwitter','NewsController@getFeedFromTwitter');
+    Route::post('getFeedFromTwitter_test','NewsController@getFeedFromTwitter_test');
+
+    Route::post('getAllQuestionAnswerByType','QnAController@getAllQuestionAnswerByType');
+    Route::post('searchQuestionAnswer','QnAController@searchQuestionAnswer');
+    Route::post('getYouTubeVideoForInterview','VideoController@getYouTubeVideoForInterview');
+
+    Route::post('getAllQuestionType','QnAController@getAllQuestionType');
 
 });
 

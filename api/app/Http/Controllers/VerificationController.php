@@ -830,4 +830,31 @@ class VerificationController extends Controller
 
         return $response;
     }
+
+    public function validateIssetRequiredParameter($required_fields, $request_params)
+    {
+        $error = false;
+        $error_fields = '';
+
+        foreach ($required_fields as $key => $value) {
+            if (isset($request_params->$value)) {
+                if (!is_object($request_params->$value)) {
+                    if (strlen($request_params->$value) == 0) {
+                        $error = true;
+                        $error_fields .= ' ' . $value . ',';
+                    }
+                }
+            }
+        }
+
+        if ($error) {
+// Required field(s) are missing or empty
+            $error_fields = substr($error_fields, 0, -1);
+            $message = 'Required field(s)' . $error_fields . ' is missing or empty.';
+            $response = Response::json(array('code' => 201, 'message' => $message, 'cause' => '', 'data' => json_decode("{}")));
+        } else
+            $response = '';
+
+        return $response;
+    }
 }

@@ -604,6 +604,49 @@ class DeleteCacheKey
                 }
             }
 
+            //Question type
+            if ($api == '/api/addQuestionType' or $api == '/api/updateQuestionType' or $api == '/api/deleteQuestionType') {
+
+                //getAllQuestionType
+                $keys = Redis::keys('pel:getAllQuestionType*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getHomePageDetail
+                $keys = Redis::keys('pel:getHomePageDetail*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            //Question and answer
+            if ($api == '/api/addQuestionAnswer' or $api == '/api/updateQuestionAnswer' or $api == '/api/deleteQuestionAnswer') {
+
+                //get Category
+                $keys = Redis::keys('pel:getAllQuestionAnswer*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            //Youtube Video module
+            if ($api == '/api/addYouTubeVideoURL' or $api == '/api/updateYouTubeVideoURL' or $api == '/api/deleteYouTubeVideoURL') {
+
+                //get Category
+                $keys = Redis::keys('pel:getYouTubeVideo*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getHomePageDetail
+                $keys = Redis::keys('pel:getHomePageDetail*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+
 
         } catch (Exception $e) {
             Log::error("DeleteCacheKey Middleware Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
