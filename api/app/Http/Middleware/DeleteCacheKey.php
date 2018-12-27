@@ -345,6 +345,15 @@ class DeleteCacheKey
                     //Log::info("pel:getJsonSampleDataWithLastSyncTime_webp Key Deleted");
                 }
 
+                //getHomePageDetail
+                $keys = Redis::keys('pel:getHomePageDetail*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                if (count($keys) === 0) {
+                    //Log::info("pel:getHomePageDetail Key Deleted");
+                }
+
                 //getJsonSampleDataWithLastSyncTime_webpIos
                 $keys = Redis::keys('pel:getJsonSampleDataWithLastSyncTime_webpIos*');
                 foreach ($keys as $key) {
