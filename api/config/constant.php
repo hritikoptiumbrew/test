@@ -135,13 +135,21 @@ return [
     'SET_ITEM_COUNT_INTO_PROVIDER' => 15,
 
     /*============================== Twitter ==============================*/
-    'twitter_consumer_Key' => 'nFkqK8lBcfHsPQSZgkWh6Ky4T',
+
+    /* local server */
+    /*'twitter_consumer_Key' => 'nFkqK8lBcfHsPQSZgkWh6Ky4T',
     'twitter_consumer_Secret' => 'Koh4KvkkXlYrzVE61q7yanZrUeuXvCFovObD0k53RF0NYMGksK',
     'twitter_access_Token' => '4746441684-gfXiRVLR9q7IOTz6Us03PyH621lu7L9p2mtF0SU',
-    'twitter_access_Token_Secret' => 'lHh4WBilZYzdW7b2amVBEguoLA1JaiQP2qtUAOyTopp4h',
-    'TWITTER_USER_LIST_FOR_TWITTER_TIMELINE' => 'GrJobInterview,interviewtips,MonsterJobs,ETJobNews,UNJobList_news,ALA_JobLIST',//ETJobNews,UNJobList_news,ALA_JobLIST,MonsterJobs,GrJobInterview,interviewtips
-    'TWITTER_POST_ITEM_COUNT_FOR_TWITTER_TIMELINE' => 200,
-    'TWITTER_TIMELINE_ITEM_COUNT_FOR_PAGINATION' => 50,
+    'twitter_access_Token_Secret' => 'lHh4WBilZYzdW7b2amVBEguoLA1JaiQP2qtUAOyTopp4h',*/
+
+    /* live server */
+    'twitter_consumer_Key' => 'KK45r5cgIWC7ATtWXsNIFo5vA',
+    'twitter_consumer_Secret' => '433nrWNI1qaNt6damLjhmS13eIjsGEVqRUKypgmQomkKmyWifU',
+    'twitter_access_Token' => '878515855679668225-rwtI5bQP1uIjudoBncbaVCDMclkMgf3',
+    'twitter_access_Token_Secret' => 'BZz1uRMwrrwZET1CoKEipo6CJHzO5r2FL2LPfcCkuUlAv',
+    'TWITTER_USER_LIST_FOR_TWITTER_TIMELINE' => 'CGJob,ETJobNews,ALA_JobLIST,scrum_jobs,targetjobsUK,RandstadUSJobs,CareerBuilder,jtodonnell,Absolutely_Abby,AlisonDoyle,CreativeGroup,MonsterJobs,careersherpa',//'careerealism,CareerBliss,JobSearchAmanda,lindseypollak,'GrJobInterview',
+    'TWITTER_POST_ITEM_COUNT_FOR_TWITTER_TIMELINE' => 80, //80 items per account
+    'TWITTER_TIMELINE_ITEM_COUNT_FOR_PAGINATION' => 50, //50 items per page
     'TWITTER_TIMELINE_IS_TEXT' => 1,
     'TWITTER_TIMELINE_IS_POST' => 2,
     'TWITTER_TIMELINE_IS_VIDEO' => 3,

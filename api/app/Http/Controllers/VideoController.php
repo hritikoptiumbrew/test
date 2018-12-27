@@ -93,7 +93,7 @@ class VideoController extends Controller
                 $response = Response::json(array('code' => 200, 'message' => 'Video url added successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
             } else {
-                $response = Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find video.", 'cause' => '', 'data' => json_decode('{}')));
+                $response = Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find video.", 'cause' => '', 'data' => json_decode('{}')));
 
             }
 
@@ -195,7 +195,7 @@ class VideoController extends Controller
                     DB::commit();
 
                 } else {
-                    return Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find video.", 'cause' => '', 'data' => json_decode('{}')));
+                    return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find video.", 'cause' => '', 'data' => json_decode('{}')));
 
                 }
             }
@@ -359,7 +359,7 @@ class VideoController extends Controller
             $redis_result = Cache::get("getYouTubeVideoForInterview");
 
             if (!$redis_result) {
-                return Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find any video", 'cause' => '', 'data' => json_decode('{}')));
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any video", 'cause' => '', 'data' => json_decode('{}')));
             }
             $response = Response::json(array('code' => 200, 'message' => 'Video fatched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
 
@@ -452,7 +452,7 @@ class VideoController extends Controller
             $redis_result = Cache::get("getYouTubeVideoForInterviewForAdmin");
 
             if (!$redis_result) {
-                return Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find any video", 'cause' => '', 'data' => json_decode('{}')));
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any video", 'cause' => '', 'data' => json_decode('{}')));
             }
             $response = Response::json(array('code' => 200, 'message' => 'Video fatched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
 

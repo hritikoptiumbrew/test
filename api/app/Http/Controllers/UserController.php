@@ -2706,7 +2706,7 @@ class UserController extends Controller
                 $location = explode(',', $this->location);
                 $loc_count = count($location);
                 if ($loc_count < 2 || $loc_count > 2) {
-                    return Response::json(array('code' => 201, 'message' => "Location formate should be 'City, State'.", 'cause' => '', 'data' => json_decode("{}")));
+                    return Response::json(array('code' => 201, 'message' => "Location format should be 'City, State'.", 'cause' => '', 'data' => json_decode("{}")));
                 }
             }
 
@@ -2783,7 +2783,7 @@ class UserController extends Controller
             Redis::expire("jobMultiSearchByUser:$this->description:$this->location:$this->page", 1);
 
             if (!$redis_result['result']) {
-                return Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find any job for " . $request->description, 'cause' => '', 'data' => json_decode('{}')));
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any job for " . $request->description, 'cause' => '', 'data' => json_decode('{}')));
             }
 
             $this->is_cache == 0 ? $is_cache = 0 : $is_cache = 1;
@@ -2919,7 +2919,7 @@ class UserController extends Controller
 
             $total_row = count($result);
             if ($total_row == 0) {
-                return Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find any job for " . $request->description, 'cause' => '', 'data' => json_decode('{}')));
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any job for " . $request->description, 'cause' => '', 'data' => json_decode('{}')));
             }
             $response = Response::json(array('code' => 200, 'message' => 'Job fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'result' => $result]));
         } catch (Exception $e) {

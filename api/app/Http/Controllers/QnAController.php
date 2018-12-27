@@ -706,7 +706,7 @@ class QnAController extends Controller
                 $redis_result = [];
             }
             if (count($redis_result) == 0) {
-                return Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find any question and answer.", 'cause' => '', 'data' => json_decode('{}')));
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any question and answer.", 'cause' => '', 'data' => json_decode('{}')));
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'All question and answer fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
@@ -798,7 +798,7 @@ class QnAController extends Controller
                 $redis_result = [];
             }
             if (count($redis_result) == 0) {
-                return Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find any question and answer.", 'cause' => '', 'data' => json_decode('{}')));
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any question and answer.", 'cause' => '', 'data' => json_decode('{}')));
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'All question and answer fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
@@ -949,7 +949,7 @@ class QnAController extends Controller
             //
             // $result = json_decode(json_encode($result_array), true);
             if (count($result) == 0) {
-                return Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find any question and answer.", 'cause' => '', 'data' => json_decode('{}')));
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any question and answer.", 'cause' => '', 'data' => json_decode('{}')));
             }
 
             $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
@@ -1107,7 +1107,7 @@ class QnAController extends Controller
             //
             // $result = json_decode(json_encode($result_array), true);
             if (count($result) == 0) {
-                return Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find any question and answer.", 'cause' => '', 'data' => json_decode('{}')));
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any question and answer.", 'cause' => '', 'data' => json_decode('{}')));
             }
 
             $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;

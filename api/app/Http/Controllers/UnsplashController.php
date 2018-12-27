@@ -376,7 +376,9 @@ class UnsplashController extends Controller
                             $rate_remaining = 0;
                         }
 
-                        if ($rate_remaining <= 48) {
+                        // TODO : to increase the rate limit please upgrade your unsplash account with production mode
+
+                        if ($rate_remaining <= 10) {
 
                             $redis_keys = Redis::keys('pel:currentKeyOfUnsplash:*');
                             count($redis_keys) > 0 ? $this->currentKey = substr($redis_keys[0], -1) : $this->currentKey = 0;
@@ -391,10 +393,9 @@ class UnsplashController extends Controller
 
                             $currentKey = $getKey + 1;
                             $template = 'stock_photos';
-                            $subject = 'Unsplash rate limit <= 100.';
-                            //$message_body = "100 request is remaining $getKey. Your currently used key is $currentKey.";
+                            $subject = 'Unsplash rate limit <= 10.';
                             $message_body = array(
-                                'message' => "100 request is remaining $getKey.<br>Your currently used key is $currentKey.",
+                                'message' => "10 request is remaining from key $getKey.<br>Your currently used key is $currentKey.",
                                 'user_name' => 'Admin'
                             );
                             $api_name = 'getUnsplashImageForUser';
@@ -453,7 +454,7 @@ class UnsplashController extends Controller
             $response = $redis_keys ? 0 : 1;
         } catch (Exception $e) {
             Log::error("deleteRedisKey Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Delete Redis Keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete redis keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }

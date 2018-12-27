@@ -155,7 +155,7 @@ class NewsController extends Controller
             Redis::expire("getFeedFromTwitter", 1);
 
             if (!$redis_result['result']) {
-                return Response::json(array('code' => 201, 'message' => "Sorry, We couldn't find any twitter post.", 'cause' => '', 'data' => json_decode('{}')));
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any twitter post.", 'cause' => '', 'data' => json_decode('{}')));
             }
 
             $this->is_cache == 0 ? $is_cache = 0 : $is_cache = 1;

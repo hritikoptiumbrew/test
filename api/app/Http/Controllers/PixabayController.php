@@ -409,7 +409,7 @@ class PixabayController extends Controller
                             $subject = 'Pixabay rate limit <= 100.';
                             //$message_body = "100 request is remaining $getKey. Your currently used key is $currentKey.";
                             $message_body = array(
-                                'message' => "100 request is remaining $getKey.<br>Your currently used key is $currentKey.",
+                                'message' => "100 request is remaining from key $getKey.<br>Your currently used key is $currentKey.",
                                 'user_name' => 'Admin'
                             );
                             $api_name = 'getPixabayImageForUser';
@@ -494,7 +494,7 @@ class PixabayController extends Controller
                             $subject = 'Pixabay rate limit <= 100.';
                             //$message_body = "100 request is remaining $getKey. Your currently used key is $currentKey.";
                             $message_body = array(
-                                'message' => "100 request is remaining $getKey.<br>Your currently used key is $currentKey.",
+                                'message' => "100 request is remaining from key $getKey.<br>Your currently used key is $currentKey.",
                                 'user_name' => 'Admin'
                             );
                             $api_name = 'getPixabayVideoForUser';
