@@ -3270,6 +3270,11 @@ class UserController extends Controller
                         // Number of tweets
                         $tweetNum = round($this->job_news_item / $i);
 
+                        if($twit_user_count < $this->job_news_item || $tweetNum == 0){
+                            //Log::info('$twit_user_count');
+                            $tweetNum = $this->job_news_item;
+                        }
+
                         // Authenticate with twitter
                         $twitterConnection = new TwitterOAuth(
                             $consumerKey,
