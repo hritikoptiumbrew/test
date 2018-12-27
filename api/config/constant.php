@@ -24,7 +24,7 @@ return [
     'DATE_FORMAT' => 'Y-m-d H:i:s',
 
     /* For local server */
-    //'ADMIN_EMAIL_ID' => 'patelpinal1415160@gmail.com',
+    //'ADMIN_EMAIL_ID' => 'pinal.optimumbrew@gmail.com',
 
     /* For live server */
     'ADMIN_EMAIL_ID' => 'alagiyanirav@gmail.com',
