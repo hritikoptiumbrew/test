@@ -345,6 +345,15 @@ class DeleteCacheKey
                     //Log::info("pel:getJsonSampleDataWithLastSyncTime_webp Key Deleted");
                 }
 
+                //getHomePageDetail
+                $keys = Redis::keys('pel:getHomePageDetail*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                if (count($keys) === 0) {
+                    //Log::info("pel:getHomePageDetail Key Deleted");
+                }
+
                 //getJsonSampleDataWithLastSyncTime_webpIos
                 $keys = Redis::keys('pel:getJsonSampleDataWithLastSyncTime_webpIos*');
                 foreach ($keys as $key) {
@@ -603,6 +612,49 @@ class DeleteCacheKey
                     //Log::info("pel:getAllTags Key Deleted");
                 }
             }
+
+            //Question type
+            if ($api == '/api/addQuestionType' or $api == '/api/updateQuestionType' or $api == '/api/deleteQuestionType') {
+
+                //getAllQuestionType
+                $keys = Redis::keys('pel:getAllQuestionType*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getHomePageDetail
+                $keys = Redis::keys('pel:getHomePageDetail*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            //Question and answer
+            if ($api == '/api/addQuestionAnswer' or $api == '/api/updateQuestionAnswer' or $api == '/api/deleteQuestionAnswer') {
+
+                //get Category
+                $keys = Redis::keys('pel:getAllQuestionAnswer*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            //Youtube Video module
+            if ($api == '/api/addYouTubeVideoURL' or $api == '/api/updateYouTubeVideoURL' or $api == '/api/deleteYouTubeVideoURL') {
+
+                //get Category
+                $keys = Redis::keys('pel:getYouTubeVideo*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getHomePageDetail
+                $keys = Redis::keys('pel:getHomePageDetail*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
 
 
         } catch (Exception $e) {

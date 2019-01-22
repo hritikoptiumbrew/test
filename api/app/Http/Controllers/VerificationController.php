@@ -666,9 +666,7 @@ class VerificationController extends Controller
 
 
             if(count($result) > 0){
-                //Yes, Schedule exits+
-
-                Log::info("Start_at ".$start_at." To ".$end_at);
+                //Log::info("Start_at ".$start_at." To ".$end_at);
                 if($result[0]->service_type != 3){
                     $response = '';
                 }else{
@@ -817,12 +815,10 @@ class VerificationController extends Controller
 
             if($count > 0)
             {
-                Log::info(1);
                return $response = Response::json(array('code'=>201,'message'=>'Please remove duplicate entry of tag from selection.','cause'=>'','response'=>json_decode("{}")));
             }
             else
             {
-                Log::info(0);
                 $response = '';
             }
         }
@@ -831,6 +827,33 @@ class VerificationController extends Controller
             Log::error("verifySearchCategory Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
             return  Response::json(array('code'=>'201','message'=>$e->getMessage(),'cause'=>'','response'=>json_decode("{}")));
         }
+
+        return $response;
+    }
+
+    public function validateIssetRequiredParameter($required_fields, $request_params)
+    {
+        $error = false;
+        $error_fields = '';
+
+        foreach ($required_fields as $key => $value) {
+            if (isset($request_params->$value)) {
+                if (!is_object($request_params->$value)) {
+                    if (strlen($request_params->$value) == 0) {
+                        $error = true;
+                        $error_fields .= ' ' . $value . ',';
+                    }
+                }
+            }
+        }
+
+        if ($error) {
+// Required field(s) are missing or empty
+            $error_fields = substr($error_fields, 0, -1);
+            $message = 'Required field(s)' . $error_fields . ' is missing or empty.';
+            $response = Response::json(array('code' => 201, 'message' => $message, 'cause' => '', 'data' => json_decode("{}")));
+        } else
+            $response = '';
 
         return $response;
     }

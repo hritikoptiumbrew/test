@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Input;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Redis;
+use Abraham\TwitterOAuth\TwitterOAuth;
 
 class UserController extends Controller
 {
@@ -960,9 +961,7 @@ class UserController extends Controller
                                                   updated_at >= ?
                                                 order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
-                        }
-                        else
-                        {
+                        } else {
                             $result = DB::select('SELECT
                                                   id as json_id,
                                                   IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
@@ -1001,9 +1000,7 @@ class UserController extends Controller
                                                 updated_at >= ?
                                                 order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
-                        }
-                        else
-                        {
+                        } else {
                             $result = DB::select('SELECT
                                                id as json_id,
                                                IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
@@ -1506,7 +1503,7 @@ class UserController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
             //$this->search_category = "%" . $request->search_category . "%";
-            $this->search_category =$request->search_category;
+            $this->search_category = $request->search_category;
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
@@ -1602,7 +1599,7 @@ class UserController extends Controller
                                                   isnull(im.display_img)
                                                 ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                         $code = 427;
-                        $search_text = trim($this->search_category,"%");
+                        $search_text = trim($this->search_category, "%");
                         $message = "Sorry, we couldn't find any templates for '$search_text', but we found some other templates you might like:";
                     }
 
@@ -2579,7 +2576,7 @@ class UserController extends Controller
 
             $file_name = $request->file_name;
 
-            $result_array = array('url' => Config::get('constant.ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN'). $file_name);
+            $result_array = array('url' => Config::get('constant.ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . $file_name);
 
             $result = json_decode(json_encode($result_array), true);
 
@@ -2592,6 +2589,739 @@ class UserController extends Controller
             Log::error("getZipFile Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get zip file.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
+        }
+        return $response;
+    }
+
+    /*=========================================Multi provider to job =========================================*/
+
+    /**
+     * @api {post} jobMultiSearchByUser   jobMultiSearchByUser
+     * @apiName jobMultiSearchByUser
+     * @apiGroup Resume User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "page":1, //compulsory
+     * "description":"Engineering", //compulsory
+     * "location":"chicago, il"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Job fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 104,
+     * "total_pages": 3,
+     * "is_next_page": true,
+     * "result": [
+     * {
+     * "sourceId": "110671270",
+     * "company": "ExxonMobil",
+     * "company_logo": "",
+     * "company_url": "",
+     * "employmentType": "",
+     * "location": "",
+     * "source": "Careercast",
+     * "query": "engineering",
+     * "title": "Electrical Engineer",
+     * "job_name": "Electrical Engineer",
+     * "url": "http://jobs.blackenterprise.com/jobs/electrical-engineer-singapore-01-238510-110671270-d?rsite=careercast&rgroup=1&clientid=blackent&widget=1&type=job&",
+     * "created_at": "2018-12-24 09:00:00.000000"
+     * },
+     * {
+     * "sourceId": "109573702",
+     * "company": "Georgia Tech Research Institute (GTRI)",
+     * "company_logo": "https://secure.adicio.com/squisher.php?u=https%3A%2F%2Fslb.adicio.com%2Ffiles%2Fys-c-01%2F2017-07%2F27%2F13%2F37%2Fweb_597a4f033826597a4f039f910.jpg",
+     * "company_url": "/jobs/georgia-tech-research-institute-gtri-1096434-cd",
+     * "employmentType": "",
+     * "location": "Atlanta, GA",
+     * "source": "Ieee",
+     * "query": "engineering",
+     * "title": "Electronic Warfare and Avionics Software Engineer - ELSYS",
+     * "job_name": "Electronic Warfare and Avionics Software Engineer - ELSYS",
+     * "url": "https://jobs.ieee.org/jobs/electronic-warfare-and-avionics-software-engineer-elsys-atlanta-ga-109573702-d?widget=1&type=job&",
+     * "created_at": "2018-12-24 06:00:00.000000"
+     * },
+     * {
+     * "sourceId": "110122113",
+     * "company": "Georgia Tech Research Institute (GTRI)",
+     * "company_logo": "https://secure.adicio.com/squisher.php?u=https%3A%2F%2Fslb.adicio.com%2Ffiles%2Fys-c-01%2F2017-07%2F27%2F13%2F37%2Fweb_597a4f033826597a4f039f910.jpg",
+     * "company_url": "/jobs/georgia-tech-research-institute-gtri-1096434-cd",
+     * "employmentType": "",
+     * "location": "Huntsville, AL",
+     * "source": "Ieee",
+     * "query": "engineering",
+     * "title": "Radar Systems Engineer - Huntsville, AL - SEAL",
+     * "job_name": "Radar Systems Engineer - Huntsville, AL - SEAL",
+     * "url": "https://jobs.ieee.org/jobs/radar-systems-engineer-huntsville-al-seal-huntsville-al-110122113-d?widget=1&type=job&",
+     * "created_at": "2018-12-24 06:00:00.000000"
+     * },
+     * {
+     * "sourceId": "110529248",
+     * "company": "Georgia Tech Research Institute (GTRI)",
+     * "company_logo": "https://secure.adicio.com/squisher.php?u=https%3A%2F%2Fslb.adicio.com%2Ffiles%2Fys-c-01%2F2017-07%2F27%2F13%2F37%2Fweb_597a4f033826597a4f039f910.jpg",
+     * "company_url": "/jobs/georgia-tech-research-institute-gtri-1096434-cd",
+     * "employmentType": "",
+     * "location": "Smyrna, GA",
+     * "source": "Ieee",
+     * "query": "engineering",
+     * "title": "Algorithm Developer - SEAL",
+     * "job_name": "Algorithm Developer - SEAL",
+     * "url": "https://jobs.ieee.org/jobs/algorithm-developer-seal-smyrna-ga-110529248-d?widget=1&type=job&",
+     * "created_at": "2018-12-24 06:00:00.000000"
+     * }
+     * ],
+     * "is_cache": 0
+     * }
+     * }
+     */
+    public function jobMultiSearchByUser(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('description', 'page'), $request)) != '')
+                return $response;
+            if (($response = (new VerificationController())->validateIssetRequiredParameter(array('location', 'lat', 'long', 'full_time'), $request)) != '')
+                return $response;
+
+            $this->description = strtolower($request->description);
+            $this->page = $request->page;
+            $this->location = isset($request->location) ? $request->location : '';
+            $this->is_cache = 1;
+            $this->SET_ITEM_COUNT_INTO_PROVIDER = Config::get('constant.SET_ITEM_COUNT_INTO_PROVIDER');
+
+            if (isset($request->location)) {
+                $location = explode(',', $this->location);
+                $loc_count = count($location);
+                if ($loc_count < 2 || $loc_count > 2) {
+                    return Response::json(array('code' => 201, 'message' => "Location format should be 'City, State'.", 'cause' => '', 'data' => json_decode("{}")));
+                }
+            }
+
+            if (!Cache::has("pel:jobMultiSearchByUser:$this->description:$this->location:$this->page")) {
+                $result = Cache::remember("jobMultiSearchByUser:$this->description:$this->location:$this->page", 1440, function () {
+                    $this->is_cache = 0;
+                    $providers = [
+                        'Github' => [],
+                        'Ieee' => [],
+                        'Careercast' => [],
+                        'Govt' => [],
+                        //'Stackoverflow' => [],
+                        //'Dice' => [],
+                        //'Jobinventory' => [],
+                        //'Monster' => [],
+                    ];
+//                    Log::info('description', ['description' => $this->description]);
+                    $client = new \JobApis\Jobs\Client\JobsMulti($providers);
+                    $client->setKeyword($this->description);
+
+                    if ($this->location != '')
+                        $client->setLocation($this->location);
+
+                    $options = [
+                        'orderBy' => 'datePosted',
+                        'order' => 'desc',
+                    ];
+                    // Get all the jobs
+                    $jobs = $client->getAllJobs($options);
+                    //$jobs = $client->getJobsByProvider('Github', $options);
+                    // Output a summary of jobs as arrays
+
+                    $client_result = [];
+                    foreach ($jobs->all() as $job) {
+                        $client_result[] = $job->toArray();
+                    }
+                    $client_result = json_decode(json_encode($client_result));
+
+                    //Log::info(['client_result' => $client_result]);
+                    $ob_result = [];
+                    $c = 0;
+                    foreach ($client_result as $result) {
+
+                        $ob_result[$c]['sourceId'] = $result->sourceId;
+                        $ob_result[$c]['company'] = $result->company;
+                        $ob_result[$c]['company_logo'] = isset($result->hiringOrganization->logo) ? $result->hiringOrganization->logo : '';
+                        $ob_result[$c]['company_url'] = isset($result->hiringOrganization->url) ? $result->hiringOrganization->url : '';
+                        $ob_result[$c]['employmentType'] = isset($result->employmentType) ? $result->employmentType : '';
+                        $ob_result[$c]['location'] = $result->location;
+                        $ob_result[$c]['source'] = $result->source;
+                        $ob_result[$c]['query'] = $result->query;
+                        $ob_result[$c]['title'] = $result->title;
+                        $ob_result[$c]['job_name'] = $result->name;
+                        $ob_result[$c]['url'] = $result->url;
+                        $ob_result[$c]['created_at'] = $result->datePosted->date;
+                        $c = $c + 1;
+
+                    }
+
+                    $item_count = Config::get('constant.PAGINATION_ITEM_COUNT');
+                    $offset = ($this->page - 1) * $item_count;
+                    $total_job_list = count($ob_result);
+
+                    $this->job_list = array_splice($ob_result, $offset, $item_count);
+
+                    $total_pages = ceil($total_job_list / $item_count);
+                    $is_next_page = ($total_job_list > ($offset + $item_count)) ? true : false;
+
+                    return ['total_record' => $total_job_list, 'total_pages' => $total_pages, 'is_next_page' => $is_next_page, 'result' => $this->job_list];
+                });
+            }
+            $redis_result = Cache::get("jobMultiSearchByUser:$this->description:$this->location:$this->page");
+
+            Redis::expire("jobMultiSearchByUser:$this->description:$this->location:$this->page", 1);
+
+            if (!$redis_result['result']) {
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any job for " . $request->description, 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            $this->is_cache == 0 ? $is_cache = 0 : $is_cache = 1;
+            $redis_result['is_cache'] = $is_cache;
+
+            $response = Response::json(array('code' => 200, 'message' => 'Job fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch
+        (Exception $e) {
+            Log::error("jobMultiSearchByUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'job search by user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /*=========================================Individually provider to job =========================================*/
+
+    /**
+     * @api {post} jobMultiSearchByUserIndividually jobMultiSearchByUserIndividually
+     * @apiName jobMultiSearchByUserIndividually
+     * @apiGroup Resume User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "page":1, //compulsory
+     * "description":"Engineering", //compulsory
+     * "provider": "Github", //?areercast??ice??ithub??ovt??eee??obinventory??onster??tackoverflow?     * "location":"chicago, il"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Job fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 1,
+     * "result": [
+     * {
+     * "sourceId": "c307e4ca-d6a6-11e8-8f6e-f00ef74f7cb0",
+     * "company": "Squirro",
+     * "company_logo": "https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdFJYIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f57cd599eb0f28cd5bf62d1214102e55ef446841/728d2587-0eff-4cf3-bfc5-26581e0d58c2",
+     * "company_url": "https://www.squirro.com",
+     * "employmentType": "",
+     * "location": "Zurich",
+     * "source": "Github",
+     * "query": "Engineering",
+     * "title": "Senior Python Engineer",
+     * "job_name": "Senior Python Engineer",
+     * "url": "https://jobs.github.com/positions/c307e4ca-d6a6-11e8-8f6e-f00ef74f7cb0",
+     * "created_at": "2018-10-23 09:36:02.000000"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function jobMultiSearchByUserIndividually(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('description', 'page', 'provider'), $request)) != '')
+                return $response;
+            if (($response = (new VerificationController())->validateIssetRequiredParameter(array('location', 'lat', 'long', 'full_time'), $request)) != '')
+                return $response;
+
+            $this->description = $request->description;
+            $this->page = $request->page;
+            $this->provider = $request->provider;
+            $this->location = isset($request->location) ? $request->location : '';
+
+            $providers = [
+                'Careercast' => [],
+                'Dice' => [],
+                'Github' => [],
+                'Govt' => [],
+                'Ieee' => [],
+                'Jobinventory' => [],
+                //'Monster' => [],
+                'Stackoverflow' => [],
+            ];
+            //Log::info('description', ['description' => $this->description]);
+            $client = new \JobApis\Jobs\Client\JobsMulti($providers);
+            $client->setKeyword($this->description)
+                ->setPage($this->page, 30);
+
+            if ($this->location != '')
+                $client->setLocation($this->location);
+
+            $options = [
+                'maxResults' => 10,
+            ];
+            // Get all the jobs
+//            $jobs = $client->getAllJobs($options);
+            $jobs = $client->getJobsByProvider($this->provider, $options);
+            // Output a summary of jobs as arrays
+//            return $jobs->getStatusCode();
+            $client_result = [];
+            foreach ($jobs->all() as $job) {
+                $client_result[] = $job->toArray();
+            }
+            $client_result = json_decode(json_encode($client_result));
+
+            //Log::info(['client_result' => $client_result]);
+            $ob_result = [];
+            $c = 0;
+            foreach ($client_result as $result) {
+//                $r[]= $result->company;
+                $ob_result[$c]['sourceId'] = $result->sourceId;
+                $ob_result[$c]['company'] = $result->company;
+                $ob_result[$c]['company_logo'] = isset($result->hiringOrganization->logo) ? $result->hiringOrganization->logo : '';
+                $ob_result[$c]['company_url'] = isset($result->hiringOrganization->url) ? $result->hiringOrganization->url : '';
+                $ob_result[$c]['employmentType'] = isset($result->employmentType) ? $result->employmentType : '';
+                $ob_result[$c]['location'] = $result->location;
+                $ob_result[$c]['source'] = $result->source;
+                $ob_result[$c]['query'] = $result->query;
+                $ob_result[$c]['title'] = $result->title;
+                $ob_result[$c]['job_name'] = $result->name;
+                $ob_result[$c]['url'] = $result->url;
+                $ob_result[$c]['created_at'] = $result->datePosted->date;
+//                    $rw[] = $r;
+                $c = $c + 1;
+            }
+            $result = $ob_result;
+
+            $total_row = count($result);
+            if ($total_row == 0) {
+                return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any job for " . $request->description, 'cause' => '', 'data' => json_decode('{}')));
+            }
+            $response = Response::json(array('code' => 200, 'message' => 'Job fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'result' => $result]));
+        } catch (Exception $e) {
+            Log::error("jobMultiSearchByUserIndividually Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'job search by user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /*=========================================| Home page API |=========================================*/
+
+    /**
+     * @api {post} getHomePageDetail getHomePageDetail
+     * @apiName getHomePageDetail
+     * @apiGroup Resume User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":1, //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+    {
+    "code": 200,
+    "message": "Home page detail fetched successfully.",
+    "cause": "",
+    "data": {
+    "template": [
+    {
+    "json_id": 2488,
+    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5b81064f6a5d3_json_image_1535182415.webp",
+    "is_free": 1,
+    "is_featured": 1,
+    "is_portrait": 0,
+    "height": 300,
+    "width": 525,
+    "updated_at": "2018-10-02 11:05:56"
+    },
+    {
+    "json_id": 711,
+    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a953eafef82b_json_image_1519730351.png",
+    "is_free": 1,
+    "is_featured": 1,
+    "is_portrait": 0,
+    "height": 300,
+    "width": 525,
+    "updated_at": "2018-10-02 10:48:43"
+    },
+    {
+    "json_id": 3105,
+    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5b9787d634af2_json_image_1536657366.webp",
+    "is_free": 1,
+    "is_featured": 1,
+    "is_portrait": 1,
+    "height": 600,
+    "width": 400,
+    "updated_at": "2018-09-11 09:16:07"
+    },
+    {
+    "json_id": 732,
+    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a9650b07f43d_json_image_1519800496.webp",
+    "is_free": 1,
+    "is_featured": 1,
+    "is_portrait": 0,
+    "height": 300,
+    "width": 525,
+    "updated_at": "2018-09-05 05:20:37"
+    },
+    {
+    "json_id": 731,
+    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a9650930c5a0_json_image_1519800467.webp",
+    "is_free": 1,
+    "is_featured": 1,
+    "is_portrait": 0,
+    "height": 300,
+    "width": 525,
+    "updated_at": "2018-09-05 05:20:33"
+    },
+    {
+    "json_id": 728,
+    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a965023e6c56_json_image_1519800355.webp",
+    "is_free": 1,
+    "is_featured": 1,
+    "is_portrait": 0,
+    "height": 300,
+    "width": 525,
+    "updated_at": "2018-09-05 05:20:24"
+    }
+    ],
+    "video": [
+    {
+    "video_id": 20,
+    "youtube_video_id": "d6uzZqkcsa8",
+    "title": "How To Interview Candidates For A Job",
+    "channel_name": "Videojug",
+    "url": "https://www.youtube.com/watch?v=d6uzZqkcsa8",
+    "thumbnail_url": "https://i.ytimg.com/vi/d6uzZqkcsa8/hqdefault.jpg",
+    "thumbnail_width": 480,
+    "thumbnail_height": 360,
+    "published_at": "2011-04-12 13:51:31"
+    },
+    {
+    "video_id": 19,
+    "youtube_video_id": "htBDNsunGCY",
+    "title": "How to Conduct an Interview",
+    "channel_name": "HR360Inc",
+    "url": "https://www.youtube.com/watch?v=htBDNsunGCY",
+    "thumbnail_url": "https://i.ytimg.com/vi/htBDNsunGCY/hqdefault.jpg",
+    "thumbnail_width": 480,
+    "thumbnail_height": 360,
+    "published_at": "2014-06-09 15:08:05"
+    },
+    {
+    "video_id": 18,
+    "youtube_video_id": "2kNIlIrocrU",
+    "title": "Hiring tutorial: Writing effective behavioral interview questions | lynda.com",
+    "channel_name": "LinkedIn Learning",
+    "url": "https://www.youtube.com/watch?v=2kNIlIrocrU",
+    "thumbnail_url": "https://i.ytimg.com/vi/2kNIlIrocrU/hqdefault.jpg",
+    "thumbnail_width": 480,
+    "thumbnail_height": 360,
+    "published_at": "2013-06-18 21:54:24"
+    },
+    {
+    "video_id": 17,
+    "youtube_video_id": "5NVYg2HNAdA",
+    "title": "\"Why Should We Hire You?\" How to Answer this Interview Question",
+    "channel_name": "Fisher College of Business",
+    "url": "https://www.youtube.com/watch?v=5NVYg2HNAdA",
+    "thumbnail_url": "https://i.ytimg.com/vi/5NVYg2HNAdA/hqdefault.jpg",
+    "thumbnail_width": 480,
+    "thumbnail_height": 360,
+    "published_at": "2012-03-06 13:50:47"
+    },
+    {
+    "video_id": 16,
+    "youtube_video_id": "VFTNOF77bMs",
+    "title": "Interview questions and answers",
+    "channel_name": "JobTestPrep",
+    "url": "https://www.youtube.com/watch?v=VFTNOF77bMs",
+    "thumbnail_url": "https://i.ytimg.com/vi/VFTNOF77bMs/hqdefault.jpg",
+    "thumbnail_width": 480,
+    "thumbnail_height": 360,
+    "published_at": "2011-12-05 09:03:39"
+    },
+    {
+    "video_id": 15,
+    "youtube_video_id": "PCWVi5pAa30",
+    "title": "7 body language tips to impress at your next job interview",
+    "channel_name": "Cognitive Group Microsoft Talent Solutions",
+    "url": "https://www.youtube.com/watch?v=PCWVi5pAa30",
+    "thumbnail_url": "https://i.ytimg.com/vi/PCWVi5pAa30/hqdefault.jpg",
+    "thumbnail_width": 480,
+    "thumbnail_height": 360,
+    "published_at": "2016-03-16 07:56:32"
+    }
+    ],
+    "job_news": [
+    {
+    "id": 1072922200905150500,
+    "created_at": "2018-12-12 18:32:41",
+    "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/TwitterAPI\" target=\"_blank\">@TwitterAPI</a>: All app management is unifying on <a href=\"https://t.co/EfJLLFaLkk!\" target=\"_blank\">https://t.co/EfJLLFaLkk!</a> Beginning today: \n\n<a href=\"https://t.co/PCwEGWityX\" target=\"_blank\">https://t.co/PCwEGWityX</a>\n&gt; will be redirected?,
+    "favorite_count": 0,
+    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+    "account_url": "https://twitter.com/TwitterDev",
+    "media_url_https": "",
+    "post_type": 1,
+    "video_url": ""
+    },
+    {
+    "id": 1070059276213702700,
+    "created_at": "2018-12-04 20:56:26",
+    "text": "Celebrating the developer success story of <a class=\"tweet-author\" href=\"https://twitter.com/UnionMetrics\" target=\"_blank\">@UnionMetrics</a> platform whose underlying technology is built upon Twitterä<a href=\"https://t.co/lxA6ePkTMj\" target=\"_blank\">https://t.co/lxA6ePkTMj</a>",
+    "favorite_count": 48,
+    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+    "account_url": "https://twitter.com/TwitterDev",
+    "media_url_https": "",
+    "post_type": 1,
+    "video_url": ""
+    },
+    {
+    "id": 1067094924124872700,
+    "created_at": "2018-11-26 16:37:10",
+    "text": "Just getting started with Twitter APIs? Find out what you need in order to build an app. Watch this video! <a href=\"https://t.co/Hg8nkfoizN\" target=\"_blank\">https://t.co/Hg8nkfoizN</a>",
+    "favorite_count": 490,
+    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+    "account_url": "https://twitter.com/TwitterDev",
+    "media_url_https": "https://pbs.twimg.com/media/DsZp7igVYAAyDHB.jpg",
+    "post_type": 3,
+    "video_url": "https://video.twimg.com/amplify_video/1064638969197977600/vid/1280x720/C1utUYBYhJ_4lwaq.mp4?tag=8"
+    },
+    {
+    "id": 1058408022936977400,
+    "created_at": "2018-11-02 17:18:31",
+    "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/harmophone\" target=\"_blank\">@harmophone</a>: \"The innovative crowdsourcing that the Tagboard, Twitter and TEGNA collaboration enables is surfacing locally relevant conv?,
+    "favorite_count": 0,
+    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+    "account_url": "https://twitter.com/TwitterDev",
+    "media_url_https": "",
+    "post_type": 1,
+    "video_url": ""
+    },
+    {
+    "id": 1054884245578035200,
+    "created_at": "2018-10-23 23:56:17",
+    "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/andypiper\" target=\"_blank\">@andypiper</a>: My coworker <a class=\"tweet-author\" href=\"https://twitter.com/jessicagarson\" target=\"_blank\">@jessicagarson</a> rocking Jupyter and Postman in her #TapIntoTwitterNYC demo! <a href=\"https://t.co/yuF4q2Czed\" target=\"_blank\">https://t.co/yuF4q2Czed</a>",
+    "favorite_count": 0,
+    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+    "account_url": "https://twitter.com/TwitterDev",
+    "media_url_https": "https://pbs.twimg.com/media/DqOrzHJWsAAWDGE.jpg",
+    "post_type": 2,
+    "video_url": ""
+    },
+    {
+    "id": 1054884091227594800,
+    "created_at": "2018-10-23 23:55:40",
+    "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/dgrreen\" target=\"_blank\">@dgrreen</a>: #TapintoTwitterNYC First up all the way from <a class=\"tweet-author\" href=\"https://twitter.com/TwitterBoulder\" target=\"_blank\">@TwitterBoulder</a>  <a class=\"tweet-author\" href=\"https://twitter.com/AdventureSteady\" target=\"_blank\">@AdventureSteady</a> with updates on how <a class=\"tweet-author\" href=\"https://twitter.com/TwitterDev\" target=\"_blank\">@TwitterDev</a> is protecting u?,
+    "favorite_count": 0,
+    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+    "account_url": "https://twitter.com/TwitterDev",
+    "media_url_https": "",
+    "post_type": 1,
+    "video_url": ""
+    }
+    ],
+    "interview_que_ans": [
+    {
+    "question_type_id": 1,
+    "question_type": "Interview Prep Plan",
+    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c2056193c6c1_question_type_1545623065.png",
+    "create_time": "2018-11-28 10:38:41",
+    "update_time": "2018-12-24 03:44:26"
+    },
+    {
+    "question_type_id": 2,
+    "question_type": "Most Common",
+    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c2055a09edd4_question_type_1545622944.png",
+    "create_time": "2018-11-28 10:38:47",
+    "update_time": "2018-12-24 03:42:25"
+    },
+    {
+    "question_type_id": 3,
+    "question_type": "Behavioural",
+    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205563bc996_question_type_1545622883.png",
+    "create_time": "2018-11-28 10:38:51",
+    "update_time": "2018-12-24 03:41:24"
+    },
+    {
+    "question_type_id": 4,
+    "question_type": "Resume writing",
+    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c20554a6c98c_question_type_1545622858.png",
+    "create_time": "2018-11-28 10:38:59",
+    "update_time": "2018-12-24 03:40:59"
+    },
+    {
+    "question_type_id": 5,
+    "question_type": "Technical questions",
+    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205529e152d_question_type_1545622825.png",
+    "create_time": "2018-11-28 10:39:04",
+    "update_time": "2018-12-24 03:40:26"
+    },
+    {
+    "question_type_id": 6,
+    "question_type": "Personality",
+    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205504ef2a1_question_type_1545622788.png",
+    "create_time": "2018-11-28 10:39:07",
+    "update_time": "2018-12-24 03:39:49"
+    }
+    ]
+    }
+    }
+     */
+    public function getHomePageDetail(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->template_item = Config::get('constant.TEMPLATE_COUNT_FOR_HOME_PAGE');
+            $this->video_item = Config::get('constant.VIDEO_COUNT_FOR_HOME_PAGE');
+            $this->job_news_item = Config::get('constant.JOB_NEWS_COUNT_FOR_HOME_PAGE');
+            $this->question_type_item = Config::get('constant.QUESTION_TYPE_COUNT_FOR_HOME_PAGE');
+
+
+            if (!Cache::has("pel:getHomePageDetail:$this->sub_category_id")) {
+                $result = Cache::remember("getHomePageDetail:$this->sub_category_id", 1440, function () {
+
+                    $template = DB::select('SELECT
+                                    id as json_id,
+                                    IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                    is_free,
+                                    is_featured,
+                                    is_portrait,
+                                    coalesce(height,0) AS height,
+                                    coalesce(width,0) AS width,
+                                    updated_at
+                                    FROM
+                                    images
+                                    WHERE
+                                    catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) and
+                                    is_featured = 1
+                                    order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, 0, $this->template_item]);
+
+                    $video = DB::select('SELECT id video_id,
+                                         youtube_video_id,
+                                         title,
+                                         channel_name,
+                                         url,
+                                         thumbnail_url,
+                                         thumbnail_width,
+                                         thumbnail_height,
+                                         published_at
+                                         FROM youtube_video_master
+                                         ORDER BY update_time DESC LIMIT ?, ?', [0, $this->video_item]);
+
+
+                    $consumerKey = Config::get('constant.twitter_consumer_Key');
+                    $consumerSecret = Config::get('constant.twitter_consumer_Secret');
+                    $accessToken = Config::get('constant.twitter_access_Token');
+                    $accessTokenSecret = Config::get('constant.twitter_access_Token_Secret');
+                    $post_list = [];
+                    $twitter_list = Config::get('constant.TWITTER_USER_LIST_FOR_TWITTER_TIMELINE');
+                    $twitter = explode(',', $twitter_list);
+                    $twit_user_count = count($twitter);
+                    $i = 0;
+                    foreach ($twitter as $twit) {
+                        $t[$i] = $twit;
+                        $i++;
+                    }
+
+                    for ($loop = 0; $loop < $twit_user_count; $loop++) {
+                        $this->twitter_list = $twitter;
+
+                        // Twitter account username
+                        $twitterID = $t[$loop];
+
+                        // Number of tweets
+                        $tweetNum = round($this->job_news_item / $i);
+
+                        if($twit_user_count < $this->job_news_item || $tweetNum == 0){
+                            //Log::info('$twit_user_count');
+                            $tweetNum = $this->job_news_item;
+                        }
+
+                        // Authenticate with twitter
+                        $twitterConnection = new TwitterOAuth(
+                            $consumerKey,
+                            $consumerSecret,
+                            $accessToken,
+                            $accessTokenSecret
+                        );
+
+                        // Get the user timeline feeds
+                        $list = (new NewsController())->twitterPostByTwitterId($twitterConnection, $twitterID, $tweetNum);
+                        $post_list = array_merge($post_list, $list);
+
+                    }
+
+                    usort($post_list, function ($a, $b) { //Sort the array using a user defined function
+                        return strtotime($a['created_at']) > strtotime($b['created_at']) ? -1 : 1;
+                    });
+
+                    $this->job_news = array_splice($post_list, 0, $this->job_news_item);
+
+                    $this->is_active = 1;
+
+                    $interview_que_ans = DB::select('SELECT
+                                    qm.id as question_type_id,
+                                    qm.question_type,
+                                    IF(qm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",qm.image),"") as question_type_image,
+                                    qm.create_time,
+                                    qm.update_time
+                                  FROM
+                                  question_type_master as qm
+                                  where qm.is_active = ?
+                                  ORDER BY update_time DESC LIMIT ?, ?', [$this->is_active, 0, $this->question_type_item]);
+
+                    return ['template' => $template, 'video' => $video, 'job_news' => $this->job_news, 'interview_que_ans' => $interview_que_ans];
+
+                });
+            }
+            $redis_result = Cache::get("getHomePageDetail:$this->sub_category_id");
+
+            Redis::expire("getHomePageDetail:$this->sub_category_id", 1);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Home page detail fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getHomePageDetail Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get home detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
