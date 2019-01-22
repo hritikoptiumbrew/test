@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { MdDialog, MdDialogRef } from '@angular/material';
-import { Router, ActivatedRoute } from '@angular/router';
+import { MdDialog } from '@angular/material';
+import { Router } from '@angular/router';
 import { DataService } from '../data.service';
-import { HOST } from '../app.constants';
 import { LoadingComponent } from '../loading/loading.component';
 import { PromocodeAddComponent } from '../promocode-add/promocode-add.component';
 import * as moment from 'moment';

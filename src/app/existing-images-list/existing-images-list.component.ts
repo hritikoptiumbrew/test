@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MdDialog, MdDialogRef, MdSnackBar, MdSnackBarConfig } from '@angular/material';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { DataService } from '../data.service';
 import { LoadingComponent } from '../loading/loading.component';

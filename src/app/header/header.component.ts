@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Http, RequestOptions, Headers, Response, RequestMethod, RequestOptionsArgs } from '@angular/http';
-import { MdDialog, MdDialogRef } from '@angular/material';
-import { Observable } from 'rxjs/Rx';
+import { MdDialog } from '@angular/material';
 import { DataService } from '../data.service';
-import { HOST } from '../app.constants';
 import { LoadingComponent } from '../loading/loading.component';
 
 @Component({

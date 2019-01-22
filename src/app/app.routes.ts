@@ -18,6 +18,7 @@ import { PromocodeManagementComponent } from './promocode-management/promocode-m
 import { UserGeneratedDesignsComponent } from './user-generated-designs/user-generated-designs.component';
 import { AdmobAdsComponent } from './admob-ads/admob-ads.component';
 import { SearchTagsComponent } from './search-tags/search-tags.component';
+import { FontListComponent } from './font-list/font-list.component';
 
 export const AppRoutes = [
     { path: '', component: LoginComponent, pathMatch: 'full' },
@@ -27,6 +28,7 @@ export const AppRoutes = [
     { path: 'admin/categories/:categoryId/:subCategoryName/:subCategoryId', component: CatalogsGetComponent, canActivate: [AuthenticationService] },
     { path: 'admin/categories/:categoryId/:subCategoryName/:subCategoryId/:catalogName/:catalogId', component: ViewSubcategoryComponent, canActivate: [AuthenticationService] },
     { path: 'admin/popular/:categoryId/:subCategoryName/:subCategoryId/:catalogName/:catalogId', component: PopularSamplesComponent, canActivate: [AuthenticationService] },
+    { path: 'admin/fonts/:categoryId/:subCategoryName/:subCategoryId/:catalogName/:catalogId', component: FontListComponent, canActivate: [AuthenticationService] },
     { path: 'admin/image-details', component: ImageDetailsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/users/:sub_category_id', component: UsersAllComponent, canActivate: [AuthenticationService] },
     { path: 'admin/purchases/:sub_category_id', component: UsersPremiumComponent, canActivate: [AuthenticationService] },

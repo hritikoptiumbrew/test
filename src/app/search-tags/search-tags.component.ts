@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { MdDialog, MdDialogRef, MdSnackBar, MdSnackBarConfig } from '@angular/material';
-import { Router, ActivatedRoute } from '@angular/router';
+import { MdDialog, MdSnackBar, MdSnackBarConfig } from '@angular/material';
+import { Router } from '@angular/router';
 import { DataService } from '../data.service';
-import { HOST } from '../app.constants';
 import { LoadingComponent } from '../loading/loading.component';
 import { DeleteUserGeneratedComponent } from '../delete-user-generated/delete-user-generated.component';
-import * as moment from 'moment';
 
 @Component({
   selector: 'app-search-tags',

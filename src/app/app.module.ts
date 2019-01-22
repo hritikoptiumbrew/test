@@ -2,14 +2,13 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { Router, RouterModule, NavigationEnd } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MdButtonModule, MdInputModule, MdDialogModule, MdRadioModule, MdSidenavModule, MdSelectModule, MdTabsModule, MdCheckboxModule, MdSnackBarModule, MdSnackBarConfig, MdAutocompleteModule, MdChipsModule } from '@angular/material';
+import { MdButtonModule, MdInputModule, MdDialogModule, MdRadioModule, MdSidenavModule, MdSelectModule, MdTabsModule, MdCheckboxModule, MdSnackBarModule, MdAutocompleteModule, MdChipsModule } from '@angular/material';
 import { AngularFontAwesomeModule } from 'angular-font-awesome/angular-font-awesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutes } from './app.routes';
 import { DataService } from './data.service';
-import { HOST } from './app.constants';
 import { AuthenticationService } from './authentication.service';
 
 import { AppComponent } from './app.component';
@@ -66,6 +65,7 @@ import { AdmobAdsComponent } from './admob-ads/admob-ads.component';
 import { GaAdsByCategoryComponent } from './ga-ads-by-category/ga-ads-by-category.component';
 import { ExistingImagesListComponent } from './existing-images-list/existing-images-list.component';
 import { SearchTagsComponent } from './search-tags/search-tags.component';
+import { FontListComponent } from './font-list/font-list.component';
 
 @NgModule({
   declarations: [
@@ -123,6 +123,7 @@ import { SearchTagsComponent } from './search-tags/search-tags.component';
     GaAdsByCategoryComponent,
     ExistingImagesListComponent,
     SearchTagsComponent,
+    FontListComponent,
   ],
   imports: [
     BrowserModule,

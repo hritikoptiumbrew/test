@@ -1,10 +1,7 @@
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
-import { MdDialog, MdDialogRef } from '@angular/material';
-import { Http, RequestOptions, Headers, Response, RequestMethod, RequestOptionsArgs } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
+import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { MdDialog } from '@angular/material';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DataService } from '../data.service';
-import { HOST } from '../app.constants';
 import { LoadingComponent } from '../loading/loading.component';
 
 @Component({

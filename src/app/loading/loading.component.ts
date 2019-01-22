@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MdDialogRef } from '@angular/material';
 
 @Component({
   selector: 'app-loading',

@@ -258,6 +258,21 @@ body {
     color: #373f46 !important;
 }
 
+.width-75px {
+    width: 75px !important;
+    max-width: 75px !important;
+}
+
+.width-120px {
+    width: 120px !important;
+    max-width: 120px !important;
+}
+
+.width-140px {
+    width: 140px !important;
+    max-width: 140px !important;
+}
+
 .width-289 {
     width: 289px !important;
     max-width: 289px !important;
@@ -582,4 +597,14 @@ img {
     top: 6px;
     right: 7px;
     cursor: pointer;
+}
+
+.input-fonts {
+    width: 30%;
+    display: inline-block;
+}
+
+.input-font-name {
+    width: 30%;
+    display: inline-block;
 }

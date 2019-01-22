@@ -1,12 +1,11 @@
-import { Component, OnInit, Renderer, ViewChild, ElementRef, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Renderer, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
 import { MdDialog, MdDialogRef, MdSnackBar, MdSnackBarConfig } from '@angular/material';
-import { FormControl, NgModel } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/operator/startWith';
 import 'rxjs/add/operator/map';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { DataService } from '../data.service';
-import { HOST } from '../app.constants';
 import { LoadingComponent } from '../loading/loading.component';
 
 @Component({

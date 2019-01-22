@@ -1,9 +1,7 @@
-import { Component, OnInit, Renderer, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
-import { MdDialog, MdDialogRef } from '@angular/material';
-import { Observable } from 'rxjs/Rx';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { MdDialog, MdSnackBar, MdSnackBarConfig, MdDialogRef } from '@angular/material';
+import { Router } from '@angular/router';
 import { DataService } from '../data.service';
-import { HOST } from '../app.constants';
 import { LoadingComponent } from '../loading/loading.component';
 
 @Component({
@@ -18,7 +16,7 @@ export class DeleteUserGeneratedComponent implements OnInit {
   delete_request_data: any = {};
   API_NAME: any;
   loading: any;
-  constructor(public dialogRef: MdDialogRef<DeleteUserGeneratedComponent>, private dataService: DataService, private router: Router, public dialog: MdDialog) {
+  constructor(public dialogRef: MdDialogRef<DeleteUserGeneratedComponent>, private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.token = localStorage.getItem('photoArtsAdminToken');
   }
 
@@ -34,6 +32,9 @@ export class DeleteUserGeneratedComponent implements OnInit {
         }
       }).subscribe(results => {
         if (results.code == 200) {
+          if (API_NAME == 'deleteFont') {
+            this.showSuccess(results.message, false);
+          }
           this.loading.close();
           this.dialogRef.close();
         }
@@ -54,6 +55,24 @@ export class DeleteUserGeneratedComponent implements OnInit {
           /* console.log(results.message); */
         }
       });
+  }
+
+  showError(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-error'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
+  }
+
+  showSuccess(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-success'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
   }
 
 }

@@ -1,10 +1,7 @@
-import { Component, OnInit, Renderer, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MdDialog, MdDialogRef } from '@angular/material';
-import { Http, RequestOptions, Headers, Response, RequestMethod, RequestOptionsArgs } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
+import { MdDialog } from '@angular/material';
 import { DataService } from '../data.service';
-import { HOST } from '../app.constants';
 import { LoadingComponent } from '../loading/loading.component';
 import { UpdateSubcategoryImageByIdComponent } from '../update-subcategory-image-by-id/update-subcategory-image-by-id.component';
 import { AddSubcategoryImagesByIdComponent } from '../add-subcategory-images-by-id/add-subcategory-images-by-id.component';
@@ -49,7 +46,7 @@ export class ViewSubcategoryComponent implements OnInit {
         this.catalogId = params['catalogId'];
         this.catalogName = params['catalogName'];
         this.categoryId = params['categoryId'];
-        this.getAllCategories(this.catalogId);
+        this.getAllCategories();
       });
   }
 
@@ -91,10 +88,10 @@ export class ViewSubcategoryComponent implements OnInit {
   pageChanged(event) {
     this.loading = this.dialog.open(LoadingComponent);
     this.currentPage = event;
-    this.getAllCategories(this.catalogId);
+    this.getAllCategories();
   }
 
-  getAllCategories(categoryId) {
+  getAllCategories() {
     this.token = localStorage.getItem('photoArtsAdminToken');
     this.dataService.postData('getImagesByCatalogId',
       {
@@ -121,7 +118,7 @@ export class ViewSubcategoryComponent implements OnInit {
         else if (results.code == 401) {
           this.token = results.data.new_token;
           localStorage.setItem("photoArtsAdminToken", this.token);
-          this.getAllCategories(this.catalogId);
+          this.getAllCategories();
         }
         else {
           this.loading.close();
@@ -149,7 +146,7 @@ export class ViewSubcategoryComponent implements OnInit {
     dialogRef.componentInstance.catalog_data.catalog_id = this.catalogId;
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
-        this.getAllCategories(this.categoryId);
+        this.getAllCategories();
       }
     });
   }
@@ -159,7 +156,7 @@ export class ViewSubcategoryComponent implements OnInit {
     dialogRef.componentInstance.catalog_id = this.catalogId;
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
-        this.getAllCategories(this.categoryId);
+        this.getAllCategories();
       }
     });
   }
@@ -174,7 +171,7 @@ export class ViewSubcategoryComponent implements OnInit {
       dialogRef.componentInstance.catalog_id = this.catalogId;
       dialogRef.afterClosed().subscribe(result => {
         if (!result) {
-          this.getAllCategories(this.categoryId);
+          this.getAllCategories();
         }
       });
     }
@@ -184,7 +181,7 @@ export class ViewSubcategoryComponent implements OnInit {
       dialogRef.componentInstance.sub_category_data = sub_category_data;
       dialogRef.afterClosed().subscribe(result => {
         if (!result) {
-          this.getAllCategories(this.categoryId);
+          this.getAllCategories();
         }
       });
     }
@@ -195,7 +192,7 @@ export class ViewSubcategoryComponent implements OnInit {
     dialogRef.componentInstance.sub_category_img_id = category.img_id;
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
-        this.getAllCategories(this.categoryId);
+        this.getAllCategories();
       }
     });
   }

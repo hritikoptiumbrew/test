@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MdDialog } from '@angular/material';
 import { DataService } from '../data.service';
 import { LoadingComponent } from '../loading/loading.component';
 import { GaAdsByCategoryComponent } from '../ga-ads-by-category/ga-ads-by-category.component';

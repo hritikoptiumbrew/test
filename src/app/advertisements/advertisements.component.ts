@@ -1,11 +1,8 @@
-import { Component, OnInit, Renderer, ViewChild, ElementRef, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { Component, OnInit } from '@angular/core';
+import { MdDialog } from '@angular/material';
 import { Location } from '@angular/common';
-import { Http, RequestOptions, Headers, Response, RequestMethod, RequestOptionsArgs } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DataService } from '../data.service';
-import { HOST } from '../app.constants';
 import { LoadingComponent } from '../loading/loading.component';
 import { AdvertisementsDeleteComponent } from '../advertisements-delete/advertisements-delete.component';
 import { AdvertisementsUpdateComponent } from '../advertisements-update/advertisements-update.component';

@@ -1,10 +1,7 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { MdDialog, MdDialogRef, MdSidenav } from '@angular/material';
-import { Http, RequestOptions, Headers, Response, RequestMethod, RequestOptionsArgs } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
+import { Component, OnInit } from '@angular/core';
+import { MdDialog } from '@angular/material';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DataService } from '../data.service';
-import { HOST } from '../app.constants';
 import { LoadingComponent } from '../loading/loading.component';
 import { PopularSamplesAddComponent } from '../popular-samples-add/popular-samples-add.component';
 import { PopularSamplesUpdateComponent } from '../popular-samples-update/popular-samples-update.component';
