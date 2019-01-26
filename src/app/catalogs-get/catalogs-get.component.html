@@ -13,7 +13,8 @@
     </div>
     <div class="row mr-3 ml-3 pb-2 pt-2 title-bar">
       <div class="col pl-2 pr-2">
-        <input [(ngModel)]="searchQuery" class="form-control search-query-input" (keydown.enter)="searchData(searchQuery)" placeholder="Search query...">
+        <input [(ngModel)]="searchQuery" class="form-control search-query-input" (keydown.enter)="searchData(searchQuery)"
+          placeholder="Search query...">
         <button class="form-control btn search-query-call" (click)="searchData(searchQuery)">
           <i class="fa fa-search"></i>
         </button>
@@ -27,8 +28,14 @@
     <div class="row pr-0 pl-0">
       <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of catalog_list">
         <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
-          <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img" (click)="dataService.viewImage(category.original_img)"
-            alt="{{category.name}} thumbnail image">
+          <div class="card-img-wrap">
+            <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img" (click)="dataService.viewImage(category.original_img)"
+              alt="{{category.name}} thumbnail image">
+            <div *ngIf="category.is_free==0" class="ribbon-wrapper-yellow">
+              <div class="ribbon-yellow">PRO</div>
+            </div>
+            <img alt="" *ngIf="category.is_featured==1" class="feature-img-templt" src="./assets/img/featured_img.png">
+          </div>
           <h6 class="pt-2 pb-2 m-0">{{category.catalog_id}}. {{category.name}}</h6>
           <div class="row title-bar pt-2 pb-2 font-18 align-middle">
             <div class="col-12 col-12 p-0">
@@ -49,7 +56,7 @@
               </a> -->
             </div>
           </div>
-          <i class="fa fa-check-square font-26 text-calm ab-top-left-5" *ngIf="category.is_featured==1"></i>
+          <!-- <i class="fa fa-check-square font-26 text-calm ab-top-left-5" *ngIf="category.is_featured==1"></i> -->
         </div>
       </div>
     </div>

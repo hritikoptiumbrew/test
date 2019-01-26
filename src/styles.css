@@ -189,6 +189,12 @@ body {
     left: 5px;
 }
 
+.ab-top-right-5 {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
 .background-card-img {
     max-width: 100%;
     width: 326px;
@@ -510,7 +516,6 @@ input {
 }
 
 .code-icon {
-    font-weight: bold;
     background: #15d3e0 !important;
     color: white !important;
     padding: 3px 3px;
@@ -607,4 +612,64 @@ img {
 .input-font-name {
     width: 30%;
     display: inline-block;
+}
+
+.ribbon-wrapper-yellow {
+    width: 88px;
+    height: 88px;
+    overflow: hidden;
+    position: absolute;
+    bottom: -19px;
+    right: -19px;
+    z-index: 999;
+}
+
+.ribbon-yellow {
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    text-shadow: rgba(255, 255, 255, .5) 0 1px 0;
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    position: relative;
+    padding: 6px 0 15px;
+    left: -6px;
+    top: 32px;
+    width: 120px;
+    background-color: #fbc913;
+    color: #6a6340;
+    box-shadow: 15px 0 8px 0 rgba(0, 0, 0, .5);
+}
+
+.ribbon-yellow:before {
+    left: 0;
+}
+
+.ribbon-yellow:after,
+.ribbon-yellow:before {
+    content: "";
+    border-top: 3px solid #d6a803;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    position: absolute;
+}
+
+.ribbon-yellow:after {
+    right: 0;
+}
+
+.card-img-wrap {
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-img-templt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 80px;
+    z-index: 1;
 }

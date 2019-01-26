@@ -93,7 +93,7 @@ export class ViewSubcategoryComponent implements OnInit {
 
   getAllCategories() {
     this.token = localStorage.getItem('photoArtsAdminToken');
-    this.dataService.postData('getImagesByCatalogId',
+    this.dataService.postData('getDataByCatalogIdForAdmin',
       {
         "catalog_id": this.catalogId
       }, {
