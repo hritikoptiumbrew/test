@@ -126,17 +126,13 @@ class LoginController extends Controller
 
             //JWTAuth::toUser($token)->id;
             $user_id = JWTAuth::toUser($token)->id;
-            if($user_id == 1)
-            {
+            if ($user_id == 1) {
                 $this->createNewSession($user_id, $token);
                 return Response::json(array('code' => 200, 'message' => 'Login successfully.', 'cause' => '', 'data' => ['token' => $token, 'user_detail' => JWTAuth::toUser($token)]));
-            }
-            else
-            {
+            } else {
                 return Response::json(array('code' => 201, 'message' => 'Invalid email or password', 'cause' => '', 'data' => json_decode("{}")));
 
             }
-
 
 
         } catch (Exception $e) {
@@ -367,7 +363,7 @@ class LoginController extends Controller
 
 
     // create new device
-    public function addNewDeviceToUser($sub_category_id,$device_reg_id, $device_platform, $device_model_name, $device_vendor_name, $device_os_version, $device_udid, $device_resolution, $device_carrier, $device_country_code, $device_language, $device_local_code, $device_default_time_zone, $device_application_version, $device_type, $device_registration_date)
+    public function addNewDeviceToUser($sub_category_id, $device_reg_id, $device_platform, $device_model_name, $device_vendor_name, $device_os_version, $device_udid, $device_resolution, $device_carrier, $device_country_code, $device_language, $device_local_code, $device_default_time_zone, $device_application_version, $device_type, $device_registration_date)
     {
         try {
 //            $created_date = date(Config::get('constant.DATE_FORMAT'));

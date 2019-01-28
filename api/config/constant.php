@@ -9,12 +9,7 @@ return [
 
     //////////////////////////////Change Server Configuration////////////////////////////////////////////////////////
 
-    //'ACTIVATION_LINK_PATH'=>'https://'.$_SERVER['HTTP_HOST'],     //live
-
-    //'ACTIVATION_LINK_PATH'=>'http://'.$_SERVER['HTTP_HOST'].'/'.basename(dirname(dirname(__DIR__))),     //local and old_live
-    'ACTIVATION_LINK_PATH'=>'https://'.$_SERVER['HTTP_HOST'].env('ACTIVATION_LINK_PATH'),     //live
-
-    'FORGOT_PASSWORD_SVN_PATH' => 'http://'.$_SERVER['HTTP_HOST'].'/'.basename(dirname(dirname(__DIR__))).'/api/public/activeProfile/',   //local
+    'ACTIVATION_LINK_PATH' => env('ACTIVATION_LINK_PATH'),     //live & local
 
     'XMPP_HOST' => 'photoeditorlab.co.in', //live
     //'XMPP_HOST' => '192.168.0.113', //local
@@ -48,7 +43,8 @@ return [
     'WEBP_THUMBNAIL_IMAGES_DIRECTORY' => '/image_bucket/webp_thumbnail/',
     'WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY' => '/image_bucket/webp_original_new/',
     'WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY' => '/image_bucket/webp_thumbnail_new/',
-    //'ZIP_FILE_DIRECTORY' => '/image_bucket/zip/',
+    'FONT_FILE_DIRECTORY' => '/image_bucket/fonts/',
+    'TEMP_FILE_DIRECTORY' => '/image_bucket/temp/',
 
     /*'COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.nyc3.digitaloceanspaces.com/photoeditorlab/compressed/',
     'ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.nyc3.digitaloceanspaces.com/photoeditorlab/original/',
@@ -70,7 +66,8 @@ return [
     'WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
     'WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
     'WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
-    //'ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN' => env('ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN'),
+    'FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN' => env('FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN'),
+    'TEMP_FILE_DIRECTORY_OF_DIGITAL_OCEAN' => env('TEMP_FILE_DIRECTORY_OF_DIGITAL_OCEAN'),
 
     /* static path of local server*/
     /*'COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/',
@@ -107,25 +104,25 @@ return [
 
     /*api key of pixabay*/
     'PIXABAY_API_KEY' => env('PIXABAY_API_KEY'),
-    'PIXABAY_API_URL'=> 'https://pixabay.com/api/',
+    'PIXABAY_API_URL' => 'https://pixabay.com/api/',
 
     /* quality of image compression */
-    'QUALITY'=> '75',
+    'QUALITY' => '75',
 
-    'IMAGE_BUCKET_ORIGINAL_IMG_PATH'=> env('IMAGE_BUCKET_ORIGINAL_IMG_PATH'),
-    'IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH'=> env('IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH'),
-    'IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH'=> env('IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH'),
-    'IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH'=> env('IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH'),
-    'IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH'=> env('IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH'),
-    'PATH_OF_CWEBP'=> env('PATH_OF_CWEBP'),
-    'FFMPEG_PATH'=> env('FFMPEG_PATH'),
-    'FFPROBE_PATH'=> env('FFPROBE_PATH'),
+    'IMAGE_BUCKET_ORIGINAL_IMG_PATH' => env('IMAGE_BUCKET_ORIGINAL_IMG_PATH'),
+    'IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH' => env('IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH'),
+    'IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH' => env('IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH'),
+    'IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH' => env('IMAGE_BUCKET_WEBP_ORIGINAL_NEW_IMG_PATH'),
+    'IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH' => env('IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH'),
+    'PATH_OF_CWEBP' => env('PATH_OF_CWEBP'),
+    'FFMPEG_PATH' => env('FFMPEG_PATH'),
+    'FFPROBE_PATH' => env('FFPROBE_PATH'),
 
 
-     /*=======================| API key of Unsplash |=======================*/
+    /*=======================| API key of Unsplash |=======================*/
 
     'UNSPLASH_API_KEY' => env('UNSPLASH_API_KEY'),
-    'UNSPLASH_API_URL'=> 'https://api.unsplash.com/search/photos',
+    'UNSPLASH_API_URL' => 'https://api.unsplash.com/search/photos',
     'UNSPLASH_ITEM_COUNT' => 30, //Maximum 30 item
 
     /*============================| resume_maker_job_search_module |============================*/
@@ -159,6 +156,12 @@ return [
     'TEMPLATE_COUNT_FOR_HOME_PAGE' => 6,
     'VIDEO_COUNT_FOR_HOME_PAGE' => 6,
     'JOB_NEWS_COUNT_FOR_HOME_PAGE' => 6,
-    'QUESTION_TYPE_COUNT_FOR_HOME_PAGE' => 6
+    'QUESTION_TYPE_COUNT_FOR_HOME_PAGE' => 6,
+
+    'APP_ENV' => env('APP_ENV'), //get app environment to store files into s3_bucket
+    'AWS_BUCKET' => env('AWS_BUCKET'), //s3_bucket name from env to store/retrieve file from s3
+    'STORAGE' => env('STORAGE'), //s3_bucket name from env to store/retrieve file from s3
+
+    'OFFLINE_CATALOG_IDS_OF_FONT' => ""
 
 ];

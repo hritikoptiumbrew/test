@@ -84,8 +84,8 @@ class QnAController extends Controller
             (new ImageController())->saveCompressedImage($image);
             (new ImageController())->saveThumbnailImage($image);
 
-            if (env('STORAGE') === 'S3_BUCKET') {
-                (new ImageController())->saveImageInToSpaces($image);
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                (new ImageController())->saveImageInToS3($image);
             }
 
             DB::beginTransaction();
@@ -167,8 +167,8 @@ class QnAController extends Controller
                 (new ImageController())->saveCompressedImage($image);
                 (new ImageController())->saveThumbnailImage($image);
 
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($image);
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($image);
                 }
 
                 DB::beginTransaction();
@@ -954,15 +954,15 @@ class QnAController extends Controller
 
             $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
 
-            $response = Response::json(array('code' => '200', 'message' => 'Question and answer fetched successfully.', 'cause' => '', 'response' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Question and answer fetched successfully.', 'cause' => '', 'response' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result]));
 
 
-            //$response = Response::json(array('code' => '200', 'message' => 'Dealers fetched successfully.', 'cause' => '', 'response' => $result));
+            //$response = Response::json(array('code' => 200, 'message' => 'Dealers fetched successfully.', 'cause' => '', 'response' => $result));
 
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => '201', 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all question answer.', 'cause' => $e->getMessage(), 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all question answer.', 'cause' => $e->getMessage(), 'response' => json_decode("{}")));
             Log::error("searchQuestionAnswer Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
             DB::rollBack();
         }
@@ -1112,15 +1112,15 @@ class QnAController extends Controller
 
             $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
 
-            $response = Response::json(array('code' => '200', 'message' => 'Question and answer fetched successfully.', 'cause' => '', 'response' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Question and answer fetched successfully.', 'cause' => '', 'response' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result]));
 
 
-            //$response = Response::json(array('code' => '200', 'message' => 'Dealers fetched successfully.', 'cause' => '', 'response' => $result));
+            //$response = Response::json(array('code' => 200, 'message' => 'Dealers fetched successfully.', 'cause' => '', 'response' => $result));
 
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => '201', 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all question answer.', 'cause' => $e->getMessage(), 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all question answer.', 'cause' => $e->getMessage(), 'response' => json_decode("{}")));
             Log::error("searchQuestionAnswerForAdmin Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
             DB::rollBack();
         }

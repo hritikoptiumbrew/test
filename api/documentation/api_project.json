@@ -1,7 +1,7 @@
 {
   "name": "Photo Editor Lab apidoc",
   "version": "1.0.0",
-  "description": "apiDoc For Photo Editor Lab",
+  "description": "API Doc For Photo Editor Lab Backend",
   "title": "Ob Photo-Lab",
   "url": "http://192.168.0.113/photo_editor_lab_backend/api/public/api/",
   "header": {
@@ -25,7 +25,7 @@
   "apidoc": "0.3.0",
   "generator": {
     "name": "apidoc",
-    "time": "2018-12-26T05:38:28.709Z",
+    "time": "2019-01-28T09:24:15.374Z",
     "url": "http://apidocjs.com",
     "version": "0.17.5"
   }

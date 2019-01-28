@@ -57,13 +57,13 @@ class RegisterController extends Controller
     {
         try {
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','device_udid', 'device_reg_id', 'device_platform'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'device_udid', 'device_reg_id', 'device_platform'), $request)) != '')
                 return $response;
 
             //$user_id = isset($user_id) ? $user_id : '';
             $user_id = isset($request->user_id) ? $request->user_id : '';
 
-            $sub_category_id=$request->sub_category_id;
+            $sub_category_id = $request->sub_category_id;
             $device_udid = $request->device_udid;
             $device_reg_id = $request->device_reg_id;
             $device_platform = $request->device_platform;
@@ -85,7 +85,7 @@ class RegisterController extends Controller
 
             DB::beginTransaction();
 
-            $result = DB::select('SELECT 1 FROM device_master WHERE device_udid = ? and sub_category_id = ?', [$device_udid,$sub_category_id]);
+            $result = DB::select('SELECT 1 FROM device_master WHERE device_udid = ? and sub_category_id = ?', [$device_udid, $sub_category_id]);
             //Log::info('registerUserDeviceByDeviceUdid', ['total device having udid from request' => sizeof($result)]);
             if (sizeof($result) == 0) {
                 //Log::info('registerUserDeviceByDeviceUdid', ['device_reg_id' => $device_reg_id]);

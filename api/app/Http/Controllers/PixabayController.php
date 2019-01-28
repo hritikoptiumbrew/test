@@ -393,7 +393,7 @@ class PixabayController extends Controller
                             $rate_remaining = 0;
                         }
 
-                        if ($rate_remaining <= 2497) {
+                        if ($rate_remaining <= 100) {
 
                             $redis_keys = Redis::keys('pel:currentKey:*');
                             count($redis_keys) > 0 ? $this->currentKey = substr($redis_keys[0], -1) : $this->currentKey = 0;
@@ -407,7 +407,6 @@ class PixabayController extends Controller
                             $currentKey = $getKey + 1;
                             $template = 'stock_photos';
                             $subject = 'Pixabay rate limit <= 100.';
-                            //$message_body = "100 request is remaining $getKey. Your currently used key is $currentKey.";
                             $message_body = array(
                                 'message' => "100 request is remaining from key $getKey.<br>Your currently used key is $currentKey.",
                                 'user_name' => 'Admin'

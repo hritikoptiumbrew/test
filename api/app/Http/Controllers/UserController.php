@@ -29,7 +29,321 @@ class UserController extends Controller
 
     }
 
-    /* =================================| Json |=============================*/
+    /* =================================| Catalogs |=============================*/
+
+    /**
+     * @api {post} getCatalogsByType   getCatalogsByType
+     * @apiName getCatalogsByType
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "sub_category_id":94, //compulsory
+     * "is_free":1 //optional, 1=free & 0=paid
+     * "is_featured":1 //optional, 1=featured & 0=normal
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Catalogs fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "catalog_id": 279,
+     * "name": "Animal1",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c39b8ba93df0_catalog_img_1547286714.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c39b8ba93df0_catalog_img_1547286714.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c39b8ba93df0_catalog_img_1547286714.png",
+     * "is_featured": 0,
+     * "is_free": 1,
+     * "updated_at": "2019-01-12 09:51:55"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getCatalogsByType(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->is_free = isset($request->is_free) ? ' AND ct.is_free = ' . $request->is_free : '';
+            $this->is_featured = isset($request->is_featured) ? ' AND ct.is_featured = ' . $request->is_featured : '';
+
+            if (!Cache::has("pel:getCatalogsByType$this->sub_category_id:$this->is_free:$this->is_featured")) {
+                $result = Cache::rememberforever("getCatalogsByType$this->sub_category_id:$this->is_free:$this->is_featured", function () {
+
+                    $catalog_ids = Config::get('constant.OFFLINE_CATALOG_IDS_OF_FONT');
+
+                    return DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                          ct.is_featured,
+                                          ct.is_free,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          NOT find_in_set(ct.id,"' . $catalog_ids . '") AND
+                                          sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                });
+
+
+            }
+
+            $redis_result = Cache::get("getCatalogsByType$this->sub_category_id:$this->is_free:$this->is_featured");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getCatalogsByType Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getCatalogsByTypeInWebp   getCatalogsByTypeInWebp
+     * @apiName getCatalogsByTypeInWebp
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "sub_category_id":94, //compulsory
+     * "is_free":1 //optional, 1=free & 0=paid
+     * "is_featured":1 //optional, 1=featured & 0=normal
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Catalogs fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "catalog_id": 333,
+     * "name": "Shonar Bangla",
+     * "webp_thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c419ca410289_catalog_img_1547803812.webp",
+     * "is_featured": 0,
+     * "is_free": 1,
+     * "updated_at": "2019-01-18 09:30:12"
+     * },
+     * {
+     * "catalog_id": 332,
+     * "name": "Roboto",
+     * "webp_thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c419c992fbeb_catalog_img_1547803801.webp",
+     * "is_featured": 0,
+     * "is_free": 1,
+     * "updated_at": "2019-01-18 09:30:01"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getCatalogsByTypeInWebp(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->is_free = isset($request->is_free) ? ' AND ct.is_free = ' . $request->is_free : '';
+            $this->is_featured = isset($request->is_featured) ? ' AND ct.is_featured = ' . $request->is_featured : '';
+
+            if (!Cache::has("pel:getCatalogsByTypeInWebp$this->sub_category_id:$this->is_free:$this->is_featured")) {
+                $result = Cache::rememberforever("getCatalogsByTypeInWebp$this->sub_category_id:$this->is_free:$this->is_featured", function () {
+
+                    $catalog_ids = Config::get('constant.OFFLINE_CATALOG_IDS_OF_FONT');
+
+                    return DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                          ct.is_featured,
+                                          ct.is_free,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          NOT find_in_set(ct.id,"' . $catalog_ids . '") AND
+                                          sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                });
+
+
+            }
+
+            $redis_result = Cache::get("getCatalogsByTypeInWebp$this->sub_category_id:$this->is_free:$this->is_featured");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getCatalogsByTypeInWebp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getOfflineFontCatalogs   getOfflineFontCatalogs
+     * @apiName getOfflineFontCatalogs
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":94 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Catalogs fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "catalog_id": 299,
+     * "name": "VAG Rounded Std",
+     * "updated_at": "2019-01-18 05:58:20",
+     * "font_list": [
+     * {
+     * "font_id": 27,
+     * "catalog_id": 299,
+     * "font_name": "VAGRoundedStd-Light.ttf",
+     * "font_file": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/VAGRoundedStd-Light.ttf"
+     * },
+     * {
+     * "font_id": 26,
+     * "catalog_id": 299,
+     * "font_name": "VAGRoundedStd-Bold.ttf",
+     * "font_file": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/VAGRoundedStd-Bold.ttf"
+     * }
+     * ]
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getOfflineFontCatalogs(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+
+            if (!Cache::has("pel:getOfflineFontCatalogs$this->sub_category_id")) {
+                $result = Cache::rememberforever("getOfflineFontCatalogs$this->sub_category_id", function () {
+
+                    $catalog_ids = Config::get('constant.OFFLINE_CATALOG_IDS_OF_FONT');
+
+                    $catalog_list = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          find_in_set(ct.id,"' . $catalog_ids . '") AND
+                                          sct.is_active = 1 order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                    foreach ($catalog_list as $key) {
+
+                        $font_list = DB::select('SELECT
+                                              fm.id as font_id,
+                                              fm.catalog_id,
+                                              fm.font_file As font_name,
+                                              IF(fm.font_file != "",CONCAT("' . Config::get('constant.FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . '",fm.font_file),"") as font_file
+                                            FROM
+                                              font_master as fm
+                                            where
+                                              fm.is_active = 1 AND
+                                              fm.catalog_id = ?
+                                            order by fm.update_time DESC', [$key->catalog_id]);
+
+                        $key->font_list = $font_list;
+                    }
+                    return $catalog_list;
+
+                });
+
+            }
+
+            $redis_result = Cache::get("getOfflineFontCatalogs$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getOfflineFontCatalogs Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =================================| Advertisement |=============================*/
 
     /**
      * @api {post} getLinkWithLastSyncTime   getLinkWithLastSyncTime
@@ -90,13 +404,12 @@ class UserController extends Controller
 
         try {
 
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'platform', 'last_sync_time'), $request)) != '')
                 return $response;
-
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
 
             $this->platform = $request->platform;
             $this->sub_category_id = $request->sub_category_id;
@@ -162,15 +475,15 @@ class UserController extends Controller
             }
 
 
-            if (count($redis_result) >= 1) {
+            /*if (count($redis_result) >= 1) {
                 $result = $redis_result['link_list'];
                 $last_sync_time = $result[0]->updated_at;
 
-            } else {
-                $last_sync_time = date("Y-m-d H:i:s");
-            }
+            } else {*/
+            $last_sync_time = date("Y-m-d H:i:s");
+            /*}*/
 
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise Link Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'link_list' => $redis_result['link_list'], 'last_sync_time' => $last_sync_time, 'advertise_id_list' => $redis_result['advertise_id_list']]));
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise link fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'link_list' => $redis_result['link_list'], 'last_sync_time' => $last_sync_time, 'advertise_id_list' => $redis_result['advertise_id_list']]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
 
@@ -189,14 +502,14 @@ class UserController extends Controller
     {
 
         try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
 
             if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
                 return $response;
-
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
 
             $this->catalog_id = $request->catalog_id;
 
@@ -300,24 +613,22 @@ class UserController extends Controller
 
         try {
 
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'catalog_id', 'page', 'item_count'), $request)) != '')
                 return $response;
 
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
             $this->catalog_id = $request->catalog_id;
             $this->sub_category_id = $request->sub_category_id;
-
             $this->item_count = $request->item_count;
             $this->page = $request->page;
             $this->order_by = isset($request->order_by) ? $request->order_by : 'size';
             $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if ($this->catalog_id == 0) {
+            /*if ($this->catalog_id == 0) {
                 $total_row_result = DB::select('SELECT COUNT(*) AS total
                                                     FROM images
                                                     WHERE catalog_id IN (SELECT catalog_id
@@ -327,15 +638,21 @@ class UserController extends Controller
             } else {
                 $total_row_result = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ?', [$this->catalog_id]);
                 $total_row = $total_row_result[0]->total;
-            }
+            }*/
 
-
-            //Log::info('request_data', ['request_data' => $request]);
 
             if (!Cache::has("pel:getJsonSampleData$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id")) {
                 $result = Cache::rememberforever("getJsonSampleData$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id", function () {
 
                     if ($this->catalog_id == 0) {
+
+                        $total_row_result = DB::select('SELECT COUNT(*) AS total
+                                                    FROM images
+                                                    WHERE catalog_id IN (SELECT catalog_id
+                                                                     FROM sub_category_catalog
+                                                                     WHERE sub_category_id = ?) AND is_featured = 1', [$this->sub_category_id]);
+                        $total_row = $total_row_result[0]->total;
+
                         $result = DB::select('SELECT
                                                   id as json_id,
                                                   IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
@@ -350,6 +667,10 @@ class UserController extends Controller
                                                 order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
 
                     } else {
+
+                        $total_row_result = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ?', [$this->catalog_id]);
+                        $total_row = $total_row_result[0]->total;
+
                         $result = DB::select('SELECT
                                                id as json_id,
                                                IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
@@ -365,7 +686,10 @@ class UserController extends Controller
 
 
                     }
-                    return $result;
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
                 });
             }
 
@@ -374,19 +698,14 @@ class UserController extends Controller
             if (!$redis_result) {
                 $redis_result = [];
             }
-            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
-            $response = Response::json(array('code' => 200, 'message' => 'All Link Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $redis_result]));
-            //$response = Response::json(array('code' => 200, 'message' => 'Sample images fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response = Response::json(array('code' => 200, 'message' => 'All link fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-
-            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
             Log::error("getJsonSampleData Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Featured Background Images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -445,13 +764,10 @@ class UserController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-
             if (($response = (new VerificationController())->validateRequiredParameter(array('json_id'), $request)) != '')
                 return $response;
 
             $this->json_id_to_get_json_data = $request->json_id;
-
-            //Log::info('request_data', ['request_data' => $request]);
 
             if (!Cache::has("pel:getJsonData$this->json_id_to_get_json_data")) {
                 $result = Cache::rememberforever("getJsonData$this->json_id_to_get_json_data", function () {
@@ -467,8 +783,6 @@ class UserController extends Controller
                     } else {
                         return json_decode("{}");
                     }
-
-
                 });
             }
 
@@ -477,20 +791,14 @@ class UserController extends Controller
             if (!$redis_result) {
                 $redis_result = [];
             }
-            //$is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
-            //$response = Response::json(array('code' => 200, 'message' => 'All Link Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $redis_result]));
-            $response = Response::json(array('code' => 200, 'message' => 'Featured json images fetch successfully.', 'cause' => '', 'data' => $redis_result));
+            $response = Response::json(array('code' => 200, 'message' => 'Json fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-
-            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
             Log::error("getJsonData Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Featured Background Images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -548,39 +856,16 @@ class UserController extends Controller
     public function getCatalogBySubCategoryIdWithLastSyncTime(Request $request_body)
     {
         try {
-            $request = json_decode($request_body->getContent());
-            //Log::info("getCatalogBySubCategoryIdWithLastSyncTime Request:", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'last_sync_time'), $request)) != '')
-                return $response;
 
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'last_sync_time'), $request)) != '')
+                return $response;
+
             $this->last_sync_time = $request->last_sync_time;
             $this->sub_category_id = $request->sub_category_id;
-
-//            //sub Category Name
-//            $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
-//            $category_name = $name[0]->name;
-
-            //return $this->last_sync_time.$this->sub_category_id;
-
-            /*$total_row_result = DB::select('SELECT COUNT(*) AS total
-                                                FROM sub_category_catalog
-                                                WHERE sub_category_id = ? AND
-                                                updated_at >= ? AND
-                                                is_active = 1
-                                                ', [$request->sub_category_id, $request->last_sync_time, 1]);
-            $total_row = $total_row_result[0]->total;*/
-            //return $total_row;
-            /*$last_created_record = DB::select('SELECT updated_at FROM sub_category_catalog WHERE sub_category_id = ? ORDER BY updated_at DESC LIMIT 1', [$this->sub_category_id]);
-
-            if (count($last_created_record) >= 1) {
-                $last_sync_time = $last_created_record[0]->updated_at;
-
-            } else {
-                $last_sync_time = date("Y-m-d H:i:s");
-            }*/
 
             if (!Cache::has("pel:getCatalogBySubCategoryIdWithLastSyncTime$request->sub_category_id:$request->last_sync_time")) {
                 $result = Cache::rememberforever("getCatalogBySubCategoryIdWithLastSyncTime$request->sub_category_id:$request->last_sync_time", function () {
@@ -625,12 +910,9 @@ class UserController extends Controller
                                           sct.created_at >= ?)
                                         order by ct.updated_at DESC', [$this->sub_category_id, $this->last_sync_time, $this->last_sync_time]);
 
-
                     }
 
-
                 });
-
 
             }
 
@@ -640,21 +922,20 @@ class UserController extends Controller
                 $redis_result = [];
             }
 
-
-            if (count($redis_result) >= 1) {
+            /*if (count($redis_result) >= 1) {
                 $last_sync_time = $redis_result[0]->updated_at;
 
-            } else {
-                $last_sync_time = date("Y-m-d H:i:s");
-            }
+            } else {*/
+            $last_sync_time = date("Y-m-d H:i:s");
+            /*}*/
 
 
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'last_sync_time' => $last_sync_time, 'category_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'last_sync_time' => $last_sync_time, 'category_list' => $redis_result]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
             Log::error("getCatalogBySubCategoryIdWithLastSyncTime Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get Catalog with last_sync_time.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -736,25 +1017,23 @@ class UserController extends Controller
 
         try {
 
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'catalog_id', 'page', 'item_count', 'last_sync_time'), $request)) != '')
                 return $response;
 
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
             $this->catalog_id = $request->catalog_id;
             $this->sub_category_id = $request->sub_category_id;
             $this->last_sync_date = $request->last_sync_time;
-
             $this->item_count = $request->item_count;
             $this->page = $request->page;
             $this->order_by = isset($request->order_by) ? $request->order_by : 'size';
             $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if ($this->catalog_id == 0) {
+            /*if ($this->catalog_id == 0) {
                 $total_row_result = DB::select('SELECT COUNT(*) AS total
                                                     FROM images
                                                     WHERE catalog_id IN (SELECT catalog_id
@@ -771,9 +1050,9 @@ class UserController extends Controller
             if (count($last_created_record) >= 1) {
                 $last_sync_time = $last_created_record[0]->updated_at;
 
-            } else {
-                $last_sync_time = date("Y-m-d H:i:s");
-            }
+            } else {*/
+            $last_sync_time = date("Y-m-d H:i:s");
+            /*}*/
 
 
             //Log::info('request_data', ['request_data' => $request]);
@@ -782,6 +1061,13 @@ class UserController extends Controller
                 $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
 
                     if ($this->catalog_id == 0) {
+
+                        $total_row_result = DB::select('SELECT COUNT(*) AS total
+                                                    FROM images
+                                                    WHERE catalog_id IN (SELECT catalog_id
+                                                                     FROM sub_category_catalog
+                                                                     WHERE sub_category_id = ?) AND is_featured = 1 and updated_at >= ?', [$this->sub_category_id, $request->last_sync_time]);
+                        $total_row = $total_row_result[0]->total;
                         $result = DB::select('SELECT
                                                   id as json_id,
                                                   IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
@@ -798,6 +1084,10 @@ class UserController extends Controller
                                                 order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
                     } else {
+
+                        $total_row_result = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $request->last_sync_time]);
+                        $total_row = $total_row_result[0]->total;
+
                         $result = DB::select('SELECT
                                                id as json_id,
                                                IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
@@ -814,7 +1104,9 @@ class UserController extends Controller
 
 
                     }
-                    return $result;
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
                 });
             }
 
@@ -822,11 +1114,12 @@ class UserController extends Controller
 
             if (!$redis_result) {
                 $redis_result = [];
+            } else {
+                $redis_result['last_sync_time'] = $last_sync_time;
             }
-            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
-            $response = Response::json(array('code' => 200, 'message' => 'All json fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'last_sync_time' => $last_sync_time, 'data' => $redis_result]));
-            //$response = Response::json(array('code' => 200, 'message' => 'Sample images fetched successfully.', 'cause' => '', 'data' => $redis_result));
+
+            $response = Response::json(array('code' => 200, 'message' => 'All samples fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
 
@@ -835,7 +1128,7 @@ class UserController extends Controller
         } catch
         (Exception $e) {
             Log::error("getJsonSampleDataWithLastSyncTime Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get json data with last_sync_time.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get samples.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -904,33 +1197,18 @@ class UserController extends Controller
             $this->catalog_id = $request->catalog_id;
             $this->sub_category_id = $request->sub_category_id;
             $this->last_sync_date = $request->last_sync_time;
-
             $this->item_count = $request->item_count;
             $this->page = $request->page;
-            $this->order_by = isset($request->order_by) ? $request->order_by : 'size';
-            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if ($this->catalog_id == 0) {
-                $total_row_result = DB::select('SELECT COUNT(*) AS total
-                                                    FROM images
-                                                    WHERE catalog_id IN (SELECT catalog_id
-                                                                     FROM sub_category_catalog
-                                                                     WHERE sub_category_id = ?) AND is_featured = 1 and updated_at >= ?', [$this->sub_category_id, $request->last_sync_time]);
-                $total_row = $total_row_result[0]->total;
-            } else {
-                $total_row_result = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $request->last_sync_time]);
-                $total_row = $total_row_result[0]->total;
-            }
+            //$last_created_record = DB::select('SELECT updated_at FROM images WHERE catalog_id = ? ORDER BY updated_at DESC LIMIT 1', [$this->catalog_id]);
 
-            $last_created_record = DB::select('SELECT updated_at FROM images WHERE catalog_id = ? ORDER BY updated_at DESC LIMIT 1', [$this->catalog_id]);
-
-            if (count($last_created_record) >= 1) {
+            /*if (count($last_created_record) >= 1) {
                 $last_sync_time = $last_created_record[0]->updated_at;
 
-            } else {
-                $last_sync_time = date("Y-m-d H:i:s");
-            }
+            } else {*/
+            $last_sync_time = date("Y-m-d H:i:s");
+            /*}*/
 
 
             //Log::info('request_data', ['request_data' => $request]);
@@ -942,6 +1220,14 @@ class UserController extends Controller
                     $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
 
                     if ($this->catalog_id == 0) {
+
+                        $total_row_result = DB::select('SELECT COUNT(*) AS total
+                                                    FROM images
+                                                    WHERE catalog_id IN (SELECT catalog_id
+                                                                     FROM sub_category_catalog
+                                                                     WHERE sub_category_id = ?) AND is_featured = 1 and updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
+                        $total_row = $total_row_result[0]->total;
+
                         if ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) {
 
                             $result = DB::select('SELECT
@@ -982,6 +1268,10 @@ class UserController extends Controller
                         }
 
                     } else {
+
+                        $total_row_result = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
+                        $total_row = $total_row_result[0]->total;
+
                         if ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) {
 
                             $result = DB::select('SELECT
@@ -1021,7 +1311,10 @@ class UserController extends Controller
 
                     }
 
-                    return $result;
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
+
+
                 });
             }
 
@@ -1029,20 +1322,17 @@ class UserController extends Controller
 
             if (!$redis_result) {
                 $redis_result = [];
+            } else {
+                $redis_result['last_sync_time'] = $last_sync_time;
             }
-            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
-            $response = Response::json(array('code' => 200, 'message' => 'All json fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'last_sync_time' => $last_sync_time, 'data' => $redis_result]));
-            //$response = Response::json(array('code' => 200, 'message' => 'Sample images fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response = Response::json(array('code' => 200, 'message' => 'Samples fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-
-            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
             Log::error("getJsonSampleDataWithLastSyncTime_webp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get json data with last_sync_time.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get samples.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -1146,18 +1436,16 @@ class UserController extends Controller
 
         try {
 
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'catalog_id', 'page', 'item_count', 'last_sync_time'), $request)) != '')
                 return $response;
 
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
             $this->catalog_id = $request->catalog_id;
             $this->sub_category_id = $request->sub_category_id;
             $this->last_sync_date = $request->last_sync_time;
-
             $this->item_count = $request->item_count;
             $this->page = $request->page;
             $this->order_by = isset($request->order_by) ? $request->order_by : 'size';
@@ -1241,17 +1529,14 @@ class UserController extends Controller
             }
             $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
-            $response = Response::json(array('code' => 200, 'message' => 'All json fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'last_sync_time' => $last_sync_time, 'data' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Samples fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'last_sync_time' => $last_sync_time, 'data' => $redis_result]));
             //$response = Response::json(array('code' => 200, 'message' => 'Sample images fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-
-            //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
             Log::error("getJsonSampleDataWithLastSyncTime_webpIos Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get json data with last_sync_time.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get samples.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -1532,7 +1817,7 @@ class UserController extends Controller
 
                     $search_result = DB::select('SELECT
                                                   im.id as json_id,
-                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                   im.is_free,
                                                   im.is_featured,
                                                   im.is_portrait,
@@ -1578,7 +1863,7 @@ class UserController extends Controller
 
                         $search_result = DB::select('SELECT
                                                   im.id as json_id,
-                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                   im.is_free,
                                                   im.is_featured,
                                                   im.is_portrait,
@@ -1846,13 +2131,14 @@ class UserController extends Controller
     public function deleteUserFeeds(Request $request_body)
     {
         try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
             //Log::info("request data :", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('user_feeds_id'), $request)) != '')
                 return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
 
             $user_feeds_id = $request->user_feeds_id;
 
@@ -1918,13 +2204,14 @@ class UserController extends Controller
     public function deleteAllUserFeeds(Request $request_body)
     {
         try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
             //Log::info("request data :", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
                 return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
 
             $sub_category_id = $request->sub_category_id;
 
@@ -1952,7 +2239,7 @@ class UserController extends Controller
             }
 
             DB::beginTransaction();
-            DB::delete('delete FROM user_feeds_master where sub_category_id = ? ', [$sub_category_id]);
+            DB::delete('DELETE FROM user_feeds_master WHERE sub_category_id = ? ', [$sub_category_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'All images deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -2052,15 +2339,11 @@ class UserController extends Controller
 
                 $response = Response::json(array('code' => 200, 'message' => 'Deleted catalog id fetched successfully.', 'cause' => '', 'data' => $result));
 
-
-                //$response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
-
             } else {
                 $response = Response::json(array('code' => 201, 'message' => 'Invalid request parameter.', 'cause' => '', 'data' => json_decode("{}")));
 
             }
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
 
         } catch
         (Exception $e) {
@@ -2114,24 +2397,24 @@ class UserController extends Controller
     public function getLink(Request $request_body)
     {
         try {
-            $request = json_decode($request_body->getContent());
-            //Log::info([$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'platform'), $request)) != '')
-                return $response;
 
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'platform'), $request)) != '')
+                return $response;
+
             $this->sub_category_id = $request->sub_category_id;
             $this->platform = $request->platform;
 
+            if (!Cache::has("pel:getLink$this->platform:$this->sub_category_id")) {
+                $result = Cache::rememberforever("getLink$this->platform:$this->sub_category_id", function () {
 
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  advertise_links as adl, sub_category_advertise_links as sadl WHERE adl.platform = ? AND sadl.advertise_link_id=adl.id AND sadl.sub_category_id = ? AND sadl.is_active = ?', [$this->platform, $this->sub_category_id, 1]);
-            $total_row = $total_row_result[0]->total;
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  advertise_links as adl, sub_category_advertise_links as sadl WHERE adl.platform = ? AND sadl.advertise_link_id=adl.id AND sadl.sub_category_id = ? AND sadl.is_active = ?', [$this->platform, $this->sub_category_id, 1]);
+                    $total_row = $total_row_result[0]->total;
 
-            if (!Cache::has("pel:getLink$this->platform->$this->sub_category_id")) {
-                $result = Cache::rememberforever("getLink$this->platform->$this->sub_category_id", function () {
-                    return DB::select('SELECT
+                    $result = DB::select('SELECT
                                         adl.id as advertise_link_id,
                                         adl.name,
                                         IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
@@ -2152,21 +2435,23 @@ class UserController extends Controller
                                         sadl.sub_category_id = ? AND
                                         sadl.is_active = 1
                                       order by adl.updated_at DESC', [$this->platform, $this->sub_category_id]);
+
+                    return array('total_record' => $total_row, 'link_list' => $result);
                 });
             }
 
-            $redis_result = Cache::get("getLink$this->platform->$this->sub_category_id");
+            $redis_result = Cache::get("getLink$this->platform:$this->sub_category_id");
 
             if (!$redis_result) {
                 $redis_result = [];
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise Link Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'link_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise link fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
             Log::error("getLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -2320,20 +2605,15 @@ class UserController extends Controller
     {
         try {
 
-            $request = json_decode($request->getContent());
-            //Log::info("getAllAdvertisementToLinkAdvertisement Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'device_platform'), $request)) != '')
-                return $response;
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'device_platform'), $request)) != '')
+                return $response;
+
             $this->sub_category_id = $request->sub_category_id;
             $this->device_platform = $request->device_platform;
-
-
-            //return $total_row;
 
             if (!Cache::has("pel:getAdvertiseServerIdForUser$this->sub_category_id:$this->device_platform")) {
                 $result = Cache::rememberforever("getAdvertiseServerIdForUser$this->sub_category_id:$this->device_platform", function () {
@@ -2387,7 +2667,7 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             Log::error("getAdvertiseServerIdForUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -2434,20 +2714,19 @@ class UserController extends Controller
     {
         try {
             $request = json_decode($request_body->getContent());
-            //Log::info([$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'platform'), $request)) != '')
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
             $this->platform = $request->platform;
 
-
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  advertise_links as adl, sub_category_advertise_links as sadl WHERE adl.platform = ? AND sadl.advertise_link_id=adl.id AND sadl.sub_category_id = ? AND sadl.is_active = ?', [$this->platform, $this->sub_category_id, 1]);
-            $total_row = $total_row_result[0]->total;
-
             if (!Cache::has("pel:getLinkWithoutToken$this->platform->$this->sub_category_id")) {
                 $result = Cache::rememberforever("getLinkWithoutToken$this->platform->$this->sub_category_id", function () {
-                    return DB::select('SELECT
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  advertise_links as adl, sub_category_advertise_links as sadl WHERE adl.platform = ? AND sadl.advertise_link_id=adl.id AND sadl.sub_category_id = ? AND sadl.is_active = ?', [$this->platform, $this->sub_category_id, 1]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
                                         adl.id as advertise_link_id,
                                         adl.name,
                                         IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
@@ -2468,6 +2747,8 @@ class UserController extends Controller
                                         sadl.sub_category_id = ? AND
                                         sadl.is_active = 1
                                       order by adl.updated_at DESC', [$this->platform, $this->sub_category_id]);
+
+                    return array('total_record' => $total_row, 'link_list' => $result);
                 });
             }
 
@@ -2477,123 +2758,17 @@ class UserController extends Controller
                 $redis_result = [];
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise Link Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'link_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise links fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
             Log::error("getLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
 
-    /**
-     * @api {post} addZipFile   addZipFile
-     * @apiName addZipFile
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * file[]:1.jpg,
-     * file[]:2.jpg,
-     * file[]:3.jpg,
-     * file[]:4.jpg
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Json images added successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function addZipFile(Request $request_body)
-    {
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            if ($request_body->hasFile('file')) {
-                $file = Input::file('file');
-
-                if (($response = (new ImageController())->verifyZipFile($file)) != '')
-                    return $response;
-
-                (new ImageController())->saveZipFile($file);
-
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Zip file uploaded successfully.', 'cause' => '', 'data' => json_decode('{}')));
-
-        } catch
-        (Exception $e) {
-            Log::error("addCatalogImagesForJson Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getZipFile   getZipFile
-     * @apiName getZipFile
-     * @apiGroup User
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "file_name":"sample.zip" //compulsory
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Featured json images fetch successfully.",
-     * "cause": "",
-     * "data": {
-     * "url": "sample.zip"
-     * }
-     * }
-     */
-    public function getZipFile(Request $request_body)
-    {
-
-        try {
-
-            $request = json_decode($request_body->getContent());
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('file_name'), $request)) != '')
-                return $response;
-
-            $file_name = $request->file_name;
-
-            $result_array = array('url' => Config::get('constant.ZIP_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . $file_name);
-
-            $result = json_decode(json_encode($result_array), true);
-
-
-            $response = Response::json(array('code' => 200, 'message' => 'Zip file fetched successfully.', 'cause' => '', 'data' => $result));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch
-        (Exception $e) {
-            Log::error("getZipFile Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get zip file.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /*=========================================Multi provider to job =========================================*/
+    /*=========================================| Multi provider to job |=========================================*/
 
     /**
      * @api {post} jobMultiSearchByUser   jobMultiSearchByUser
@@ -2800,7 +2975,7 @@ class UserController extends Controller
         return $response;
     }
 
-    /*=========================================Individually provider to job =========================================*/
+    /*=========================================| Individually provider to job |=========================================*/
 
     /**
      * @api {post} jobMultiSearchByUserIndividually jobMultiSearchByUserIndividually
@@ -2946,255 +3121,255 @@ class UserController extends Controller
      * "sub_category_id":1, //compulsory
      * }
      * @apiSuccessExample Success-Response:
-    {
-    "code": 200,
-    "message": "Home page detail fetched successfully.",
-    "cause": "",
-    "data": {
-    "template": [
-    {
-    "json_id": 2488,
-    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5b81064f6a5d3_json_image_1535182415.webp",
-    "is_free": 1,
-    "is_featured": 1,
-    "is_portrait": 0,
-    "height": 300,
-    "width": 525,
-    "updated_at": "2018-10-02 11:05:56"
-    },
-    {
-    "json_id": 711,
-    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a953eafef82b_json_image_1519730351.png",
-    "is_free": 1,
-    "is_featured": 1,
-    "is_portrait": 0,
-    "height": 300,
-    "width": 525,
-    "updated_at": "2018-10-02 10:48:43"
-    },
-    {
-    "json_id": 3105,
-    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5b9787d634af2_json_image_1536657366.webp",
-    "is_free": 1,
-    "is_featured": 1,
-    "is_portrait": 1,
-    "height": 600,
-    "width": 400,
-    "updated_at": "2018-09-11 09:16:07"
-    },
-    {
-    "json_id": 732,
-    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a9650b07f43d_json_image_1519800496.webp",
-    "is_free": 1,
-    "is_featured": 1,
-    "is_portrait": 0,
-    "height": 300,
-    "width": 525,
-    "updated_at": "2018-09-05 05:20:37"
-    },
-    {
-    "json_id": 731,
-    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a9650930c5a0_json_image_1519800467.webp",
-    "is_free": 1,
-    "is_featured": 1,
-    "is_portrait": 0,
-    "height": 300,
-    "width": 525,
-    "updated_at": "2018-09-05 05:20:33"
-    },
-    {
-    "json_id": 728,
-    "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a965023e6c56_json_image_1519800355.webp",
-    "is_free": 1,
-    "is_featured": 1,
-    "is_portrait": 0,
-    "height": 300,
-    "width": 525,
-    "updated_at": "2018-09-05 05:20:24"
-    }
-    ],
-    "video": [
-    {
-    "video_id": 20,
-    "youtube_video_id": "d6uzZqkcsa8",
-    "title": "How To Interview Candidates For A Job",
-    "channel_name": "Videojug",
-    "url": "https://www.youtube.com/watch?v=d6uzZqkcsa8",
-    "thumbnail_url": "https://i.ytimg.com/vi/d6uzZqkcsa8/hqdefault.jpg",
-    "thumbnail_width": 480,
-    "thumbnail_height": 360,
-    "published_at": "2011-04-12 13:51:31"
-    },
-    {
-    "video_id": 19,
-    "youtube_video_id": "htBDNsunGCY",
-    "title": "How to Conduct an Interview",
-    "channel_name": "HR360Inc",
-    "url": "https://www.youtube.com/watch?v=htBDNsunGCY",
-    "thumbnail_url": "https://i.ytimg.com/vi/htBDNsunGCY/hqdefault.jpg",
-    "thumbnail_width": 480,
-    "thumbnail_height": 360,
-    "published_at": "2014-06-09 15:08:05"
-    },
-    {
-    "video_id": 18,
-    "youtube_video_id": "2kNIlIrocrU",
-    "title": "Hiring tutorial: Writing effective behavioral interview questions | lynda.com",
-    "channel_name": "LinkedIn Learning",
-    "url": "https://www.youtube.com/watch?v=2kNIlIrocrU",
-    "thumbnail_url": "https://i.ytimg.com/vi/2kNIlIrocrU/hqdefault.jpg",
-    "thumbnail_width": 480,
-    "thumbnail_height": 360,
-    "published_at": "2013-06-18 21:54:24"
-    },
-    {
-    "video_id": 17,
-    "youtube_video_id": "5NVYg2HNAdA",
-    "title": "\"Why Should We Hire You?\" How to Answer this Interview Question",
-    "channel_name": "Fisher College of Business",
-    "url": "https://www.youtube.com/watch?v=5NVYg2HNAdA",
-    "thumbnail_url": "https://i.ytimg.com/vi/5NVYg2HNAdA/hqdefault.jpg",
-    "thumbnail_width": 480,
-    "thumbnail_height": 360,
-    "published_at": "2012-03-06 13:50:47"
-    },
-    {
-    "video_id": 16,
-    "youtube_video_id": "VFTNOF77bMs",
-    "title": "Interview questions and answers",
-    "channel_name": "JobTestPrep",
-    "url": "https://www.youtube.com/watch?v=VFTNOF77bMs",
-    "thumbnail_url": "https://i.ytimg.com/vi/VFTNOF77bMs/hqdefault.jpg",
-    "thumbnail_width": 480,
-    "thumbnail_height": 360,
-    "published_at": "2011-12-05 09:03:39"
-    },
-    {
-    "video_id": 15,
-    "youtube_video_id": "PCWVi5pAa30",
-    "title": "7 body language tips to impress at your next job interview",
-    "channel_name": "Cognitive Group Microsoft Talent Solutions",
-    "url": "https://www.youtube.com/watch?v=PCWVi5pAa30",
-    "thumbnail_url": "https://i.ytimg.com/vi/PCWVi5pAa30/hqdefault.jpg",
-    "thumbnail_width": 480,
-    "thumbnail_height": 360,
-    "published_at": "2016-03-16 07:56:32"
-    }
-    ],
-    "job_news": [
-    {
-    "id": 1072922200905150500,
-    "created_at": "2018-12-12 18:32:41",
-    "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/TwitterAPI\" target=\"_blank\">@TwitterAPI</a>: All app management is unifying on <a href=\"https://t.co/EfJLLFaLkk!\" target=\"_blank\">https://t.co/EfJLLFaLkk!</a> Beginning today: \n\n<a href=\"https://t.co/PCwEGWityX\" target=\"_blank\">https://t.co/PCwEGWityX</a>\n&gt; will be redirected?,
-    "favorite_count": 0,
-    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
-    "account_url": "https://twitter.com/TwitterDev",
-    "media_url_https": "",
-    "post_type": 1,
-    "video_url": ""
-    },
-    {
-    "id": 1070059276213702700,
-    "created_at": "2018-12-04 20:56:26",
-    "text": "Celebrating the developer success story of <a class=\"tweet-author\" href=\"https://twitter.com/UnionMetrics\" target=\"_blank\">@UnionMetrics</a> platform whose underlying technology is built upon Twitterä<a href=\"https://t.co/lxA6ePkTMj\" target=\"_blank\">https://t.co/lxA6ePkTMj</a>",
-    "favorite_count": 48,
-    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
-    "account_url": "https://twitter.com/TwitterDev",
-    "media_url_https": "",
-    "post_type": 1,
-    "video_url": ""
-    },
-    {
-    "id": 1067094924124872700,
-    "created_at": "2018-11-26 16:37:10",
-    "text": "Just getting started with Twitter APIs? Find out what you need in order to build an app. Watch this video! <a href=\"https://t.co/Hg8nkfoizN\" target=\"_blank\">https://t.co/Hg8nkfoizN</a>",
-    "favorite_count": 490,
-    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
-    "account_url": "https://twitter.com/TwitterDev",
-    "media_url_https": "https://pbs.twimg.com/media/DsZp7igVYAAyDHB.jpg",
-    "post_type": 3,
-    "video_url": "https://video.twimg.com/amplify_video/1064638969197977600/vid/1280x720/C1utUYBYhJ_4lwaq.mp4?tag=8"
-    },
-    {
-    "id": 1058408022936977400,
-    "created_at": "2018-11-02 17:18:31",
-    "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/harmophone\" target=\"_blank\">@harmophone</a>: \"The innovative crowdsourcing that the Tagboard, Twitter and TEGNA collaboration enables is surfacing locally relevant conv?,
-    "favorite_count": 0,
-    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
-    "account_url": "https://twitter.com/TwitterDev",
-    "media_url_https": "",
-    "post_type": 1,
-    "video_url": ""
-    },
-    {
-    "id": 1054884245578035200,
-    "created_at": "2018-10-23 23:56:17",
-    "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/andypiper\" target=\"_blank\">@andypiper</a>: My coworker <a class=\"tweet-author\" href=\"https://twitter.com/jessicagarson\" target=\"_blank\">@jessicagarson</a> rocking Jupyter and Postman in her #TapIntoTwitterNYC demo! <a href=\"https://t.co/yuF4q2Czed\" target=\"_blank\">https://t.co/yuF4q2Czed</a>",
-    "favorite_count": 0,
-    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
-    "account_url": "https://twitter.com/TwitterDev",
-    "media_url_https": "https://pbs.twimg.com/media/DqOrzHJWsAAWDGE.jpg",
-    "post_type": 2,
-    "video_url": ""
-    },
-    {
-    "id": 1054884091227594800,
-    "created_at": "2018-10-23 23:55:40",
-    "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/dgrreen\" target=\"_blank\">@dgrreen</a>: #TapintoTwitterNYC First up all the way from <a class=\"tweet-author\" href=\"https://twitter.com/TwitterBoulder\" target=\"_blank\">@TwitterBoulder</a>  <a class=\"tweet-author\" href=\"https://twitter.com/AdventureSteady\" target=\"_blank\">@AdventureSteady</a> with updates on how <a class=\"tweet-author\" href=\"https://twitter.com/TwitterDev\" target=\"_blank\">@TwitterDev</a> is protecting u?,
-    "favorite_count": 0,
-    "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
-    "account_url": "https://twitter.com/TwitterDev",
-    "media_url_https": "",
-    "post_type": 1,
-    "video_url": ""
-    }
-    ],
-    "interview_que_ans": [
-    {
-    "question_type_id": 1,
-    "question_type": "Interview Prep Plan",
-    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c2056193c6c1_question_type_1545623065.png",
-    "create_time": "2018-11-28 10:38:41",
-    "update_time": "2018-12-24 03:44:26"
-    },
-    {
-    "question_type_id": 2,
-    "question_type": "Most Common",
-    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c2055a09edd4_question_type_1545622944.png",
-    "create_time": "2018-11-28 10:38:47",
-    "update_time": "2018-12-24 03:42:25"
-    },
-    {
-    "question_type_id": 3,
-    "question_type": "Behavioural",
-    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205563bc996_question_type_1545622883.png",
-    "create_time": "2018-11-28 10:38:51",
-    "update_time": "2018-12-24 03:41:24"
-    },
-    {
-    "question_type_id": 4,
-    "question_type": "Resume writing",
-    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c20554a6c98c_question_type_1545622858.png",
-    "create_time": "2018-11-28 10:38:59",
-    "update_time": "2018-12-24 03:40:59"
-    },
-    {
-    "question_type_id": 5,
-    "question_type": "Technical questions",
-    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205529e152d_question_type_1545622825.png",
-    "create_time": "2018-11-28 10:39:04",
-    "update_time": "2018-12-24 03:40:26"
-    },
-    {
-    "question_type_id": 6,
-    "question_type": "Personality",
-    "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205504ef2a1_question_type_1545622788.png",
-    "create_time": "2018-11-28 10:39:07",
-    "update_time": "2018-12-24 03:39:49"
-    }
-    ]
-    }
-    }
+     * {
+     * "code": 200,
+     * "message": "Home page detail fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "template": [
+     * {
+     * "json_id": 2488,
+     * "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5b81064f6a5d3_json_image_1535182415.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-10-02 11:05:56"
+     * },
+     * {
+     * "json_id": 711,
+     * "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a953eafef82b_json_image_1519730351.png",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-10-02 10:48:43"
+     * },
+     * {
+     * "json_id": 3105,
+     * "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5b9787d634af2_json_image_1536657366.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 1,
+     * "height": 600,
+     * "width": 400,
+     * "updated_at": "2018-09-11 09:16:07"
+     * },
+     * {
+     * "json_id": 732,
+     * "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a9650b07f43d_json_image_1519800496.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-09-05 05:20:37"
+     * },
+     * {
+     * "json_id": 731,
+     * "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a9650930c5a0_json_image_1519800467.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-09-05 05:20:33"
+     * },
+     * {
+     * "json_id": 728,
+     * "sample_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/webp_original/5a965023e6c56_json_image_1519800355.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2018-09-05 05:20:24"
+     * }
+     * ],
+     * "video": [
+     * {
+     * "video_id": 20,
+     * "youtube_video_id": "d6uzZqkcsa8",
+     * "title": "How To Interview Candidates For A Job",
+     * "channel_name": "Videojug",
+     * "url": "https://www.youtube.com/watch?v=d6uzZqkcsa8",
+     * "thumbnail_url": "https://i.ytimg.com/vi/d6uzZqkcsa8/hqdefault.jpg",
+     * "thumbnail_width": 480,
+     * "thumbnail_height": 360,
+     * "published_at": "2011-04-12 13:51:31"
+     * },
+     * {
+     * "video_id": 19,
+     * "youtube_video_id": "htBDNsunGCY",
+     * "title": "How to Conduct an Interview",
+     * "channel_name": "HR360Inc",
+     * "url": "https://www.youtube.com/watch?v=htBDNsunGCY",
+     * "thumbnail_url": "https://i.ytimg.com/vi/htBDNsunGCY/hqdefault.jpg",
+     * "thumbnail_width": 480,
+     * "thumbnail_height": 360,
+     * "published_at": "2014-06-09 15:08:05"
+     * },
+     * {
+     * "video_id": 18,
+     * "youtube_video_id": "2kNIlIrocrU",
+     * "title": "Hiring tutorial: Writing effective behavioral interview questions | lynda.com",
+     * "channel_name": "LinkedIn Learning",
+     * "url": "https://www.youtube.com/watch?v=2kNIlIrocrU",
+     * "thumbnail_url": "https://i.ytimg.com/vi/2kNIlIrocrU/hqdefault.jpg",
+     * "thumbnail_width": 480,
+     * "thumbnail_height": 360,
+     * "published_at": "2013-06-18 21:54:24"
+     * },
+     * {
+     * "video_id": 17,
+     * "youtube_video_id": "5NVYg2HNAdA",
+     * "title": "\"Why Should We Hire You?\" How to Answer this Interview Question",
+     * "channel_name": "Fisher College of Business",
+     * "url": "https://www.youtube.com/watch?v=5NVYg2HNAdA",
+     * "thumbnail_url": "https://i.ytimg.com/vi/5NVYg2HNAdA/hqdefault.jpg",
+     * "thumbnail_width": 480,
+     * "thumbnail_height": 360,
+     * "published_at": "2012-03-06 13:50:47"
+     * },
+     * {
+     * "video_id": 16,
+     * "youtube_video_id": "VFTNOF77bMs",
+     * "title": "Interview questions and answers",
+     * "channel_name": "JobTestPrep",
+     * "url": "https://www.youtube.com/watch?v=VFTNOF77bMs",
+     * "thumbnail_url": "https://i.ytimg.com/vi/VFTNOF77bMs/hqdefault.jpg",
+     * "thumbnail_width": 480,
+     * "thumbnail_height": 360,
+     * "published_at": "2011-12-05 09:03:39"
+     * },
+     * {
+     * "video_id": 15,
+     * "youtube_video_id": "PCWVi5pAa30",
+     * "title": "7 body language tips to impress at your next job interview",
+     * "channel_name": "Cognitive Group Microsoft Talent Solutions",
+     * "url": "https://www.youtube.com/watch?v=PCWVi5pAa30",
+     * "thumbnail_url": "https://i.ytimg.com/vi/PCWVi5pAa30/hqdefault.jpg",
+     * "thumbnail_width": 480,
+     * "thumbnail_height": 360,
+     * "published_at": "2016-03-16 07:56:32"
+     * }
+     * ],
+     * "job_news": [
+     * {
+     * "id": 1072922200905150500,
+     * "created_at": "2018-12-12 18:32:41",
+     * "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/TwitterAPI\" target=\"_blank\">@TwitterAPI</a>: All app management is unifying on <a href=\"https://t.co/EfJLLFaLkk!\" target=\"_blank\">https://t.co/EfJLLFaLkk!</a> Beginning today: \n\n<a href=\"https://t.co/PCwEGWityX\" target=\"_blank\">https://t.co/PCwEGWityX</a>\n&gt; will be redirected?,
+     * "favorite_count": 0,
+     * "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+     * "account_url": "https://twitter.com/TwitterDev",
+     * "media_url_https": "",
+     * "post_type": 1,
+     * "video_url": ""
+     * },
+     * {
+     * "id": 1070059276213702700,
+     * "created_at": "2018-12-04 20:56:26",
+     * "text": "Celebrating the developer success story of <a class=\"tweet-author\" href=\"https://twitter.com/UnionMetrics\" target=\"_blank\">@UnionMetrics</a> platform whose underlying technology is built upon Twitterä<a href=\"https://t.co/lxA6ePkTMj\" target=\"_blank\">https://t.co/lxA6ePkTMj</a>",
+     * "favorite_count": 48,
+     * "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+     * "account_url": "https://twitter.com/TwitterDev",
+     * "media_url_https": "",
+     * "post_type": 1,
+     * "video_url": ""
+     * },
+     * {
+     * "id": 1067094924124872700,
+     * "created_at": "2018-11-26 16:37:10",
+     * "text": "Just getting started with Twitter APIs? Find out what you need in order to build an app. Watch this video! <a href=\"https://t.co/Hg8nkfoizN\" target=\"_blank\">https://t.co/Hg8nkfoizN</a>",
+     * "favorite_count": 490,
+     * "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+     * "account_url": "https://twitter.com/TwitterDev",
+     * "media_url_https": "https://pbs.twimg.com/media/DsZp7igVYAAyDHB.jpg",
+     * "post_type": 3,
+     * "video_url": "https://video.twimg.com/amplify_video/1064638969197977600/vid/1280x720/C1utUYBYhJ_4lwaq.mp4?tag=8"
+     * },
+     * {
+     * "id": 1058408022936977400,
+     * "created_at": "2018-11-02 17:18:31",
+     * "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/harmophone\" target=\"_blank\">@harmophone</a>: \"The innovative crowdsourcing that the Tagboard, Twitter and TEGNA collaboration enables is surfacing locally relevant conv?,
+     * "favorite_count": 0,
+     * "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+     * "account_url": "https://twitter.com/TwitterDev",
+     * "media_url_https": "",
+     * "post_type": 1,
+     * "video_url": ""
+     * },
+     * {
+     * "id": 1054884245578035200,
+     * "created_at": "2018-10-23 23:56:17",
+     * "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/andypiper\" target=\"_blank\">@andypiper</a>: My coworker <a class=\"tweet-author\" href=\"https://twitter.com/jessicagarson\" target=\"_blank\">@jessicagarson</a> rocking Jupyter and Postman in her #TapIntoTwitterNYC demo! <a href=\"https://t.co/yuF4q2Czed\" target=\"_blank\">https://t.co/yuF4q2Czed</a>",
+     * "favorite_count": 0,
+     * "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+     * "account_url": "https://twitter.com/TwitterDev",
+     * "media_url_https": "https://pbs.twimg.com/media/DqOrzHJWsAAWDGE.jpg",
+     * "post_type": 2,
+     * "video_url": ""
+     * },
+     * {
+     * "id": 1054884091227594800,
+     * "created_at": "2018-10-23 23:55:40",
+     * "text": "RT <a class=\"tweet-author\" href=\"https://twitter.com/dgrreen\" target=\"_blank\">@dgrreen</a>: #TapintoTwitterNYC First up all the way from <a class=\"tweet-author\" href=\"https://twitter.com/TwitterBoulder\" target=\"_blank\">@TwitterBoulder</a>  <a class=\"tweet-author\" href=\"https://twitter.com/AdventureSteady\" target=\"_blank\">@AdventureSteady</a> with updates on how <a class=\"tweet-author\" href=\"https://twitter.com/TwitterDev\" target=\"_blank\">@TwitterDev</a> is protecting u?,
+     * "favorite_count": 0,
+     * "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
+     * "account_url": "https://twitter.com/TwitterDev",
+     * "media_url_https": "",
+     * "post_type": 1,
+     * "video_url": ""
+     * }
+     * ],
+     * "interview_que_ans": [
+     * {
+     * "question_type_id": 1,
+     * "question_type": "Interview Prep Plan",
+     * "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c2056193c6c1_question_type_1545623065.png",
+     * "create_time": "2018-11-28 10:38:41",
+     * "update_time": "2018-12-24 03:44:26"
+     * },
+     * {
+     * "question_type_id": 2,
+     * "question_type": "Most Common",
+     * "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c2055a09edd4_question_type_1545622944.png",
+     * "create_time": "2018-11-28 10:38:47",
+     * "update_time": "2018-12-24 03:42:25"
+     * },
+     * {
+     * "question_type_id": 3,
+     * "question_type": "Behavioural",
+     * "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205563bc996_question_type_1545622883.png",
+     * "create_time": "2018-11-28 10:38:51",
+     * "update_time": "2018-12-24 03:41:24"
+     * },
+     * {
+     * "question_type_id": 4,
+     * "question_type": "Resume writing",
+     * "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c20554a6c98c_question_type_1545622858.png",
+     * "create_time": "2018-11-28 10:38:59",
+     * "update_time": "2018-12-24 03:40:59"
+     * },
+     * {
+     * "question_type_id": 5,
+     * "question_type": "Technical questions",
+     * "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205529e152d_question_type_1545622825.png",
+     * "create_time": "2018-11-28 10:39:04",
+     * "update_time": "2018-12-24 03:40:26"
+     * },
+     * {
+     * "question_type_id": 6,
+     * "question_type": "Personality",
+     * "question_type_image": "http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5c205504ef2a1_question_type_1545622788.png",
+     * "create_time": "2018-11-28 10:39:07",
+     * "update_time": "2018-12-24 03:39:49"
+     * }
+     * ]
+     * }
+     * }
      */
     public function getHomePageDetail(Request $request_body)
     {
@@ -3270,7 +3445,7 @@ class UserController extends Controller
                         // Number of tweets
                         $tweetNum = round($this->job_news_item / $i);
 
-                        if($twit_user_count < $this->job_news_item || $tweetNum == 0){
+                        if ($twit_user_count < $this->job_news_item || $tweetNum == 0) {
                             //Log::info('$twit_user_count');
                             $tweetNum = $this->job_news_item;
                         }
@@ -3326,5 +3501,92 @@ class UserController extends Controller
         return $response;
     }
 
+    /*=========================================| Font Module |=========================================*/
+
+    /**
+     * @api {post} getAllFontsByCatalogId   getAllFontsByCatalogId
+     * @apiName getAllFontsByCatalogId
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "catalog_id":328 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Fonts fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "font_id": 80,
+     * "catalog_id": 333,
+     * "font_name": "Shonar Bangla Bold",
+     * "font_file": "Shonar-Bold.ttf",
+     * "font_url": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar-Bold.ttf"
+     * },
+     * {
+     * "font_id": 79,
+     * "catalog_id": 333,
+     * "font_name": "Shonar Bangla",
+     * "font_file": "Shonar.ttf",
+     * "font_url": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar.ttf"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllFontsByCatalogId(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $this->catalog_id = $request->catalog_id;
+
+            if (!Cache::has("pel:getAllFontsByCatalogId$this->catalog_id")) {
+                $result = Cache::rememberforever("getAllFontsByCatalogId$this->catalog_id", function () {
+
+                    return $result = DB::select('SELECT
+                                              fm.id as font_id,
+                                              fm.catalog_id,
+                                              fm.font_name,
+                                              fm.font_file,
+                                              IF(fm.font_file != "",CONCAT("' . Config::get('constant.FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . '",fm.font_file),"") as font_url
+                                            FROM
+                                              font_master as fm
+                                            where
+                                              fm.is_active = 1 AND
+                                              fm.catalog_id = ?
+                                            order by fm.update_time DESC', [$this->catalog_id]);
+
+                });
+            }
+            $redis_result = Cache::get("getAllFontsByCatalogId$this->catalog_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Fonts fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllFontsByCatalogId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
 
 }

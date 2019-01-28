@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+/*Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
-});
+});*/
 
 //Logs Viewer
 Route::get('logs/{user_name}/{password}', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
@@ -31,24 +31,7 @@ Route::post('storeFileIntoS3Bucket', 'AdminController@storeFileIntoS3Bucket');
 //get advertisement without token
 Route::post('getLinkWithoutToken', 'UserController@getLinkWithoutToken');
 
-
-
-
-Route::get('/clear-cache', function() {
-    $exitCode = Artisan::call('cache:clear');
-    return $exitCode;
-});
-
 Route::get('getRedisInfo','AdminController@getRedisInfo');
-
-Route::get('/info',function(){
-    return \Illuminate\Support\Facades\Redis::info();
-});
-
-
-Route::get('/monitoring',function(){
-    return \Illuminate\Support\Facades\Redis::monitor();
-});
 
 Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']], function() {
 
@@ -84,7 +67,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('addCatalogImages', 'AdminController@addCatalogImages');
     Route::post('updateCatalogImage', 'AdminController@updateCatalogImage');
     Route::post('deleteCatalogImage', 'AdminController@deleteCatalogImage');
-    Route::post('getImagesByCatalogIdForAdmin', 'AdminController@getImagesByCatalogIdForAdmin');
+    Route::post('getDataByCatalogIdForAdmin', 'AdminController@getDataByCatalogIdForAdmin');
 
     /* Common API */
 
@@ -183,7 +166,6 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('deleteTag', 'AdminController@deleteTag');
     Route::post('getAllTags', 'AdminController@getAllTags');
 
-
     //Get youtube videos related to interview
     Route::post('addYouTubeVideoURL','VideoController@addYouTubeVideoURL');
     Route::post('updateYouTubeVideoURL','VideoController@updateYouTubeVideoURL');
@@ -202,6 +184,15 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('getAllQuestionAnswerByTypeForAdmin','QnAController@getAllQuestionAnswerByTypeForAdmin');
     Route::post('searchQuestionAnswerForAdmin','QnAController@searchQuestionAnswerForAdmin');
 
+    //Font
+    Route::post('addFont', 'AdminController@addFont');
+    Route::post('editFont', 'AdminController@editFont');
+    Route::post('deleteFont', 'AdminController@deleteFont');
+    Route::post('getAllFontsByCatalogIdForAdmin', 'AdminController@getAllFontsByCatalogIdForAdmin');
+    Route::post('getSamplesOfNonCommercialFont', 'AdminController@getSamplesOfNonCommercialFont');
+
+    //Fetch table information from database
+    Route::post('getDatabaseInfo', 'AdminController@getDatabaseInfo');
 
 });
 
@@ -218,8 +209,6 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     Route::post('getSubCategoryByCategoryId', 'AdminController@getSubCategoryByCategoryId');
     Route::post('getCatalogBySubCategoryId', 'AdminController@getCatalogBySubCategoryId');
     Route::post('getImagesByCatalogId', 'AdminController@getImagesByCatalogId');
-    Route::post('getFeaturedBackgroundCatalog', 'AdminController@getFeaturedBackgroundCatalog');
-    Route::post('getFeaturedStickerCatalog', 'AdminController@getFeaturedStickerCatalog');
     Route::post('getFeaturedCatalogBySubCategoryId', 'AdminController@getFeaturedCatalogBySubCategoryId');
     Route::post('getSampleImagesForMobile', 'AdminController@getSampleImagesForMobile');
     Route::post('getBackgroundCatalogBySubCategoryId', 'AdminController@getBackgroundCatalogBySubCategoryId');
@@ -248,7 +237,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
 
     //Fetch images from Pixabay
     Route::post('getImagesFromPixabay', 'PixabayController@getImagesFromPixabay');
-    Route::post('getImageByUnsplash', 'UnSplashController@getImageByUnsplash');
+    Route::post('getImageByUnsplash', 'UnsplashController@getImageByUnsplash');
 
     //Fetch videos from Pixabay
     Route::post('getVideosFromPixabay', 'PixabayController@getVideosFromPixabay');
@@ -258,8 +247,6 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
 
     //Advertisements with last_sync_time
     Route::post('getLinkWithLastSyncTime', 'UserController@getLinkWithLastSyncTime');
-
-    Route::post('addZipFile', 'UserController@addZipFile');
 
     //Search cards by sub_category_id
     Route::post('searchCardsBySubCategoryId', 'UserController@searchCardsBySubCategoryId');
@@ -281,6 +268,11 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
 
     Route::post('getAllQuestionType','QnAController@getAllQuestionType');
 
-});
+    //Fonts
+    Route::post('getAllFontsByCatalogId', 'UserController@getAllFontsByCatalogId');
+    Route::post('getCatalogsByType', 'UserController@getCatalogsByType'); //To get jpg/png catalog images
+    Route::post('getCatalogsByTypeInWebp', 'UserController@getCatalogsByTypeInWebp'); //To get webp catalog image
+    Route::post('getOfflineFontCatalogs', 'UserController@getOfflineFontCatalogs'); //To get webp catalog image
 
-Route::post('getZipFile', 'UserController@getZipFile');
+
+});
