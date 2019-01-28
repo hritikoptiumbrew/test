@@ -1051,7 +1051,7 @@ class UserController extends Controller
                 $last_sync_time = $last_created_record[0]->updated_at;
 
             } else {*/
-            $last_sync_time = date("Y-m-d H:i:s");
+            $this->last_sync_time = date("Y-m-d H:i:s");
             /*}*/
 
 
@@ -1066,7 +1066,7 @@ class UserController extends Controller
                                                     FROM images
                                                     WHERE catalog_id IN (SELECT catalog_id
                                                                      FROM sub_category_catalog
-                                                                     WHERE sub_category_id = ?) AND is_featured = 1 and updated_at >= ?', [$this->sub_category_id, $request->last_sync_time]);
+                                                                     WHERE sub_category_id = ?) AND is_featured = 1 and updated_at >= ?', [$this->sub_category_id, $this->last_sync_time]);
                         $total_row = $total_row_result[0]->total;
                         $result = DB::select('SELECT
                                                   id as json_id,
@@ -1085,7 +1085,7 @@ class UserController extends Controller
 
                     } else {
 
-                        $total_row_result = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $request->last_sync_time]);
+                        $total_row_result = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_time]);
                         $total_row = $total_row_result[0]->total;
 
                         $result = DB::select('SELECT
