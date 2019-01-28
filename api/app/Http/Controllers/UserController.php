@@ -1115,7 +1115,7 @@ class UserController extends Controller
             if (!$redis_result) {
                 $redis_result = [];
             } else {
-                $redis_result['last_sync_time'] = $last_sync_time;
+                $redis_result['last_sync_time'] = $this->last_sync_time;
             }
 
 
