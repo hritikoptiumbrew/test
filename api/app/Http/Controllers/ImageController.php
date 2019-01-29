@@ -99,7 +99,7 @@ class ImageController extends Controller
         if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/vnd.ms-opentype'))
             $response = Response::json(array('code' => 201, 'message' => 'Please select TTF or OTF file.', 'cause' => '', 'response' => json_decode("{}")));
         elseif ($file_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 5MB.', 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 1MB.', 'cause' => '', 'response' => json_decode("{}")));
         else
             $response = '';
         return $response;

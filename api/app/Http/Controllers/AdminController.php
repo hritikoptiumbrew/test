@@ -7322,6 +7322,9 @@ class AdminController extends Controller
                     (new ImageController())->saveFontInToS3($file_name);
                 }
 
+                $android_font_name = "fonts/$file_name";
+                $ios_font_name = $file_name;
+
                 DB::insert('INSERT
                                 INTO
                                   font_master(catalog_id, font_name, font_file, ios_font_name, android_font_name, is_active, create_time)
