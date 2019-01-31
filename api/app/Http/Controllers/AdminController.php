@@ -1867,9 +1867,9 @@ class AdminController extends Controller
                                       WHERE
                                         sct.sub_category_id = ? AND
                                         sct.catalog_id = ct.id AND
-                                        sct.is_active = ? AND
-                                        ct.is_featured = ?
-                                      order by ct.updated_at DESC', [1, 0, $this->sub_category_id]);
+                                        sct.is_active = 1 AND
+                                        ct.is_featured = 0
+                                      order by ct.updated_at DESC', [$this->sub_category_id]);
 
                     return array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
                 });
