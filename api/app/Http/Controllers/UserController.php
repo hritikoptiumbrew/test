@@ -1904,7 +1904,6 @@ class UserController extends Controller
             if (!$redis_result) {
                 $redis_result = [];
             }
-            //return $redis_result['result'];
 
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));

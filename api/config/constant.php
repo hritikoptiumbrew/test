@@ -162,10 +162,7 @@ return [
     'AWS_BUCKET' => env('AWS_BUCKET'), //s3_bucket name from env to store/retrieve file from s3
     'STORAGE' => env('STORAGE'), //s3_bucket name from env to store/retrieve file from s3
 
-    /* live sever */
-    'OFFLINE_CATALOG_IDS_OF_FONT' => "671",//Misc catalog Id for old fonts(non-commercial)
-
-    /* local server */
-    //'OFFLINE_CATALOG_IDS_OF_FONT' => "285,286,287,288,289,290,291,292,293,294,295,296,297,298,299"
+    /* Non-commercial fonts */
+    'OFFLINE_CATALOG_IDS_OF_FONT' => env('OFFLINE_CATALOG_IDS_OF_FONT'), //Misc catalog Id for old fonts(non-commercial)
 
 ];
