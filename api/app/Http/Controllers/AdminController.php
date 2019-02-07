@@ -1275,9 +1275,8 @@ class AdminController extends Controller
 
                 if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                     (new ImageController())->saveImageInToS3($file_name);
-                    (new ImageController())->saveWebpImageInToS3($file_name);
+                    (new ImageController())->saveWebpImageInToS3($webp_file_name);
                 }
-
             }
 
             $data = array('name' => $name,
