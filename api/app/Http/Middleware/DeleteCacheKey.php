@@ -44,15 +44,6 @@ class DeleteCacheKey
                     //Log::info("pel:getAllCategory Key Deleted");
                 }*/
 
-                //Category Wise Images Key
-                $keys = Redis::keys('pel:getImagesByCategoryId*');
-                foreach ($keys as $key) {
-                    Redis::del($key);
-                }
-                /*if (count($keys) === 0) {
-                    //Log::info("pel:getImagesByCategoryId Key Deleted");
-                }*/
-
                 //Delete Image details View Key
                 $keys = Redis::keys('pel:getImageDetails*');
                 foreach ($keys as $key) {
@@ -169,6 +160,18 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getContentByCatalogId
+                $keys = Redis::keys('pel:getContentByCatalogId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getJsonSampleDataFilterBySearchTag
+                $keys = Redis::keys('pel:getJsonSampleDataFilterBySearchTag*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
                 //searchCardsBySubCategoryId
                 $keys = Redis::keys('pel:searchCardsBySubCategoryId*');
                 foreach ($keys as $key) {
@@ -195,6 +198,12 @@ class DeleteCacheKey
 
                 //getJsonSampleDataWithLastSyncTime
                 $keys = Redis::keys('pel:getJsonSampleDataWithLastSyncTime*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getAllSamplesWithWebp
+                $keys = Redis::keys('pel:getAllSamplesWithWebp *');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }

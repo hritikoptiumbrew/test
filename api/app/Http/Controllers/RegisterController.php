@@ -138,8 +138,8 @@ class RegisterController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Device registered successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Unable to register device.', 'cause' => '', 'data' => json_decode("{}")));
-            Log::error('registerUserDeviceByDeviceRegId', ['Exception' => $e->getMessage()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'register device.', 'cause' => '', 'data' => json_decode("{}")));
+            Log::error("registerUserDeviceByDeviceRegId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
         }
         return $response;

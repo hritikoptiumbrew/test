@@ -164,7 +164,7 @@ class NewsController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Twitter post fatched successfully.', 'cause' => '', 'data' => $redis_result));
 
         } catch (Exception $e) {
-            Log::error("getFeedFromTwitter Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getFeedFromTwitter : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get page of twitter.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -261,7 +261,7 @@ class NewsController extends Controller
             return $r;
 
         } catch (Exception $e) {
-            Log::error("twitterPostByTwitterId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("twitterPostByTwitterId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get post of twitter.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -343,7 +343,7 @@ class NewsController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Twitter post fatched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
 
         } catch (Exception $e) {
-            Log::error("getFeedFromTwitter Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getFeedFromTwitter : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get page of twitter.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -457,7 +457,7 @@ class NewsController extends Controller
 
             return $post_list;
         } catch (Exception $e) {
-            Log::error("getFeedFromTwitter Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getFeedFromTwitter : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get page of twitter.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
 

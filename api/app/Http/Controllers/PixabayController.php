@@ -192,7 +192,7 @@ class PixabayController extends Controller
 
         } catch (Exception $e) {
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get images from pixabay.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            Log::error("getImagesFromPixabay :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            Log::error("getImagesFromPixabay : ", ['Exception' => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
         }
         return $response;
@@ -303,7 +303,7 @@ class PixabayController extends Controller
 
         } catch (Exception $e) {
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get videos from pixabay.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            Log::error("getVideosFromPixabay :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            Log::error("getVideosFromPixabay : ", ['Exception' => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
         }
         return $response;
@@ -325,7 +325,7 @@ class PixabayController extends Controller
 
         } catch (Exception $e) {
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get current key.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            Log::error("getCurrentKey :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            Log::error("getCurrentKey : ", ['Exception' => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
         }
         return $response;
@@ -360,7 +360,7 @@ class PixabayController extends Controller
             $response = $redis_result;
         } catch (Exception $e) {
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'change API key of pixabay.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            Log::error("increaseCurrentKey :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            Log::error("increaseCurrentKey : ", ['Exception' => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
         }
         return $response;
@@ -451,7 +451,7 @@ class PixabayController extends Controller
 
         } catch (Exception $e) {
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get images from pixabay.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            Log::error("getPixabayImageForUser :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            Log::error("getPixabayImageForUser : ", ['Exception' => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
         }
         return $response;
@@ -533,7 +533,7 @@ class PixabayController extends Controller
 
         } catch (Exception $e) {
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get videos from pixabay.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            Log::error("getPixabayVideoForUser :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            Log::error("getPixabayVideoForUser : ", ['Exception' => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
         }
         return $response;
@@ -548,7 +548,7 @@ class PixabayController extends Controller
 
             $response = $redis_keys ? 0 : 1;
         } catch (Exception $e) {
-            Log::error("deleteRedisKey Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteRedisKey : ", ['Exception' => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Delete Redis Keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;

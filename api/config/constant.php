@@ -81,6 +81,7 @@ return [
 
     'PAGINATION_ITEM_LIMIT' => '15',
     'ITEM_COUNT_OF_FEATURED_JSON' => '5',
+    'ITEM_COUNT_OF_TEMPLATES' => '5', //It's used for only Brand Maker in API to get templates in templates screen
 
     'GCM_NOTIFICATION_URL' => 'https://fcm.googleapis.com/fcm/send',
 
@@ -164,5 +165,9 @@ return [
 
     /* Non-commercial fonts */
     'OFFLINE_CATALOG_IDS_OF_FONT' => env('OFFLINE_CATALOG_IDS_OF_FONT'), //Misc catalog Id for old fonts(non-commercial)
+
+    'SERVER_LIST' => env('SERVER_LIST'), //api urls to fetch data from another server
+
+    'FREE_CONTENT_COUNT' => 9, //count to provide free images for bkg, stickers, shapes, textArt & frames
 
 ];

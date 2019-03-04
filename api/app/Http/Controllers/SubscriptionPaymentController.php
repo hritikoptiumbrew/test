@@ -82,14 +82,14 @@ class SubscriptionPaymentController extends Controller
                 return $response;
             $order_info = $request->order_info;
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','order_id', 'tot_order_amount', 'package_name', 'product_id', 'purchase_time', 'purchase_state'), $order_info)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'order_id', 'tot_order_amount', 'package_name', 'product_id', 'purchase_time', 'purchase_state'), $order_info)) != '')
                 return $response;
 
             if (($response = (new VerificationController())->validateRequiredParameter(array('device_info'), $request)) != '')
                 return $response;
 
             $device_info = $request->device_info;
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','device_platform', 'device_udid'), $device_info)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'device_platform', 'device_udid'), $device_info)) != '')
                 return $response;
 
             //Device Information
@@ -133,10 +133,10 @@ class SubscriptionPaymentController extends Controller
                             values (?,?)',
                 [json_encode($request), "Insert from API: addSubscriptionPayment"]);
 
-            (new LoginController())->addNewDeviceToUser($sub_category_id,$device_reg_id, $device_platform, $device_model_name, $device_vendor_name, $device_os_version, $device_udid, $device_resolution, $device_carrier, $device_country_code, $device_language, $device_local_code, $device_default_time_zone, $device_application_version, $device_type, $device_registration_date);
+            (new LoginController())->addNewDeviceToUser($sub_category_id, $device_reg_id, $device_platform, $device_model_name, $device_vendor_name, $device_os_version, $device_udid, $device_resolution, $device_carrier, $device_country_code, $device_language, $device_local_code, $device_default_time_zone, $device_application_version, $device_type, $device_registration_date);
 
 
-            $is_exist_order = DB::table('order_master')->where(['order_number' => $order_id,'sub_category_id' => $sub_category_id])->exists();
+            $is_exist_order = DB::table('order_master')->where(['order_number' => $order_id, 'sub_category_id' => $sub_category_id])->exists();
 
             if ($is_exist_order) {
                 //Restore Logic
@@ -151,7 +151,7 @@ class SubscriptionPaymentController extends Controller
                 } else {
                     //new device
                     Log::info("device is new.");
-                    DB::insert('insert into restore_device (sub_category_id,order_number,device_udid,create_time) VALUES (?,?,?,?)', [$sub_category_id, $order_id, $device_udid,date('Y-m-d H:i:s')]);
+                    DB::insert('insert into restore_device (sub_category_id,order_number,device_udid,create_time) VALUES (?,?,?,?)', [$sub_category_id, $order_id, $device_udid, date('Y-m-d H:i:s')]);
                 }
                 DB::commit();
                 $response = Response::json(array('code' => 200, 'message' => 'Your payment has been received.', 'cause' => '', 'data' => json_decode("{}")));
@@ -172,13 +172,13 @@ class SubscriptionPaymentController extends Controller
                         'neft_transaction_id' => $purchase_token,
                         'auto_renewing' => $auto_renewing,
                         'device_platform' => $device_platform,
-                        'create_time'=>date('Y-m-d H:i:s'),
+                        'create_time' => date('Y-m-d H:i:s'),
                     )
                 );
                 Log::info('order_table_id', ['Exception' => $order_table_id]);
 
 
-                DB::insert('insert into restore_device (sub_category_id,order_number,device_udid,create_time) VALUES (?,?,?,?)', [$sub_category_id,$order_id, $device_udid, date('Y-m-d H:i:s')]);
+                DB::insert('insert into restore_device (sub_category_id,order_number,device_udid,create_time) VALUES (?,?,?,?)', [$sub_category_id, $order_id, $device_udid, date('Y-m-d H:i:s')]);
                 DB::commit();
                 $response = Response::json(array('code' => 200, 'message' => 'Payment was successful.', 'cause' => '', 'data' => json_decode("{}")));
             }
@@ -189,10 +189,10 @@ class SubscriptionPaymentController extends Controller
             $title = 'appPurchasePayment Error';
             $message_body = $e->getMessage();
             //Mail::to($email_id)->send(new SuccessMail($title,$subject, $message_body));
-            Mail::to($email_id)->bcc('pmpatel1415160@gmail.com')->send(new SuccessMail($title,$subject, $message_body));
+            Mail::to($email_id)->bcc('pmpatel1415160@gmail.com')->send(new SuccessMail($title, $subject, $message_body));
 
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add app Purchase Payment.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            Log::error('appPurchasePayment', ['Exception' => $e->getMessage(),'TraceAsString'=>$e->getTraceAsString()]);
+            Log::error('appPurchasePayment', ['Exception' => $e->getMessage(), 'TraceAsString' => $e->getTraceAsString()]);
             DB::rollBack();
         }
 
@@ -265,7 +265,7 @@ class SubscriptionPaymentController extends Controller
 
             $order_info = $request->order_info;
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','order_id', 'tot_order_amount', 'package_name', 'product_id', 'purchase_time', 'purchase_state', 'receipt_base64_data'), $order_info)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'order_id', 'tot_order_amount', 'package_name', 'product_id', 'purchase_time', 'purchase_state', 'receipt_base64_data'), $order_info)) != '')
                 return $response;
 
             if (($response = (new VerificationController())->validateRequiredParameter(array('device_info'), $request)) != '')
@@ -273,11 +273,11 @@ class SubscriptionPaymentController extends Controller
 
             $device_info = $request->device_info;
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','device_platform', 'device_udid'), $device_info)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'device_platform', 'device_udid'), $device_info)) != '')
                 return $response;
 
             //Device info
-            $sub_category_id=$device_info->sub_category_id;
+            $sub_category_id = $device_info->sub_category_id;
             $device_udid = $device_info->device_udid;
             $device_reg_id = isset($device_info->device_reg_id) ? $device_info->device_reg_id : '';
             //$device_platform = isset($device_info->device_platform) ? $device_info->device_platform : '';
@@ -296,7 +296,7 @@ class SubscriptionPaymentController extends Controller
 
 
             //Mandatory field
-            $sub_category_id=$order_info->sub_category_id;
+            $sub_category_id = $order_info->sub_category_id;
             $order_id = $order_info->order_id;
             $package_name = $order_info->package_name;
             $product_id = $order_info->product_id;
@@ -320,7 +320,7 @@ class SubscriptionPaymentController extends Controller
                 [json_encode($request), "Insert from API: addSubscriptionPaymentForIOS"]);
             DB::commit();
 
-            (new LoginController())->addNewDeviceToUser($sub_category_id,$device_reg_id, $device_platform, $device_model_name, $device_vendor_name, $device_os_version, $device_udid, $device_resolution, $device_carrier, $device_country_code, $device_language, $device_local_code, $device_default_time_zone, $device_application_version, $device_type, $device_registration_date);
+            (new LoginController())->addNewDeviceToUser($sub_category_id, $device_reg_id, $device_platform, $device_model_name, $device_vendor_name, $device_os_version, $device_udid, $device_resolution, $device_carrier, $device_country_code, $device_language, $device_local_code, $device_default_time_zone, $device_application_version, $device_type, $device_registration_date);
 
             // Get Latest Transaction ID from the receipt
             $latestReceiptData = $this->getLatestReceiptData($receipt_base64_data);
@@ -344,11 +344,11 @@ class SubscriptionPaymentController extends Controller
 
             // $is_exist_order =  DB::table('order_master')->where('user_id', $user_id)->where('order_number',$transaction_id)->exists();
 
-            $is_orderId_exist = DB::select('SELECT * FROM order_master WHERE order_number = ? AND sub_category_id = ? ORDER BY id DESC LIMIT 1', [$order_id,$sub_category_id]);
+            $is_orderId_exist = DB::select('SELECT * FROM order_master WHERE order_number = ? AND sub_category_id = ? ORDER BY id DESC LIMIT 1', [$order_id, $sub_category_id]);
             if ($is_orderId_exist) {
                 Log::info("Order id is exist.", [$order_id]);
                 //Restore Logic
-                $is_exist_device = DB::select('select * from restore_device WHERE device_udid = ? AND sub_category_id = ?', [$device_udid,$sub_category_id]);
+                $is_exist_device = DB::select('select * from restore_device WHERE device_udid = ? AND sub_category_id = ?', [$device_udid, $sub_category_id]);
                 if ($is_exist_device) {
                     Log::info("device Udid id is exist.", [$is_exist_device]);
                     DB::beginTransaction();
@@ -377,7 +377,7 @@ class SubscriptionPaymentController extends Controller
                         'neft_transaction_id' => $purchase_token,
                         'auto_renewing' => $auto_renewing,
                         'device_platform' => $device_platform,
-                        'create_time'=>date('Y-m-d H:i:s'),
+                        'create_time' => date('Y-m-d H:i:s'),
                     )
                 );
                 Log::info('addSubscriptionPaymentForIOS', ['order_table_id' => $order_table_id]);
@@ -394,10 +394,10 @@ class SubscriptionPaymentController extends Controller
             $title = 'appPurchasePaymentForIos Error';
             $message_body = $e->getMessage();
             //Mail::to($email_id)->send(new SuccessMail($title,$subject, $message_body));
-            Mail::to($email_id)->bcc('pmpatel1415160@gmail.com')->send(new SuccessMail($title,$subject, $message_body));
+            Mail::to($email_id)->bcc('pmpatel1415160@gmail.com')->send(new SuccessMail($title, $subject, $message_body));
 
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add app Purchase Payment.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            Log::error('appPurchasePayment', ['Exception' => $e->getMessage(),'TraceAsString'=>$e->getTraceAsString()]);
+            Log::error('appPurchasePayment', ['Exception' => $e->getMessage(), 'TraceAsString' => $e->getTraceAsString()]);
             DB::rollBack();
 
         }
@@ -633,7 +633,7 @@ class SubscriptionPaymentController extends Controller
             $user_profile->expiration_time = $subscriptions_result1[0]->expiration_time;
             Log::info('expiration_time', ['Exception' => $subscriptions_result1[0]->expiration_time]);
             $response = Response::json(array('code' => 200, 'message' => 'Payment was successful.', 'cause' => '', 'data' => ['token' => $token, 'user_profile' => $user_profile]));
-            Log::info('data', ['response ' => $response]);
+            Log::info('data', ['response' => $response]);
             // return   $response = Response::json(array('code' => 200, 'message' => 'Payment was successful.', 'cause' => '', 'data' =>json_decode("{}")));
 
         } catch (Exception $e) {
@@ -643,7 +643,7 @@ class SubscriptionPaymentController extends Controller
             $title = 'restoreSubscriptionPayment';
             $message_body = $e->getMessage();
             //Mail::to($email_id)->send(new SuccessMail($title,$subject, $message_body));
-            Mail::to($email_id)->bcc('gabanibhavesh9@gmail.com')->send(new SuccessMail($title,$subject, $message_body, $url));
+            Mail::to($email_id)->bcc('gabanibhavesh9@gmail.com')->send(new SuccessMail($title, $subject, $message_body, $url));
 
             Log::error('addSubscriptionPaymentForIOS', ['Exception' => $e->getMessage(), 'getTraceAsString' => $e->getTraceAsString()]);
             DB::rollBack();

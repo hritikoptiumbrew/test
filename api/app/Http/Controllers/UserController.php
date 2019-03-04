@@ -104,7 +104,7 @@ class UserController extends Controller
                                           sct.sub_category_id = ? AND
                                           sct.catalog_id = ct.id AND
                                           NOT find_in_set(ct.id,"' . $catalog_ids . '") AND
-                                          sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  order by ct.updated_at DESC', [$this->sub_category_id]);
+                                          sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
 
                 });
 
@@ -122,7 +122,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getCatalogsByType Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getCatalogsByType : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -207,6 +207,7 @@ class UserController extends Controller
                                           NOT find_in_set(ct.id,"' . $catalog_ids . '") AND
                                           sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  order by ct.updated_at DESC', [$this->sub_category_id]);
 
+
                 });
 
 
@@ -223,121 +224,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getCatalogsByTypeInWebp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getOfflineFontCatalogs   getOfflineFontCatalogs
-     * @apiName getOfflineFontCatalogs
-     * @apiGroup User
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":94 //compulsory
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Catalogs fetched successfully.",
-     * "cause": "",
-     * "data": {
-     * "result": [
-     * {
-     * "catalog_id": 299,
-     * "name": "VAG Rounded Std",
-     * "updated_at": "2019-01-18 05:58:20",
-     * "font_list": [
-     * {
-     * "font_id": 27,
-     * "catalog_id": 299,
-     * "font_name": "VAGRoundedStd-Light.ttf",
-     * "font_file": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/VAGRoundedStd-Light.ttf"
-     * },
-     * {
-     * "font_id": 26,
-     * "catalog_id": 299,
-     * "font_name": "VAGRoundedStd-Bold.ttf",
-     * "font_file": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/VAGRoundedStd-Bold.ttf"
-     * }
-     * ]
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getOfflineFontCatalogs(Request $request)
-    {
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
-                return $response;
-
-            $this->sub_category_id = $request->sub_category_id;
-
-            if (!Cache::has("pel:getOfflineFontCatalogs$this->sub_category_id")) {
-                $result = Cache::rememberforever("getOfflineFontCatalogs$this->sub_category_id", function () {
-
-                    $catalog_ids = Config::get('constant.OFFLINE_CATALOG_IDS_OF_FONT');
-
-                    $catalog_list = DB::select('SELECT
-                                          ct.id as catalog_id,
-                                          ct.name,
-                                          ct.updated_at
-                                        FROM
-                                          catalog_master as ct,
-                                          sub_category_catalog as sct
-                                        WHERE
-                                          sct.sub_category_id = ? AND
-                                          sct.catalog_id = ct.id AND
-                                          find_in_set(ct.id,"' . $catalog_ids . '") AND
-                                          sct.is_active = 1 order by ct.updated_at DESC', [$this->sub_category_id]);
-
-                    foreach ($catalog_list as $key) {
-
-                        $font_list = DB::select('SELECT
-                                              fm.id as font_id,
-                                              fm.catalog_id,
-                                              fm.font_file As font_name,
-                                              IF(fm.font_file != "",CONCAT("' . Config::get('constant.FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . '",fm.font_file),"") as font_file
-                                            FROM
-                                              font_master as fm
-                                            where
-                                              fm.is_active = 1 AND
-                                              fm.catalog_id = ?
-                                            order by fm.update_time DESC', [$key->catalog_id]);
-
-                        $key->font_list = $font_list;
-                    }
-                    return $catalog_list;
-
-                });
-
-            }
-
-            $redis_result = Cache::get("getOfflineFontCatalogs$this->sub_category_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-
-            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getOfflineFontCatalogs Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getCatalogsByTypeInWebp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -489,7 +376,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getLinkWithLastSyncTime Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getLinkWithLastSyncTime : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get advertise link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -550,7 +437,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getFeaturedJsonImages Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getFeaturedJsonImages : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Featured Background Images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -704,7 +591,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getJsonSampleData Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getJsonSampleData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -797,7 +684,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getJsonData Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -934,7 +821,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getCatalogBySubCategoryIdWithLastSyncTime Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getCatalogBySubCategoryIdWithLastSyncTime : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -1127,7 +1014,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getJsonSampleDataWithLastSyncTime Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getJsonSampleDataWithLastSyncTime : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get samples.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -1146,39 +1033,49 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "page":2,
-     * "item_count":10,
-     * "catalog_id":167,
-     * "sub_category_id":51,
-     * "last_sync_time": "2017-11-28 00:00:00"
+     * "catalog_id": 398,
+     * "item_count": 20,
+     * "last_sync_time": "0",
+     * "page": 1,
+     * "sub_category_id": 97
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "All json fetched successfully.",
+     * "message": "Samples fetched successfully.",
      * "cause": "",
      * "data": {
-     * "total_record": 23,
-     * "is_next_page": true,
-     * "last_sync_time": "2018-06-21 12:04:36",
+     * "total_record": 3,
+     * "is_next_page": false,
      * "data": [
      * {
-     * "json_id": 1190,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0ae54e2105_json_image_1521528404.webp",
+     * "json_id": 3326,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d3523a43b5_json_image_1550660899.webp",
      * "is_free": 1,
      * "is_featured": 0,
-     * "is_portrait": 1,
-     * "updated_at": "2018-06-21 12:04:36"
+     * "is_portrait": 0,
+     * "height": 256,
+     * "width": 512,
+     * "search_category": "Twitter",
+     * "original_img_height": 512,
+     * "original_img_width": 1024,
+     * "updated_at": "2019-02-20 11:08:20"
      * },
      * {
-     * "json_id": 1185,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0af12d9bae_json_image_1521528594.webp",
+     * "json_id": 3325,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp",
      * "is_free": 1,
-     * "is_featured": 0,
-     * "is_portrait": 1,
-     * "updated_at": "2018-06-21 12:04:32"
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 408,
+     * "width": 528,
+     * "search_category": "Brochure",
+     * "original_img_height": 816,
+     * "original_img_width": 1056,
+     * "updated_at": "2019-02-20 11:07:06"
      * }
-     * ]
+     * ],
+     * "last_sync_time": "2019-02-21 09:50:37"
      * }
      * }
      */
@@ -1238,6 +1135,9 @@ class UserController extends Controller
                                                   is_portrait,
                                                   coalesce(height,0) AS height,
                                                   coalesce(width,0) AS width,
+                                                  coalesce(search_category,"") AS search_category,
+                                                  original_img_height,
+                                                  original_img_width,
                                                   updated_at
                                                 FROM
                                                   images
@@ -1256,6 +1156,9 @@ class UserController extends Controller
                                                   is_portrait,
                                                   coalesce(height,0) AS height,
                                                   coalesce(width,0) AS width,
+                                                  coalesce(search_category,"") AS search_category,
+                                                  original_img_height,
+                                                  original_img_width,
                                                   updated_at
                                                 FROM
                                                   images
@@ -1282,6 +1185,9 @@ class UserController extends Controller
                                                is_portrait,
                                                coalesce(height,0) AS height,
                                                coalesce(width,0) AS width,
+                                               coalesce(search_category,"") AS search_category,
+                                               original_img_height,
+                                               original_img_width,
                                                updated_at
                                                 FROM
                                                 images
@@ -1299,6 +1205,9 @@ class UserController extends Controller
                                                is_portrait,
                                                coalesce(height,0) AS height,
                                                coalesce(width,0) AS width,
+                                               coalesce(search_category,"") AS search_category,
+                                               original_img_height,
+                                               original_img_width,
                                                updated_at
                                                 FROM
                                                 images
@@ -1331,7 +1240,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getJsonSampleDataWithLastSyncTime_webp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getJsonSampleDataWithLastSyncTime_webp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get samples.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -1424,7 +1333,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getDeletedJsonId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getDeletedJsonId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get deleted json id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -1535,7 +1444,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getJsonSampleDataWithLastSyncTime_webpIos Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getJsonSampleDataWithLastSyncTime_webpIos : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get samples.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -1717,7 +1626,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getFeaturedJsonSampleData_webp Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getFeaturedJsonSampleData_webp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get featured json sample data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -1788,7 +1697,7 @@ class UserController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
             //$this->search_category = "%" . $request->search_category . "%";
-            $this->search_category = $request->search_category;
+            $this->search_category = strtolower(trim($request->search_category));
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
@@ -1909,8 +1818,443 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("searchCardsBySubCategoryId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("searchCardsBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search cards.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getJsonSampleDataFilterBySearchTag   getJsonSampleDataFilterBySearchTag
+     * @apiName getJsonSampleDataFilterBySearchTag
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":51, //Compulsory
+     * "page":2, //Compulsory
+     * "item_count":10 //Compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Templates fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 5,
+     * "is_next_page": false,
+     * "result": [
+     * {
+     * "category_name": "Flyer",
+     * "content_list": [
+     * {
+     * "json_id": 3385,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6e289c967e9_json_image_1550723228.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 1,
+     * "height": 400,
+     * "width": 325,
+     * "search_category": "Flyer,Fitness",
+     * "original_img_height": 800,
+     * "original_img_width": 650,
+     * "updated_at": "2019-02-21 04:28:03"
+     * }
+     * ]
+     * },
+     * {
+     * "category_name": "Business Card",
+     * "content_list": []
+     * },
+     * {
+     * "category_name": "Brochure",
+     * "content_list": [
+     * {
+     * "json_id": 3325,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 408,
+     * "width": 528,
+     * "search_category": "Brochure",
+     * "original_img_height": 816,
+     * "original_img_width": 1056,
+     * "updated_at": "2019-02-20 11:07:06"
+     * }
+     * ]
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getJsonSampleDataFilterBySearchTag(Request $request_body)
+    {
+
+        try {
+
+            /*================| This API only used for Brand Maker |===============*/
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->item_count = $request->item_count;
+            $this->page = $request->page;
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            if (!Cache::has("pel:getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->page:$this->item_count")) {
+                $result = Cache::rememberforever("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->page:$this->item_count", function () {
+
+                    $category_list = array("Flyers", "Business Card", "Brochures", "Banners", "Social Media Post");
+                    $item_count_of_templates = Config::get('constant.ITEM_COUNT_OF_TEMPLATES');
+
+                    $total_row = count($category_list);
+                    $categories_data = array();
+                    foreach ($category_list as $key) {
+                        $content_list = DB::select('SELECT
+                                                          im.id as json_id,
+                                                          IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                          im.is_free,
+                                                          im.is_featured,
+                                                          im.is_portrait,
+                                                          coalesce(im.height,0) AS height,
+                                                          coalesce(im.width,0) AS width,
+                                                          coalesce(im.search_category,"") AS search_category,
+                                                          im.original_img_height,
+                                                          im.original_img_width,
+                                                          im.updated_at
+                                                        FROM
+                                                          images as im,
+                                                          catalog_master AS cm,
+                                                          sub_category_catalog AS scc
+                                                        WHERE
+                                                          im.is_active = 1 AND
+                                                          im.catalog_id = scc.catalog_id AND
+                                                          cm.id = scc.catalog_id AND
+                                                          cm.is_featured = 1 AND
+                                                          scc.sub_category_id = ? AND
+                                                          isnull(im.original_img) AND
+                                                          isnull(im.display_img) AND
+                                                          MATCH(im.search_category) AGAINST("' . $key . '")
+                                                        ORDER BY im.search_category DESC LIMIT ?, ?', [$this->sub_category_id, 0, $item_count_of_templates]);
+
+                        $categories_data[] = array('category_name' => $key, 'content_list' => $content_list);
+
+                    }
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $categories_data);
+
+
+                });
+            }
+
+            $redis_result = Cache::get("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->page:$this->item_count");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Templates fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch
+        (Exception $e) {
+            Log::error("getJsonSampleDataFilterBySearchTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //get all samples without pagination
+    /**
+     * @api {post} getAllSamplesWithWebp   getAllSamplesWithWebp
+     * @apiName getAllSamplesWithWebp
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "catalog_id": 398, //compulsory
+     * "sub_category_id": 97 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Samples fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 4,
+     * "result": [
+     * {
+     * "json_id": 3387,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7d03b31ef_json_image_1550810371.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 100,
+     * "width": 320,
+     * "search_category": "banners",
+     * "original_img_height": 100,
+     * "original_img_width": 320,
+     * "updated_at": "2019-03-01 04:59:31"
+     * },
+     * {
+     * "json_id": 3388,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7e1599291_json_image_1550810645.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 408,
+     * "width": 528,
+     * "search_category": "Brochures",
+     * "original_img_height": 816,
+     * "original_img_width": 1056,
+     * "updated_at": "2019-03-01 04:59:04"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllSamplesWithWebp(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'catalog_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->catalog_id = $request->catalog_id;
+
+            if (!Cache::has("pel:getAllSamplesWithWebp$this->sub_category_id:$this->catalog_id")) {
+                $result = Cache::rememberforever("getAllSamplesWithWebp$this->sub_category_id:$this->catalog_id", function () {
+
+                    if ($this->catalog_id == 0) {
+
+                        $result = DB::select('SELECT
+                                                  id as json_id,
+                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                                  is_free,
+                                                  is_featured,
+                                                  is_portrait,
+                                                  coalesce(height,0) AS height,
+                                                  coalesce(width,0) AS width,
+                                                  coalesce(search_category,"") AS search_category,
+                                                  original_img_height,
+                                                  original_img_width,
+                                                  updated_at
+                                                FROM
+                                                  images
+                                                WHERE
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                                  is_featured = 1
+                                                ORDER BY updated_at DESC', [$this->sub_category_id]);
+
+
+                    } else {
+
+                        $result = DB::select('SELECT
+                                                   id as json_id,
+                                                   IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                                   is_free,
+                                                   is_featured,
+                                                   is_portrait,
+                                                   coalesce(height,0) AS height,
+                                                   coalesce(width,0) AS width,
+                                                   coalesce(search_category,"") AS search_category,
+                                                   original_img_height,
+                                                   original_img_width,
+                                                   updated_at
+                                                  FROM
+                                                    images
+                                                  WHERE
+                                                    catalog_id = ? AND
+                                                    is_featured = 1
+                                                  ORDER BY updated_at DESC', [$this->catalog_id]);
+
+                    }
+
+                    return array('total_record' => count($result), 'result' => $result);
+
+
+                });
+            }
+
+            $redis_result = Cache::get("getAllSamplesWithWebp$this->sub_category_id:$this->catalog_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Samples fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch
+        (Exception $e) {
+            Log::error("getAllSamplesWithWebp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get samples.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //get catalogs by sub _category_id with pagination
+    /**
+     * @api {post} getCatalogBySubCategoryIdWithWebp   getCatalogBySubCategoryIdWithWebp
+     * @apiName getCatalogBySubCategoryIdWithWebp
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":97, //compulsory
+     * "page":1, //compulsory
+     * "item_count":2 //compulsory
+     * "is_free":1 //optional, 1=free & 0=paid
+     * "is_featured":1 //optional, 1=featured(Ex: get template categories) & 0=normal(Ex: et sticker categories)
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Catalogs fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 21,
+     * "is_next_page": true,
+     * "result": [
+     * {
+     * "catalog_id": 498,
+     * "name": "Party",
+     * "webp_thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c7914a7c12f5_catalog_img_1551439015.webp",
+     * "webp_original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c7914a7c12f5_catalog_img_1551439015.webp",
+     * "is_featured": 1,
+     * "is_free": 1,
+     * "updated_at": "2019-03-01 11:16:56"
+     * },
+     * {
+     * "catalog_id": 497,
+     * "name": "Offer & Sales",
+     * "webp_thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c7912eee5c0e_catalog_img_1551438574.webp",
+     * "webp_original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c7912eee5c0e_catalog_img_1551438574.webp",
+     * "is_featured": 1,
+     * "is_free": 1,
+     * "updated_at": "2019-03-01 11:09:35"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getCatalogBySubCategoryIdWithWebp(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+            $this->is_free = isset($request->is_free) ? ' AND ct.is_free = ' . $request->is_free : '';
+            $this->is_featured = isset($request->is_featured) ? ' AND ct.is_featured = ' . $request->is_featured : '';
+
+            if (!Cache::has("pel:getCatalogBySubCategoryIdWithWebp$this->sub_category_id:$this->page:$this->item_count:$this->is_free:$this->is_featured")) {
+                $result = Cache::rememberforever("getCatalogBySubCategoryIdWithWebp$this->sub_category_id:$this->page:$this->item_count:$this->is_free:$this->is_featured", function () {
+
+                    $total_row_result = DB::select('SELECT
+                                                      count(ct.id) as total
+                                                    FROM
+                                                      catalog_master as ct,
+                                                      sub_category_catalog as sct
+                                                    WHERE
+                                                      sct.sub_category_id = ? AND
+                                                      sct.catalog_id = ct.id AND
+                                                      sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '
+                                                    ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+
+                    $total_row = $total_row_result[0]->total;
+
+
+                    /*DB::select('SELECT
+                                      ct.id as catalog_id,
+                                      ct.name,
+                                      IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                      IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                      IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                      ct.is_free,
+                                      ct.is_featured,
+                                      ct.updated_at
+                                    FROM
+                                      catalog_master as ct,
+                                      sub_category_catalog as sct
+                                    WHERE
+                                      sct.sub_category_id = ? AND
+                                      sct.catalog_id=ct.id AND
+                                      sct.is_active=1
+                                    order by ct.updated_at DESC', [$this->sub_category_id]);*/
+
+                    $catalog_list = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                          ct.is_featured,
+                                          ct.is_free,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '
+                                        ORDER BY ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $catalog_list);
+
+                });
+
+            }
+
+            $redis_result = Cache::get("getCatalogBySubCategoryIdWithWebp$this->sub_category_id:$this->page:$this->item_count:$this->is_free:$this->is_featured");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getCatalogBySubCategoryIdWithLastSyncTime : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -1993,7 +2337,7 @@ class UserController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Image saved successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("saveUserFeeds Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveUserFeeds : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'save user feeds.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -2099,7 +2443,7 @@ class UserController extends Controller
 
 
         } catch (Exception $e) {
-            Log::error("getUserFeedsBySubCategoryId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getUserFeedsBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get user feeds.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -2171,7 +2515,7 @@ class UserController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Image deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteUserFeeds Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteUserFeeds : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -2243,7 +2587,7 @@ class UserController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'All images deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteAllUserFeeds Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteAllUserFeeds : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete all image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -2346,7 +2690,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getDeletedCatalogId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getDeletedCatalogId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalog json id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -2449,7 +2793,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -2522,7 +2866,7 @@ class UserController extends Controller
 
 
         } catch (Exception $e) {
-            Log::error("verifyPromoCode Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("verifyPromoCode : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'verify promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -2665,7 +3009,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAdvertiseServerIdForUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAdvertiseServerIdForUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -2761,7 +3105,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -2968,7 +3312,7 @@ class UserController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("jobMultiSearchByUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("jobMultiSearchByUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'job search by user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -3097,7 +3441,7 @@ class UserController extends Controller
             }
             $response = Response::json(array('code' => 200, 'message' => 'Job fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'result' => $result]));
         } catch (Exception $e) {
-            Log::error("jobMultiSearchByUserIndividually Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("jobMultiSearchByUserIndividually : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'job search by user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -3494,8 +3838,140 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getHomePageDetail Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getHomePageDetail : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get home detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /*=========================================| Stickers, Backgrounds, Shapes, Frames |=========================================*/
+
+    /**
+     * @api {post} getContentByCatalogId   getContentByCatalogId
+     * @apiName getContentByCatalogId
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "catalog_id":397, //compulsory
+     * "page":1, //compulsory
+     * "item_count":2 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Content fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 135,
+     * "is_next_page": true,
+     * "result": [
+     * {
+     * "img_id": 3303,
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg",
+     * "is_featured": "",
+     * "is_free": 1,
+     * "is_portrait": 0,
+     * "search_category": ""
+     * },
+     * {
+     * "img_id": 3304,
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg",
+     * "is_featured": "",
+     * "is_free": 1,
+     * "is_portrait": 0,
+     * "search_category": ""
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getContentByCatalogId(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->catalog_id = $request->catalog_id;
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            if (!Cache::has("pel:getContentByCatalogId$this->catalog_id:$this->page:$this->item_count")) {
+                $result = Cache::rememberforever("getContentByCatalogId$this->catalog_id:$this->page:$this->item_count", function () {
+
+
+                    $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
+
+                    $total_row_result = DB::select('SELECT
+                                                      count(im.id) as total
+                                                    FROM
+                                                      images as im
+                                                    WHERE
+                                                      im.is_active = 1 AND
+                                                      im.catalog_id = ? AND
+                                                      isnull(im.original_img) AND
+                                                      isnull(im.display_img)', [$this->catalog_id]);
+
+                    $total_row = $total_row_result[0]->total;
+
+                    $content_list = DB::select('SELECT
+                                                  im.id as img_id,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                                  coalesce(im.is_featured,"") as is_featured,
+                                                  coalesce(im.is_free,0) as is_free,
+                                                  coalesce(im.is_portrait,0) as is_portrait,
+                                                  coalesce(im.search_category,"") as search_category
+                                                FROM
+                                                  images as im
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img)
+                                                ORDER BY im.updated_at DESC LIMIT ?,?', [$this->catalog_id, $this->offset, $this->item_count]);
+                    $c = 0;
+                    foreach ($content_list as $key) {
+                        if ($c <= $free_content_count && $this->page == 1) {
+                            $key->is_free = 1;
+                        }
+                        $c++;
+                    }
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
+
+                });
+            }
+            $redis_result = Cache::get("getContentByCatalogId$this->catalog_id:$this->page:$this->item_count");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Content fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getContentByCatalogId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get content.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -3582,7 +4058,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllFontsByCatalogId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllFontsByCatalogId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;

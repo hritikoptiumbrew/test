@@ -34,11 +34,61 @@ class ImageController extends Controller
         $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
 
         if (!($image_type == 'image/png' || $image_type == 'image/jpeg'))
-            $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file', 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($image_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 5MB', 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 5MB', 'cause' => '', 'data' => json_decode("{}")));
         else
             $response = '';
+        return $response;
+    }
+
+    // Verify Image
+    public function validateHeightWidthOfSampleImage($image_array, $json_data)
+    {
+        // Open image as a string
+        $data = file_get_contents($image_array);
+
+        // getimagesizefromstring function accepts image data as string & return file info
+        $file_info = getimagesizefromstring($data);
+
+        // Display the image content
+        $width = $file_info[0];
+        $height = $file_info[1];
+
+        if ($json_data->height == $height && $json_data->width == $width) {
+            $response = '';
+        } else {
+            return $response = Response::json(array('code' => 201, 'message' => 'Height & width of the sample image doesn\'t match with height & width given in json.', 'cause' => '', 'data' => json_decode("{}")));
+        }
+
+        return $response;
+    }
+
+    // Validate Fonts
+    public function validateFonts($json_data)
+    {
+        $text_json = $json_data->text_json;
+        $exist_count = 0;
+
+        foreach ($text_json as $key) {
+            $ios_font_name = $key->fontName;
+            $android_font_name = $key->fontPath;
+
+            $is_exist = DB::select('SELECT id FROM font_master WHERE ios_font_name = ? AND android_font_name = ?', [$ios_font_name, $android_font_name]);
+
+            if (count($is_exist) == 0) {
+                //Log::info('debug fonts : ',['query_result' => $is_exist, 'ios_font_name' => $ios_font_name, 'android_font_name' => $android_font_name]);
+                $exist_count = $exist_count + 1;
+            }
+
+        }
+
+        if ($exist_count > 0) {
+            $response = Response::json(array('code' => 201, 'message' => 'Fonts used by json does not exist in the server.', 'cause' => '', 'data' => json_decode("{}")));
+        } else {
+            $response = '';
+        }
+
         return $response;
     }
 
@@ -97,9 +147,9 @@ class ImageController extends Controller
         $MAXIMUM_FILESIZE = 1 * 1024 * 1024;
 
         if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/vnd.ms-opentype'))
-            $response = Response::json(array('code' => 201, 'message' => 'Please select TTF or OTF file.', 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'Please select TTF or OTF file.', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($file_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 1MB.', 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 1MB.', 'cause' => '', 'data' => json_decode("{}")));
         else
             $response = '';
         return $response;
@@ -126,7 +176,7 @@ class ImageController extends Controller
             $path = $original_path . $img;
             $this->saveImageDetails($path, 'original');
         } catch (Exception $e) {
-            Log::error("saveOriginalImage Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveOriginalImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
 
@@ -161,7 +211,7 @@ class ImageController extends Controller
 
             return $webp_name . '.webp';
         } catch (Exception $e) {
-            Log::error("saveWebpOriginalImage Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveWebpOriginalImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
 
@@ -213,7 +263,8 @@ class ImageController extends Controller
             foreach ($_FILES['file'] as $check) {
                 chmod($dest1, 0777);
                 copy($dest1, $dest2);
-                Log::error("Exception :", [$e->getMessage()]);
+                Log::error("saveCompressedImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+
             }
 
         }
@@ -257,7 +308,7 @@ class ImageController extends Controller
             $this->saveImageDetails($thumbnail_path, 'thumbnail');
 
         } catch (Exception $e) {
-            Log::error("saveThumbnailImage Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveThumbnailImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
             $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
             foreach ($_FILES['file'] as $check) {
@@ -282,6 +333,8 @@ class ImageController extends Controller
             //convert image into .webp format
             $webp_name = $file_data['filename'];
             $image_size = getimagesize($original_path);
+            $org_img_height = $image_size[1];
+            $org_img_width = $image_size[0];
             $width_orig = ($image_size[0] * 50) / 100;
             $height_orig = ($image_size[1] * 50) / 100;
 
@@ -308,7 +361,7 @@ class ImageController extends Controller
                     // For windows
                     $result = (!exec($cmd));
                 }
-                return array('height' => $height, 'width' => $width);
+                return array('height' => $height, 'width' => $width, 'org_img_height' => $org_img_height, 'org_img_width' => $org_img_width);
             } else {
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
@@ -319,11 +372,11 @@ class ImageController extends Controller
                     // For windows
                     $result = (!exec($cmd));
                 }
-                return array('height' => $height_orig, 'width' => $width_orig);
+                return array('height' => $height_orig, 'width' => $width_orig, 'org_img_height' => $org_img_height, 'org_img_width' => $org_img_width);
             }
 
         } catch (Exception $e) {
-            Log::error("saveThumbnailImage Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveThumbnailImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
             $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
             foreach ($_FILES['file'] as $check) {
@@ -410,7 +463,7 @@ class ImageController extends Controller
                 File::copy($original_path . $img_name, $compress_path . $img_name);
             }
         } catch (Exception $e) {
-            Log::error(["Exception :", $e->getMessage(), "TraceAsString :", $e->getTraceAsString()]);
+            Log::error("CompressImageCheck : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
 
     }
@@ -445,7 +498,7 @@ class ImageController extends Controller
             DB::commit();
 
         } catch (Exception $e) {
-            Log::error("deleteImage Exception :", ["Error :" => $e->getMessage(), "TraceAsString :" => $e->getTraceAsString()]);
+            Log::error("deleteImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
             return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' delete image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
@@ -475,7 +528,7 @@ class ImageController extends Controller
 
             DB::commit();
         } catch (Exception $e) {
-            Log::error("saveImageDetails Exception :", ["Error :" => $e->getMessage(), "TraceAsString :" => $e->getTraceAsString()]);
+            Log::error("saveImageDetails : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
             return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'save image details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
@@ -519,7 +572,7 @@ class ImageController extends Controller
             foreach ($_FILES[$file_name] as $check) {
                 chmod($dest1, 0777);
                 copy($dest1, $dest2);
-                Log::error("Exception :", [$e->getMessage()]);
+                Log::error("saveMultipleCompressedImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             }
         }
 
@@ -581,7 +634,7 @@ class ImageController extends Controller
             return $font_name;
 
         } catch (Exception $e) {
-            Log::error("saveFontFile Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveFontFile : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
 
@@ -612,7 +665,7 @@ class ImageController extends Controller
 
 
         } catch (Exception $e) {
-            Log::error("unlinkFile Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("unlinkFile : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
 
@@ -659,7 +712,7 @@ class ImageController extends Controller
 
 
         } catch (Exception $e) {
-            Log::error("saveImageInToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveImageInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
 
@@ -684,7 +737,7 @@ class ImageController extends Controller
             }
 
         } catch (Exception $e) {
-            Log::error("saveFontInToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveFontInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
 
@@ -711,7 +764,7 @@ class ImageController extends Controller
             }
 
         } catch (Exception $e) {
-            Log::error("saveResourceImageInToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveResourceImageInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
 
@@ -754,7 +807,7 @@ class ImageController extends Controller
 
             (new ImageController())->unlinkFile($image);
         } catch (Exception $e) {
-            Log::error("saveImageInToS3ForMigration Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveImageInToS3ForMigration : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
 
@@ -930,7 +983,7 @@ class ImageController extends Controller
 
         } catch (Exception $e) {
 
-            Log::error("saveWebpThumbnailImageFromS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveWebpThumbnailImageFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $image_size = getimagesize($path);
             $width_orig = round(($image_size[0] * 50) / 100);
             $height_orig = round(($image_size[1] * 50) / 100);
@@ -1012,7 +1065,7 @@ class ImageController extends Controller
 
 
         } catch (Exception $e) {
-            Log::error("saveWebpImageInToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveWebpImageInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
     }
@@ -1061,7 +1114,7 @@ class ImageController extends Controller
 
 
         } catch (Exception $e) {
-            Log::error("saveWebpThumbnailImageInToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveWebpThumbnailImageInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
     }
@@ -1085,7 +1138,7 @@ class ImageController extends Controller
                 }
 
             } catch (Exception $e) {
-                Log::Debug("saveOriginalImageFromToS3 is_exist? :", ['Exception_msg : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+                Log::Debug("saveOriginalImageFromToS3 is_exist? : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             }
 
             if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
@@ -1144,7 +1197,7 @@ class ImageController extends Controller
 
         } catch (Exception $e) {
 
-            Log::error("saveOriginalImageFromToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveOriginalImageFromToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return "";
 
         }
@@ -1189,7 +1242,7 @@ class ImageController extends Controller
 
 
         } catch (Exception $e) {
-            Log::error("checkIsImageExist Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("checkIsImageExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return $response = '';
         }
 
@@ -1264,7 +1317,7 @@ class ImageController extends Controller
 
         } catch (Exception $e) {
 
-            Log::error("saveThumbnailImageFromS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveThumbnailImageFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return "";
         }
     }
@@ -1313,7 +1366,7 @@ class ImageController extends Controller
             //(new ImageController())->unlinkfile($image);
 
         } catch (Exception $e) {
-            Log::error("saveNewWebpImageInToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveNewWebpImageInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
     }
@@ -1330,7 +1383,7 @@ class ImageController extends Controller
             }
 
         } catch (Exception $e) {
-            Log::debug("unlinkFileFromLocalStorage Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::debug("unlinkFileFromLocalStorage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
     }
@@ -1350,7 +1403,7 @@ class ImageController extends Controller
 
         } catch (Exception $e) {
             $response = 0;
-            Log::debug("checkFileExist Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::debug("checkFileExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
         return $response;
     }
@@ -1364,7 +1417,7 @@ class ImageController extends Controller
             $disk->delete($original);
 
         } catch (Exception $e) {
-            Log::debug("deleteObjectFromS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::debug("deleteObjectFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
     }

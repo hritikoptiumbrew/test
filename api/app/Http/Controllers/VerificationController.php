@@ -48,7 +48,7 @@ class VerificationController extends Controller
             // Required field(s) are missing or empty
             $error_fields = substr($error_fields, 0, -1);
             $message = 'Required field(s)' . $error_fields . ' is missing or empty.';
-            $response = Response::json(array('code' => 201, 'message' => $message, 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => $message, 'cause' => '', 'data' => json_decode("{}")));
         } else
             $response = '';
 
@@ -81,7 +81,7 @@ class VerificationController extends Controller
             // Required field(s) are missing or empty
             $error_fields = substr($error_fields, 0, -1);
             $message = 'Required field(s)' . $error_fields . ' is missing or empty.';
-            $response = Response::json(array('code' => 201, 'message' => $message, 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => $message, 'cause' => '', 'data' => json_decode("{}")));
         } else
             $response = '';
 
@@ -105,7 +105,7 @@ class VerificationController extends Controller
             // Required field(s) are missing or empty
             $error_fields = substr($error_fields, 0, -1);
             $message = 'Required field(s)' . $error_fields . ' is missing.';
-            $response = Response::json(array('code' => 201, 'message' => $message, 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => $message, 'cause' => '', 'data' => json_decode("{}")));
         } else
             $response = '';
         return $response;
@@ -120,14 +120,14 @@ class VerificationController extends Controller
                                   WHERE user_registration_temp_id = ? AND
                                         otp_token = ?', [$registration_id, $otp_token]);
             if (count($result) == 0) {
-                $response = Response::json(array('code' => 201, 'message' => 'OTP is invalid.', 'cause' => '', 'response' => json_decode("{}")));
+                $response = Response::json(array('code' => 201, 'message' => 'OTP is invalid.', 'cause' => '', 'data' => json_decode("{}")));
             } elseif (strtotime(date(Config::get('constant.DATE_FORMAT'))) > strtotime($result[0]->otp_token_expire)) {
-                $response = Response::json(array('code' => 201, 'message' => 'OTP token expired.', 'cause' => '', 'response' => json_decode("{}")));
+                $response = Response::json(array('code' => 201, 'message' => 'OTP token expired.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $response = '';
             }
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
             Log::error('verifyOTP', ['Exception' => $e->getMessage()]);
         }
         return $response;
@@ -142,10 +142,10 @@ class VerificationController extends Controller
                                         um.is_active
                                         FROM user_master um
                                         WHERE um.email_id = ?', [$user_id]);
-            $response = ($result[0]->is_active == '1') ? '' : Response::json(array('code' => 201, 'message' => 'You are inactive user. Please contact administrator.', 'cause' => '', 'response' => json_decode("{}")));
+            $response = ($result[0]->is_active == '1') ? '' : Response::json(array('code' => 201, 'message' => 'You are inactive user. Please contact administrator.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -165,13 +165,13 @@ class VerificationController extends Controller
 
             if (count($result) == 0) {
                 $reActivationURL = (new Utils())->getBaseUrl() . "/join/#/resubscribe/" . $user_id;
-                $response = Response::json(array('code' => 402, 'message' => 'Your subscription has been expired.', 'cause' => $reActivationURL, 'response' => json_decode("{}")));
+                $response = Response::json(array('code' => 402, 'message' => 'Your subscription has been expired.', 'cause' => $reActivationURL, 'data' => json_decode("{}")));
             } else {
                 $response = '';
             }
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => 'Your subscription has been expired.', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => 'Your subscription has been expired.', 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -184,7 +184,7 @@ class VerificationController extends Controller
             $response = (sizeof($result) != 0) ? 1 : 0;
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
             Log::error('checkIfUserExist', ['Exception' => $e->getMessage()]);
         }
         return $response;
@@ -199,10 +199,10 @@ class VerificationController extends Controller
                                   WHERE r.id = ru.role_id AND
                                         um.id = ru.user_id AND
                                         um.email_id = ?', [$user_id]);
-            $response = (sizeof($result) > 0 && $result[0]->name == $role_name) ? '' : Response::json(array('code' => 201, 'message' => 'Unauthorized user.', 'cause' => '', 'response' => json_decode("{}")));
+            $response = (sizeof($result) > 0 && $result[0]->name == $role_name) ? '' : Response::json(array('code' => 201, 'message' => 'Unauthorized user.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
             Log::error('verifyUser', ['Exception' => $e->getMessage()]);
         }
         return $response;
@@ -223,7 +223,7 @@ class VerificationController extends Controller
             $response = (count($result) > 0) ? $result[0]->name : '';
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -241,7 +241,7 @@ class VerificationController extends Controller
             $response = $result[0]->$column;
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -277,13 +277,13 @@ class VerificationController extends Controller
         try {
             $result = DB::select('SELECT * from advertise_links WHERE url = ?', [$url]);
             if (count($result) >= 1) {
-                $response = Response::json(array('code' => 201, 'message' => 'Advertisement already exist.', 'cause' => '', 'response' => json_decode("{}")));
+                $response = Response::json(array('code' => 201, 'message' => 'Advertisement already exist.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $response = '';
             }
         } catch (Exception $e) {
             Log::error(["Exception :", $e->getMessage(), "TraceAsString :", $e->getTraceAsString()]);
-            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
         }
 
         return $response;
@@ -294,13 +294,13 @@ class VerificationController extends Controller
         try {
             $result = DB::select('SELECT * from promocode_master WHERE promo_code = ?', [$promo_code, $package_name]);
             if (count($result) >= 1) {
-                $response = Response::json(array('code' => 201, 'message' => 'Promo code already exists.', 'cause' => '', 'response' => json_decode("{}")));
+                $response = Response::json(array('code' => 201, 'message' => 'Promo code already exists.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $response = '';
             }
         } catch (Exception $e) {
             Log::error("checkIfPromoCodeExist Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
-            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
         }
 
         return $response;
@@ -312,13 +312,13 @@ class VerificationController extends Controller
         try {
 
             if ($item_count < 3 or $item_count > 200) {
-                $response = Response::json(array('code' => 201, 'message' => 'Item count must be >= 3 and <= 200.', 'cause' => '', 'response' => json_decode("{}")));
+                $response = Response::json(array('code' => 201, 'message' => 'Item count must be >= 3 and <= 200.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $response = '';
             }
         } catch (Exception $e) {
             Log::error("validateItemCount Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
-            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
         }
 
         return $response;
@@ -331,13 +331,13 @@ class VerificationController extends Controller
 
             $result = DB::select('SELECT * from sub_category_advertise_server_id_master WHERE server_id = ?', [$server_id]);
             if (count($result) >= 1) {
-                $response = Response::json(array('code' => 201, 'message' => 'Server id already exists.', 'cause' => '', 'response' => json_decode("{}")));
+                $response = Response::json(array('code' => 201, 'message' => 'Server id already exists.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $response = '';
             }
         } catch (Exception $e) {
             Log::error("validateAdvertiseServerId Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
-            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
         }
 
         return $response;
@@ -359,13 +359,13 @@ class VerificationController extends Controller
             }
 
             if ($count > 0) {
-                return $response = Response::json(array('code' => 201, 'message' => 'Please remove duplicate entry of tag from selection.', 'cause' => '', 'response' => json_decode("{}")));
+                return $response = Response::json(array('code' => 201, 'message' => 'Please remove duplicate entry of tag from selection.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $response = '';
             }
         } catch (Exception $e) {
             Log::error("verifySearchCategory Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
-            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'response' => json_decode("{}")));
+            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
         }
 
         return $response;

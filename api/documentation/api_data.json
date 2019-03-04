@@ -1799,6 +1799,122 @@
   },
   {
     "type": "post",
+    "url": "getSummaryByAdmin",
+    "title": "getSummaryByAdmin",
+    "name": "getSummaryByAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n},\n{\n\"sub_category_id\": 28,\n\"category_id\": 2,\n\"name\": \"Selfie With Ganesha Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/59957acc474a9_category_img_1502968524.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/59957acc474a9_category_img_1502968524.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/59957acc474a9_category_img_1502968524.png\",\n\"no_of_catalogs\": 5,\n\"content_count\": 9,\n\"free_content\": 0,\n\"paid_content\": 9,\n\"last_uploaded_date\": \"2017-08-18 05:18:33\",\n\"is_active\": 1,\n\"last_uploaded_count\": 5\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryByDateRange",
+    "title": "getSummaryByDateRange",
+    "name": "getSummaryByDateRange",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"category_id\":2, //compulsory\n\"sub_category_id\":66, //compulsory\n\"from_date\":\"2018-01-01\", //compulsory\n\"to_date\":\"2019-05-06\", //compulsory\n\"page\":1, //compulsory\n\"item_count\":10, //compulsory\n\"order_by\":\"date\",\n\"order_type\":\"desc\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 59,\n\"is_next_page\": true,\n\"result\": [\n{\n\"date\": \"2018-01-09\",\n\"uploaded_content_count\": 86\n},\n{\n\"date\": \"2018-03-16\",\n\"uploaded_content_count\": 50\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryDetailFromDiffServer",
+    "title": "getSummaryDetailFromDiffServer",
+    "name": "getSummaryDetailFromDiffServer",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"api_url\":\"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api\", //compulsory\n\"category_id\":2, //compulsory\n\"sub_category_id\":66, //compulsory\n\"from_date\":\"2018-01-01\", //compulsory\n\"to_date\":\"2019-05-06\", //compulsory\n\"page\":2, //compulsory\n\"item_count\":2, //compulsory\n\"order_by\":\"date\",\n\"order_type\":\"desc\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary details fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 59,\n\"is_next_page\": true,\n\"result\": [\n{\n\"date\": \"2018-09-11\",\n\"uploaded_content_count\": 1\n},\n{\n\"date\": \"2018-09-07\",\n\"uploaded_content_count\": 2\n}\n]\n}\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryOfAllServersByAdmin",
+    "title": "getSummaryOfAllServersByAdmin",
+    "name": "getSummaryOfAllServersByAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"summary_of_all_servers\": [\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n}\n],\n\"server_url\": \"localhost\"\n},\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 95,\n\"category_id\": 2,\n\"name\": \"Test\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"no_of_catalogs\": 2,\n\"content_count\": 19,\n\"free_content\": 0,\n\"paid_content\": 19,\n\"last_uploaded_date\": \"2019-01-25 09:42:17\",\n\"is_active\": 1,\n\"last_uploaded_count\": 19\n}\n],\n\"server_url\": \"192.168.0.113\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "getUserFeedsBySubCategoryId",
     "title": "getUserFeedsBySubCategoryId",
     "name": "getUserFeedsBySubCategoryId",
@@ -2456,7 +2572,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Profile Updated Successfully.\",\n\"cause\": \"\",\n\"response\": \"\"\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Profile Updated Successfully.\",\n\"cause\": \"\",\n\"data\": \"\"\n}",
           "type": "json"
         }
       ]
@@ -3302,6 +3418,35 @@
   },
   {
     "type": "post",
+    "url": "getAllSamplesWithWebp",
+    "title": "getAllSamplesWithWebp",
+    "name": "getAllSamplesWithWebp",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"catalog_id\": 398, //compulsory\n\"sub_category_id\": 97 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Samples fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 4,\n\"result\": [\n{\n\"json_id\": 3387,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7d03b31ef_json_image_1550810371.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 100,\n\"width\": 320,\n\"search_category\": \"banners\",\n\"original_img_height\": 100,\n\"original_img_width\": 320,\n\"updated_at\": \"2019-03-01 04:59:31\"\n},\n{\n\"json_id\": 3388,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7e1599291_json_image_1550810645.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"search_category\": \"Brochures\",\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-03-01 04:59:04\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "getBackgroundCatalogBySubCategoryId",
     "title": "getBackgroundCatalogBySubCategoryId",
     "name": "getBackgroundCatalogBySubCategoryId",
@@ -3389,6 +3534,35 @@
   },
   {
     "type": "post",
+    "url": "getCatalogBySubCategoryIdWithWebp",
+    "title": "getCatalogBySubCategoryIdWithWebp",
+    "name": "getCatalogBySubCategoryIdWithWebp",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":97, //compulsory\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n\"is_free\":1 //optional, 1=free & 0=paid\n\"is_featured\":1 //optional, 1=featured(Ex: get template categories) & 0=normal(Ex: et sticker categories)\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Catalogs fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 21,\n\"is_next_page\": true,\n\"result\": [\n{\n\"catalog_id\": 498,\n\"name\": \"Party\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c7914a7c12f5_catalog_img_1551439015.webp\",\n\"webp_original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c7914a7c12f5_catalog_img_1551439015.webp\",\n\"is_featured\": 1,\n\"is_free\": 1,\n\"updated_at\": \"2019-03-01 11:16:56\"\n},\n{\n\"catalog_id\": 497,\n\"name\": \"Offer & Sales\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c7912eee5c0e_catalog_img_1551438574.webp\",\n\"webp_original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c7912eee5c0e_catalog_img_1551438574.webp\",\n\"is_featured\": 1,\n\"is_free\": 1,\n\"updated_at\": \"2019-03-01 11:09:35\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "getCatalogsByType",
     "title": "getCatalogsByType",
     "name": "getCatalogsByType",
@@ -3438,6 +3612,35 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Catalogs fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"catalog_id\": 333,\n\"name\": \"Shonar Bangla\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c419ca410289_catalog_img_1547803812.webp\",\n\"is_featured\": 0,\n\"is_free\": 1,\n\"updated_at\": \"2019-01-18 09:30:12\"\n},\n{\n\"catalog_id\": 332,\n\"name\": \"Roboto\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c419c992fbeb_catalog_img_1547803801.webp\",\n\"is_featured\": 0,\n\"is_free\": 1,\n\"updated_at\": \"2019-01-18 09:30:01\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getContentByCatalogId",
+    "title": "getContentByCatalogId",
+    "name": "getContentByCatalogId",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"catalog_id\":397, //compulsory\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 135,\n\"is_next_page\": true,\n\"result\": [\n{\n\"img_id\": 3303,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n},\n{\n\"img_id\": 3304,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -3611,7 +3814,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Images Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 13,\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e5ec3f2_catalog_image_1502433765.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e5ec3f2_catalog_image_1502433765.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d51e5ec3f2_catalog_image_1502433765.png\"\n},\n{\n\"img_id\": 14,\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e65fdf3_catalog_image_1502433766.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e65fdf3_catalog_image_1502433766.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d51e65fdf3_catalog_image_1502433766.png\"\n},\n{\n\"img_id\": 11,\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e4e7d68_catalog_image_1502433764.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e4e7d68_catalog_image_1502433764.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d51e4e7d68_catalog_image_1502433764.png\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Images fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 3303,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_free\": 0,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n},\n{\n\"img_id\": 3304,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_free\": 0,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -3708,6 +3911,35 @@
   },
   {
     "type": "post",
+    "url": "getJsonSampleDataFilterBySearchTag",
+    "title": "getJsonSampleDataFilterBySearchTag",
+    "name": "getJsonSampleDataFilterBySearchTag",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":51, //Compulsory\n\"page\":2, //Compulsory\n\"item_count\":10 //Compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 5,\n\"is_next_page\": false,\n\"result\": [\n{\n\"category_name\": \"Flyer\",\n\"content_list\": [\n{\n\"json_id\": 3385,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6e289c967e9_json_image_1550723228.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"search_category\": \"Flyer,Fitness\",\n\"original_img_height\": 800,\n\"original_img_width\": 650,\n\"updated_at\": \"2019-02-21 04:28:03\"\n}\n]\n},\n{\n\"category_name\": \"Business Card\",\n\"content_list\": []\n},\n{\n\"category_name\": \"Brochure\",\n\"content_list\": [\n{\n\"json_id\": 3325,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"search_category\": \"Brochure\",\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-02-20 11:07:06\"\n}\n]\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "getJsonSampleDataWithLastSyncTime",
     "title": "getJsonSampleDataWithLastSyncTime",
     "name": "getJsonSampleDataWithLastSyncTime",
@@ -3751,12 +3983,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"page\":2,\n\"item_count\":10,\n\"catalog_id\":167,\n\"sub_category_id\":51,\n\"last_sync_time\": \"2017-11-28 00:00:00\"\n}",
+          "content": "{\n\"catalog_id\": 398,\n\"item_count\": 20,\n\"last_sync_time\": \"0\",\n\"page\": 1,\n\"sub_category_id\": 97\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All json fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 23,\n\"is_next_page\": true,\n\"last_sync_time\": \"2018-06-21 12:04:36\",\n\"data\": [\n{\n\"json_id\": 1190,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0ae54e2105_json_image_1521528404.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"json_id\": 1185,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0af12d9bae_json_image_1521528594.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"updated_at\": \"2018-06-21 12:04:32\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Samples fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 3,\n\"is_next_page\": false,\n\"data\": [\n{\n\"json_id\": 3326,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d3523a43b5_json_image_1550660899.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 0,\n\"height\": 256,\n\"width\": 512,\n\"search_category\": \"Twitter\",\n\"original_img_height\": 512,\n\"original_img_width\": 1024,\n\"updated_at\": \"2019-02-20 11:08:20\"\n},\n{\n\"json_id\": 3325,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"search_category\": \"Brochure\",\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-02-20 11:07:06\"\n}\n],\n\"last_sync_time\": \"2019-02-21 09:50:37\"\n}\n}",
           "type": "json"
         }
       ]
@@ -3844,35 +4076,6 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Advertise Link Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 14,\n\"link_list\": [\n{\n\"advertise_link_id\": 77,\n\"name\": \"Romantic Love Photo Editor\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1e813f47368_banner_image_1511948607.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1e813f47368_banner_image_1511948607.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1e813f47368_banner_image_1511948607.png\",\n\"app_logo_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1e814000aa9_app_logo_image_1511948608.png\",\n\"app_logo_compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1e814000aa9_app_logo_image_1511948608.png\",\n\"app_logo_original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1e814000aa9_app_logo_image_1511948608.png\",\n\"url\": \"https://play.google.com/store/apps/details?id=com.optimumbrewlab.lovephotoeditor\",\n\"platform\": \"Android\",\n\"app_description\": \"Romantic Love Photo Editor - Realistic Photo Effects, Beautiful Photo Frames, Stickers, etc.\"\n}\n]\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/UserController.php",
-    "groupTitle": "User"
-  },
-  {
-    "type": "post",
-    "url": "getOfflineFontCatalogs",
-    "title": "getOfflineFontCatalogs",
-    "name": "getOfflineFontCatalogs",
-    "group": "User",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":94 //compulsory\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalogs fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"catalog_id\": 299,\n\"name\": \"VAG Rounded Std\",\n\"updated_at\": \"2019-01-18 05:58:20\",\n\"font_list\": [\n{\n\"font_id\": 27,\n\"catalog_id\": 299,\n\"font_name\": \"VAGRoundedStd-Light.ttf\",\n\"font_file\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/VAGRoundedStd-Light.ttf\"\n},\n{\n\"font_id\": 26,\n\"catalog_id\": 299,\n\"font_name\": \"VAGRoundedStd-Bold.ttf\",\n\"font_file\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/VAGRoundedStd-Bold.ttf\"\n}\n]\n}\n]\n}\n}",
           "type": "json"
         }
       ]

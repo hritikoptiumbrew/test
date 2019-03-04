@@ -33,6 +33,10 @@ Route::post('getLinkWithoutToken', 'UserController@getLinkWithoutToken');
 
 Route::get('getRedisInfo','AdminController@getRedisInfo');
 
+//Statistics of current server
+Route::post('getSummaryByAdmin', 'AdminController@getSummaryByAdmin');
+Route::post('getSummaryByDateRange', 'AdminController@getSummaryByDateRange');
+
 Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']], function() {
 
     Route::post('changePassword', 'LoginController@changePassword');
@@ -194,6 +198,10 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     //Fetch table information from database
     Route::post('getDatabaseInfo', 'AdminController@getDatabaseInfo');
 
+    //Statistics of All servers
+    Route::post('getSummaryOfAllServersByAdmin', 'AdminController@getSummaryOfAllServersByAdmin');
+    Route::post('getSummaryDetailFromDiffServer', 'AdminController@getSummaryDetailFromDiffServer');
+
 });
 
 Route::post('addQuestionAnswer','QnAController@addQuestionAnswer');
@@ -215,9 +223,11 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     Route::post('getLink', 'UserController@getLink');
     Route::post('getJsonData', 'UserController@getJsonData');
     Route::post('getJsonSampleData', 'UserController@getJsonSampleData');
+    Route::post('getContentByCatalogId', 'UserController@getContentByCatalogId');
 
     // Get Catalog with last_sync_date
     Route::post('getCatalogBySubCategoryIdWithLastSyncTime', 'UserController@getCatalogBySubCategoryIdWithLastSyncTime');
+    Route::post('getCatalogBySubCategoryIdWithWebp', 'UserController@getCatalogBySubCategoryIdWithWebp'); //get list of catalogs with pagination
     Route::post('getJsonSampleDataWithLastSyncTime', 'UserController@getJsonSampleDataWithLastSyncTime');
     Route::post('getFeaturedJsonImages', 'UserController@getFeaturedJsonImages'); // get all featured images of catalog for json
     Route::post('getDeletedJsonId', 'UserController@getDeletedJsonId');
@@ -234,6 +244,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     Route::post('getJsonSampleDataWithLastSyncTime_webp', 'UserController@getJsonSampleDataWithLastSyncTime_webp');
     Route::post('getJsonSampleDataWithLastSyncTime_webpIos', 'UserController@getJsonSampleDataWithLastSyncTime_webpIos');
     Route::post('getFeaturedJsonSampleData_webp', 'UserController@getFeaturedJsonSampleData_webp');
+    Route::post('getAllSamplesWithWebp', 'UserController@getAllSamplesWithWebp');
 
     //Fetch images from Pixabay
     Route::post('getImagesFromPixabay', 'PixabayController@getImagesFromPixabay');
@@ -272,7 +283,8 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     Route::post('getAllFontsByCatalogId', 'UserController@getAllFontsByCatalogId');
     Route::post('getCatalogsByType', 'UserController@getCatalogsByType'); //To get jpg/png catalog images
     Route::post('getCatalogsByTypeInWebp', 'UserController@getCatalogsByTypeInWebp'); //To get webp catalog image
-    Route::post('getOfflineFontCatalogs', 'UserController@getOfflineFontCatalogs'); //To get webp catalog image
 
+    //Get templates for Brand Maker
+    Route::post('getJsonSampleDataFilterBySearchTag', 'UserController@getJsonSampleDataFilterBySearchTag'); //To get templates divide by categories
 
 });

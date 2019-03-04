@@ -87,7 +87,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Promo code added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addPromoCode Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addPromoCode : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -205,7 +205,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllPromoCode Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllPromoCode : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -277,7 +277,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Promo code fetched successfully.', 'cause' => '', 'data' => ['result' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchPromoCode Exception :", ['Exception : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("searchPromoCode : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -328,7 +328,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -388,7 +388,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("updateCategory Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("updateCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -443,7 +443,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Category deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -537,7 +537,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -598,7 +598,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Search category fetched successfully.', 'cause' => '', 'data' => ['category_list' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchCategoryByName Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("searchCategoryByName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -671,8 +671,8 @@ class AdminController extends Controller
 
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'follow user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            Log::error('followUser', ['Exception' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'store file into S3 bucket.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("storeFileIntoS3Bucket : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollback();
         }
         return $response;
@@ -696,7 +696,7 @@ class AdminController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("getHostName Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getHostName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get host name.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -780,7 +780,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Sub category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addSubCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addSubCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -884,7 +884,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Sub category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("updateSubCategory Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("updateSubCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -933,7 +933,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Sub category deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteSubCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteSubCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -1048,7 +1048,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getSubCategoryByCategoryId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getSubCategoryByCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -1130,7 +1130,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllSubCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllSubCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -1199,7 +1199,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Sub category fetched successfully.', 'cause' => '', 'data' => ['category_list' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchSubCategoryByName Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("searchSubCategoryByName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -1295,7 +1295,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Catalog added successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("addCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -1401,7 +1401,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Catalog updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("updateCatalog Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("updateCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -1467,7 +1467,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalog deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -1556,7 +1556,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getFeaturedCatalogBySubCategoryId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getFeaturedCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -1760,7 +1760,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getCatalogBySubCategoryId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -1885,7 +1885,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getBackgroundCatalogBySubCategoryId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getBackgroundCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -1958,7 +1958,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Catalog search successfully.', 'cause' => '', 'data' => ['category_list' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchCatalogByName Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("searchCatalogByName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -2036,7 +2036,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Normal images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addCatalogImages Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addCatalogImages : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add normal images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -2149,7 +2149,7 @@ class AdminController extends Controller
             }
 
         } catch (Exception $e) {
-            Log::error("addFeaturedBackgroundCatalogImage Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addFeaturedBackgroundCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add featured background images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -2247,7 +2247,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Image updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("updateFeaturedBackgroundCatalogImage Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("updateFeaturedBackgroundCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -2357,7 +2357,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getSampleImagesForAdmin Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getSampleImagesForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -2472,7 +2472,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getSampleImagesForMobile Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getSampleImagesForMobile : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -2557,7 +2557,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Normal image updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("updateCatalogImage Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("updateCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update normal image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -2617,7 +2617,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Normal image deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteCatalogImage Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete normal image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -2718,7 +2718,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getDataByCatalogIdForAdmin Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getDataByCatalogIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get data by catalog id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -2741,27 +2741,33 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Catalog Images Fetched Successfully.",
+     * "message": "Images fetched successfully.",
      * "cause": "",
      * "data": {
      * "image_list": [
      * {
-     * "img_id": 13,
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e5ec3f2_catalog_image_1502433765.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e5ec3f2_catalog_image_1502433765.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d51e5ec3f2_catalog_image_1502433765.png"
+     * "img_id": 3303,
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg",
+     * "is_json_data": 0,
+     * "json_data": "",
+     * "is_featured": "",
+     * "is_free": 0,
+     * "is_portrait": 0,
+     * "search_category": ""
      * },
      * {
-     * "img_id": 14,
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e65fdf3_catalog_image_1502433766.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e65fdf3_catalog_image_1502433766.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d51e65fdf3_catalog_image_1502433766.png"
-     * },
-     * {
-     * "img_id": 11,
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e4e7d68_catalog_image_1502433764.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e4e7d68_catalog_image_1502433764.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d51e4e7d68_catalog_image_1502433764.png"
+     * "img_id": 3304,
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg",
+     * "is_json_data": 0,
+     * "json_data": "",
+     * "is_featured": "",
+     * "is_free": 0,
+     * "is_portrait": 0,
+     * "search_category": ""
      * }
      * ]
      * }
@@ -2823,14 +2829,11 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getImagesByCatalogId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getImagesByCatalogId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
-
-
-
 
     /* ======================================== Link Catalog ===================================== */
 
@@ -2920,7 +2923,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -2981,7 +2984,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalog linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("linkCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("linkCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -3098,7 +3101,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllSubCategoryForLinkCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllSubCategoryForLinkCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all sub categories.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -3169,7 +3172,7 @@ class AdminController extends Controller
 //            }
 
         } catch (Exception $e) {
-            Log::error("deleteLinkedCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteLinkedCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete linked catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -3281,7 +3284,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Link added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addLink :", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -3538,7 +3541,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Link updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("updateLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("updateLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -3590,7 +3593,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Link deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -3727,7 +3730,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all links.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -3845,7 +3848,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAdvertiseLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAdvertiseLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get advertise link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -3895,7 +3898,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Advertise linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addAdvertiseLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addAdvertiseLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link advertisement.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -3954,7 +3957,7 @@ class AdminController extends Controller
             }
 
         } catch (Exception $e) {
-            Log::error("unlinkAdvertise Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("unlinkAdvertise : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'unLinked advertisement.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -4108,7 +4111,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -4208,7 +4211,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getPurchaseUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getPurchaseUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get purchased user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -4317,7 +4320,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllRestoreDevice Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllRestoreDevice : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all restore devices.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -4423,7 +4426,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Users fetched successfully.', 'cause' => '', 'data' => ['list_user' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("searchUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -4505,7 +4508,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Purchase users fetched successfully.', 'cause' => '', 'data' => ['list_user' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchPurchaseUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("searchPurchaseUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search purchased user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -4576,7 +4579,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Restore devices fetched successfully.', 'cause' => '', 'data' => ['list_device' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchRestoreDevice Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("searchRestoreDevice : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search restore devices.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -4610,7 +4613,7 @@ class AdminController extends Controller
      * "code": 200,
      * "message": "Profile Updated Successfully.",
      * "cause": "",
-     * "response": ""
+     * "data": ""
      * }
      */
     public function updateUserProfile(Request $request_body)
@@ -4624,7 +4627,7 @@ class AdminController extends Controller
 
             //Required parameter
             if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'response' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
 
@@ -4681,11 +4684,11 @@ class AdminController extends Controller
 
             DB::commit();
 
-            $response = Response::json(array('code' => 200, 'message' => 'Profile updated successfully.', 'cause' => '', 'response' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Profile updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("updateUserProfile Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update user profile.', 'cause' => $e->getMessage(), 'response' => json_decode("{}")));
+            Log::error("updateUserProfile : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update user profile.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -4810,7 +4813,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getImageDetails Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getImageDetails : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get image details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -4855,7 +4858,7 @@ class AdminController extends Controller
 
             //Required parameter
             if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'response' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
 
@@ -4892,7 +4895,7 @@ class AdminController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("addCatalogImagesForJson Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addCatalogImagesForJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -4973,6 +4976,8 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
                 return $response;
 
+            if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                return $response;
 
             DB::beginTransaction();
             if (!$request_body->hasFile('file')) {
@@ -4981,6 +4986,9 @@ class AdminController extends Controller
 
                 $image_array = Input::file('file');
                 if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
                     return $response;
 
                 $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
@@ -5004,8 +5012,8 @@ class AdminController extends Controller
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, search_category, height, width, created_at, attribute1)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $created_at, $file_name]);
+                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
 
 
                 DB::commit();
@@ -5024,7 +5032,7 @@ class AdminController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("addJson Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -5091,7 +5099,7 @@ class AdminController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("addJson Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -5209,7 +5217,7 @@ class AdminController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("editJsonData Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -5246,6 +5254,9 @@ class AdminController extends Controller
                 if (($response = (new ImageController())->verifyImage($image_array)) != '')
                     return $response;
 
+                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
+                    return $response;
+
                 $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
                 (new ImageController())->saveOriginalImage($catalog_image);
                 (new ImageController())->saveCompressedImage($catalog_image);
@@ -5264,8 +5275,8 @@ class AdminController extends Controller
                                 WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
 
                 DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $file_name, $img_id]);
+                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, original_img_height = ?, original_img_width = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
                 DB::commit();
 
                 if (strstr($file_name, '.webp')) {
@@ -5330,7 +5341,7 @@ class AdminController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("editJsonData Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -5386,7 +5397,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Advertisement linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("linkAdvertisementWithSubCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("linkAdvertisementWithSubCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link advertisement with sub_category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -5492,7 +5503,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllAdvertisementForLinkAdvertisement Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllAdvertisementForLinkAdvertisement : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all sub categories.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -5552,7 +5563,7 @@ class AdminController extends Controller
             DB::commit();
 
         } catch (Exception $e) {
-            Log::error("deleteLinkedAdvertisement Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteLinkedAdvertisement : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete linked advertisement.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -5673,7 +5684,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllAdvertisements Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllAdvertisements : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get advertisements.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -5796,7 +5807,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllAdvertisementToLinkAdvertisement Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllAdvertisementToLinkAdvertisement : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all advertisements.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -5942,7 +5953,7 @@ class AdminController extends Controller
 
 
         } catch (Exception $e) {
-            Log::error("addAppContentViaMigration Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addAppContentViaMigration : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -5995,7 +6006,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Advertise category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addAdvertisementCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addAdvertisementCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -6045,7 +6056,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Advertise category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("editAdvertisementCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("editAdvertisementCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -6094,7 +6105,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Advertise category deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteAdvertisementCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteAdvertisementCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -6179,7 +6190,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllAdvertiseCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllAdvertiseCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all advertise categories.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -6252,7 +6263,7 @@ class AdminController extends Controller
             }
 
         } catch (Exception $e) {
-            Log::error("addAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addAdvertiseServerId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add or update advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -6303,7 +6314,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Advertise server id updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("updateAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("updateAdvertiseServerId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -6350,7 +6361,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Advertise server id deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteAdvertiseServerId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -6516,7 +6527,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAdvertiseServerIdForAdmin Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAdvertiseServerIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -6655,7 +6666,7 @@ class AdminController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("updateAllSampleImages Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("updateAllSampleImages : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -6776,7 +6787,7 @@ class AdminController extends Controller
 
         } catch
         (Exception $e) {
-            Log::error("createInvalidation Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("createInvalidation : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'create invalidation.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -6833,7 +6844,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Tag added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addTag Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -6898,7 +6909,7 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Tag updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("updateTag Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("updateTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -6949,7 +6960,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Tag deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteTag Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -7025,7 +7036,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllTags Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllTags : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all tags.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -7238,7 +7249,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getSamplesOfNonCommercialFont Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getSamplesOfNonCommercialFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -7334,7 +7345,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Font added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addFont Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add font.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -7415,7 +7426,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Font edited successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("editFont Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("editFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit font.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -7466,7 +7477,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Font deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteFont Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete font.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -7562,8 +7573,400 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllFontsByCatalogIdForAdmin Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getAllFontsByCatalogIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =========================================| Statistics Module |=========================================*/
+
+    /**
+     * @api {post} getSummaryByAdmin   getSummaryByAdmin
+     * @apiName getSummaryByAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Summary fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 33,
+     * "result": [
+     * {
+     * "sub_category_id": 20,
+     * "category_id": 2,
+     * "name": "Independence Day Stickers",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "no_of_catalogs": 7,
+     * "content_count": 81,
+     * "free_content": 6,
+     * "paid_content": 75,
+     * "last_uploaded_date": "2018-03-10 07:02:54",
+     * "is_active": 1,
+     * "last_uploaded_count": 6
+     * },
+     * {
+     * "sub_category_id": 28,
+     * "category_id": 2,
+     * "name": "Selfie With Ganesha Stickers",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/59957acc474a9_category_img_1502968524.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/59957acc474a9_category_img_1502968524.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/59957acc474a9_category_img_1502968524.png",
+     * "no_of_catalogs": 5,
+     * "content_count": 9,
+     * "free_content": 0,
+     * "paid_content": 9,
+     * "last_uploaded_date": "2017-08-18 05:18:33",
+     * "is_active": 1,
+     * "last_uploaded_count": 5
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getSummaryByAdmin()
+    {
+        try {
+            /*$token = JWTAuth::getToken();
+            JWTAuth::toUser($token);*/
+
+            $result = DB::select('SELECT
+                                      DISTINCT scm.id AS sub_category_id,
+                                      scm.category_id,
+                                      scm.name,
+                                      IF(scm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as thumbnail_img,
+                                      IF(scm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as compressed_img,
+                                      IF(scm.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as original_img,
+                                      count(DISTINCT scc.catalog_id) AS no_of_catalogs,
+                                      count(cm.catalog_id) AS content_count,
+                                      count(IF(cm.is_free=1,1, NULL)) AS free_content,
+                                      count(IF(cm.is_free=0,1, NULL)) AS paid_content,
+                                      coalesce((max(cm.created_at)),"") AS last_uploaded_date,
+                                      scm.is_active
+                                    FROM
+                                      sub_category AS scm LEFT JOIN sub_category_catalog AS scc
+                                      LEFT JOIN images AS cm
+                                        ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                        ON scm.id = scc.sub_category_id AND scc.is_active = 1
+                                    GROUP BY scm.id HAVING scm.is_active = 1 AND scm.category_id = ? ORDER BY last_uploaded_date DESC', [2]);
+
+            foreach ($result as $key) {
+                $last_uploaded_count = DB::select('SELECT
+                                      DISTINCT scm.id AS sub_category_id,
+                                      scm.category_id,
+                                      count(IF(DATE(cm.created_at)=date(?),1,NULL)) AS last_uploaded_count,
+                                      scm.is_active
+                                    FROM
+                                      sub_category AS scm LEFT JOIN sub_category_catalog AS scc
+                                      LEFT JOIN images AS cm
+                                        ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                        ON scm.id = scc.sub_category_id AND scc.is_active = 1
+                                    GROUP BY scm.id HAVING scm.is_active = 1 AND scm.category_id = ? AND scm.id = ?
+                                    ORDER BY scm.category_id DESC', [$key->last_uploaded_date, $key->category_id, $key->sub_category_id]);
+
+                $key->last_uploaded_count = $last_uploaded_count[0]->last_uploaded_count;
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Summary fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($result), 'result' => $result]));
+
+        } catch (Exception $e) {
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getSummaryOfAllServersByAdmin   getSummaryOfAllServersByAdmin
+     * @apiName getSummaryOfAllServersByAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Summary fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 2,
+     * "summary_of_all_servers": [
+     * {
+     * "total_record": 33,
+     * "result": [
+     * {
+     * "sub_category_id": 20,
+     * "category_id": 2,
+     * "name": "Independence Day Stickers",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "no_of_catalogs": 7,
+     * "content_count": 81,
+     * "free_content": 6,
+     * "paid_content": 75,
+     * "last_uploaded_date": "2018-03-10 07:02:54",
+     * "is_active": 1,
+     * "last_uploaded_count": 6
+     * }
+     * ],
+     * "server_url": "localhost"
+     * },
+     * {
+     * "total_record": 33,
+     * "result": [
+     * {
+     * "sub_category_id": 95,
+     * "category_id": 2,
+     * "name": "Test",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c4ac74046e7a_sub_category_img_1548404544.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c4ac74046e7a_sub_category_img_1548404544.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c4ac74046e7a_sub_category_img_1548404544.jpg",
+     * "no_of_catalogs": 2,
+     * "content_count": 19,
+     * "free_content": 0,
+     * "paid_content": 19,
+     * "last_uploaded_date": "2019-01-25 09:42:17",
+     * "is_active": 1,
+     * "last_uploaded_count": 19
+     * }
+     * ],
+     * "server_url": "192.168.0.113"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getSummaryOfAllServersByAdmin()
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $server_list = explode(",", Config::get('constant.SERVER_LIST'));
+            $all_server_list = array();
+            $i = 0; // used for array indexing
+            foreach ($server_list as $key) {
+                $client = new Client();
+                $output = $client->post($key); //$key is a url of api
+                $data = json_decode($output->getBody()->getContents(), true);
+                $data['data']['server_url'] = parse_url($key, PHP_URL_HOST);
+                $all_server_list[$i] = $data['data'];
+                $i++;
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Summary fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($all_server_list), 'summary_of_all_servers' => $all_server_list]));
+
+        } catch (Exception $e) {
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary of all servers.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryOfAllServersByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getSummaryDetailFromDiffServer   getSummaryDetailFromDiffServer
+     * @apiName getSummaryDetailFromDiffServer
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "api_url":"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api", //compulsory
+     * "category_id":2, //compulsory
+     * "sub_category_id":66, //compulsory
+     * "from_date":"2018-01-01", //compulsory
+     * "to_date":"2019-05-06", //compulsory
+     * "page":2, //compulsory
+     * "item_count":2, //compulsory
+     * "order_by":"date",
+     * "order_type":"desc"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Summary details fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "code": 200,
+     * "message": "Summary fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 59,
+     * "is_next_page": true,
+     * "result": [
+     * {
+     * "date": "2018-09-11",
+     * "uploaded_content_count": 1
+     * },
+     * {
+     * "date": "2018-09-07",
+     * "uploaded_content_count": 2
+     * }
+     * ]
+     * }
+     * }
+     * }
+     */
+    public function getSummaryDetailFromDiffServer(Request $request)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('api_url', 'category_id', 'sub_category_id', 'from_date', 'to_date', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $api_url = $request->api_url . "/getSummaryByDateRange";
+            $category_id = $request->category_id;
+            $sub_category_id = $request->sub_category_id;
+            $from_date = $request->from_date;
+            $to_date = $request->to_date;
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $order_by = isset($request->order_by) ? $request->order_by : 'date'; //field name
+            $order_type = isset($request->order_type) ? $request->order_type : 'DESC'; //asc or desc
+
+            $request_body = array(
+                'json' => array(
+                    'category_id' => $category_id,
+                    'sub_category_id' => $sub_category_id,
+                    'from_date' => $from_date,
+                    'to_date' => $to_date,
+                    'page' => $page,
+                    'item_count' => $item_count,
+                    'order_by' => $order_by,
+                    'order_type' => $order_type,
+                )
+            );
+
+            $client = new Client();
+            $output = $client->post($api_url, $request_body);
+            $data = json_decode($output->getBody()->getContents(), true);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Summary details fetched successfully.', 'cause' => '', 'data' => $data));
+
+        } catch (Exception $e) {
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryDetailFromDiffServer : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getSummaryByDateRange   getSummaryByDateRange
+     * @apiName getSummaryByDateRange
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "category_id":2, //compulsory
+     * "sub_category_id":66, //compulsory
+     * "from_date":"2018-01-01", //compulsory
+     * "to_date":"2019-05-06", //compulsory
+     * "page":1, //compulsory
+     * "item_count":10, //compulsory
+     * "order_by":"date",
+     * "order_type":"desc"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Summary fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 59,
+     * "is_next_page": true,
+     * "result": [
+     * {
+     * "date": "2018-01-09",
+     * "uploaded_content_count": 86
+     * },
+     * {
+     * "date": "2018-03-16",
+     * "uploaded_content_count": 50
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getSummaryByDateRange(Request $request)
+    {
+        try {
+            /*$token = JWTAuth::getToken();
+            JWTAuth::toUser($token);*/
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'from_date', 'to_date', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $category_id = $request->category_id;
+            $sub_category_id = $request->sub_category_id;
+            $from_date = $request->from_date;
+            $to_date = $request->to_date;
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $offset = ($page - 1) * $item_count;
+            $order_by = isset($request->order_by) ? $request->order_by : 'date'; //field name
+            $order_type = isset($request->order_type) ? $request->order_type : 'DESC'; //asc or desc
+
+            $total_row_result = DB::select('SELECT
+                                                  DATE (cm.created_at) AS date,
+                                                  count(*) AS total
+                                                FROM
+                                                  sub_category AS scm LEFT JOIN sub_category_catalog AS scc
+                                                  LEFT JOIN images AS cm
+                                                    ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                                    ON scm.id = scc.sub_category_id AND scc.is_active = 1 AND scm.category_id = ? AND scm.id = ?
+                                                  WHERE cm.created_at BETWEEN ? AND ?
+                                                GROUP BY date', [$category_id, $sub_category_id, $from_date, $to_date]);
+
+            $total_row = count($total_row_result);
+
+
+            $uploaded_content_count = DB::select('SELECT
+                                                  DATE (cm.created_at) AS date,
+                                                  count(*) AS uploaded_content_count
+                                                FROM
+                                                  sub_category AS scm LEFT JOIN sub_category_catalog AS scc
+                                                  LEFT JOIN images AS cm
+                                                    ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                                    ON scm.id = scc.sub_category_id AND scc.is_active = 1 AND scm.category_id = ? AND scm.id = ?
+                                                  WHERE cm.created_at BETWEEN ? AND ?
+                                                GROUP BY date
+                                                ORDER BY  ' . $order_by . ' ' . $order_type . ' LIMIT ?,?', [$category_id, $sub_category_id, $from_date, $to_date, $offset, $item_count]);
+
+            $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
+
+            $response = Response::json(array('code' => 200, 'message' => 'Summary fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $uploaded_content_count]));
+
+        } catch (Exception $e) {
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary by date range.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryByDateRange : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
         return $response;
     }
@@ -7617,7 +8020,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("redisInfo Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("redisInfo : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Get Redis-Cache Keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -7683,7 +8086,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("redisInfo Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("redisInfo : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Delete Redis Keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -7748,7 +8151,7 @@ class AdminController extends Controller
             $result = ['keys_detail' => unserialize($key_detail)];
             $response = Response::json(array('code' => 200, 'message' => 'Redis Key Detail Fetched Successfully.', 'cause' => '', 'data' => $result));
         } catch (Exception $e) {
-            Log::error("getRedisKeyDetail Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getRedisKeyDetail : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Get Redis-Cache Key Detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -7786,7 +8189,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getRedisKeyDetail Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("clearRedisCache : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Get Redis-Cache Key Detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -7808,7 +8211,7 @@ class AdminController extends Controller
             return DB::select("$query");
 
         } catch (Exception $e) {
-            Log::error("getDatabaseInfo Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getDatabaseInfo : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get database information.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;

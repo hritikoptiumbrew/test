@@ -69,13 +69,13 @@ class NotificationController extends Controller
                 return $response;
             $GCM_DATA = $data->GCM_DATA;
             $GCM_DATA->messageType = 1;
-            if (($response = (new VerificationController())->validateRequiredParameter(array('title', 'message','sub_category_id'), $GCM_DATA)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('title', 'message', 'sub_category_id'), $GCM_DATA)) != '')
                 return $response;
 
             $notification_id = $this->sendNotification($data);
 
             $result = ['notification_id' => $notification_id];
-            $response = Response::json(array('code' => '200', 'message' => 'Notification sent successfully.', 'cause' => '', 'response' => $result));
+            $response = Response::json(array('code' => 200, 'message' => 'Notification sent successfully.', 'cause' => '', 'response' => $result));
 
         } catch (Exception $e) {
             Log::error('sendPushNotification', ['Exception' => $e->getMessage()]);
@@ -105,11 +105,11 @@ class NotificationController extends Controller
         try {
 
             if (!$request_body->has('request_data'))
-                return Response::json(array('code' => '201', 'message' => 'required field request_data is missing or empty', 'cause' => '', 'response' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'response' => json_decode("{}")));
 
 
             /* if (!$request_body->hasFile('file'))
-                 return Response::json(array('code' => '201', 'message' => 'required field file is missing or empty', 'cause' => '', 'response' => json_decode("{}")));*/
+                 return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'response' => json_decode("{}")));*/
             $request = json_decode($request_body->input('request_data'));
 
             $data = $request->data;
@@ -176,7 +176,7 @@ class NotificationController extends Controller
 
             $result = ['notification_id' => $notification_id];
             //DB::commit();
-            $response = Response::json(array('code' => '200', 'message' => 'Notification sent successfully.', 'cause' => '', 'response' => $result));
+            $response = Response::json(array('code' => 200, 'message' => 'Notification sent successfully.', 'cause' => '', 'response' => $result));
 
 
         } catch (Exception $e) {
@@ -218,7 +218,7 @@ class NotificationController extends Controller
 
             $result = ['notification_id' => $notification_id];
             //DB::commit();
-            $response = Response::json(array('code' => '200', 'message' => 'Notification sent successfully.', 'cause' => '', 'response' => $result));
+            $response = Response::json(array('code' => 200, 'message' => 'Notification sent successfully.', 'cause' => '', 'response' => $result));
 
 
         } catch (Exception $e) {
@@ -233,14 +233,14 @@ class NotificationController extends Controller
     {
         try {
             //DB::beginTransaction();
-            $GCM_DATA=$data->GCM_DATA;
+            $GCM_DATA = $data->GCM_DATA;
             $all_devices = $this->getAllDevices($GCM_DATA->sub_category_id);
             if (is_null($all_devices))
-                return Response::json(array('code' => '201', 'message' => 'No device registered with this application.', 'cause' => '', 'response' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'No device registered with this application.', 'cause' => '', 'response' => json_decode("{}")));
 
             $notification_id = $this->getNotificationId($data->GCM_DATA, $all_devices['total_all']);
             if (is_null($notification_id))
-                return Response::json(array('code' => '201', 'message' => 'ob_photolab is unable to get Notification Id.', 'cause' => '', 'response' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'ob_photolab is unable to get Notification Id.', 'cause' => '', 'response' => json_decode("{}")));
 
             if ($all_devices['total_android'] > 0) {
 
@@ -248,11 +248,11 @@ class NotificationController extends Controller
 
                 $android_gcm_server_key = Config::get('constant.GCM_SERVER_KEY');
                 if (is_null($android_gcm_server_key))
-                    return Response::json(array('code' => '201', 'message' => 'Please enter valid android GCM API key.', 'cause' => '', 'response' => json_decode("{}")));
+                    return Response::json(array('code' => 201, 'message' => 'Please enter valid android GCM API key.', 'cause' => '', 'response' => json_decode("{}")));
 
                 $android_notification_response = $this->sentAndroidNotification($data->GCM_DATA, $all_devices, $notification_id, $android_gcm_server_key);
                 if ($android_notification_response !== 200)
-                    return Response::json(array('code' => '201', 'message' => 'Error Code: ' . $android_notification_response, 'cause' => '', 'response' => json_decode("{}")));
+                    return Response::json(array('code' => 201, 'message' => 'Error Code: ' . $android_notification_response, 'cause' => '', 'response' => json_decode("{}")));
             }
 
             if ($all_devices['total_ios'] > 0) {
@@ -261,11 +261,11 @@ class NotificationController extends Controller
 
                 $iOS_p12_path = $this->getIosP12($data->GCM_DATA);
                 if (is_null($iOS_p12_path))
-                    return Response::json(array('code' => '201', 'message' => 'Please upload valid Apple Push Certificate.', 'cause' => '', 'response' => json_decode("{}")));
+                    return Response::json(array('code' => 201, 'message' => 'Please upload valid Apple Push Certificate.', 'cause' => '', 'response' => json_decode("{}")));
 
                 $ios_notification_status = $this->sentIosNotification($data->GCM_DATA, $all_devices, $notification_id);
                 if ($ios_notification_status !== 200)
-                    return Response::json(array('code' => '201', 'message' => 'Error Code: ' . $ios_notification_status, 'cause' => '', 'response' => json_decode("{}")));
+                    return Response::json(array('code' => 201, 'message' => 'Error Code: ' . $ios_notification_status, 'cause' => '', 'response' => json_decode("{}")));
             }
 
             //DB::commit();
@@ -356,7 +356,7 @@ class NotificationController extends Controller
                                       WHERE device_platform = "android" AND
                                       sub_category_id=? AND
                                             is_active = 1
-                                      ORDER BY device_id DESC ',[$sub_category_id]);
+                                      ORDER BY device_id DESC ', [$sub_category_id]);
             return $result;
 
         } catch (Exception $e) {
@@ -375,7 +375,7 @@ class NotificationController extends Controller
                                       WHERE device_platform = "ios" AND
                                       sub_category_id=? AND
                                             is_active = 1
-                                      ORDER BY device_id DESC ',[$sub_category_id]);
+                                      ORDER BY device_id DESC ', [$sub_category_id]);
             return $result;
 
         } catch (Exception $e) {
@@ -407,7 +407,7 @@ class NotificationController extends Controller
                     'ntf_filter' => $ntf_filter,
                     'ntf_total_device' => $ntf_total_device,
                     'url' => $ntf_url,
-                    'ntf_status' => '200',
+                    'ntf_status' => 200,
                     'was_scheduled' => 0)
             );
 
@@ -600,7 +600,7 @@ class NotificationController extends Controller
             //$ios_certificate_path = app_path() . '/certificates/aps_development'.$data->sub_category_id.'.pem';
 
             //live path
-            $ios_certificate_path = app_path() . '/certificates/aps_production'.$data->sub_category_id.'.pem';//'Certificates.pem';
+            $ios_certificate_path = app_path() . '/certificates/aps_production' . $data->sub_category_id . '.pem';//'Certificates.pem';
         } catch (Exception $e) {
             Log::error('getIosP12', ['Exception' => $e->getMessage(), 'ExceptionDetail: ' => $e->getTraceAsString()]);
             //DB::rollBack();
@@ -658,7 +658,7 @@ class NotificationController extends Controller
 
             //for production purpose
             //$certFile = app_path() . '/certificates/aps_production.pem';
-            $certFile = app_path() . '/certificates/aps_production'.$data->sub_category_id.'.pem';
+            $certFile = app_path() . '/certificates/aps_production' . $data->sub_category_id . '.pem';
 
             $passphrase = 'Optimumbrew';
 
