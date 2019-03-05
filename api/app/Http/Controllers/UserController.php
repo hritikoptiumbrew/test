@@ -205,7 +205,7 @@ class UserController extends Controller
                                           sct.sub_category_id = ? AND
                                           sct.catalog_id = ct.id AND
                                           NOT find_in_set(ct.id,"' . $catalog_ids . '") AND
-                                          sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  order by ct.updated_at DESC', [$this->sub_category_id]);
+                                          sct.is_active = 1 AND ct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  order by ct.updated_at DESC', [$this->sub_category_id]);
 
 
                 });
