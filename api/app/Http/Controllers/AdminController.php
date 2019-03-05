@@ -5247,6 +5247,9 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
                 return $response;
 
+            if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                return $response;
+
 
             DB::beginTransaction();
             if ($request_body->hasFile('file')) {

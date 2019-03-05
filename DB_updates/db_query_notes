@@ -1,0 +1,5 @@
+1) Photo Editor Lab : perform following query on database (5 March, 2019)
+----------------------------------------------------------------------------
+ALTER TABLE `images` CHANGE `attribute1` `attribute1` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Used to store webp image', CHANGE `attribute2` `attribute2` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Used to manage sequence after set webp sample image';
+
+ALTER TABLE `images` ADD `original_img_height` INT(10) NULL DEFAULT '0' AFTER `width`, ADD `original_img_width` INT(10) NOT NULL DEFAULT '0' AFTER `original_img_height`;
