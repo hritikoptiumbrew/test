@@ -55,6 +55,8 @@ class ImageController extends Controller
         $width = $file_info[0];
         $height = $file_info[1];
 
+        //Log::info('validateHeightWidthOfSampleImage height & width : ',['height_from_img' => $height, 'width_from_img' => $width, 'height_from_json' => $json_data->height, 'width_from_json' => $json_data->width]);
+
         if ($json_data->height == $height && $json_data->width == $width) {
             $response = '';
         } else {
@@ -77,7 +79,7 @@ class ImageController extends Controller
             $is_exist = DB::select('SELECT id FROM font_master WHERE ios_font_name = ? AND android_font_name = ?', [$ios_font_name, $android_font_name]);
 
             if (count($is_exist) == 0) {
-                //Log::info('debug fonts : ',['query_result' => $is_exist, 'ios_font_name' => $ios_font_name, 'android_font_name' => $android_font_name]);
+                Log::info('validateFonts font not exist : ',['query_result' => $is_exist, 'ios_font_name' => $ios_font_name, 'android_font_name' => $android_font_name]);
                 $exist_count = $exist_count + 1;
             }
 

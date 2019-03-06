@@ -106,6 +106,7 @@ return [
     /*api key of pixabay*/
     'PIXABAY_API_KEY' => env('PIXABAY_API_KEY'),
     'PIXABAY_API_URL' => 'https://pixabay.com/api/',
+    'PIXABAY_IMAGES_ITEM_COUNT' => 50,
 
     /* quality of image compression */
     'QUALITY' => '75',
