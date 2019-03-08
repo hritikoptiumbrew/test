@@ -197,6 +197,8 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
 
     //Fetch table information from database
     Route::post('getDatabaseInfo', 'AdminController@getDatabaseInfo');
+    Route::post('getConstants', 'AdminController@getConstants');
+    Route::post('runArtisanCommands', 'AdminController@runArtisanCommands');
 
     //Statistics of All servers
     Route::post('getSummaryOfAllServersByAdmin', 'AdminController@getSummaryOfAllServersByAdmin');

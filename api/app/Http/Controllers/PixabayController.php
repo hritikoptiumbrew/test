@@ -239,7 +239,7 @@ class PixabayController extends Controller
 
             if (!Cache::has("pel:currentKey:$this->currentKey")) {
                 $result = Cache::remember("currentKey:$this->currentKey", 29, function () {
-                    Log::info('Current Key :'.$this->currentKey);
+                    //Log::info('Current Key :'.$this->currentKey);
                     return $this->currentKey;
                 });
             }
@@ -264,7 +264,7 @@ class PixabayController extends Controller
 
             $this->url = Config::get('constant.PIXABAY_API_URL') . '?key=' . $key . '&q=' . $this->category . '&page=' . $this->page . '&per_page=' . $this->per_page;
 
-            Log::info('url : ',['url' => $this->url]);
+            //Log::info('url : ',['url' => $this->url]);
 
             if (!Cache::has("pel:getPixabayImageForUser:$this->category:$this->page:$this->per_page")) {
                 $result = Cache::remember("getPixabayImageForUser:$this->category:$this->page:$this->per_page", 1440, function () {
@@ -280,7 +280,7 @@ class PixabayController extends Controller
                         } else {
                             $rate_remaining = 0;
                         }
-                        Log::info('Rate remaining : ',['rate_limit' => $rate_remaining]);
+                        //Log::info('Rate remaining : ',['rate_limit' => $rate_remaining]);
                         if ($rate_remaining <= 100) {
 
                             $redis_keys = Redis::keys('pel:currentKey:*');
