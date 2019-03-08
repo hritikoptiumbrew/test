@@ -6,6 +6,7 @@ use App\Permission;
 use App\Role;
 use Aws\Credentials\Credentials;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Artisan;
 use Response;
 use Config;
 use DB;
@@ -1716,6 +1717,7 @@ class AdminController extends Controller
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
                 return $response;
+            //Log::info('getCatalogBySubCategoryId request : ',['request' => $request]);
 
             $this->sub_category_id = $request->sub_category_id;
 
@@ -8220,7 +8222,7 @@ class AdminController extends Controller
         return $response;
     }
 
-    //Fetch constants (use for only debugging query issue)
+    //Fetch constants (use for only debugging constant variables)
     public function getConstants(Request $request_body)
     {
         try {
@@ -8238,6 +8240,29 @@ class AdminController extends Controller
         } catch (Exception $e) {
             Log::error("getConstants : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get constants.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //Artisan commands (use for only debugging artisan commands)
+    public function runArtisanCommands(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('command'), $request)) != '')
+                return $response;
+
+            $command = $request->command;
+            $exitCode = Artisan::call($command);
+            return $exitCode;
+
+        } catch (Exception $e) {
+            Log::error("runArtisanCommands : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'run artisan command.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
