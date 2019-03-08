@@ -8220,4 +8220,26 @@ class AdminController extends Controller
         return $response;
     }
 
+    //Fetch constants (use for only debugging query issue)
+    public function getConstants(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('variable_name'), $request)) != '')
+                return $response;
+
+            $variable_name = $request->variable_name;
+            return Config::get("constant.$variable_name");
+
+        } catch (Exception $e) {
+            Log::error("getConstants : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get constants.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
 }
