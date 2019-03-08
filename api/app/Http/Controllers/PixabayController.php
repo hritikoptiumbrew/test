@@ -305,7 +305,7 @@ class PixabayController extends Controller
                             $this->dispatch(new EmailJob(1, $email_id, $subject, $message_body, $template, $api_name, $api_description));
 
                         }
-                        $http_status = 429;//$response->getStatusCode();
+                        $http_status = $response->getStatusCode();
                         $result = json_decode($response->getBody()->getContents(), true);
                     } catch (Exception $e) {
                         $http_status = $e->getResponse()->getStatusCode();
