@@ -290,3 +290,9 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     Route::post('getJsonSampleDataFilterBySearchTag', 'UserController@getJsonSampleDataFilterBySearchTag'); //To get templates divide by categories
 
 });
+
+//Test mail
+Route::post('testMail', 'AdminController@testMail');
+
+//PhpInfo
+Route::post('getPhpInfo', 'AdminController@getPhpInfo');

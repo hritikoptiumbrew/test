@@ -1,100 +1,128 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Photo Editor Lab</title>
+<!-- THIS EMAIL WAS BUILT AND TESTED WITH LITMUS http://litmus.com -->
+<!-- IT WAS RELEASED UNDER THE MIT LICENSE https://opensource.org/licenses/MIT -->
+<!-- QUESTIONS? TWEET US @LITMUSAPP -->
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
-    <style type="text/css">
-        /* Take care of image borders and formatting, client hacks */
+<head>
+    <meta charset="utf-8"> <!-- utf-8 works for most cases -->
+    <meta name="viewport" content="width=device-width"> <!-- Forcing initial-scale shouldn't be necessary -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Use the latest (edge) version of IE rendering engine -->
+    <meta name="x-apple-disable-message-reformatting"> <!-- Disable auto-scale in iOS 10 Mail entirely -->
+    <title>PhotoEditorLab</title> <!-- The title tag shows in email notifications, like Android 4.4. -->
+
+    <!-- Web Font / @font-face : BEGIN -->
+    <!-- NOTE: If web fonts are not required, lines 10 - 27 can be safely removed. -->
+
+    <!-- Desktop Outlook chokes on web font references and defaults to Times New Roman, so we force a safe fallback font. -->
+    <!--[if mso]>
+    <style>
+        * {
+            font-family: Arial, sans-serif !important;
+        }
+    </style>
+    <![endif]-->
+
+    <!-- All other clients get the webfont reference; some will render the font and others will silently fail to the fallbacks. More on that here: http://stylecampaign.com/blog/2015/02/webfont-support-in-email/ -->
+    <!--[if !mso]><!-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500" rel="stylesheet">
+    <!--<![endif]-->
+
+    <!-- Web Font / @font-face : END -->
+
+    <!-- CSS Reset -->
+    <style>
+        /* What it does: Remove spaces around the email design added by some email clients. */
+        /* Beware: It can remove the padding / margin and add a background color to the compose a reply window. */
+        html,
+        body {
+            margin: 0 auto !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+        }
+
+        /* What it does: Stops email clients resizing small text. */
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* What it does: Centers email on Android 4.4 */
+        div[style*="margin: 16px 0"] {
+            margin: 0 !important;
+        }
+
+        /* What it does: Stops Outlook from adding extra spacing to tables. */
+        table,
+        td {
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+        }
+
+        /* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin: 0 auto !important;
+        }
+
+        table table table {
+            table-layout: auto;
+        }
+
+        /* What it does: Uses a better rendering method when resizing images in IE. */
         img {
-            max-width: 600px;
-            outline: none;
-            text-decoration: none;
             -ms-interpolation-mode: bicubic;
         }
 
-        a img {
-            border: none;
-        }
-
-        table {
-            border-collapse: collapse !important;
-        }
-
-        #outlook a {
-            padding: 0;
-        }
-
-        .ReadMsgBody {
-            width: 100%;
-        }
-
-        .ExternalClass {
-            width: 100%;
-        }
-
-        .backgroundTable {
-            margin: 0 auto;
-            padding: 0;
-            width: 100% !important;
-        }
-
-        table td {
-            border-collapse: collapse;
-        }
-
-        .ExternalClass * {
-            line-height: 115%;
-        }
-
-        .container-for-gmail-android {
-            min-width: 600px;
-        }
-
-        /* General styling */
-        * {
-            font-family: Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            -webkit-font-smoothing: antialiased;
-            -webkit-text-size-adjust: none;
-            width: 100% !important;
-            margin: 0 !important;
-            height: 100%;
-            color: #676767;
-        }
-
-        td {
-            font-family: Helvetica, Arial, sans-serif;
-            font-size: 14px;
-            color: #777777;
-            line-height: 21px;
-        }
-
         a {
-            color: #676767;
             text-decoration: none !important;
         }
 
-        .pull-left {
-            text-align: left;
+        /* What it does: A work-around for email clients meddling in triggered links. */
+        *[x-apple-data-detectors],
+            /* iOS */
+        .x-gmail-data-detectors,
+            /* Gmail */
+        .x-gmail-data-detectors *,
+        .aBn {
+            border-bottom: 0 !important;
+            cursor: default !important;
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
         }
 
-        .pull-right {
-            text-align: right;
+        /* What it does: Prevents Gmail from displaying an download button on large, non-linked images. */
+        .a6S {
+            display: none !important;
+            opacity: 0.01 !important;
         }
 
-        .header-lg,
-        .header-md,
-        .header-sm {
-            font-size: 32px;
-            font-weight: 700;
-            line-height: normal;
-            padding: 35px 0 0;
-            color: #4d4d4d;
+        /* If the above doesn't work, add a .g-img class to any image in question. */
+        img.g-img+div {
+            display: none !important;
+        }
+
+        /* What it does: Prevents underlining the button text in Windows 10 */
+        .button-link {
+            text-decoration: none !important;
+        }
+
+        /* What it does: Removes right gutter in Gmail iOS app: https://github.com/TedGoas/Cerberus/issues/89  */
+        /* Create one of these media queries for each additional viewport size you'd like to fix */
+        /* Thanks to Eric Lepetit @ericlepetitsf) for help troubleshooting */
+        @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+
+            /* iPhone 6 and 6+ */
+            .email-container {
+                min-width: 375px !important;
+            }
         }
 
         .header-gradient-bg {
@@ -116,215 +144,181 @@
             /* W3C Markup */
             background-image: linear-gradient(to bottom, #424C54 0%, #424C54 100%);
         }
-
-        .border-bottom-cecece {
-            border-bottom: 1px solid #cecece;
-        }
-
-        .white-sp-nowrap {
-            white-space: nowrap !important;
-        }
-
-        .v-align-top {
-            vertical-align: top;
-        }
-
-        .header-md {
-            font-size: 24px;
-        }
-
-        .header-sm {
-            padding: 5px 0;
-            font-size: 18px;
-            line-height: 1.3;
-        }
-
-        .content-padding {
-            padding: 20px 0 30px;
-        }
-
-        .mobile-header-padding-right {
-            /*width: 290px;*/
-            text-align: right;
-            padding-left: 10px;
-        }
-
-        .mobile-header-padding-left {
-            width: 290px;
-            text-align: left;
-            padding-left: 10px;
-        }
-
-        .free-text {
-            width: 100% !important;
-            padding: 10px 60px 0px;
-        }
-
-        .block-rounded {
-            border-radius: 5px;
-            border: 1px solid #e5e5e5;
-            vertical-align: top;
-        }
-
-        .button {
-            padding: 30px 0;
-        }
-
-        .cancel-button {
-            background-color: #f44336;;
-            border: none;
-            color: white;
-            padding: 5px 12px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            margin: 15px 2px;
-            cursor: pointer;
-        }
-
-        .info-block {
-            padding: 0 20px;
-            width: 260px;
-        }
-
-        .block-rounded {
-            width: 260px;
-        }
-
-        .info-img {
-            width: 258px;
-            border-radius: 5px 5px 0 0;
-        }
-
-        .force-width-gmail {
-            min-width: 600px;
-            height: 0px !important;
-            line-height: 1px !important;
-            font-size: 1px !important;
-        }
-
-        .button-width {
-            width: 228px;
-        }
-
     </style>
 
-    <style type="text/css" media="screen">
-        @import url(http://fonts.googleapis.com/css?family=Oxygen:400,700);
-    </style>
-
-    <style type="text/css" media="screen">
-        @media screen {
-            /* Thanks Outlook 2013! http://goo.gl/XLxpyl */
-            * {
-                font-family: 'Oxygen', 'Helvetica Neue', 'Arial', 'sans-serif' !important;
-            }
+    <!-- Progressive Enhancements -->
+    <style>
+        /* What it does: Hover styles for buttons */
+        .button-td,
+        .button-a {
+            transition: all 100ms ease-in;
         }
-    </style>
 
-    <style type="text/css" media="only screen and (max-width: 480px)">
-        /* Mobile styles */
-        @media only screen and (max-width: 480px) {
+        .button-td:hover,
+        .button-a:hover {
+            background: #00b0e1 !important;
+            border-color: #00b0e1 !important;
+        }
 
-            table[class*="container-for-gmail-android"] {
-                min-width: 290px !important;
+        /* Media Queries */
+        @media screen and (max-width: 480px) {
+
+            /* What it does: Forces elements to resize to the full width of their container. Useful for resizing images beyond their max-width. */
+            .fluid {
                 width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
             }
 
-            table[class="w320"] {
-                width: 320px !important;
-            }
-
-            img[class="force-width-gmail"] {
-                display: none !important;
-                width: 0 !important;
-                height: 0 !important;
-            }
-
-            a[class="button-width"],
-            a[class="button-mobile"] {
-                width: 248px !important;
-            }
-
-            td[class*="mobile-header-padding-left"] {
-                width: 160px !important;
-                padding-left: 0 !important;
-            }
-
-            td[class*="mobile-header-padding-right"] {
-                /*width: 160px !important;*/
-                padding-right: 0 !important;
-            }
-
-            td[class="header-lg"] {
-                font-size: 24px !important;
-                padding-bottom: 5px !important;
-            }
-
-            td[class="header-md"] {
-                font-size: 18px !important;
-                padding-bottom: 5px !important;
-            }
-
-            td[class="content-padding"] {
-                padding: 5px 0 30px !important;
-            }
-
-            td[class="button"] {
-                padding: 5px !important;
-            }
-
-            td[class*="free-text"] {
-                padding: 10px 18px 30px !important;
-            }
-
-            td[class="info-block"] {
+            /* What it does: Forces table cells into full-width rows. */
+            .stack-column,
+            .stack-column-center {
                 display: block !important;
-                width: 280px !important;
-                padding-bottom: 40px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                direction: ltr !important;
             }
 
-            td[class="info-img"],
-            img[class="info-img"] {
-                width: 278px !important;
+            /* And center justify these ones. */
+            .stack-column-center {
+                text-align: center !important;
+            }
+
+            /* What it does: Generic utility class for centering. Useful for images, buttons, and nested tables. */
+            .center-on-narrow {
+                text-align: center !important;
+                display: block !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                float: none !important;
+            }
+
+            table.center-on-narrow {
+                display: inline-block !important;
+            }
+
+            /* What it does: Adjust typography on small screens to improve readability */
+            .email-container p {
+                font-size: 14px !important;
+                line-height: 22px !important;
             }
         }
     </style>
 </head>
 
-<body bgcolor="#f7f7f7">
-
-<table align="center" cellpadding="0" cellspacing="0" class="header-gradient-bg" width="100%">
-    <tr>
-        <td align="center" valign="top" width="100%">
-            <div>
-                <!--<div style="height:47px; display: inline-block">
-                    <a data-click-track-id="8588" href="www.optimumbrew.com"><img
-                                width="137" height="47"
-                                src="https://drive.google.com/uc?id=1iYS79PTXBV3zB79QWuBCmodD_Hi7svtt"
-                                style="image-rendering: -webkit-optimize-contrast;margin-top: 7px;height: 40px; width: 200px;" alt="logo"></a>
-                </div>-->
-                <p style="font-size: 24px;line-height: 0.7;
+<body width="100%" bgcolor="#F1F1F1" style="margin: 0; mso-line-height-rule: exactly;">
+<center style="width: 100%; background: #F1F1F1; text-align: left;">
+    <div style="width: 680px; max-width: 680px; margin: auto; background: #ffffff;" class="email-container">
+        <!--[if mso]>
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="680" align="center">
+            <tr>
+                <td>
+        <![endif]-->
+        <table role="presentation" cellspacing="0" cellpadding="0" bgcolor="#e4e4e4" border="0" align="center"
+               width="100%" style="max-width: 680px;width: 680px;" class="email-container">
+            <tr>
+                <td>
+                    <table align="center" cellpadding="0" cellspacing="0" class="header-gradient-bg" width="100%">
+                        <tr>
+                            <td align="center" valign="top" width="100%">
+                                <div>
+                                    <!--<div style="height:47px; display: inline-block">
+                                        <a data-click-track-id="8588" href="www.optimumbrew.com"><img
+                                                    width="137" height="47"
+                                                    src="https://drive.google.com/uc?id=1iYS79PTXBV3zB79QWuBCmodD_Hi7svtt"
+                                                    style="image-rendering: -webkit-optimize-contrast;margin-top: 7px;height: 40px; width: 200px;" alt="logo"></a>
+                                    </div>-->
+                                    <p style="font-size: 24px;line-height: 0.7;
                                                                                                 color: white;
                                                                                                 display: inline-block;
                                                                                                 vertical-align: super">
-                    Photo Editor Lab</p>
-            </div>
-        </td>
-    </tr>
-</table>
+                                        PhotoEditorLab</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" valign="top" style="text-align: center;">
+                    <!--[if mso]>
+                    <table role="presentation" border="0" cellspacing="0" cellpadding="0" align="center" width="500">
+                        <tr>
+                            <td align="center" valign="middle" width="500">
+                    <![endif]-->
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" width="100%"
+                           style="max-width:500px; margin: auto;">
+                        <tr>
+                            <td height="40" style="font-size:20px; line-height:20px;">&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td align="center" valign="middle">
+                                <table>
+                                    <tr>
+                                        <td valign="top" style="text-align: center; padding: 30px 0 10px 0;"
+                                            bgcolor="#ffffff">
+                                            <h1 style="text-transform: uppercase; margin: 0; font-family: 'Montserrat', sans-serif; font-size: 24px; line-height: 36px; color: #565566; font-weight: bold;">Hi
+                                                {!! $message_body['user_name'] !!}</h1>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="top" bgcolor="#ffffff" style="text-align: center; padding: 20px 40px 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #757575;">
+                                            <p style="margin-top: 0; font-weight: bold;"></p>
+                                            <p style="margin: 0;">
+                                                {!! $message_body['message'] !!}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td bgcolor="#ffffff" style="font-family: 'Montserrat', sans-serif; text-align: left; padding: 40px 15px 30px 40px; font-size: 13px; color: gray;">
+                                            <p style="margin:0;">Thanks,</p>
+                                            <p style="margin:0;">The Optimumbrew Team</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    <!--[if mso]>
+                    </td>
+                    </tr>
+                    </table>
+                    <![endif]-->
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 40px 80px 40px 80px; font-family: sans-serif; font-size: 15px; line-height: 20px;  text-align: center;">
+                    <p style="margin: 0; font-weight:bold; color: #757575;">We are here if you need
+                        support</p>
+                    <p style="font-size: 12px !important; color:#909090; font-weight: 600; font-family: sans-serif;">Email:
+                        work.optimum@gmail.com</p>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="header-gradient-bg">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:500px; margin: auto;">
+                        <tr>
+                            <td style="padding: 10px 40px 10px 40px; font-family: sans-serif; font-size: 12px; line-height: 18px; color: white; font-weight:normal;">
+                                <p style="margin: 0;">This email was sent by </p>
+                                <p style="margin: 0; font-weight:bold;">work.optimum@gmail.com</p>
+                            </td>
+                        </tr>
 
 
-<table width="100%">
-    <tr style="background:#f7f7f7; font-size: 14px; color: #777777; line-height: 25px; padding-bottom: 50px">
-        <td style="padding-left: 10%; padding-bottom: 4%">
-            <div>
-                <p style="font-size: 17px;color: #777777;">{!! $message_body !!}<br><br></p>
-                <br>
-            </div>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <!--[if mso]>
         </td>
-    </tr>
-</table>
+        </tr>
+        </table>
+        <![endif]-->
+    </div>
+</center>
 </body>
+
 </html>

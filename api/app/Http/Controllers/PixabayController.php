@@ -169,7 +169,7 @@ class PixabayController extends Controller
                 $currentKey = $getKey + 1;
                 $template = 'stock_photos';
                 $host_name = request()->getHttpHost();
-                $subject = "Photo Editor Lab: Pixabay rate limit exceeded (host: $host_name).";
+                $subject = "PhotoEditorLab: Pixabay rate limit exceeded (host: $host_name).";
                 $message_body = array(
                     'message' => "The Rate limit for Pixabay is exceeded now.<br> The updated key is <b>$currentKey</b>.",
                     'user_name' => 'Admin'
@@ -294,7 +294,7 @@ class PixabayController extends Controller
                             $host_name = request()->getHttpHost();
                             $currentKey = $getKey + 1;
                             $template = 'stock_photos';
-                            $subject = "Photo Editor Lab: Pixabay rate limit <= 100 (host: $host_name).";
+                            $subject = "PhotoEditorLab: Pixabay rate limit <= 100 (host: $host_name).";
                             $message_body = array(
                                 'message' => "100 request is remaining from key <b>$getKey</b>.<br>Your currently used key is <b>$currentKey</b>.",
                                 'user_name' => 'Admin'

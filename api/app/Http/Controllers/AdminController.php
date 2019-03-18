@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\EmailJob;
 use App\Permission;
 use App\Role;
 use Aws\Credentials\Credentials;
@@ -16,6 +17,7 @@ use Cache;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Swift_TransportException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Redis;
@@ -3786,7 +3788,7 @@ class AdminController extends Controller
      * },
      * {
      * "advertise_link_id": 38,
-     * "name": "Photo Editor Lab – Stickers , Filters & Frames",
+     * "name": "PhotoEditorLab – Stickers , Filters & Frames",
      * "platform": "iOS",
      * "linked": 0
      * },
@@ -8196,6 +8198,48 @@ class AdminController extends Controller
         } catch (Exception $e) {
             Log::error("clearRedisCache : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Get Redis-Cache Key Detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function testMail()
+    {
+        try {
+
+            $from_email_id = 'alagiyanirav@gmail.com';
+            $to_email_id = 'pinal.optimumbrew@gmail.com';
+            $template = 'simple';
+            $subject = 'PhotoEditorLab: Test Mail';
+            $message_body = array(
+                'message' => 'This is a test mail from PhotoEditorLab.',
+                'user_name' => 'Admin'
+            );
+            $api_name = 'testMail';
+            $api_description = 'Send test mail.';
+
+            $this->dispatch(new EmailJob($to_email_id, $from_email_id, $subject, $message_body, $template, $api_name, $api_description));
+            $response = Response::json(array('code' => 200, 'message' => 'Email sent successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+
+        } catch (Swift_TransportException $e) {
+            Log::error("testMail (Swift_TransportException) : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'send mail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        } catch (Exception $e) {
+            Log::error("testMail : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'send mail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function getPhpInfo()
+    {
+        try {
+
+            return $php_info = phpinfo();
+
+        } catch (Exception $e) {
+            Log::error("getPhpInfo : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get php_info.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
