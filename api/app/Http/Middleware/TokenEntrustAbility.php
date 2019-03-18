@@ -21,7 +21,7 @@ class TokenEntrustAbility extends BaseMiddleware
     {
 
         if (!$token = $this->auth->setRequest($request)->getToken()) {
-            return Response::json(array('code'=>201,'message'=>'Required field token is missing or empty.','cause'=>'','response'=> json_decode("{}")));
+            return Response::json(array('code' => 201, 'message' => 'Required field token is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
         }
 

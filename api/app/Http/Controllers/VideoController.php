@@ -12,6 +12,7 @@ use Cache;
 use GuzzleHttp\Client;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+
 class VideoController extends Controller
 {
     /**

@@ -156,9 +156,10 @@ return [
         |
         */
 
-        'auth' => function($app){
+        'auth' => 'Tymon\JWTAuth\Providers\Auth\IlluminateAuthAdapter',
+        /*'auth' => function($app){
             return new Tymon\JWTAuth\Providers\Auth\IlluminateAuthAdapter($app['auth']);
-        },
+        },*/
 
         /*
         |--------------------------------------------------------------------------
@@ -169,9 +170,10 @@ return [
         |
         */
 
-        'storage' => function($app){
+        'storage' => 'Tymon\JWTAuth\Providers\Storage\IlluminateCacheAdapter',
+        /*'storage' => function($app){
             return new Tymon\JWTAuth\Providers\Storage\IlluminateCacheAdapter($app['cache']);
-        },
+        },*/
 
     ],
 

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\EmailJob;
 use App\Permission;
 use App\Role;
 use Aws\Credentials\Credentials;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Artisan;
 use Response;
 use Config;
 use DB;
@@ -15,6 +17,7 @@ use Cache;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Swift_TransportException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Redis;
@@ -87,7 +90,7 @@ class AdminController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'Promo code added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addPromoCode Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addPromoCode : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -205,8 +208,8 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllPromoCode Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getAllPromoCode : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -277,8 +280,8 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Promo code fetched successfully.', 'cause' => '', 'data' => ['result' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchPromoCode Exception :", ['Exception : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' search promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("searchPromoCode : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -303,7 +306,7 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "category added successfully.",
+     * "message": "Category added successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -315,7 +318,6 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info("request data :", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('name'), $request)) != '')
                 return $response;
 
@@ -323,14 +325,14 @@ class AdminController extends Controller
             $create_at = date('Y-m-d H:i:s');
             DB::beginTransaction();
 
-            DB::insert('insert into category (name,created_at) VALUES(?,?)', [$name, $create_at]);
+            DB::insert('INSERT INTO category (name,created_at) VALUES(?,?)', [$name, $create_at]);
 
             DB::commit();
 
-            $response = Response::json(array('code' => 200, 'message' => 'category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add a category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("addCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -354,7 +356,7 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "category updated successfully.",
+     * "message": "Category updated successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -367,7 +369,6 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info("request data :", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'name'), $request)) != '')
                 return $response;
 
@@ -387,11 +388,11 @@ class AdminController extends Controller
 
             DB::commit();
 
-            $response = Response::json(array('code' => 200, 'message' => 'category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("updateCategory Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update a category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("updateCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
 
@@ -415,7 +416,7 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "category deleted successfully!.",
+     * "message": "Category deleted successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -423,13 +424,13 @@ class AdminController extends Controller
     public function deleteCategory(Request $request_body)
     {
         try {
-            $request = json_decode($request_body->getContent());
-            //Log::info("request data :", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id'), $request)) != '')
-                return $response;
 
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id'), $request)) != '')
+                return $response;
 
             $category_id = $request->category_id;
 
@@ -437,22 +438,16 @@ class AdminController extends Controller
 
             $is_active = 0;
 
-            DB::update('update category set is_active=? where id = ? ', [$is_active, $category_id]);
+            DB::update('UPDATE category SET is_active=? WHERE id = ? ', [$is_active, $category_id]);
 
-            //DB::update('update sub_category set is_active = ? where category_id = ?',[0,$category_id]);
-            $result = DB::table('sub_category')
-                ->where('category_id', $category_id)
-                ->update(['is_active' => $is_active]);
-
+            DB::update('UPDATE sub_category SET is_active = ? WHERE category_id = ?', [$is_active, $category_id]);
 
             DB::commit();
 
-            //Log::info("Category " . $category_id . " Deleted");
-
-            $response = Response::json(array('code' => 200, 'message' => 'Category Deleted Successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Category deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete Category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("deleteCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -470,12 +465,12 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     *  "page":1
+     *  "page":1 //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "All Category Fetched Successfully.",
+     * "message": "All category fetched successfully.",
      * "cause": "",
      * "data": {
      * "total_record": 8,
@@ -505,7 +500,6 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info([$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('page'), $request)) != '')
                 return $response;
 
@@ -515,18 +509,24 @@ class AdminController extends Controller
             $this->offset = ($page - 1) * $this->item_count;
             $this->is_active = 1;
 
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  category where is_active=?', [$this->is_active]);
-            $total_row = $total_row_result[0]->total;
-
             if (!Cache::has("pel:getAllCategory$page")) {
                 $result = Cache::rememberforever("getAllCategory$page", function () {
-                    return DB::select('SELECT
-                                    ct.id as category_id,
-                                    ct.name
-                                  FROM
-                                  category as ct
-                                  where is_active=?
-                                  LIMIT ?,?', [$this->is_active, $this->offset, $this->item_count]);
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  category where is_active=?', [$this->is_active]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
+                                          ct.id as category_id,
+                                          ct.name
+                                        FROM
+                                          category as ct
+                                        WHERE is_active = ?
+                                        LIMIT ?,?', [$this->is_active, $this->offset, $this->item_count]);
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'category_list' => $result);
+
                 });
             }
 
@@ -536,14 +536,12 @@ class AdminController extends Controller
                 $redis_result = [];
             }
 
-            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-
-            $response = Response::json(array('code' => 200, 'message' => 'All Category Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'category_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'All category fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getAllCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -565,7 +563,7 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "search category fetched successfully.",
+     * "message": "Search category fetched successfully.",
      * "cause": "",
      * "data": {
      * "category_list": [
@@ -596,14 +594,15 @@ class AdminController extends Controller
                                     ct.name
                                   FROM
                                      category AS ct
-                                  WHERE ct.is_active=? AND
-                                     ct.name LIKE ? ', [$is_active, $name]);
+                                  WHERE
+                                    ct.is_active = ? AND
+                                    ct.name LIKE ? ', [$is_active, $name]);
 
-            $response = Response::json(array('code' => 200, 'message' => 'search category fetched successfully.', 'cause' => '', 'data' => ['category_list' => $result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Search category fetched successfully.', 'cause' => '', 'data' => ['category_list' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchCategoryByName Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Search Category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("searchCategoryByName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -675,8 +674,8 @@ class AdminController extends Controller
 
 
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'follow user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            Log::error('followUser', ['Exception' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'store file into S3 bucket.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("storeFileIntoS3Bucket : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollback();
         }
         return $response;
@@ -698,10 +697,9 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Host name fetched successfully.', 'cause' => '', 'data' => $result));
 
 
-
         } catch
         (Exception $e) {
-            Log::error("getHostName Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getHostName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get host name.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -721,15 +719,17 @@ class AdminController extends Controller
      *  Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
+     * {
      * request_data:{
-     * "category_id":1,
-     * "name":"Nature"
+     * "category_id":1, //compulsory
+     * "name":"Nature" //compulsory
+     * },
+     * file:image.jpeg //compulsory
      * }
-     * file:image.jpeg
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "sub category added successfully.",
+     * "message": "Sub category added successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -741,38 +741,38 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
 
-            //Log::info("Request Data:", [$request]);
-
             if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'name'), $request)) != '')
+                return $response;
+            $category_id = $request->category_id;
+            $name = trim($request->name);
+            $create_at = date('Y-m-d H:i:s');
+
+            if (($response = (new VerificationController())->checkIfSubCategoryExist($name, 0)) != '')
                 return $response;
 
             if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $image_array = Input::file('file');
                 if (($response = (new ImageController())->verifyImage($image_array)) != '')
                     return $response;
 
-                $category_img = (new ImageController())->generateNewFileName('category_img', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
+                $category_img = (new ImageController())->generateNewFileName('sub_category_img', $image_array);
                 (new ImageController())->saveOriginalImage($category_img);
                 (new ImageController())->saveCompressedImage($category_img);
                 (new ImageController())->saveThumbnailImage($category_img);
-                //(new ImageController())->saveImageInToSpaces($category_img);
 
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($category_img);
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($category_img);
                 }
 
             }
 
-            $category_id = $request->category_id;
-            $name = $request->name;
-            $create_at = date('Y-m-d H:i:s');
+
             DB::beginTransaction();
 
             DB::insert('insert into sub_category
@@ -781,9 +781,9 @@ class AdminController extends Controller
 
             DB::commit();
 
-            $response = Response::json(array('code' => 200, 'message' => 'sub category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Sub category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addSubCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("addSubCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -801,15 +801,17 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
+     * {
      * request_data:{
-     * "sub_category_id":2,
-     * "name":"Love-Category"
+     * "sub_category_id":2, //compulsory
+     * "name":"Love-Category" //optional
      * }
      * file:image.png //optional
+     * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "sub category updated successfully.",
+     * "message": "Sub category updated successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -822,18 +824,19 @@ class AdminController extends Controller
 
             //Required parameter
             if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
-            //Log::info("Request Data:", [$request]);
 
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'name'), $request)) != '')
                 return $response;
 
             $sub_category_id = $request->sub_category_id;
-            $name = $request->name;
+            $name = trim($request->name);
             $image_name = '';
+
+            if (($response = (new VerificationController())->checkIfSubCategoryExist($name, $sub_category_id)) != '')
+                return $response;
 
             if ($request_body->hasFile('file')) {
                 $image_array = Input::file('file');
@@ -846,15 +849,13 @@ class AdminController extends Controller
                 (new ImageController())->saveOriginalImage($sub_category_img);
                 (new ImageController())->saveCompressedImage($sub_category_img);
                 (new ImageController())->saveThumbnailImage($sub_category_img);
-                //(new ImageController())->saveImageInToSpaces($sub_category_img);
 
-                if (env('STORAGE') === 'S3_BUCKET') {
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
 
-                    (new ImageController())->saveImageInToSpaces($sub_category_img);
+                    (new ImageController())->saveImageInToS3($sub_category_img);
                 }
 
-
-                $result = DB::select('select image from sub_category where id = ?', [$sub_category_id]);
+                $result = DB::select('SELECT image FROM sub_category WHERE id = ?', [$sub_category_id]);
                 $image_name = $result[0]->image;
                 DB::beginTransaction();
                 DB::update('UPDATE
@@ -883,10 +884,10 @@ class AdminController extends Controller
                 //Image Delete in image_bucket
                 (new ImageController())->deleteImage($image_name);
             }
-            $response = Response::json(array('code' => 200, 'message' => 'sub category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Sub category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("updateCategory Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("updateSubCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -905,12 +906,12 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "sub_category_id":3
+     * "sub_category_id":3 //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "sub category deleted successfully!.",
+     * "message": "Sub category deleted successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -922,7 +923,6 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info("Request Data:", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
                 return $response;
 
@@ -930,15 +930,13 @@ class AdminController extends Controller
             $is_active = 0;
             DB::beginTransaction();
 
-            DB::update('update sub_category set is_active=? where id = ? ', [$is_active, $sub_category_id]);
+            DB::update('UPDATE sub_category SET is_active=? WHERE id = ? ', [$is_active, $sub_category_id]);
 
             DB::commit();
 
-            //Log::info("Sub category " . $sub_category_id . " Deleted:");
-
-            $response = Response::json(array('code' => 200, 'message' => 'sub category deleted successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Sub category deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteSubCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("deleteSubCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -964,7 +962,7 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "SubCategory Fetched Successfully.",
+     * "message": "Sub categories are fetched successfully.",
      * "cause": "",
      * "data": {
      * "total_record": 2,
@@ -998,43 +996,29 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info("getSubCategoryByCategoryId Request:", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count', 'category_id'), $request)) != '')
                 return $response;
 
             $page = $request->page;
             $this->category_id = $request->category_id;
-            $this->item_count_sub_category = $request->item_count;
+            $this->item_count_of_sub_category = $request->item_count;
             //$item_count = Config::get('constant.PAGINATION_ITEM_LIMIT');
-            $this->offset = ($page - 1) * $this->item_count_sub_category;
-            $this->is_active = 1;
-            //Category Name
-            $name = DB::select('SELECT sc.name FROM  category as sc WHERE id = ? and is_active=?', [$this->category_id, $this->is_active]);
-            $category_name = $name[0]->name;
-            $this->is_active = 1;
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM sub_category WHERE is_active=? and category_id = ?', [$this->is_active, $this->category_id]);
-            $total_row = $total_row_result[0]->total;
+            $this->offset = ($page - 1) * $this->item_count_of_sub_category;
 
-            if (!Cache::has("pel:getSubCategoryByCategoryId$this->category_id-$page:$this->item_count_sub_category")) {
-                $result = Cache::rememberforever("getSubCategoryByCategoryId$this->category_id-$page:$this->item_count_sub_category", function () {
-                    /*return DB::select('SELECT
-                                        sct.id as sub_category_id,
-                                        sct.category_id,
-                                        sct.name,
-                                        IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",sct.image),"") as thumbnail_img,
-                                        IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",sct.image),"") as compressed_img,
-                                        IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",sct.image),"") as original_img
-                                      FROM
-                                        sub_category as sct
-                                      WHERE
-                                        sct.category_id = ?
-                                        and
-                                        sct.is_active=?
-                                      order by sct.updated_at DESC
-                                      LIMIT ?,?', [$this->category_id, $this->is_active, $this->offset, $this->item_count_sub_category]);*/
+            if (!Cache::has("pel:getSubCategoryByCategoryId$this->category_id:$page:$this->item_count_of_sub_category")) {
+                $result = Cache::rememberforever("getSubCategoryByCategoryId$this->category_id:$page:$this->item_count_of_sub_category", function () {
+
+                    $is_active = 1;
+
+                    //get category name
+                    $name = DB::select('SELECT sc.name FROM  category as sc WHERE id = ? and is_active=?', [$this->category_id, $is_active]);
+                    $category_name = $name[0]->name;
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM sub_category WHERE is_active=? and category_id = ?', [$is_active, $this->category_id]);
+                    $total_row = $total_row_result[0]->total;
 
 
-                    return DB::select('SELECT
+                    $result = DB::select('SELECT
                                         sct.id as sub_category_id,
                                         sct.category_id,
                                         sct.name,
@@ -1046,28 +1030,29 @@ class AdminController extends Controller
                                       WHERE
                                         sct.category_id = ?
                                         and
-                                        sct.is_active=?
+                                        sct.is_active = ?
                                       order by sct.updated_at DESC
-                                      LIMIT ?,?', [$this->category_id, $this->is_active, $this->offset, $this->item_count_sub_category]);
+                                      LIMIT ?,?', [$this->category_id, $is_active, $this->offset, $this->item_count_of_sub_category]);
 
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'category_name' => $category_name, 'category_list' => $result);
 
                 });
             }
 
-            $redis_result = Cache::get("getSubCategoryByCategoryId$this->category_id-$page:$this->item_count_sub_category");
+            $redis_result = Cache::get("getSubCategoryByCategoryId$this->category_id:$page:$this->item_count_of_sub_category");
 
             if (!$redis_result) {
                 $redis_result = [];
             }
 
-            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-
-            $response = Response::json(array('code' => 200, 'message' => 'SubCategory Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'category_name' => $category_name, 'category_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Sub categories fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getSubCategoryByCategoryId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get All Sub Category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSubCategoryByCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -1084,12 +1069,12 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "category_id":1
+     * "category_id":1 //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "SubCategory Fetched Successfully.",
+     * "message": "Sub categories fetched successfully.",
      * "cause": "",
      * "data": {
      * "total_record": 0,
@@ -1105,33 +1090,20 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info("getSubCategoryByCategoryId Request:", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('category_id'), $request)) != '')
                 return $response;
 
             $this->category_id = $request->category_id;
             $this->is_active = 1;
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM sub_category WHERE is_active=? and category_id = ?', [$this->is_active, $this->category_id]);
-            $total_row = $total_row_result[0]->total;
 
-            if (!Cache::has("pel:getSubCategoryByCategoryId$this->category_id")) {
-                $result = Cache::rememberforever("getSubCategoryByCategoryId$this->category_id", function () {
-                    /*return DB::select('SELECT
-                                        sct.id as sub_category_id,
-                                        sct.category_id,
-                                        sct.name as sub_category_name,
-                                        IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",sct.image),"") as thumbnail_img,
-                                        IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",sct.image),"") as compressed_img,
-                                        IF(sct.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",sct.image),"") as original_img
-                                      FROM
-                                        sub_category as sct
-                                      WHERE
-                                        sct.category_id = ?
-                                        and
-                                        sct.is_active=?
-                                      order by sct.updated_at DESC', [$this->category_id, $this->is_active]);*/
+            if (!Cache::has("pel:getAllSubCategory$this->category_id")) {
+                $result = Cache::rememberforever("getAllSubCategory$this->category_id", function () {
 
-                    return DB::select('SELECT
+                    $is_active = 1;
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM sub_category WHERE is_active=? and category_id = ?', [$is_active, $this->category_id]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
                                         sct.id as sub_category_id,
                                         sct.category_id,
                                         sct.name as sub_category_name,
@@ -1144,23 +1116,25 @@ class AdminController extends Controller
                                         sct.category_id = ?
                                         and
                                         sct.is_active=?
-                                      order by sct.updated_at DESC', [$this->category_id, $this->is_active]);
+                                      order by sct.updated_at DESC', [$this->category_id, $is_active]);
+
+                    return array('total_record' => $total_row, 'category_list' => $result);
                 });
             }
 
-            $redis_result = Cache::get("getSubCategoryByCategoryId$this->category_id");
+            $redis_result = Cache::get("getAllSubCategory$this->category_id");
 
             if (!$redis_result) {
                 $redis_result = [];
             }
 
 
-            $response = Response::json(array('code' => 200, 'message' => 'SubCategory Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'category_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Sub categories fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getSubCategoryByCategoryId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get All Sub Category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getAllSubCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
 
@@ -1178,13 +1152,13 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "category_id":1,
-     * "name":"ca"
+     * "category_id":1, //compulsory
+     * "name":"ca" //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "SubCategory Search Successfully.",
+     * "message": "Sub category fetched successfully.",
      * "cause": "",
      * "data": {
      * "category_list": [
@@ -1225,11 +1199,11 @@ class AdminController extends Controller
                                       sct.is_active = ? AND
                                       sct.name LIKE ? ', [$category_id, 1, $name]);
 
-            $response = Response::json(array('code' => 200, 'message' => 'SubCategory Search Successfully.', 'cause' => '', 'data' => ['category_list' => $result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Sub category fetched successfully.', 'cause' => '', 'data' => ['category_list' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchSubCategoryByName Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Search Sub Category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("searchSubCategoryByName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -1247,13 +1221,15 @@ class AdminController extends Controller
      *  Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
+     * {
      * request_data:{
      * "sub_category_id":1,
      * "is_free":1,//optional
      * "name":"Nature-2017",
      * "is_featured":1 //compulsory
+     * },
+     * file:image.jpeg //compulsory
      * }
-     * file:image.jpeg
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -1265,76 +1241,65 @@ class AdminController extends Controller
     public function addCatalog(Request $request_body)
     {
         try {
+
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
             if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
 
-            //Log::info("Request Data:", [$request]);
-
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'name', 'is_featured'), $request)) != '')
                 return $response;
-
-            if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $catalog_img = (new ImageController())->generateNewFileName('catalog_img', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveOriginalImage($catalog_img);
-                (new ImageController())->saveCompressedImage($catalog_img);
-                (new ImageController())->saveThumbnailImage($catalog_img);
-
-                //(new ImageController())->saveImageInToSpaces($catalog_img);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($catalog_img);
-                }
-
-            }
 
             $sub_category_id = $request->sub_category_id;
             $name = $request->name;
             $is_free = isset($request->is_free) ? $request->is_free : 1;
             $is_featured = $request->is_featured;
-
             $create_at = date('Y-m-d H:i:s');
-            $is_ative = 1;
 
-            $data = array('name' => $name,
-                'image' => $catalog_img,
-                'is_free' => $is_free,
-                'is_featured' => $is_featured,
-                'created_at' => $create_at
-            );
+            if (($response = (new VerificationController())->checkIfCatalogExist($sub_category_id, $name, '')) != '')
+                return $response;
 
-            $result = DB::select('select * from catalog_master where name = ?', [$name]);
-            if (sizeof($result) != 1) {
-                //log::info('catalog data', ['data' => $data]);
-                DB::beginTransaction();
-                $catalog_id = DB::table('catalog_master')->insertGetId($data);
-
-                //return $catalog_id;
-
-                DB::insert('insert into sub_category_catalog(sub_category_id,catalog_id,created_at) values (?, ?, ?)', [$sub_category_id, $catalog_id, $create_at]);
-
-                DB::commit();
-
-                $response = Response::json(array('code' => 200, 'message' => 'Catalog Added Successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            if (!$request_body->hasFile('file')) {
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
-                $response = Response::json(array('code' => 201, 'message' => 'Duplicate entry for catalog.', 'cause' => '', 'data' => json_decode('{}')));
+                $file_array = Input::file('file');
+                if (($response = (new ImageController())->verifyImage($file_array)) != '')
+                    return $response;
 
+                $file_name = (new ImageController())->generateNewFileName('catalog_img', $file_array);
+                (new ImageController())->saveOriginalImage($file_name);
+                (new ImageController())->saveCompressedImage($file_name);
+                (new ImageController())->saveThumbnailImage($file_name);
+                $webp_file_name = (new ImageController())->saveWebpOriginalImage($file_name);
+                (new ImageController())->saveWebpThumbnailImage($file_name);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($file_name);
+                    (new ImageController())->saveWebpImageInToS3($webp_file_name);
+                }
             }
 
+            $data = array('name' => $name,
+                'image' => $file_name,
+                'is_free' => $is_free,
+                'is_featured' => $is_featured,
+                'created_at' => $create_at,
+                'attribute1' => $webp_file_name
+            );
+
+            DB::beginTransaction();
+            $catalog_id = DB::table('catalog_master')->insertGetId($data);
+            DB::insert('INSERT INTO sub_category_catalog(sub_category_id,catalog_id,created_at) VALUES (?, ?, ?)', [$sub_category_id, $catalog_id, $create_at]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
         } catch (Exception $e) {
-            Log::error("addSubCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("addCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -1351,17 +1316,19 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
+     * {
      * request_data:{
      * "catalog_id":1,
      * "name":"bg-catalog",
      * "is_free":1,
      * "is_featured":1
-     * }
+     * },
      * file:image.png //optional
+     * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Catalog Updated Successfully.",
+     * "message": "Catalog updated successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -1374,63 +1341,59 @@ class AdminController extends Controller
 
             //Required parameter
             if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
-            //Log::info("Request Data:", [$request]);
 
             if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'name', 'is_free', 'is_featured'), $request)) != '')
                 return $response;
 
             $catalog_id = $request->catalog_id;
-            $name = $request->name;
-            $is_free = $request->is_free;
-            $image_name = '';
-            $is_featured = $request->is_featured;
+            $name = trim($request->name);
+            $is_free = isset($request->is_free) ? $request->is_free : '';
+            $is_featured = isset($request->is_featured) ? $request->is_featured : '';
+
+            $sub_category_id = DB::select('SELECT id from sub_category_catalog WHERE catalog_id = ?', [$catalog_id]);
+
+            if (($response = (new VerificationController())->checkIfCatalogExist($sub_category_id[0]->id, $name, $catalog_id)) != '')
+                return $response;
 
             if ($request_body->hasFile('file')) {
-                $image_array = Input::file('file');
+                $file_array = Input::file('file');
 
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                if (($response = (new ImageController())->verifyImage($file_array)) != '')
                     return $response;
 
-                $catalog_img = (new ImageController())->generateNewFileName('catalog_img', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveOriginalImage($catalog_img);
-                (new ImageController())->saveCompressedImage($catalog_img);
-                (new ImageController())->saveThumbnailImage($catalog_img);
-                //(new ImageController())->saveImageInToSpaces($catalog_img);
+                $catalog_img_name = (new ImageController())->generateNewFileName('catalog_img', $file_array);
+                (new ImageController())->saveOriginalImage($catalog_img_name);
+                (new ImageController())->saveCompressedImage($catalog_img_name);
+                (new ImageController())->saveThumbnailImage($catalog_img_name);
+                $file_name = (new ImageController())->saveWebpOriginalImage($catalog_img_name);
+                (new ImageController())->saveWebpThumbnailImage($catalog_img_name);
 
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($catalog_img);
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($catalog_img_name);
+                    (new ImageController())->saveWebpImageInToS3($file_name);
                 }
 
-                $result = DB::select('select image from catalog_master where id = ?', [$catalog_id]);
+                $result = DB::select('SELECT image FROM catalog_master WHERE id = ?', [$catalog_id]);
+
                 $image_name = $result[0]->image;
-                DB::beginTransaction();
-                DB::update('UPDATE
-                              catalog_master
-                            SET
-                              name = ?,
-                              image = ?,
-                              is_free = ?,
-                              is_featured = ?
-                            WHERE
-                              id = ? ',
-                    [$name, $catalog_img, $is_free, $is_featured, $catalog_id]);
+
             } else {
-                DB::update('UPDATE
-                              catalog_master
-                            SET
-                              name = ?,
-                              is_free = ?,
-                              is_featured = ?
-                            WHERE
-                              id = ? ',
-                    [$name, $is_free, $is_featured, $catalog_id]);
+                $catalog_img_name = '';
+                $image_name = '';
+                $file_name = NULL;
             }
 
+            DB::beginTransaction();
+            DB::update('UPDATE catalog_master SET
+                                name = IF(? != "",?,name),
+                                image = IF(? != "",?,image),
+                                is_free = IF(? != is_free,?,is_free),
+                                is_featured = IF(? != is_featured,?,is_featured),
+                                attribute1 = IF(? != "",?,attribute1)
+                              WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $is_free, $is_free, $is_featured, $is_featured, $file_name, $file_name, $catalog_id]);
 
             DB::commit();
 
@@ -1438,11 +1401,11 @@ class AdminController extends Controller
                 //Image Delete in image_bucket
                 (new ImageController())->deleteImage($image_name);
             }
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Updated Successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("updateCategory Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("updateCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -1460,12 +1423,12 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "catalog_id":3
+     * "catalog_id":3 //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Catalog Deleted Successfully!.",
+     * "message": "Catalog deleted successfully!.",
      * "cause": "",
      * "data": {}
      * }
@@ -1478,7 +1441,6 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info("Request Data:", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
                 return $response;
 
@@ -1486,30 +1448,30 @@ class AdminController extends Controller
             $is_active = 0;
             DB::beginTransaction();
 
-            //$result = DB::select('select image from catalog_master where id = ?', [$catalog_id]);
-            //$image_name = $result[0]->image;
+            $result = DB::select('SELECT image FROM catalog_master WHERE id = ?', [$catalog_id]);
+            $image_name = $result[0]->image;
 
-            //$result = DB::select('select image from images where catalog_id = ?', [$catalog_id]);
-
-            DB::update('update catalog_master set is_active=?, is_featured= ?  where id = ? ', [$is_active, 0, $catalog_id]);
-            DB::update('update sub_category_catalog set is_active=? where catalog_id = ? ', [$is_active, $catalog_id]);
+            DB::update('UPDATE catalog_master SET is_active=?, is_featured= ? WHERE id = ? ', [$is_active, 0, $catalog_id]);
+            DB::update('UPDATE sub_category_catalog SET is_active=? WHERE catalog_id = ? ', [$is_active, $catalog_id]);
 
             DB::delete('DELETE FROM images WHERE catalog_id = ?', [$catalog_id]);
             DB::commit();
 
-//            //Image Delete in image_bucket
-//            (new ImageController())->deleteImage($image_name);
-//
+            if ($image_name) {
+                //Image Delete in image_bucket
+                (new ImageController())->deleteImage($image_name);
+            }
+
 //            Log::info("catalog_id:", [$image_name]);
 //            foreach ($result as $rw) {
 //                //Image Delete in image_bucket
 //                (new ImageController())->deleteImage($rw->image);
 //            }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Deleted Successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Delete Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("deleteCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -1557,14 +1519,11 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info("getFeaturedCatalogBySubCategoryId Request:", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
             //$item_count = Config::get('constant.PAGINATION_ITEM_LIMIT');
-
-            //return $total_row;
 
             if (!Cache::has("pel:getFeaturedCatalogBySubCategoryId$this->sub_category_id")) {
                 $result = Cache::rememberforever("getFeaturedCatalogBySubCategoryId$this->sub_category_id", function () {
@@ -1589,9 +1548,6 @@ class AdminController extends Controller
 
 
             }
-//            AND
-//            sct.is_active=?
-//            $this->is_active, $this->is_active,
 
             $redis_result = Cache::get("getFeaturedCatalogBySubCategoryId$this->sub_category_id");
 
@@ -1599,13 +1555,12 @@ class AdminController extends Controller
                 $redis_result = [];
             }
 
-
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Fetched Successfully.', 'cause' => '', 'data' => ['category_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['category_list' => $redis_result]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getFeaturedCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -1682,7 +1637,6 @@ class AdminController extends Controller
      * }
      * }
      */
-
     /**
      * @api {post} getCatalogBySubCategoryId   getCatalogBySubCategoryId
      * @apiName getCatalogBySubCategoryId
@@ -1763,23 +1717,23 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info("getSubCategoryByCategoryId Request:", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
                 return $response;
+            //Log::info('getCatalogBySubCategoryId request : ',['request' => $request]);
 
             $this->sub_category_id = $request->sub_category_id;
 
-            //sub Category Name
-            $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
-            $category_name = $name[0]->name;
-
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
-            $total_row = $total_row_result[0]->total;
-            //return $total_row;
-
             if (!Cache::has("pel:getCatalogBySubCategoryId$this->sub_category_id")) {
                 $result = Cache::rememberforever("getCatalogBySubCategoryId$this->sub_category_id", function () {
-                    return DB::select('SELECT
+
+                    //sub Category Name
+                    $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
+                    $category_name = $name[0]->name;
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
                                         ct.id as catalog_id,
                                         ct.name,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
@@ -1795,13 +1749,10 @@ class AdminController extends Controller
                                         sct.catalog_id=ct.id AND
                                         sct.is_active=1
                                       order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                    return array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
                 });
-
-
             }
-//            AND
-//            sct.is_active=?
-//            $this->is_active, $this->is_active,
 
             $redis_result = Cache::get("getCatalogBySubCategoryId$this->sub_category_id");
 
@@ -1809,12 +1760,12 @@ class AdminController extends Controller
                 $redis_result = [];
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -1890,24 +1841,22 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info("getSubCategoryByCategoryId Request:", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
                 return $response;
 
-
             $this->sub_category_id = $request->sub_category_id;
-
-            //sub Category Name
-            $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE id = ? AND is_active = ?', [$this->sub_category_id, 1]);
-            $cateory_name = $name[0]->name;
-
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
-            $total_row = $total_row_result[0]->total;
-            //return $total_row;
 
             if (!Cache::has("pel:getBackgroundCatalogBySubCategoryId$this->sub_category_id")) {
                 $result = Cache::rememberforever("getBackgroundCatalogBySubCategoryId$this->sub_category_id", function () {
-                    return DB::select('SELECT
+
+                    //sub Category Name
+                    $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE id = ? AND is_active = ?', [$this->sub_category_id, 1]);
+                    $category_name = $name[0]->name;
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
                                         ct.id as catalog_id,
                                         ct.name,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
@@ -1920,17 +1869,14 @@ class AdminController extends Controller
                                         sub_category_catalog as sct
                                       WHERE
                                         sct.sub_category_id = ? AND
-                                        sct.catalog_id=ct.id AND
-                                        sct.is_active=1 AND
-                                        ct.is_featured=0
+                                        sct.catalog_id = ct.id AND
+                                        sct.is_active = 1 AND
+                                        ct.is_featured = 0
                                       order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                    return array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
                 });
-
-
             }
-//            AND
-//            sct.is_active=?
-//            $this->is_active, $this->is_active,
 
             $redis_result = Cache::get("getBackgroundCatalogBySubCategoryId$this->sub_category_id");
 
@@ -1939,12 +1885,12 @@ class AdminController extends Controller
             }
 
 
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'category_name' => $cateory_name, 'category_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getBackgroundCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -2013,11 +1959,11 @@ class AdminController extends Controller
                                       sct.is_active=1 AND
                                       cm.name LIKE ? ', [$sub_category_id, $name]);
 
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Search Successfully.', 'cause' => '', 'data' => ['category_list' => $result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog search successfully.', 'cause' => '', 'data' => ['category_list' => $result]));
 
         } catch (Exception $e) {
-            Log::error("searchCatalogByName Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Search Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("searchCatalogByName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -2055,11 +2001,9 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
-            //Log::info("Request Data :", [$request]);
 
             if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
                 return $response;
@@ -2068,43 +2012,36 @@ class AdminController extends Controller
             $create_at = date('Y-m-d H:i:s');
             DB::beginTransaction();
             if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
 
                 $images_array = Input::file('file');
-                //return $images_array;
                 foreach ($images_array as $image_array) {
                     if (($response = (new ImageController())->verifyImage($image_array)) != '')
                         return $response;
 
-                    $catalog_image = (new ImageController())->generateNewFileName('catalog_images', $image_array);
-                    //(new ImageController())->saveOriginalImage($background_img);
+                    $normal_image = (new ImageController())->generateNewFileName('normal_image', $image_array);
+                    (new ImageController())->saveOriginalImageFromArray($image_array, $normal_image);
+                    (new ImageController())->saveCompressedImage($normal_image);
+                    (new ImageController())->saveThumbnailImage($normal_image);
 
-                    $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-                    $image_array->move($original_path, $catalog_image);
-
-                    (new ImageController())->saveCompressedImage($catalog_image);
-                    (new ImageController())->saveThumbnailImage($catalog_image);
-                    //(new ImageController())->saveImageInToSpaces($catalog_image);
-
-                    if (env('STORAGE') === 'S3_BUCKET') {
-                        (new ImageController())->saveImageInToSpaces($catalog_image);
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveImageInToS3($normal_image);
                     }
 
                     DB::insert('INSERT
                                 INTO
                                   images(catalog_id, image, created_at)
-                                VALUES(?, ?, ?) ', [$catalog_id, $catalog_image, $create_at]);
+                                VALUES(?, ?, ?) ', [$catalog_id, $normal_image, $create_at]);
                 }
 
                 DB::commit();
             }
 
-
-            $response = Response::json(array('code' => 200, 'message' => 'sub category images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Normal images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("addCategoryImages Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add sub category images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("addCatalogImages : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add normal images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -2148,14 +2085,15 @@ class AdminController extends Controller
             $created_at = date('Y-m-d H:i:s');
             $catalog_id = $request->catalog_id;
             $image_type = $request->image_type;
+
             if (!$request_body->hasFile('original_img') and !$request_body->hasFile('display_img')) {
-                return Response::json(array('code' => 201, 'message' => 'required field original_img or display_img is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field original_img or display_img is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } elseif (!$request_body->hasFile('original_img')) {
 
-                return Response::json(array('code' => 201, 'message' => 'required field original_img is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field original_img is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             } elseif (!$request_body->hasFile('display_img')) {
-                return Response::json(array('code' => 201, 'message' => 'required field display_img is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field display_img is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             } else {
                 if ($request_body->hasFile('original_img')) {
@@ -2168,10 +2106,9 @@ class AdminController extends Controller
                     (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
                     (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
                     (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-                    //(new ImageController())->saveImageInToSpaces($original_img);
 
-                    if (env('STORAGE') === 'S3_BUCKET') {
-                        (new ImageController())->saveImageInToSpaces($original_img);
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveImageInToS3($original_img);
                     }
 
                 }
@@ -2188,12 +2125,9 @@ class AdminController extends Controller
                     (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                     (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
 
-                    //(new ImageController())->saveImageInToSpaces($display_img);
-
-                    if (env('STORAGE') === 'S3_BUCKET') {
-                        (new ImageController())->saveImageInToSpaces($display_img);
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveImageInToS3($display_img);
                     }
-
 
                 }
 
@@ -2214,119 +2148,13 @@ class AdminController extends Controller
 
                 DB::commit();
 
-                $response = Response::json(array('code' => 200, 'message' => 'Featured Background Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+                $response = Response::json(array('code' => 200, 'message' => 'Featured background images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
             }
-
 
         } catch (Exception $e) {
-            Log::error("addFeaturedBackgroundCatalogImage Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Featured Background Images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} addFeaturedImage   addFeaturedImage
-     * @apiName addFeaturedImage
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "catalog_id":10
-     * },
-     * original_img:image1.jpeg,
-     * display_img:image12.jpeg
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Featured Images added successfully!.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function addFeaturedImage(Request $request_body)
-    {
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
-                return $response;
-
-            $created_at = date('Y-m-d H:i:s');
-            $catalog_id = $request->catalog_id;
-
-            if (!$request_body->hasFile('original_img') and !$request_body->hasFile('display_img')) {
-                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-            } else if ($request_body->hasFile('original_img')) {
-                $image_array = Input::file('original_img');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $original_img = (new ImageController())->generateNewFileName('original_img', $image_array);
-                $file_name = 'original_img';
-                (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
-                (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
-                (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-                //(new ImageController())->saveImageInToSpaces($original_img);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($original_img);
-                }
-
-            }
-            if ($request_body->hasFile('display_img')) {
-
-                $image_array = Input::file('display_img');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $display_img = (new ImageController())->generateNewFileName('display_img', $image_array);
-
-                $file_name = 'display_img';
-                (new ImageController())->saveMultipleOriginalImage($display_img, $file_name);
-                (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
-                (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($display_img);
-                }
-
-                //(new ImageController())->saveImageInToSpaces($display_img);
-
-            }
-
-
-            DB::beginTransaction();
-
-            $data = array(
-                'catalog_id' => $catalog_id,
-                'original_img' => $original_img,
-                'display_img' => $display_img,
-                'created_at' => $created_at
-            );
-
-            $sample_image_id = DB::table('images')->insertGetId($data);
-
-            //DB::update('update images set original_img = ?,display_img = ?,image_type = ?,created_at = ? where catalog_id = ?',[$original_img, $display_img, $image_type, $created_at, $catalog_id]);
-            //log::info('Inserted featured image for Sticker/Frame');
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Featured Images added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("addFeaturedImage Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Featured Images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("addFeaturedBackgroundCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add featured background images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -2380,14 +2208,13 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-                //(new ImageController())->saveImageInToSpaces($original_img);
 
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($original_img);
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($original_img);
                 }
 
                 DB::beginTransaction();
-                DB::update('update images set original_img = ?,image_type = ?,created_at = ? where id = ?', [$original_img, $image_type, $created_at, $img_id]);
+                DB::update('UPDATE images SET original_img = ?,image_type = ?,created_at = ? WHERE id = ?', [$original_img, $image_type, $created_at, $img_id]);
 
 
             } else {
@@ -2405,127 +2232,27 @@ class AdminController extends Controller
                 (new ImageController())->saveMultipleOriginalImage($display_img, $file_name);
                 (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
                 (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
-                //(new ImageController())->saveImageInToSpaces($display_img);
 
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($display_img);
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($display_img);
                 }
 
-                DB::update('update images set display_img = ?,image_type = ?,created_at = ? where id = ?', [$display_img, $image_type, $created_at, $img_id]);
+                DB::update('UPDATE images SET display_img = ?,image_type = ?,created_at = ? WHERE id = ?', [$display_img, $image_type, $created_at, $img_id]);
 
             } else {
                 $display_img = '';
             }
 
             if ($original_img == '' && $display_img == '') {
-                DB::update('update images set image_type = ?,created_at = ? where id = ?', [$image_type, $created_at, $img_id]);
+                DB::update('UPDATE images SET image_type = ?,created_at = ? WHERE id = ?', [$image_type, $created_at, $img_id]);
             }
-
-            //log::info('Updated featured background image');
 
             DB::commit();
 
-            $response = Response::json(array('code' => 200, 'message' => 'Featured Background Images updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Image updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("updateFeaturedBackgroundCatalogImage Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Update Featured Background Images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} updateFeaturedImage   updateFeaturedImage
-     * @apiName updateFeaturedImage
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "img_id":10
-     * },
-     * original_img:image1.jpeg,
-     * display_img:image12.jpeg
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Featured Images added successfully!.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function updateFeaturedImage(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('img_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $created_at = date('Y-m-d H:i:s');
-            $img_id = $request->img_id;
-
-            if (!$request_body->hasFile('original_img') and !$request_body->hasFile('display_img')) {
-                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-            } else if ($request_body->hasFile('original_img')) {
-                $image_array = Input::file('original_img');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $original_img = (new ImageController())->generateNewFileName('original_img', $image_array);
-                $file_name = 'original_img';
-                (new ImageController())->saveMultipleOriginalImage($original_img, $file_name);
-                (new ImageController())->saveMultipleCompressedImage($original_img, $file_name);
-                (new ImageController())->saveMultipleThumbnailImage($original_img, $file_name);
-                //(new ImageController())->saveImageInToSpaces($original_img);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($original_img);
-                }
-
-            }
-            if ($request_body->hasFile('display_img')) {
-
-                $image_array = Input::file('display_img');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $display_img = (new ImageController())->generateNewFileName('display_img', $image_array);
-
-                $file_name = 'display_img';
-                (new ImageController())->saveMultipleOriginalImage($display_img, $file_name);
-                (new ImageController())->saveMultipleCompressedImage($display_img, $file_name);
-                (new ImageController())->saveMultipleThumbnailImage($display_img, $file_name);
-
-                //(new ImageController())->saveImageInToSpaces($display_img);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($display_img);
-                }
-
-            }
-
-
-            DB::beginTransaction();
-
-
-            DB::update('update images set original_img = ?,display_img = ?,created_at = ? where id = ?', [$original_img, $display_img, $created_at, $img_id]);
-            //log::info('Updated featured image');
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Featured Images updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
-
-        } catch (Exception $e) {
-            Log::error("updateFeaturedImage Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Update Featured Images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("updateFeaturedBackgroundCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -2614,15 +2341,13 @@ class AdminController extends Controller
                                           IF(im.display_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.display_img),"") as display_original_img,
                                           image_type
                                         FROM
-                                          images as im,
-                                          catalog_master as cm
-                                        where
+                                          catalog_master as cm JOIN images as im ON
+                                          cm.id = im.catalog_id AND
                                           im.is_active = 1 AND
-                                          im.catalog_id = ? And
-                                          cm.id=im.catalog_id And
+                                          im.catalog_id = ? AND
                                           isnull(im.image) AND
                                           cm.is_featured=1
-                                        order by im.updated_at DESC', [$this->catalog_id]);
+                                        ORDER BY im.updated_at DESC', [$this->catalog_id]);
                 });
             }
             $redis_result = Cache::get("getSampleImagesForAdmin$this->catalog_id");
@@ -2632,12 +2357,12 @@ class AdminController extends Controller
             }
 
 
-            $response = Response::json(array('code' => 200, 'message' => 'Sample Images Fetched Successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Sample images fetched successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getSampleImagesForAdmin Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' Fetched Image By Catalog Id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSampleImagesForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -2747,12 +2472,12 @@ class AdminController extends Controller
             }
 
 
-            $response = Response::json(array('code' => 200, 'message' => 'Sample Images Fetched Successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Sample images fetched successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getSampleImagesForMobile Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' Fetched Images By Sub Category Id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSampleImagesForMobile : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -2769,13 +2494,13 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * request_data:{
-     * "img_id":1
+     * "img_id":1 //compulsory
      * }
-     * file:""
+     * file:"" //compulsory
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Catalog Image Updated Successfully.",
+     * "message": "Normal image updated successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -2788,20 +2513,17 @@ class AdminController extends Controller
 
             //Required parameter
             if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
-            //Log::info("Request Data:", [$request]);
 
             if (($response = (new VerificationController())->validateRequiredParameter(array('img_id'), $request)) != '')
                 return $response;
 
             $img_id = $request->img_id;
-            $image_name = '';
 
             if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $image_array = Input::file('file');
 
@@ -2809,17 +2531,15 @@ class AdminController extends Controller
                     return $response;
 
                 $catalog_img = (new ImageController())->generateNewFileName('catalog_img', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
                 (new ImageController())->saveOriginalImage($catalog_img);
                 (new ImageController())->saveCompressedImage($catalog_img);
                 (new ImageController())->saveThumbnailImage($catalog_img);
-                //(new ImageController())->saveImageInToSpaces($catalog_img);
 
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($catalog_img);
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($catalog_img);
                 }
 
-                $result = DB::select('select image from images where id = ?', [$img_id]);
+                $result = DB::select('SELECT image FROM images WHERE id = ?', [$img_id]);
                 $image_name = $result[0]->image;
                 DB::beginTransaction();
                 DB::update('UPDATE
@@ -2830,19 +2550,19 @@ class AdminController extends Controller
                               id = ? ',
                     [$catalog_img, $img_id]);
                 DB::commit();
+
+                if ($image_name) {
+                    //Image Delete in image_bucket
+                    (new ImageController())->deleteImage($image_name);
+                }
+
             }
 
-
-            if ($image_name) {
-                //Image Delete in image_bucket
-                (new ImageController())->deleteImage($image_name);
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Image Updated Successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Normal image updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("updateCategoryImage Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update Category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("updateCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update normal image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -2860,12 +2580,12 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "img_id":1
+     * "img_id":1 //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Catalog Image Deleted Successfully.",
+     * "message": "Normal image deleted successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -2883,29 +2603,34 @@ class AdminController extends Controller
 
             $img_id = $request->img_id;
 
-            $result = DB::select('select image from images where id = ?', [$img_id]);
-            $image_name = $result[0]->image;
+            $result = DB::select('SELECT image FROM images WHERE id = ?', [$img_id]);
+
+
             DB::beginTransaction();
 
-            DB::delete('delete from images where id = ? ', [$img_id]);
+            DB::delete('DELETE FROM images WHERE id = ? ', [$img_id]);
 
             DB::commit();
 
-            //Image Delete in image_bucket
-            (new ImageController())->deleteImage($image_name);
+            if (count($result) > 0) {
+                $image_name = $result[0]->image;
+                //Image Delete in image_bucket
+                (new ImageController())->deleteImage($image_name);
 
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Image Deleted Successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Normal image deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("deleteSubCategoryImages Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Delete Catalog Image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("deleteCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete normal image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
     }
 
     /**
-     * @api {post} getImagesByCatalogIdForAdmin   getImagesByCatalogIdForAdmin
-     * @apiName getImagesByCatalogIdForAdmin
+     * @api {post} getDataByCatalogIdForAdmin   getDataByCatalogIdForAdmin
+     * @apiName getDataByCatalogIdForAdmin
      * @apiGroup Admin
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
@@ -2915,7 +2640,4432 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
+     *  "catalog_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Data fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "image_list": [
+     * {
+     * "img_id": 182,
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d5644e1424_catalog_image_1502434884.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d5644e1424_catalog_image_1502434884.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d5644e1424_catalog_image_1502434884.png",
+     * "is_json_data": 0,
+     * "json_data": "",
+     * "is_featured": "",
+     * "is_free": 0,
+     * "is_portrait": 0,
+     * "search_category": ""
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getDataByCatalogIdForAdmin(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $this->catalog_id = $request->catalog_id;
+
+            if (!Cache::has("pel:getDataByCatalogIdForAdmin$this->catalog_id")) {
+                $result = Cache::rememberforever("getDataByCatalogIdForAdmin$this->catalog_id", function () {
+
+                    $result = DB::select('SELECT
+                                              im.id as img_id,
+                                              IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
+                                              IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
+                                              IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                              IF(im.json_data IS NOT NULL,1,0) as is_json_data,
+                                              coalesce(im.json_data,"") as json_data,
+                                              coalesce(im.is_featured,"") as is_featured,
+                                              coalesce(im.is_free,0) as is_free,
+                                              coalesce(im.is_portrait,0) as is_portrait,
+                                              coalesce(im.search_category,"") as search_category
+                                            FROM
+                                              images as im
+                                            where
+                                              im.is_active = 1 AND
+                                              im.catalog_id = ? AND
+                                              isnull(im.original_img) AND
+                                              isnull(im.display_img)
+                                            order by im.updated_at DESC', [$this->catalog_id]);
+
+                    foreach ($result as $key) {
+                        if ($key->json_data != "") {
+                            $key->json_data = json_decode($key->json_data);
+                        }
+
+                    }
+                    return $result;
+                });
+            }
+            $redis_result = Cache::get("getDataByCatalogIdForAdmin$this->catalog_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Data fetched successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getDataByCatalogIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get data by catalog id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getImagesByCatalogId   getImagesByCatalogId
+     * @apiName getImagesByCatalogId
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
      *  "catalog_id":1
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Images fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "image_list": [
+     * {
+     * "img_id": 3303,
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg",
+     * "is_json_data": 0,
+     * "json_data": "",
+     * "is_featured": "",
+     * "is_free": 0,
+     * "is_portrait": 0,
+     * "search_category": ""
+     * },
+     * {
+     * "img_id": 3304,
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg",
+     * "is_json_data": 0,
+     * "json_data": "",
+     * "is_featured": "",
+     * "is_free": 0,
+     * "is_portrait": 0,
+     * "search_category": ""
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getImagesByCatalogId(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $this->catalog_id = $request->catalog_id;
+
+            if (!Cache::has("pel:getImagesByCatalogId$this->catalog_id")) {
+                $result = Cache::rememberforever("getImagesByCatalogId$this->catalog_id", function () {
+                    $result = DB::select('SELECT
+                                          im.id as img_id,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                          IF(im.json_data IS NOT NULL,1,0) as is_json_data,
+                                          coalesce(im.json_data,"") as json_data,
+                                          coalesce(im.is_featured,"") as is_featured,
+                                          coalesce(im.is_free,0) as is_free,
+                                          coalesce(im.is_portrait,0) as is_portrait,
+                                          coalesce(im.search_category,"") as search_category
+                                        FROM
+                                          images as im
+                                        where
+                                          im.is_active = 1 AND
+                                          im.catalog_id = ? AND
+                                          isnull(im.original_img) AND
+                                          isnull(im.display_img)
+                                        order by im.updated_at DESC', [$this->catalog_id]);
+
+                    /*foreach ($result as $key) {
+                         if ($key->json_data != "") {
+                             $key->json_data = json_decode($key->json_data);
+                         }
+                     }*/
+
+                    return $result;
+                });
+            }
+            $redis_result = Cache::get("getImagesByCatalogId$this->catalog_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Images fetched successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getImagesByCatalogId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* ======================================== Link Catalog ===================================== */
+
+    /**
+     * @api {post} getAllCatalog   getAllCatalog
+     * @apiName getAllCatalog
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Catalog Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 2,
+     * "catalog_list": [
+     * {
+     * "catalog_id": 17,
+     * "sub_category_id": 4,
+     * "name": "Dragon Tattoo",
+     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59895317393b0_catalog_img_1502171927.png",
+     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59895317393b0_catalog_img_1502171927.png",
+     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59895317393b0_catalog_img_1502171927.png",
+     * "is_free": 1
+     * },
+     * {
+     * "catalog_id": 17,
+     * "sub_category_id": 10,
+     * "name": "Dragon Tattoo",
+     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59895317393b0_catalog_img_1502171927.png",
+     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59895317393b0_catalog_img_1502171927.png",
+     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59895317393b0_catalog_img_1502171927.png",
+     * "is_free": 1
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllCatalog()
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!Cache::has("pel:getAllCatalog")) {
+                $result = Cache::rememberforever("getAllCatalog", function () {
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE is_active = ?', [1]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
+                                        ct.id as catalog_id,
+                                        sct.sub_category_id,
+                                        ct.name,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                        ct.is_free
+                                      FROM
+                                        catalog_master as ct,
+                                        sub_category_catalog as sct
+                                      WHERE
+                                        sct.catalog_id=ct.id AND
+                                        sct.is_active=1
+                                      order by ct.updated_at DESC');
+
+                    return array('total_record' => $total_row, 'catalog_list' => $result);
+                });
+            }
+
+            $redis_result = Cache::get("getAllCatalog");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} linkCatalog linkCatalog
+     * @apiName linkCatalog
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "catalog_id":2,
+     * "sub_category_id":10
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Catalog Linked Successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function linkCatalog(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            //Log::info("linkCatalog Request :", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'sub_category_id'), $request)) != '')
+                return $response;
+
+            //$query=DB::select('select * from sub_category_catalog WHERE sub_category_id = ? AND catalog_id = ?',[$sub_category_id,$catalog_id]);
+            $catalog_id = $request->catalog_id;
+            $sub_category_id = $request->sub_category_id;
+            $create_at = date('Y-m-d H:i:s');
+
+            $catalog_name = DB::select('SELECT name from catalog_master WHERE id = ?', [$catalog_id]);
+
+            if (($response = (new VerificationController())->checkIfCatalogExist($sub_category_id, $catalog_name[0]->name, $catalog_id)) != '') {
+                $sub_category_name = DB::select('SELECT name from sub_category WHERE id = ?', [$sub_category_id]);
+                return $response = Response::json(array('code' => 201, 'message' => '"' . $catalog_name[0]->name . '" already exist in "' . $sub_category_name[0]->name . '" category.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
+
+            DB::beginTransaction();
+            DB::insert('INSERT INTO sub_category_catalog(sub_category_id,catalog_id,created_at) VALUES (?, ?, ?)', [$sub_category_id, $catalog_id, $create_at]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("linkCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllSubCategoryForLinkCatalog   getAllSubCategoryForLinkCatalog
+     * @apiName getAllSubCategoryForLinkCatalog
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "catalog_id":18,
+     * "sub_category_id":20
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "SubCategory Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "category_list": [
+     * {
+     * "sub_category_id": 13,
+     * "name": "Background",
+     * "linked": 0
+     * },
+     * {
+     * "sub_category_id": 12,
+     * "name": "Frames",
+     * "linked": 1
+     * },
+     * {
+     * "sub_category_id": 10,
+     * "name": "Goggles",
+     * "linked": 0
+     * },
+     * {
+     * "sub_category_id": 9,
+     * "name": "Hair Style",
+     * "linked": 0
+     * },
+     * {
+     * "sub_category_id": 4,
+     * "name": "Tattoos",
+     * "linked": 0
+     * },
+     * {
+     * "sub_category_id": 11,
+     * "name": "Turbans",
+     * "linked": 0
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllSubCategoryForLinkCatalog(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            //Log::info("getImagesByCatalogId Request :", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'category_id'), $request)) != '')
+                return $response;
+
+            $this->catalog_id = $request->catalog_id;
+            $this->category_id = $request->category_id;
+
+            if (!Cache::has("pel:getAllSubCategoryForLinkCatalog$this->catalog_id:$this->category_id")) {
+                $result = Cache::rememberforever("getAllSubCategoryForLinkCatalog$this->catalog_id:$this->category_id", function () {
+
+                    return DB::select('SELECT
+                                          id AS sub_category_id,
+                                          name,
+                                          IF((SELECT sub_category_id
+                                              FROM sub_category_catalog scc
+                                              WHERE catalog_id = ? and sc.id=scc.sub_category_id and scc.is_active=1 LIMIT 1) ,1,0) as linked
+                                          FROM sub_category sc
+                                          WHERE
+                                            sc.is_active = 1 AND
+                                            sc.category_id=?
+                                          ORDER BY name', [$this->catalog_id, $this->category_id]);
+
+                    /*return DB::select('SELECT
+                                          id AS sub_category_id,
+                                          name,
+                                          IF((SELECT sub_category_id
+                                           FROM sub_category_catalog scc
+                                           WHERE catalog_id = ? and sc.id=scc.sub_category_id and scc.is_active=1 LIMIT 1) ,1,0) as linked
+                                        FROM sub_category sc
+                                        WHERE is_active = 1
+                                        ORDER BY name',[$this->catalog_id]);*/
+                });
+
+            }
+
+            $redis_result = Cache::get("getAllSubCategoryForLinkCatalog$this->catalog_id:$this->category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Sub categories fetched successfully.', 'cause' => '', 'data' => ['category_list' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllSubCategoryForLinkCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all sub categories.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteLinkedCatalog deleteLinkedCatalog
+     * @apiName deleteLinkedCatalog
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "catalog_id":2,
+     * "sub_category_id":10
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Catalog unlinked Successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteLinkedCatalog(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'sub_category_id'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $sub_category_id = $request->sub_category_id;
+
+            DB::beginTransaction();
+
+            //$result = DB::select('select image from catalog_master where id = ?', [$catalog_id]);
+            //$image_name = $result[0]->image;
+
+            //$result = DB::select('SELECT sub_category_id from sub_category_catalog WHERE sub_category_id=? and is_active=? and catalog_id = ?', [$sub_category_id, 1, $catalog_id]);
+            $result = DB::select('SELECT count(*) as count_catalog FROM sub_category_catalog WHERE catalog_id = ? AND is_active = 1', [$catalog_id]);
+            if ($result[0]->count_catalog > 1) {
+                DB::delete('DELETE FROM sub_category_catalog WHERE sub_category_id = ? AND catalog_id = ? ', [$sub_category_id, $catalog_id]);
+                $response = Response::json(array('code' => 200, 'message' => 'Catalog unlinked successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+            } else {
+                $response = Response::json(array('code' => 201, 'message' => 'Unable to de-link this catalog, it is not linked with any other application.', 'cause' => '', 'data' => json_decode("{}")));
+
+            }
+
+            DB::commit();
+
+//            //Image Delete in image_bucket
+//            (new ImageController())->deleteImage($image_name);
+//
+//            Log::info("catalog_id:", [$image_name]);
+//            foreach ($result as $rw) {
+//                //Image Delete in image_bucket
+//                (new ImageController())->deleteImage($rw->image);
+//            }
+
+        } catch (Exception $e) {
+            Log::error("deleteLinkedCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete linked catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /* ========================================= URL ============================================== */
+
+    /**
+     * @api {post} addLink addLink
+     * @apiName addLink
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "sub_category_id":46,
+     * "name":"QR Scanner",
+     * "url":"https://play.google.com/store/apps/details?id=com.optimumbrewlab.dqnentrepreneur&hl=en",
+     * "platform":"Android",
+     * "app_description":"This is test description."
+     * }
+     * file:ob.png
+     * logo_file:logo_image.png
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Link Added Successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addLink(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+            if (($response = (new VerificationController())->validateRequiredParameter(array('platform', 'url', 'platform', 'app_description'), $request)) != '')
+                return $response;
+
+            $name = $request->name;
+            $url = $request->url;
+            $platform = $request->platform;
+            $app_description = $request->app_description;
+            $create_at = date('Y-m-d H:i:s');
+
+            if (($response = (new VerificationController())->checkIfAdvertisementExist($url)) != '')
+                return $response;
+
+            if (!$request_body->hasFile('file')) {
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+                $image_array = Input::file('file');
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
+                (new ImageController())->saveOriginalImage($app_image);
+                (new ImageController())->saveCompressedImage($app_image);
+                (new ImageController())->saveThumbnailImage($app_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($app_image);
+                }
+
+            }
+
+            //Logo Image
+            if (!$request_body->hasFile('logo_file')) {
+                return Response::json(array('code' => 201, 'message' => 'required field logo_file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+                $logo_image_array = Input::file('logo_file');
+                if (($response = (new ImageController())->verifyImage($logo_image_array)) != '')
+                    return $response;
+
+                $app_logo = (new ImageController())->generateNewFileName('app_logo_image', $logo_image_array);
+                (new ImageController())->saveMultipleOriginalImage($app_logo, 'logo_file');
+                (new ImageController())->saveCompressedImage($app_logo);
+                (new ImageController())->saveThumbnailImage($app_logo);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($app_logo);
+                }
+            }
+
+            $data = array('name' => $name,
+                'image' => $app_image,//Application banner
+                'app_logo_img' => $app_logo,//$app_logo,
+                'url' => $url,
+                'platform' => $platform,
+                'app_description' => $app_description,
+                'created_at' => $create_at);
+            DB::beginTransaction();
+            $advertise_link_id = DB::table('advertise_links')->insertGetId($data);
+
+            //DB::insert('insert into sub_category_advertise_links(sub_category_id, advertise_link_id, is_active, created_at) VALUES (?, ?, ?, ?)', [$sub_category_id, $advertise_link_id, 1, $create_at]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Link added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addLink :", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateLink updateLink
+     * @apiName updateLink
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "sub_category_id": 46,
+     * "advertise_link_id": 51,
+     * "name": "QR Scanner",
+     * "url": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.dqnentrepreneur&hl=en",
+     * "platform": "Android",
+     * "app_description": "This is test description"
+     * }
+     * file:ob.png //optional
+     * logo_file:ob.png //optional
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Link Updated Successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateLink(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+//            if (!$request_body->has('request_data'))
+//                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+//
+//            $request = json_decode($request_body->input('request_data'));
+//
+//            Log::info("request data :", [$request]);
+//            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'name', 'platform', 'url'), $request)) != '')
+//                return $response;
+//
+//            $token = JWTAuth::getToken();
+//            JWTAuth::toUser($token);
+//
+//            $advertise_link_id = $request->advertise_link_id;
+//            $name = $request->name;
+//            $url = $request->url;
+//            $platform = $request->platform;
+//            $create_at = date('Y-m-d H:i:s');
+//            $image_name = '';
+//            $logo_image_name = '';
+//            DB::beginTransaction();
+//
+//            if ((!$request_body->hasFile('file'))) {
+//                //Log::info("Without Both file.");
+//                DB::update('update advertise_links
+//                            SET name = ?,
+//                                url = ?,
+//                                platform = ?,
+//                                created_at = ?
+//                            WHERE
+//                                id = ?', [$name, $url, $platform, $create_at, $advertise_link_id]);
+//            } else {
+//                Log::info("Only File");
+//                $image_array = Input::file('file');
+//                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+//                    return $response;
+//
+//                $app_image = (new ImageController())->generateNewFileName('app_image', $image_array);
+//                //Log::info("file size :",[filesize($profile_img)]);
+//                (new ImageController())->saveMultipleOriginalImage($app_image, 'file');
+//                (new ImageController())->saveCompressedImage($app_image);
+//                (new ImageController())->saveThumbnailImage($app_image);
+//
+//                $result = DB::select('select image from advertise_links where id = ?', [$advertise_link_id]);
+//                $image_name = $result[0]->image;
+//
+//                DB::update('update advertise_links
+//                            SET name = ?,
+//                                image = ?,
+//                                url = ?,
+//                                platform = ?,
+//                                created_at = ?
+//                            WHERE
+//                                id = ?', [$name, $app_image, $url, $platform, $create_at, $advertise_link_id]);
+//
+//            }
+//            DB::commit();
+//
+//            //Image Delete in image_bucket
+//            if ($image_name) {
+//                (new ImageController())->deleteImage($image_name);
+//            }
+//            if ($logo_image_name) {
+//                (new ImageController())->deleteImage($logo_image_name);
+//            }
+
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+
+            //Log::info("request data :", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'name', 'platform', 'url', 'app_description'), $request)) != '')
+                return $response;
+
+            $advertise_link_id = $request->advertise_link_id;
+            $name = $request->name;
+            $url = $request->url;
+            $platform = $request->platform;
+            $app_description = $request->app_description;
+            $create_at = date('Y-m-d H:i:s');
+            $image_name = '';
+            $logo_image_name = '';
+            DB::beginTransaction();
+
+            if ((!$request_body->hasFile('file')) && (!$request_body->hasFile('logo_file'))) {
+                //Log::info("Without Both file.");
+                DB::update('UPDATE advertise_links
+                            SET name = ?,
+                                url = ?,
+                                platform = ?,
+                                app_description = ?,
+                                created_at = ?
+                            WHERE
+                                id = ?', [$name, $url, $platform, $app_description, $create_at, $advertise_link_id]);
+            } elseif ((!$request_body->hasFile('logo_file')) && $request_body->hasFile('file')) {
+                //Log::info("Only File");
+                $image_array = Input::file('file');
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
+                //Log::info("file size :",[filesize($profile_img)]);
+                (new ImageController())->saveMultipleOriginalImage($app_image, 'file');
+                (new ImageController())->saveCompressedImage($app_image);
+                (new ImageController())->saveThumbnailImage($app_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($app_image);
+                }
+
+                $result = DB::select('SELECT image FROM advertise_links WHERE id = ?', [$advertise_link_id]);
+                $image_name = $result[0]->image;
+
+                DB::update('UPDATE advertise_links
+                            SET name = ?,
+                                image = ?,
+                                url = ?,
+                                platform = ?,
+                                app_description = ?,
+                                created_at = ?
+                            WHERE
+                                id = ?', [$name, $app_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
+
+            } elseif ($request_body->hasFile('logo_file') && (!$request_body->hasFile('file'))) {
+                //Log::info("Only Logo-File");
+                $image_array = Input::file('logo_file');
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                $logo_image = (new ImageController())->generateNewFileName('app_logo_image', $image_array);
+                //Log::info("file size :",[filesize($profile_img)]);
+                (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
+                (new ImageController())->saveCompressedImage($logo_image);
+                (new ImageController())->saveThumbnailImage($logo_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($logo_image);
+                }
+
+                $result = DB::select('SELECT app_logo_img FROM advertise_links WHERE id = ?', [$advertise_link_id]);
+                $logo_image_name = $result[0]->app_logo_img;
+
+                DB::update('UPDATE advertise_links
+                            SET name = ?,
+                                app_logo_img = ?,
+                                url = ?,
+                                platform = ?,
+                                app_description = ?,
+                                created_at = ?
+                            WHERE
+                                id = ?', [$name, $logo_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
+
+            } else {
+                //Log::info("Both File");
+                $image_array = Input::file('file');
+                $logo_image_array = Input::file('logo_file');
+
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->verifyImage($logo_image_array)) != '')
+                    return $response;
+
+                $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
+                $logo_image = (new ImageController())->generateNewFileName('app_logo_image', $logo_image_array);
+                //Log::info("file size :",[filesize($profile_img)]);
+                (new ImageController())->saveOriginalImage($app_image);
+                (new ImageController())->saveCompressedImage($app_image);
+                (new ImageController())->saveThumbnailImage($app_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($app_image);
+                }
+
+
+                (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
+                (new ImageController())->saveCompressedImage($logo_image);
+                (new ImageController())->saveThumbnailImage($logo_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($logo_image);
+                }
+
+
+                $result = DB::select('SELECT image,app_logo_img FROM advertise_links WHERE id = ?', [$advertise_link_id]);
+                $image_name = $result[0]->image;
+                $logo_image_name = $result[0]->app_logo_img;
+
+                DB::update('UPDATE advertise_links
+                            SET name = ?,
+                                image = ?,
+                                app_logo_img = ?,
+                                url = ?,
+                                platform = ?,
+                                app_description = ?,
+                                created_at = ?
+                            WHERE
+                                id = ?', [$name, $app_image, $logo_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
+
+            }
+
+
+            DB::commit();
+
+            //Image Delete in image_bucket
+            if ($image_name) {
+                (new ImageController())->deleteImage($image_name);
+            }
+            if ($logo_image_name) {
+                (new ImageController())->deleteImage($logo_image_name);
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Link updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("updateLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteLink deleteLink
+     * @apiName deleteLink
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     *  "advertise_link_id:1
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Link Deleted Successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteLink(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id'), $request)) != '')
+                return $response;
+
+            $advertise_link_id = $request->advertise_link_id;
+
+            DB::beginTransaction();
+
+            //DB::delete('delete FROM sub_category_advertise_links WHERE advertise_link_id = ?', [$advertise_link_id]);
+
+            DB::delete('DELETE FROM advertise_links WHERE id = ? ', [$advertise_link_id]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Link deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllLink   getAllLink
+     * @apiName getAllLink
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":1,
+     * "page":1,
+     * "item_count":10
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All Link Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 2,
+     * "is_next_page": false,
+     * "link_list": [
+     * {
+     * "advertise_link_id": 51,
+     * "name": "QR Scanner",
+     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/5a0437f82a94f_banner_image_1510225912.jpg",
+     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/5a0437f82a94f_banner_image_1510225912.jpg",
+     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/5a0437f82a94f_banner_image_1510225912.jpg",
+     * "app_logo_thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/5a0437f82ad37_app_logo_image_1510225912.jpg",
+     * "app_logo_compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/5a0437f82ad37_app_logo_image_1510225912.jpg",
+     * "app_logo_original_img": "http://localhost/ob_photolab_backend/image_bucket/original/5a0437f82ad37_app_logo_image_1510225912.jpg",
+     * "url": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.dqnentrepreneur&hl=en",
+     * "platform": "Android",
+     * "app_description": "This is test description"
+     * },
+     * {
+     * "advertise_link_id": 52,
+     * "name": "QR Scanner",
+     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/5a04375d4c4ed_banner_image_1510225757.jpg",
+     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/5a04375d4c4ed_banner_image_1510225757.jpg",
+     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/5a04375d4c4ed_banner_image_1510225757.jpg",
+     * "app_logo_thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/5a0437600e172_app_logo_image_1510225760.jpeg",
+     * "app_logo_compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/5a0437600e172_app_logo_image_1510225760.jpeg",
+     * "app_logo_original_img": "http://localhost/ob_photolab_backend/image_bucket/original/5a0437600e172_app_logo_image_1510225760.jpeg",
+     * "url": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.dqnentrepreneur&hl=en",
+     * "platform": "Android",
+     * "app_description": "This is test description."
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllLink(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            //$item_count = Config::get('constant.PAGINATION_ITEM_LIMIT');
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_advertise_links where is_active = ? AND sub_category_id = ?', [1, $this->sub_category_id]);
+            $total_row = $total_row_result[0]->total;
+            //return $total_row_result;
+            if (!Cache::has("pel:getAllLink$this->page:$this->item_count:$this->sub_category_id")) {
+                $result = Cache::rememberforever("getAllLink$this->page:$this->item_count:$this->sub_category_id", function () {
+                    return DB::select('SELECT
+                                        adl.id as advertise_link_id,
+                                        adl.name,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
+                                        adl.url,
+                                        adl.platform,
+                                        if(adl.app_description!="",adl.app_description,"") as app_description
+                                      FROM
+                                        advertise_links as adl,
+                                        sub_category_advertise_links as sadl
+                                      WHERE
+                                        sadl.sub_category_id = ? AND
+                                        sadl.advertise_link_id=adl.id AND
+                                        sadl.is_active=1
+                                      order by adl.updated_at DESC
+                                      LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+//                    return DB::select('SELECT
+//                                        adl.id as advertise_link_id,
+//                                        adl.name,
+//                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",adl.image),"") as thumbnail_img,
+//                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",adl.image),"") as compressed_img,
+//                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",adl.image),"") as original_img,
+//                                        adl.url,
+//                                        adl.platform
+//                                      FROM
+//                                        advertise_links as adl,
+//                                        sub_category_advertise_links as sadl
+//                                      WHERE
+//                                        sadl.sub_category_id = ? AND
+//                                        sadl.advertise_link_id=adl.id AND
+//                                        sadl.is_active=1
+//                                      order by adl.updated_at DESC
+//                                      LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
+                });
+            }
+            $redis_result = Cache::get("getAllLink$this->page:$this->item_count:$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+            $response = Response::json(array('code' => 200, 'message' => 'All links fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'link_list' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all links.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAdvertiseLink   getAdvertiseLink
+     * @apiName getAdvertiseLink
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":31,
+     * "platform":"ios"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise Link Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "link_list": [
+     * {
+     * "advertise_link_id": 44,
+     * "name": "Suitescene",
+     * "platform": "iOS",
+     * "linked": 1
+     * },
+     * {
+     * "advertise_link_id": 41,
+     * "name": "Bhavesh Gabani",
+     * "platform": "iOS",
+     * "linked": 0
+     * },
+     * {
+     * "advertise_link_id": 40,
+     * "name": "Visa",
+     * "platform": "iOS",
+     * "linked": 0
+     * },
+     * {
+     * "advertise_link_id": 39,
+     * "name": "QR Code Scanner : Barcode QR-Code Generator App",
+     * "platform": "iOS",
+     * "linked": 0
+     * },
+     * {
+     * "advertise_link_id": 38,
+     * "name": "PhotoEditorLab – Stickers , Filters & Frames",
+     * "platform": "iOS",
+     * "linked": 0
+     * },
+     * {
+     * "advertise_link_id": 37,
+     * "name": "QR Barcode Scanner : QR Bar Code Generator App",
+     * "platform": "iOS",
+     * "linked": 0
+     * },
+     * {
+     * "advertise_link_id": 36,
+     * "name": "Cut Paste - Background Eraser",
+     * "platform": "iOS",
+     * "linked": 0
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAdvertiseLink(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'platform'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->platform = $request->platform;
+
+            if (!Cache::has("pel:getAdvertiseLink$this->sub_category_id:$this->platform")) {
+                $result = Cache::rememberforever("getAdvertiseLink$this->sub_category_id:$this->platform", function () {
+                    return DB::select('SELECT
+                                          adl.id AS advertise_link_id,
+                                          adl.name,
+                                          adl.platform,
+                                          IF((SELECT advertise_link_id
+                                              FROM sub_category_advertise_links AS scal
+                                              WHERE sub_category_id = ? AND adl.id = scal.advertise_link_id AND scal.is_active = 1
+                                              LIMIT 1), 1, 0) AS linked
+                                        FROM
+                                          advertise_links AS adl
+                                        WHERE
+                                          adl.is_active = 1 AND
+                                          adl.platform = ?
+                                        ORDER BY adl.updated_at DESC', [$this->sub_category_id, $this->platform]);
+                });
+            }
+
+            $redis_result = Cache::get("getAdvertiseLink$this->sub_category_id:$this->platform");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise links fetched successfully.', 'cause' => '', 'data' => ['link_list' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAdvertiseLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get advertise link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} addAdvertiseLink addAdvertiseLink
+     * @apiName addAdvertiseLink
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "advertise_link_id":2,
+     * "sub_category_id":31
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise Linked Successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addAdvertiseLink(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'sub_category_id'), $request)) != '')
+                return $response;
+
+            $advertise_link_id = $request->advertise_link_id;
+            $sub_category_id = $request->sub_category_id;
+            $create_at = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
+            DB::insert('INSERT INTO sub_category_advertise_links(sub_category_id,advertise_link_id,created_at) VALUES (?, ?, ?)', [$sub_category_id, $advertise_link_id, $create_at]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addAdvertiseLink : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link advertisement.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} unlinkAdvertise unlinkAdvertise
+     * @apiName unlinkAdvertise
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "advertise_link_id":2,
+     * "sub_category_id":31
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise unLinked Successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function unlinkAdvertise(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'sub_category_id'), $request)) != '')
+                return $response;
+
+            $advertise_link_id = $request->advertise_link_id;
+            $sub_category_id = $request->sub_category_id;
+            $is_active = 0;
+
+            $result = DB::select('SELECT sub_category_id FROM sub_category_advertise_links WHERE sub_category_id = ? AND is_active = 1', [$sub_category_id]);
+
+            if (sizeOf($result) > 1) {
+                DB::beginTransaction();
+                DB::update('UPDATE sub_category_advertise_links SET is_active = ? WHERE sub_category_id = ? AND advertise_link_id = ? ', [$is_active, $sub_category_id, $advertise_link_id]);
+                DB::commit();
+                $response = Response::json(array('code' => 200, 'message' => 'Advertise unlinked successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+            } else {
+                $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'unLink this advertise, it is not linked with any other app.', 'cause' => '', 'data' => json_decode("{}")));
+
+            }
+
+        } catch (Exception $e) {
+            Log::error("unlinkAdvertise : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'unLinked advertisement.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /* ========================================= Other ==============================================*/
+
+    /**
+     * @api {post} getAllUser   getAllUser
+     * @apiName getAllUser
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":1,
+     * "page":1,
+     * "item_count":30,
+     * "order_by":"device_id",//optinal
+     * "order_type":"ASC"//optional
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All User Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 15,
+     * "list_user": [
+     * {
+     * "device_id": 15,
+     * "device_reg_id": "AD64EF08F134750CC09D489F90B9DFF623A91FC84AD3A9468A068E679B5C83D7",
+     * "device_platform": "ios",
+     * "device_model_name": "iPhone",
+     * "device_vendor_name": "Apple",
+     * "device_os_version": "10.0.2",
+     * "device_udid": "A70B3F58-75EF-4C76-ADEC-14E93D57887E",
+     * "device_resolution": "320.0568.0",
+     * "device_carrier": "",
+     * "device_country_code": "US",
+     * "device_language": "en-US",
+     * "device_local_code": "en-US",
+     * "device_default_time_zone": "Pacific/Chatham",
+     * "device_library_version": "",
+     * "device_application_version": "1.0.3",
+     * "device_type": "phone",
+     * "device_registration_date": "2017-05-12 05:07:33 +0000",
+     * "is_active": 1,
+     * "is_count": 5,
+     * "create_time": "2017-06-03 10:38:03",
+     * "update_time": "2017-06-24 13:17:14"
+     * },
+     * {
+     * "device_id": 14,
+     * "device_reg_id": "",
+     * "device_platform": "ios",
+     * "device_model_name": "iPhone",
+     * "device_vendor_name": "Apple",
+     * "device_os_version": "10.3.1",
+     * "device_udid": "C104766F-B9CE-49D8-BEB3-101F04E849CF",
+     * "device_resolution": "375.0667.0",
+     * "device_carrier": "",
+     * "device_country_code": "US",
+     * "device_language": "en-US",
+     * "device_local_code": "en-US",
+     * "device_default_time_zone": "Asia/Kolkata",
+     * "device_library_version": "",
+     * "device_application_version": "1.0.3",
+     * "device_type": "phone",
+     * "device_registration_date": "2017-05-24 05:43:18 +0000",
+     * "is_active": 1,
+     * "is_count": 5,
+     * "create_time": "2017-05-24 11:13:18",
+     * "update_time": "2017-06-24 13:17:14"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllUser(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->item_count = $request->item_count;
+            $this->page = $request->page;
+            $this->order_by = isset($request->order_by) ? $request->order_by : 'device_id';
+            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+
+            if (!Cache::has("pel:getAllUser$this->page:$this->item_count:$this->order_by:$this->order_type:$this->sub_category_id")) {
+                $result = Cache::rememberforever("getAllUser$this->page:$this->item_count:$this->order_by:$this->order_type:$this->sub_category_id", function () {
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  device_master where sub_category_id = ?', [$this->sub_category_id]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
+                                    dm.device_id,
+                                    dm.device_reg_id,
+                                    dm.device_platform,
+                                    dm.device_model_name,
+                                    dm.device_vendor_name,
+                                    dm.device_os_version,
+                                    dm.device_udid,
+                                    dm.device_resolution,
+                                    dm.device_carrier,
+                                    dm.device_country_code,
+                                    dm.device_language,
+                                    dm.device_local_code,
+                                    dm.device_default_time_zone,
+                                    dm.device_library_version,
+                                    dm.device_application_version,
+                                    dm.device_type,
+                                    dm.device_registration_date,
+                                    dm.is_active,
+                                    dm.is_count,
+                                    dm.create_time,
+                                    dm.update_time
+                                  FROM
+                                  device_master AS dm
+                                  WHERE
+                                  dm.sub_category_id = ?
+                                  ORDER BY dm.' . $this->order_by . ' ' . $this->order_type . '
+                                  LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                    return array('total_record' => $total_row, 'list_user' => $result);
+                });
+            }
+
+            $redis_result = Cache::get("getAllUser$this->page:$this->item_count:$this->order_by:$this->order_type:$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'All users fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getPurchaseUser   getPurchaseUser
+     * @apiName getPurchaseUser
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":1,
+     * "page":1,
+     * "item_count":30,
+     * "order_by":"order_number",//optional
+     * "order_type":"ASC"//optional
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All Purchase User Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 9,
+     * "list_user": [
+     * {
+     * "order_number": "Null1494507231573",
+     * "tot_order_amount": 2.99,
+     * "currency_code": "USD",
+     * "device_platform": "android",
+     * "create_time": "2017-05-11 18:23:49"
+     * },
+     * {
+     * "order_number": "Null1494508061564",
+     * "tot_order_amount": 2.99,
+     * "currency_code": "USD",
+     * "device_platform": "android",
+     * "create_time": "2017-05-11 18:37:39"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getPurchaseUser(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->item_count = $request->item_count;
+            $this->page = $request->page;
+            $this->order_by = isset($request->order_by) ? $request->order_by : 'id';
+            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            if (!Cache::has("pel:getPurchaseUser$this->page:$this->item_count:$this->order_by:$this->order_type:$this->sub_category_id")) {
+                $result = Cache::rememberforever("getPurchaseUser$this->page:$this->item_count:$this->order_by:$this->order_type:$this->sub_category_id", function () {
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  order_master where sub_category_id = ?', [$this->sub_category_id]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
+                                        om.order_number,
+                                        om.tot_order_amount,
+                                        om.currency_code,
+                                        om.device_platform,
+                                        om.create_time
+                                      FROM
+                                      order_master AS om
+                                      WHERE
+                                      om.sub_category_id = ?
+                                      order by om.' . $this->order_by . ' ' . $this->order_type . '
+                                      LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                    return array('total_record' => $total_row, 'list_user' => $result);
+                });
+            }
+
+            $redis_result = Cache::get("getPurchaseUser$this->page:$this->item_count:$this->order_by:$this->order_type:$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+            $response = Response::json(array('code' => 200, 'message' => 'All purchased user fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getPurchaseUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get purchased user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllRestoreDevice   getAllRestoreDevice
+     * @apiName getAllRestoreDevice
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":1,
+     * "page":1,
+     * "item_count":30,
+     * "order_by":"order_number",
+     * "order_type":"ASC"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "App Restore Device Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 9,
+     * "is_next_page": false,
+     * "list_device": [
+     * {
+     * "id": 1,
+     * "order_number": "Null1494507231573",
+     * "device_udid": "ff505a7a500c931a",
+     * "restore": 1,
+     * "create_time": "2017-05-11 12:53:49",
+     * "update_time": "2017-05-11 18:23:49"
+     * },
+     * {
+     * "id": 2,
+     * "order_number": "Null1494508061564",
+     * "device_udid": "ff505a7a500c931a",
+     * "restore": 1,
+     * "create_time": "2017-05-11 13:07:39",
+     * "update_time": "2017-05-11 18:37:39"
+     * },
+     * {
+     * "id": 3,
+     * "order_number": "Null1494508092829",
+     * "device_udid": "ff505a7a500c931a",
+     * "restore": 1,
+     * "create_time": "2017-05-11 13:08:11",
+     * "update_time": "2017-05-11 18:38:11"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllRestoreDevice(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->item_count = $request->item_count;
+            $this->page = $request->page;
+            $this->order_by = isset($request->order_by) ? $request->order_by : 'id';
+            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+
+            if (!Cache::has("pel:getAllRestoreDevice$this->page:$this->item_count:$this->order_by:$this->order_type:$this->sub_category_id")) {
+                $result = Cache::rememberforever("getAllRestoreDevice$this->page:$this->item_count:$this->order_by:$this->order_type:$this->sub_category_id", function () {
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  restore_device where sub_category_id = ?', [$this->sub_category_id]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
+                                    *
+                                  FROM
+                                  restore_device AS rd
+                                  WHERE
+                                  sub_category_id = ?
+                                  ORDER BY rd.' . $this->order_by . ' ' . $this->order_type . '
+                                  LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                    return array('total_record' => $total_row, 'list_device' => $result);
+                });
+            }
+
+            $redis_result = Cache::get("getAllRestoreDevice$this->page:$this->item_count:$this->order_by:$this->order_type:$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Restore devices fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllRestoreDevice : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all restore devices.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} searchUser   searchUser
+     * @apiName searchUser
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     *  "sub_category_id":20,
+     *  "search_type":"device_id",
+     *  "search_query":"10"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Search User Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "list_user": [
+     * {
+     * "sub_category_id": 20,
+     * "device_id": 10,
+     * "device_reg_id": "911F5C2F54F94DC6037C1A249B0BC98BFF5B17DF2A1C8CE5A546201A5B8DCF6B",
+     * "device_platform": "android",
+     * "device_model_name": "Micromax AQ4501",
+     * "device_vendor_name": "Micromax",
+     * "device_os_version": "6.0.1",
+     * "device_udid": "809111aa1121",
+     * "device_resolution": "480x782",
+     * "device_carrier": "",
+     * "device_country_code": "IN",
+     * "device_language": "en",
+     * "device_local_code": "NA",
+     * "device_default_time_zone": "Asia/Calcutta",
+     * "device_library_version": "1",
+     * "device_application_version": "",
+     * "device_type": "phone",
+     * "device_registration_date": "2017-07-06T15:58:11 +0530",
+     * "is_active": 1,
+     * "is_count": 0,
+     * "create_time": "2017-07-07 15:48:05",
+     * "update_time": "2017-07-07 15:48:05"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function searchUser(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_type', 'search_query'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $search_type = $request->search_type;
+            $search_query = '%' . $request->search_query . '%';
+
+            $result = DB::select('SELECT
+                                    dm.sub_category_id,
+                                    dm.device_id,
+                                    dm.device_reg_id,
+                                    dm.device_platform,
+                                    dm.device_model_name,
+                                    dm.device_vendor_name,
+                                    dm.device_os_version,
+                                    dm.device_udid,
+                                    dm.device_resolution,
+                                    dm.device_carrier,
+                                    dm.device_country_code,
+                                    dm.device_language,
+                                    dm.device_local_code,
+                                    dm.device_default_time_zone,
+                                    dm.device_library_version,
+                                    dm.device_application_version,
+                                    dm.device_type,
+                                    dm.device_registration_date,
+                                    dm.is_active,
+                                    dm.is_count,
+                                    dm.create_time,
+                                    dm.update_time
+                                  FROM
+                                    device_master AS dm
+                                  WHERE
+                                    dm.sub_category_id = ? AND
+                                    dm.' . $search_type . '
+                                  LIKE ?', [$sub_category_id, $search_query]);
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Users fetched successfully.', 'cause' => '', 'data' => ['list_user' => $result]));
+
+        } catch (Exception $e) {
+            Log::error("searchUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} searchPurchaseUser   searchPurchaseUser
+     * @apiName searchPurchaseUser
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     *  "sub_category_id":20,
+     *  "search_type":"order_number",
+     *  "search_query":"10"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Purchase User Successfully fetch.",
+     * "cause": "",
+     * "data": {
+     * "list_user": [
+     * {
+     * "sub_category_id":20,
+     * "order_number": "1000000297266758",
+     * "tot_order_amount": 1.99,
+     * "currency_code": "USD",
+     * "device_platform": "ios",
+     * "create_time": null
+     * },
+     * {
+     * "sub_category_id":20,
+     * "order_number": "1100000297266758",
+     * "tot_order_amount": 1.99,
+     * "currency_code": "USD",
+     * "device_platform": "ios",
+     * "create_time": null
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function searchPurchaseUser(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_type', 'search_query'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $search_type = $request->search_type;
+            $search_query = '%' . $request->search_query . '%';
+
+            $result = DB::select('SELECT
+                                    om.sub_category_id,
+                                    om.order_number,
+                                    om.tot_order_amount,
+                                    om.currency_code,
+                                    om.device_platform,
+                                    om.create_time
+                                  FROM
+                                    order_master AS om
+                                  WHERE
+                                    om.sub_category_id = ? AND
+                                    om.' . $search_type . '
+                                  LIKE ?', [$sub_category_id, $search_query]);
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Purchase users fetched successfully.', 'cause' => '', 'data' => ['list_user' => $result]));
+
+        } catch (Exception $e) {
+            Log::error("searchPurchaseUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search purchased user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} searchRestoreDevice   searchRestoreDevice
+     * @apiName searchRestoreDevice
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     *  "sub_category_id":20,
+     *  "search_type":"order_number", // or device_udid
+     *  "search_query":"249"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "App Restore Device Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "list_device": [
+     * {
+     * "id": 3,
+     * "sub_category_id":20,
+     * "order_number": "2494322134113",
+     * "device_udid": "ff505a7a500c931a",
+     * "restore": 1,
+     * "create_time": "2017-07-07 10:19:58",
+     * "update_time": "2017-07-07 15:49:58"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function searchRestoreDevice(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_type', 'search_query'), $request)) != '')
+                return $response;
+
+
+            $sub_category_id = $request->sub_category_id;
+            $search_type = $request->search_type;
+            $search_query = '%' . $request->search_query . '%';
+
+            $result = DB::select('SELECT
+                            *
+                          FROM
+                          restore_device AS rd
+                          WHERE
+                            rd.sub_category_id = ? AND
+                            ' . $search_type . '
+                          LIKE ?', [$sub_category_id, $search_query]);
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Restore devices fetched successfully.', 'cause' => '', 'data' => ['list_device' => $result]));
+
+        } catch (Exception $e) {
+            Log::error("searchRestoreDevice : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search restore devices.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateUserProfile   updateUserProfile
+     * @apiName updateUserProfile
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "first_name":"jitu",
+     * "last_name":"admin",
+     * "phone_number_1":"9173527938",
+     * "address_line_1":"Rander",
+     * "city":"surat",
+     * "state":"Gujarat",
+     * "pincode":"395010",
+     * "latitude":"",
+     * "longitude":""
+     * }
+     * file:image //optional
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Profile Updated Successfully.",
+     * "cause": "",
+     * "data": ""
+     * }
+     */
+    public function updateUserProfile(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+            $user_data = JWTAuth::parseToken()->authenticate();
+            $user_id = $user_data->email_id;
+
+            //Required parameter
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('first_name',
+                    'last_name',
+                    'phone_number_1',
+                    'address_line_1',
+                    'city',
+                    'state',
+                    'pincode'), $request)) != ''
+            )
+                return $response;
+
+            if ($request_body->hasFile('file')) {
+                $image_array = Input::file('file');
+
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                $profile_img = (new ImageController())->generateNewFileName('profile_img', $image_array);
+                //Log::info("file size :",[filesize($profile_img)]);
+                (new ImageController())->saveOriginalImage($profile_img);
+                (new ImageController())->saveCompressedImage($profile_img);
+                (new ImageController())->saveThumbnailImage($profile_img);
+                //(new ImageController())->saveImageInToS3($profile_img);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($profile_img);
+                }
+
+            } else {
+                $result = DB::table("user_detail")->where('user_id', $user_id)->get();
+                $profile_img = isset($result[0]->profile_img) ? $result[0]->profile_img : "";
+            }
+
+            $first_name = isset($request->first_name) ? $request->first_name : "";
+            $last_name = isset($request->last_name) ? $request->last_name : "";
+            $phone_number_1 = isset($request->phone_number_1) ? $request->phone_number_1 : "";
+            $address_line_1 = isset($request->address_line_1) ? $request->address_line_1 : "";
+
+            DB::beginTransaction();
+
+            DB::update('UPDATE
+                          user_detail
+                        SET
+                          first_name = ?,
+                          last_name = ?,
+                          profile_img = ?,
+                          phone_number_1 = ?,
+                          address_line_1 = ?
+                        WHERE
+                          email_id = ? ',
+                [$first_name, $last_name, $profile_img, $phone_number_1, $address_line_1, $user_id]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Profile updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("updateUserProfile : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update user profile.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getImageDetails   getImageDetails
+     * @apiName getImageDetails
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "page":1,
+     * "item_count":10,
+     * "order_by":"size",
+     * "order_type":"ASC"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All User Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 36,
+     * "is_next_page": true,
+     * "image_details": [
+     * {
+     * "name": "59687a44dcae2_background_img_1500019268.png",
+     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59687a44dcae2_background_img_1500019268.png",
+     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59687a44dcae2_background_img_1500019268.png",
+     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59687a44dcae2_background_img_1500019268.png",
+     * "directory_name": "compress",
+     * "type": "png",
+     * "size": 4572880,
+     * "height": 1440,
+     * "width": 1920,
+     * "created_at": "2017-07-14 08:01:11"
+     * },
+     * {
+     * "name": "59687aeb86626_background_img_1500019435.png",
+     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59687aeb86626_background_img_1500019435.png",
+     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59687aeb86626_background_img_1500019435.png",
+     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59687aeb86626_background_img_1500019435.png",
+     * "directory_name": "compress",
+     * "type": "png",
+     * "size": 3820520,
+     * "height": 1904,
+     * "width": 2000,
+     * "created_at": "2017-07-14 08:03:57"
+     * },
+     * {
+     * "name": "59687aa95d6be_background_img_1500019369.png",
+     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59687aa95d6be_background_img_1500019369.png",
+     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59687aa95d6be_background_img_1500019369.png",
+     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59687aa95d6be_background_img_1500019369.png",
+     * "directory_name": "original",
+     * "type": "png",
+     * "size": 2863220,
+     * "height": 2000,
+     * "width": 2000,
+     * "created_at": "2017-07-14 08:02:50"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getImageDetails(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->item_count = $request->item_count;
+            $this->page = $request->page;
+            $this->order_by = isset($request->order_by) ? $request->order_by : 'size';
+            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            if (!Cache::has("pel:getImageDetails$this->page:$this->item_count:$this->order_by:$this->order_type")) {
+                $result = Cache::rememberforever("getImageDetails$this->page:$this->item_count:$this->order_by:$this->order_type", function () {
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM image_details');
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
+                                        id.name,
+                                        IF(id.name != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",id.name),"") as thumbnail_img,
+                                        IF(id.name != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",id.name),"") as compressed_img,
+                                        IF(id.name != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",id.name),"") as original_img,
+                                        id.directory_name,
+                                        id.type,
+                                        id.size,
+                                        id.height,
+                                        id.width,
+                                        id.created_at
+                                      FROM
+                                        image_details AS id
+                                      ORDER BY id.' . $this->order_by . ' ' . $this->order_type . '
+                                      LIMIT ?,?', [$this->offset, $this->item_count]);
+
+                    return array('total_record' => $total_row, 'image_details' => $result);
+                });
+            }
+
+            $redis_result = Cache::get("getImageDetails$this->page:$this->item_count:$this->order_by:$this->order_type");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Image details fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getImageDetails : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get image details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* ====================================| Json |==================================*/
+
+    /**
+     * @api {post} addCatalogImagesForJson   addCatalogImagesForJson
+     * @apiName addCatalogImagesForJson
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * request_data:{
+     * "is_replace":0 //compulsory 0=do not replace the existing file, 2=replace the existing file
+     * },
+     * file[]:1.jpg,
+     * file[]:2.jpg,
+     * file[]:3.jpg,
+     * file[]:4.jpg
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Json images added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addCatalogImagesForJson(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            //Required parameter
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('is_replace'), $request)) != '')
+                return $response;
+
+            $is_replace = $request->is_replace;
+
+            if ($request_body->hasFile('file')) {
+                $images_array = Input::file('file');
+
+                if ($is_replace == 0) {
+                    if (($response = (new ImageController())->checkIsImageExist($images_array)) != '')
+                        return $response;
+                }
+
+                foreach ($images_array as $image_array) {
+
+                    if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                        return $response;
+
+                    (new ImageController())->saveResourceImage($image_array);
+
+                    $image = $image_array->getClientOriginalName();
+
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveResourceImageInToS3($image);
+                    }
+
+                }
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Json images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch
+        (Exception $e) {
+            Log::error("addCatalogImagesForJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} addJson   addJson
+     * @apiName addJson
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "catalog_id": 155,
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "json_data": {
+     * "text_json": [],
+     * "sticker_json": [],
+     * "image_sticker_json": [
+     * {
+     * "xPos": 0,
+     * "yPos": 0,
+     * "image_sticker_image": "",
+     * "angle": 0,
+     * "is_round": 0,
+     * "height": 800,
+     * "width": 500
+     * }
+     * ],
+     * "frame_json": {
+     * "frame_image": "frame_15.7"
+     * },
+     * "background_json": {},
+     * "sample_image": "sample_15.7",
+     * "is_featured": 0,
+     * "height": 800,
+     * "width": 800
+     * }
+     * },
+     * file:image1.jpeg
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Json added successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addJson(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->input('request_data'));
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free', 'search_category'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $json_data = $request->json_data;
+            $is_free = $request->is_free;
+            $is_featured = $request->is_featured;
+            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
+            //$search_category = isset($request->search_category) ? $request->search_category : NULL;
+            $search_category = $request->search_category;
+            $created_at = date('Y-m-d H:i:s');
+
+            if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
+                return $response;
+
+            if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                return $response;
+
+            DB::beginTransaction();
+            if (!$request_body->hasFile('file')) {
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+
+                $image_array = Input::file('file');
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
+                    return $response;
+
+                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
+                (new ImageController())->saveOriginalImage($catalog_image);
+                (new ImageController())->saveCompressedImage($catalog_image);
+                (new ImageController())->saveThumbnailImage($catalog_image);
+                $file_name = (new ImageController())->saveWebpOriginalImage($catalog_image);
+                $dimension = (new ImageController())->saveWebpThumbnailImage($catalog_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($catalog_image);
+                    (new ImageController())->saveWebpImageInToS3($file_name);
+                }
+
+
+                /*DB::insert('INSERT
+                                INTO
+                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at, $file_name]);*/
+
+
+                DB::insert('INSERT
+                                INTO
+                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
+
+
+                DB::commit();
+            }
+
+            if (strstr($file_name, '.webp')) {
+
+                $response = Response::json(array('code' => 200, 'message' => 'Json added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+
+            } else {
+                $response = Response::json(array('code' => 200, 'message' => 'Json added successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' => json_decode('{}')));
+
+            }
+
+
+        } catch
+        (Exception $e) {
+            Log::error("addJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function addJsonOld(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->input('request_data'));
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            //dd($json_list);
+
+            $json_data = $request->json_data;
+            $is_free = $request->is_free;
+            $is_featured = $request->is_featured;
+            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
+            $created_at = date('Y-m-d H:i:s');
+
+            //Log::info('request_data', ['request_data' => $request]);
+
+
+            DB::beginTransaction();
+            if (!$request_body->hasFile('file')) {
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+
+                $image_array = Input::file('file');
+                //return $images_array;
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
+                //(new ImageController())->saveOriginalImage($background_img);
+
+                $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+                $image_array->move($original_path, $catalog_image);
+
+                (new ImageController())->saveCompressedImage($catalog_image);
+                (new ImageController())->saveThumbnailImage($catalog_image);
+                //(new ImageController())->saveImageInToS3($catalog_image);
+
+
+                DB::insert('INSERT
+                                INTO
+                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at)
+                                VALUES(?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at]);
+
+
+                DB::commit();
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Json added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch
+        (Exception $e) {
+            Log::error("addJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} editJsonData   editJsonData
+     * @apiName editJsonData
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "img_id": 356,
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "json_data": {
+     * "text_json": [],
+     * "sticker_json": [],
+     * "image_sticker_json": [
+     * {
+     * "xPos": 0,
+     * "yPos": 0,
+     * "image_sticker_image": "",
+     * "angle": 0,
+     * "is_round": 0,
+     * "height": 800,
+     * "width": 500
+     * }
+     * ],
+     * "frame_json": {
+     * "frame_image": "frame_15.7"
+     * },
+     * "background_json": {},
+     * "sample_image": "sample_15.7",
+     * "is_featured": 0,
+     * "height": 800,
+     * "width": 800
+     * }
+     * },
+     * file:image1.jpeg
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Json data updated successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function editJsonDataOld(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->input('request_data'));
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('is_featured', 'is_free', 'img_id'), $request)) != '')
+                return $response;
+
+            //$catalog_id = $request->catalog_id;
+            //dd($json_list);
+            $img_id = $request->img_id;
+            $json_data = isset($request->json_data) ? $request->json_data : '';
+            $is_free = $request->is_free;
+            $is_featured = $request->is_featured;
+            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
+            $created_at = date('Y-m-d H:i:s');
+
+            //Log::info('request_data', ['request_data' => $request]);
+
+
+            DB::beginTransaction();
+            if ($request_body->hasFile('file')) {
+                $image_array = Input::file('file');
+                //return $images_array;
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
+                (new ImageController())->saveOriginalImage($catalog_image);
+
+                /*$original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+                $image_array->move($original_path, $catalog_image);*/
+
+                (new ImageController())->saveCompressedImage($catalog_image);
+                (new ImageController())->saveThumbnailImage($catalog_image);
+                //(new ImageController())->saveImageInToS3($catalog_image);
+
+                //Log::info('Encoded json_data', ['json_data' => json_encode($json_data)]);
+
+                DB::update('UPDATE
+                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
+
+            } else {
+
+                DB::update('UPDATE
+                                images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
+                                WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
+
+
+            }
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch
+        (Exception $e) {
+            Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function editJsonData(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->input('request_data'));
+            if (($response = (new VerificationController())->validateRequiredParameter(array('is_featured', 'is_free', 'img_id'), $request)) != '')
+                return $response;
+
+            $img_id = $request->img_id;
+            $json_data = isset($request->json_data) ? $request->json_data : '';
+            $is_free = $request->is_free;
+            $is_featured = $request->is_featured;
+            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
+            $search_category = isset($request->search_category) ? $request->search_category : NULL;
+
+            //Log::info('request_data', ['request_data' => $request]);
+            if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
+                return $response;
+
+            if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                return $response;
+
+
+            DB::beginTransaction();
+            if ($request_body->hasFile('file')) {
+                $image_array = Input::file('file');
+                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
+                    return $response;
+
+                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
+                (new ImageController())->saveOriginalImage($catalog_image);
+                (new ImageController())->saveCompressedImage($catalog_image);
+                (new ImageController())->saveThumbnailImage($catalog_image);
+                $file_name = (new ImageController())->saveWebpOriginalImage($catalog_image);
+                $dimension = (new ImageController())->saveWebpThumbnailImage($catalog_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($catalog_image);
+                    (new ImageController())->saveWebpImageInToS3($file_name);
+                }
+
+
+                /*DB::update('UPDATE
+                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
+
+                DB::update('UPDATE
+                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, original_img_height = ?, original_img_width = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
+                DB::commit();
+
+                if (strstr($file_name, '.webp')) {
+
+                    $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+
+                } else {
+                    $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' => json_decode('{}')));
+
+                }
+            } else {
+
+                /* generate webp original & thumbnail from original image (genearte webp for uploaded jpg/png samples) */
+                $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND attribute1 IS NULL', [$img_id]);
+                DB::beginTransaction();
+                if (count($is_exist) > 0) {
+
+                    //Log::info('webp original');
+                    $file_data = (new ImageController())->saveWebpImage($is_exist[0]->image);
+
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveWebpImageInToS3($file_data['filename']);
+                    }
+
+                    DB::update('UPDATE
+                                images SET height = ?, width = ?, attribute1 = ?
+                                WHERE id = ?', [$file_data['height'], $file_data['width'], $file_data['filename'], $img_id]);
+                    DB::commit();
+
+                }
+
+                /* generate webp thumbnail from original image when webp thumbnail is not exist */
+                $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND width IS NULL AND height IS NULL AND attribute1 IS NOT NULL', [$img_id]);
+                if (count($is_exist) > 0) {
+
+                    //Log::info('webp thumbnail');
+                    $dimension = (new ImageController())->saveWebpThumbnailImageFromS3($is_exist[0]->image);
+
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveWebpThumbnailImageInToS3($is_exist[0]->attribute1);
+                    }
+
+                    DB::update('UPDATE
+                                images SET height = ?, width =?
+                                WHERE id = ?', [$dimension['height'], $dimension['width'], $img_id]);
+                    DB::commit();
+                }
+
+
+                DB::update('UPDATE
+                                images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?
+                                WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $img_id]);
+
+                DB::commit();
+
+                $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+
+            }
+            DB::commit();
+
+
+        } catch
+        (Exception $e) {
+            Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /* =================================| Link Advertisement to another subcategory |=============================*/
+
+    /**
+     * @api {post} linkAdvertisementWithSubCategory linkAdvertisementWithSubCategory
+     * @apiName linkAdvertisementWithSubCategory
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "advertise_link_id":57,
+     * "sub_category_id":47
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertisement Linked Successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function linkAdvertisementWithSubCategory(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            //Log::info("linkAdvertisementWithSubCategory Request :", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'sub_category_id'), $request)) != '')
+                return $response;
+
+            //$query=DB::select('select * from sub_category_catalog WHERE sub_category_id = ? AND catalog_id = ?',[$sub_category_id,$catalog_id]);
+            $advertise_link_id = $request->advertise_link_id;
+            $sub_category_id = $request->sub_category_id;
+            $create_at = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
+            DB::insert('INSERT INTO sub_category_advertise_links(sub_category_id,advertise_link_id,created_at) VALUES (?, ?, ?)', [$sub_category_id, $advertise_link_id, $create_at]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertisement linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("linkAdvertisementWithSubCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link advertisement with sub_category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllAdvertisementForLinkAdvertisement   getAllAdvertisementForLinkAdvertisement
+     * @apiName getAllAdvertisementForLinkAdvertisement
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "advertise_link_id":57,
+     * "category_id":2
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "SubCategory Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "category_list": [
+     * {
+     * "sub_category_id": 33,
+     * "name": "All Sticker Catalogs",
+     * "linked": 0
+     * },
+     * {
+     * "sub_category_id": 47,
+     * "name": "Collage maker Stickers",
+     * "linked": 1
+     * },
+     * {
+     * "sub_category_id": 31,
+     * "name": "Fancy QR Generator",
+     * "linked": 0
+     * },
+     * {
+     * "sub_category_id": 36,
+     * "name": "GreetingsCard Stickers",
+     * "linked": 0
+     * },
+     * {
+     * "sub_category_id": 49,
+     * "name": "Quotes Creator Stickers",
+     * "linked": 1
+     * },
+     * {
+     * "sub_category_id": 28,
+     * "name": "Selfie With Ganesha Stickers",
+     * "linked": 0
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllAdvertisementForLinkAdvertisement(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'category_id'), $request)) != '')
+                return $response;
+
+            $this->advertise_link_id = $request->advertise_link_id;
+            $this->category_id = $request->category_id;
+
+            if (!Cache::has("pel:getAllAdvertisementForLinkAdvertisement$this->advertise_link_id:$this->category_id")) {
+                $result = Cache::rememberforever("getAllAdvertisementForLinkAdvertisement$this->advertise_link_id:$this->category_id", function () {
+
+                    /* api is updated from fetch advertisement to sub_categories */
+                    return DB::select('SELECT
+                                            id AS sub_category_id,
+                                            name,
+                                            IF((SELECT sub_category_id
+                                              FROM sub_category_advertise_links scc
+                                              WHERE advertise_link_id = ? and sc.id=scc.sub_category_id and scc.is_active=1 LIMIT 1) ,1,0) as linked
+                                            FROM sub_category sc
+                                            WHERE
+                                            sc.is_active = 1 AND
+                                            sc.category_id = ?
+                                            ORDER BY name', [$this->advertise_link_id, $this->category_id]);
+                });
+
+            }
+
+            $redis_result = Cache::get("getAllAdvertisementForLinkAdvertisement$this->advertise_link_id:$this->category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Sub categories fetched successfully.', 'cause' => '', 'data' => ['category_list' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllAdvertisementForLinkAdvertisement : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all sub categories.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteLinkedAdvertisement deleteLinkedAdvertisement
+     * @apiName deleteLinkedAdvertisement
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "advertise_link_id":57,
+     * "sub_category_id":47
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertisement unlinked successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteLinkedAdvertisement(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            //Log::info("Request Data:", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'sub_category_id'), $request)) != '')
+                return $response;
+
+            $advertise_link_id = $request->advertise_link_id;
+            $sub_category_id = $request->sub_category_id;
+
+            DB::beginTransaction();
+//
+//            $result = DB::select('SELECT count(*) as count_catalog from sub_category_advertise_links WHERE advertise_link_id = ? and is_active = 1', [$advertise_link_id]);
+//
+//            if ($result[0]->count_catalog > 1) {
+            DB::delete('DELETE FROM sub_category_advertise_links WHERE sub_category_id = ? AND advertise_link_id = ? ', [$sub_category_id, $advertise_link_id]);
+            $response = Response::json(array('code' => 200, 'message' => 'Advertisement unlinked successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+//            } else {
+//                $response = Response::json(array('code' => 201, 'message' => 'Unable to de-link this advertisement, it is not linked with any other application.', 'cause' => '', 'data' => json_decode("{}")));
+//
+//            }
+
+            DB::commit();
+
+        } catch (Exception $e) {
+            Log::error("deleteLinkedAdvertisement : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete linked advertisement.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /* =================================| Link Advertisement |=============================*/
+
+    /**
+     * @api {post} getAllAdvertisements   getAllAdvertisements
+     * @apiName getAllAdvertisements
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "page":1,
+     * "item_count":2
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All Link Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 42,
+     * "is_next_page": true,
+     * "result": [
+     * {
+     * "advertise_link_id": 79,
+     * "name": "Invitation Maker Card Creator",
+     * "thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a1e834d53_banner_image_1515561448.jpg",
+     * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a1e834d53_banner_image_1515561448.jpg",
+     * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a1e834d53_banner_image_1515561448.jpg",
+     * "app_logo_thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a1e88910f_app_logo_image_1515561448.png",
+     * "app_logo_compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a1e88910f_app_logo_image_1515561448.png",
+     * "app_logo_original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a1e88910f_app_logo_image_1515561448.png",
+     * "url": "https://itunes.apple.com/mu/app/invitation-maker-card-creator/id1320828574?mt=8",
+     * "platform": "iOS",
+     * "app_description": "Create your own invitation card for party, birthday, wedding ceremony, engagement/ring ceremony within seconds using beautiful and professional templates."
+     * },
+     * {
+     * "advertise_link_id": 78,
+     * "name": "Digital Business Card Maker",
+     * "thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a158980cd_banner_image_1515561304.jpg",
+     * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a158980cd_banner_image_1515561304.jpg",
+     * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a158980cd_banner_image_1515561304.jpg",
+     * "app_logo_thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a15977977_app_logo_image_1515561305.png",
+     * "app_logo_compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a15977977_app_logo_image_1515561305.png",
+     * "app_logo_original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a15977977_app_logo_image_1515561305.png",
+     * "url": "https://itunes.apple.com/mu/app/digital-business-card-maker/id1316860834?mt=8",
+     * "platform": "iOS",
+     * "app_description": "Create your own business card within seconds using beautiful and professional templates."
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllAdvertisements(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            //$item_count = Config::get('constant.PAGINATION_ITEM_LIMIT');
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            if (!Cache::has("pel:getAllAdvertisements$this->page:$this->item_count")) {
+                $result = Cache::rememberforever("getAllAdvertisements$this->page:$this->item_count", function () {
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  advertise_links where is_active = ?', [1]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
+                                          adl.id as advertise_link_id,
+                                          adl.name,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
+                                          adl.url,
+                                          adl.platform,
+                                          coalesce(adl.app_description,"") as app_description
+                                        FROM
+                                          advertise_links as adl
+                                        WHERE
+                                          is_active=1
+                                        order by adl.updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result);
+
+                });
+
+            }
+
+            $redis_result = Cache::get("getAllAdvertisements$this->page:$this->item_count");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertisements fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllAdvertisements : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get advertisements.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllAdvertisementToLinkAdvertisement   getAllAdvertisementToLinkAdvertisement
+     * @apiName getAllAdvertisementToLinkAdvertisement
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":63
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertisements fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "advertise_link_id": 79,
+     * "name": "Invitation Maker Card Creator",
+     * "thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a1e834d53_banner_image_1515561448.jpg",
+     * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a1e834d53_banner_image_1515561448.jpg",
+     * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a1e834d53_banner_image_1515561448.jpg",
+     * "app_logo_thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a1e88910f_app_logo_image_1515561448.png",
+     * "app_logo_compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a1e88910f_app_logo_image_1515561448.png",
+     * "app_logo_original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a1e88910f_app_logo_image_1515561448.png",
+     * "url": "https://itunes.apple.com/mu/app/invitation-maker-card-creator/id1320828574?mt=8",
+     * "platform": "iOS",
+     * "app_description": "Create your own invitation card for party, birthday, wedding ceremony, engagement/ring ceremony within seconds using beautiful and professional templates.",
+     * "linked": 1
+     * },
+     * {
+     * "advertise_link_id": 78,
+     * "name": "Digital Business Card Maker",
+     * "thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a158980cd_banner_image_1515561304.jpg",
+     * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a158980cd_banner_image_1515561304.jpg",
+     * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a158980cd_banner_image_1515561304.jpg",
+     * "app_logo_thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a15977977_app_logo_image_1515561305.png",
+     * "app_logo_compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a15977977_app_logo_image_1515561305.png",
+     * "app_logo_original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a15977977_app_logo_image_1515561305.png",
+     * "url": "https://itunes.apple.com/mu/app/digital-business-card-maker/id1316860834?mt=8",
+     * "platform": "iOS",
+     * "app_description": "Create your own business card within seconds using beautiful and professional templates.",
+     * "linked": 1
+     * },
+     * {
+     * "advertise_link_id": 77,
+     * "name": "Romantic Love Photo Editor",
+     * "thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a1e813f47368_banner_image_1511948607.png",
+     * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1e813f47368_banner_image_1511948607.png",
+     * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1e813f47368_banner_image_1511948607.png",
+     * "app_logo_thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a1e814000aa9_app_logo_image_1511948608.png",
+     * "app_logo_compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1e814000aa9_app_logo_image_1511948608.png",
+     * "app_logo_original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1e814000aa9_app_logo_image_1511948608.png",
+     * "url": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.lovephotoeditor",
+     * "platform": "Android",
+     * "app_description": "Romantic Love Photo Editor - Realistic Photo Effects, Beautiful Photo Frames, Stickers, etc.",
+     * "linked": 0
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllAdvertisementToLinkAdvertisement(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+
+            if (!Cache::has("pel:getAllAdvertisementToLinkAdvertisement$this->sub_category_id")) {
+                $result = Cache::rememberforever("getAllAdvertisementToLinkAdvertisement$this->sub_category_id", function () {
+
+                    return DB::select('SELECT
+                                          adl.id as advertise_link_id,
+                                          adl.name,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
+                                          IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
+                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
+                                          adl.url,
+                                          adl.platform,
+                                          coalesce(adl.app_description,"") as app_description,
+                                          IF((SELECT sub_category_id
+                                              FROM sub_category_advertise_links scc
+                                              WHERE sub_category_id = ? and adl.id=scc.advertise_link_id and scc.is_active=1 LIMIT 1) ,1,0) as linked
+                                        FROM
+                                          advertise_links as adl
+                                        WHERE
+                                          adl.is_active=1
+                                        order by adl.updated_at DESC', [$this->sub_category_id]);
+                });
+
+            }
+
+            $redis_result = Cache::get("getAllAdvertisementToLinkAdvertisement$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertisements fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllAdvertisementToLinkAdvertisement : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all advertisements.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =====================================| Content Migrations |=============================================*/
+
+    /**
+     * @api {post} addAppContentViaMigration   addAppContentViaMigration
+     * @apiName addAppContentViaMigration
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "sub_category_id":1,
+     * "is_free":1,//optional
+     * "name":"Nature-2017",
+     * "is_featured":1 //compulsory
+     * }
+     * file:image.jpeg
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "sub category added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addAppContentViaMigration(Request $request)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+
+            //Log::info("Request Data:", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+
+            ////(new ImageController())->saveImageInToS3ForMigration('5aac98f036be9_sub_category_img_1521260784.png');
+
+
+            $result = DB::select('SELECT
+                              im.id,
+                              scm.sub_category_id,
+                              im.image,
+                              im.original_img,
+                              im.display_img,
+                              im.image_type,
+                              im.json_data,
+                              im.created_at,
+                              im.updated_at
+                            FROM images AS im,
+                               sub_category_catalog AS scm WHERE scm.catalog_id = im.catalog_id AND scm.catalog_id = ?', [$catalog_id]);
+
+            $sub_category_and_catalog = DB::select('SELECT
+                                                          DISTINCT scm.id,
+                                                          cm.image AS catalog_image,
+                                                          sc.image AS sub_category_image,
+                                                          scm.sub_category_id
+                                                        FROM
+                                                          sub_category_catalog AS scm,
+                                                          catalog_master AS cm,
+                                                          sub_category AS sc
+                                                          WHERE sc.id = scm.sub_category_id AND cm.id = scm.catalog_id AND scm.catalog_id = ?', [$catalog_id]);
+            foreach ($sub_category_and_catalog as $key) {
+
+                if ($key->sub_category_image) {
+
+                    //(new ImageController())->saveImageInToS3ForMigration($key->sub_category_image);
+
+                }
+
+            }
+
+            if (count($sub_category_and_catalog) > 0) {
+
+                /*if ($sub_category_and_catalog[0]->sub_category_image) {
+
+                    //(new ImageController())->saveImageInToS3($sub_category_and_catalog[0]->sub_category_image);
+
+
+                }*/
+
+                if ($sub_category_and_catalog[0]->catalog_image) {
+
+                    //(new ImageController())->saveImageInToS3ForMigration($sub_category_and_catalog[0]->catalog_image);
+                }
+
+            }
+
+            foreach ($result as $key) {
+
+
+                if ($key->image) {
+
+                    //(new ImageController())->saveImageInToS3ForMigration($key->image);
+
+
+                }
+
+                if ($key->original_img) {
+
+                    //(new ImageController())->saveImageInToS3ForMigration($key->original_img);
+
+
+                }
+
+                if ($key->display_img) {
+
+                    //(new ImageController())->saveImageInToS3ForMigration($key->display_img);
+
+
+                }
+
+                /*if($key->json_data){
+
+                    $data = array(json_decode($key->json_data));
+                    dd($data['image_sticker_json']);
+
+
+                }*/
+
+            }
+
+            if (count($result) > 0) {
+
+                $response = Response::json(array('code' => 200, 'message' => 'Content uploaded successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+            } else {
+                $response = Response::json(array('code' => 201, 'message' => 'Invalid catalog id.', 'cause' => '', 'data' => json_decode('{}')));
+
+            }
+
+
+        } catch (Exception $e) {
+            Log::error("addAppContentViaMigration : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+    }
+
+    /* =========================================| Advertise Category |=========================================*/
+
+    /**
+     * @api {post} addAdvertisementCategory   addAdvertisementCategory
+     * @apiName addAdvertisementCategory
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "category_id":1,
+     * "name":"Nature"
+     * }
+     * file:image.jpeg
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "sub category added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addAdvertisementCategory(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category'), $request)) != '')
+                return $response;
+
+            $advertise_category = $request->advertise_category;
+            $create_at = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
+            DB::insert('INSERT INTO advertise_category_master (advertise_category, is_active, create_time)  VALUES(?, ?, ?)', [$advertise_category, 1, $create_at]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addAdvertisementCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} editAdvertisementCategory   editAdvertisementCategory
+     * @apiName editAdvertisementCategory
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "category_id":1,
+     * "name":"Nature"
+     * }
+     * file:image.jpeg
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "sub category added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function editAdvertisementCategory(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category', 'advertise_category_id'), $request)) != '')
+                return $response;
+
+            $advertise_category = $request->advertise_category;
+            $advertise_category_id = $request->advertise_category_id;
+
+            DB::beginTransaction();
+            DB::update('UPDATE advertise_category_master SET advertise_category = ? WHERE id = ?', [$advertise_category, $advertise_category_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("editAdvertisementCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteAdvertisementCategory   deleteAdvertisementCategory
+     * @apiName deleteAdvertisementCategory
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "category_id":1,
+     * "name":"Nature"
+     * }
+     * file:image.jpeg
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "sub category added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteAdvertisementCategory(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category_id'), $request)) != '')
+                return $response;
+
+            $advertise_category_id = $request->advertise_category_id;
+
+            DB::beginTransaction();
+            DB::delete('DELETE FROM advertise_category_master WHERE id = ?', [$advertise_category_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise category deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteAdvertisementCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllAdvertiseCategory   getAllAdvertiseCategory
+     * @apiName getAllAdvertiseCategory
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise categories fetched successfully.",
+     * "cause": "",
+     * "data": [
+     * {
+     * "advertise_category_id": 3,
+     * "advertise_category": "Rewarded Video",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:07:07",
+     * "update_time": "2018-07-16 09:07:07"
+     * },
+     * {
+     * "advertise_category_id": 1,
+     * "advertise_category": "Banner",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:06:47",
+     * "update_time": "2018-07-16 09:06:47"
+     * },
+     * {
+     * "advertise_category_id": 2,
+     * "advertise_category": "Intertial",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:06:47",
+     * "update_time": "2018-07-16 09:06:47"
+     * }
+     * ]
+     * }
+     */
+    public function getAllAdvertiseCategory()
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!Cache::has("pel:getAllAdvertiseCategory")) {
+                $result = Cache::rememberforever("getAllAdvertiseCategory", function () {
+
+                    return DB::select('SELECT
+                                          id AS advertise_category_id,
+                                          advertise_category,
+                                          is_active,
+                                          create_time,
+                                          update_time
+                                        FROM
+                                          advertise_category_master
+                                        WHERE
+                                          is_active=1
+                                        order by update_time DESC');
+                });
+
+            }
+
+            $redis_result = Cache::get("getAllAdvertiseCategory");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise categories fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllAdvertiseCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all advertise categories.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =========================================| Link Advertise Category |=========================================*/
+
+    /**
+     * @api {post} addAdvertiseServerId   addAdvertiseServerId
+     * @apiName addAdvertiseServerId
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "advertise_category_id":1, //compulsory
+     * "sub_category_id":10, //compulsory
+     * "server_id":"vdfjdsjhfbhjbjd" //compulsory
+     * "sub_category_advertise_server_id":"vdfjdsjhfbhjbjd"
+     * "device_platform":1 //compulsory 1=Ios, 2=Android
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise server id added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addAdvertiseServerId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category_id', 'sub_category_id', 'server_id', 'device_platform'), $request)) != '')
+                return $response;
+
+            $advertise_category_id = $request->advertise_category_id;
+            $sub_category_id = $request->sub_category_id;
+            $server_id = $request->server_id;
+            $device_platform = $request->device_platform;
+            $sub_category_advertise_server_id = isset($request->sub_category_advertise_server_id) ? $request->sub_category_advertise_server_id : 0;
+
+            if (($response = (new VerificationController())->validateAdvertiseServerId($server_id)) != '')
+                return $response;
+
+            if ($sub_category_advertise_server_id === 0) {
+                $create_time = date('Y-m-d H:i:s');
+
+                DB::beginTransaction();
+                DB::insert('INSERT INTO sub_category_advertise_server_id_master (advertise_category_id, sub_category_id, server_id, device_platform, is_active, create_time)    VALUES(?, ?, ?, ?, ?, ?)', [$advertise_category_id, $sub_category_id, $server_id, $device_platform, 1, $create_time]);
+                DB::commit();
+
+                $response = Response::json(array('code' => 200, 'message' => 'Advertise server id added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            } else {
+                if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_advertise_server_id'), $request)) != '')
+                    return $response;
+
+                DB::beginTransaction();
+                DB::update('UPDATE sub_category_advertise_server_id_master SET server_id = ? WHERE id = ?', [$server_id, $sub_category_advertise_server_id]);
+                DB::commit();
+
+                $response = Response::json(array('code' => 200, 'message' => 'Advertise server id updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+        } catch (Exception $e) {
+            Log::error("addAdvertiseServerId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add or update advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateAdvertiseServerId   updateAdvertiseServerId
+     * @apiName updateAdvertiseServerId
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_advertise_server_id":1, //compulsory
+     * "advertise_category_id":1, //compulsory
+     * "server_id":"absdjdfgjfj" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     *{
+     * "code": 200,
+     * "message": "Advertise server id updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateAdvertiseServerId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_advertise_server_id', 'advertise_category_id', 'server_id'), $request)) != '')
+                return $response;
+
+            $sub_category_advertise_server_id = $request->sub_category_advertise_server_id;
+            $advertise_category_id = $request->advertise_category_id;
+            $server_id = $request->server_id;
+
+            DB::beginTransaction();
+            DB::update('UPDATE sub_category_advertise_server_id_master SET advertise_category_id = ?, server_id = ? WHERE id = ?', [$advertise_category_id, $server_id, $sub_category_advertise_server_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("updateAdvertiseServerId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteAdvertiseServerId   deleteAdvertiseServerId
+     * @apiName deleteAdvertiseServerId
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_advertise_server_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise server id deleted successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteAdvertiseServerId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_advertise_server_id'), $request)) != '')
+                return $response;
+
+            $sub_category_advertise_server_id = $request->sub_category_advertise_server_id;
+
+            DB::beginTransaction();
+            DB::delete('DELETE FROM sub_category_advertise_server_id_master WHERE id = ?', [$sub_category_advertise_server_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteAdvertiseServerId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAdvertiseServerIdForAdmin   getAdvertiseServerIdForAdmin
+     * @apiName getAdvertiseServerIdForAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "sub_category_id":66 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Advertise server id fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     * {
+     * "advertise_category_id": 3,
+     * "advertise_category": "Rewarded Video",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:07:07",
+     * "update_time": "2018-07-16 09:07:07",
+     * "android": [],
+     * "ios": [
+     * {
+     * "sub_category_advertise_server_id": 1,
+     * "advertise_category_id": 3,
+     * "sub_category_id": 66,
+     * "server_id": "Test Rewarded Video Ad Id 1",
+     * "device_platform": 1,
+     * "is_active": 1,
+     * "create_time": "2018-07-18 09:09:22",
+     * "update_time": "2018-07-18 09:09:22"
+     * }
+     * ]
+     * },
+     * {
+     * "advertise_category_id": 1,
+     * "advertise_category": "Banner",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:06:47",
+     * "update_time": "2018-07-16 09:06:47",
+     * "android": [
+     * {
+     * "sub_category_advertise_server_id": 2,
+     * "advertise_category_id": 1,
+     * "sub_category_id": 66,
+     * "server_id": "Test Banner Ad Id 1",
+     * "device_platform": 2,
+     * "is_active": 1,
+     * "create_time": "2018-07-18 09:10:23",
+     * "update_time": "2018-07-18 09:10:23"
+     * }
+     * ],
+     * "ios": []
+     * },
+     * {
+     * "advertise_category_id": 2,
+     * "advertise_category": "Intertial",
+     * "is_active": 1,
+     * "create_time": "2018-07-16 09:06:47",
+     * "update_time": "2018-07-16 09:06:47",
+     * "android": [],
+     * "ios": []
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAdvertiseServerIdForAdmin(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+
+            if (!Cache::has("pel:getAdvertiseServerIdForAdmin$this->sub_category_id")) {
+                $result = Cache::rememberforever("getAdvertiseServerIdForAdmin$this->sub_category_id", function () {
+
+                    $category = DB::select('SELECT
+                                          id AS advertise_category_id,
+                                          advertise_category,
+                                          is_active,
+                                          create_time,
+                                          update_time
+                                        FROM
+                                          advertise_category_master
+                                        WHERE
+                                          is_active=1
+                                        order by update_time DESC');
+
+                    foreach ($category as $key) {
+                        $android_server_id = DB::select('SELECT
+                                          id AS sub_category_advertise_server_id,
+                                          advertise_category_id,
+                                          sub_category_id,
+                                          server_id,
+                                          device_platform,
+                                          is_active,
+                                          create_time,
+                                          update_time
+                                        FROM
+                                          sub_category_advertise_server_id_master
+                                        WHERE
+                                          sub_category_id = ? AND
+                                          advertise_category_id = ? AND
+                                          device_platform = 2 AND
+                                          is_active=1
+                                        order by update_time DESC', [$this->sub_category_id, $key->advertise_category_id]);
+
+                        $ios_server_id = DB::select('SELECT
+                                          id AS sub_category_advertise_server_id,
+                                          advertise_category_id,
+                                          sub_category_id,
+                                          server_id,
+                                          device_platform,
+                                          is_active,
+                                          create_time,
+                                          update_time
+                                        FROM
+                                          sub_category_advertise_server_id_master
+                                        WHERE
+                                          sub_category_id = ? AND
+                                          advertise_category_id = ? AND
+                                          device_platform = 1 AND
+                                          is_active=1
+                                        order by update_time DESC', [$this->sub_category_id, $key->advertise_category_id]);
+
+                        $key->android = $android_server_id;
+                        $key->ios = $ios_server_id;
+                    }
+                    return $category;
+
+
+                });
+
+            }
+
+            $redis_result = Cache::get("getAdvertiseServerIdForAdmin$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAdvertiseServerIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =====================================| Update All Sample Images |==============================================*/
+
+    /**
+     * @api {post} updateAllSampleImages   updateAllSampleImages
+     * @apiName updateAllSampleImages
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "img_id": 356,
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "json_data": {
+     * "text_json": [],
+     * "sticker_json": [],
+     * "image_sticker_json": [
+     * {
+     * "xPos": 0,
+     * "yPos": 0,
+     * "image_sticker_image": "",
+     * "angle": 0,
+     * "is_round": 0,
+     * "height": 800,
+     * "width": 500
+     * }
+     * ],
+     * "frame_json": {
+     * "frame_image": "frame_15.7"
+     * },
+     * "background_json": {},
+     * "sample_image": "sample_15.7",
+     * "is_featured": 0,
+     * "height": 800,
+     * "width": 800
+     * }
+     * },
+     * file:image1.jpeg
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Json data updated successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateAllSampleImages(Request $request)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'item_count', 'page', 'no_of_times_update'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $item_count = $request->item_count;
+            $page = $request->page;
+            $no_of_times_update = $request->no_of_times_update;
+            $offset = ($page - 1) * $item_count;
+
+            $total_sample_images = DB::select('SELECT i.*
+                                    FROM images AS i,
+                                        sub_category_catalog AS scc
+                                    WHERE
+                                    i.json_data IS NOT NULL AND
+                                    i.json_data !="" AND
+                                    i.catalog_id = scc.catalog_id AND
+                                    scc.sub_category_id = ? AND scc.is_active = 1
+                                    ORDER BY i.updated_at ASC', [$sub_category_id]);
+
+
+            $sample_images = DB::select('SELECT i.*
+                                    FROM images AS i,
+                                        sub_category_catalog AS scc
+                                    WHERE
+                                    i.json_data IS NOT NULL AND
+                                    i.json_data !="" AND
+                                    i.catalog_id = scc.catalog_id AND
+                                    scc.sub_category_id = ? AND scc.is_active = 1
+                                    ORDER BY i.updated_at ASC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
+
+
+            $count = 0;
+            $remaining_images = array();
+            $updated_images = array();
+            foreach ($sample_images as $key) {
+                //Log::info('sample images : ',['image' => $key->image]);
+
+                $file_name = (new ImageController())->saveOriginalImageFromToS3($key->image);
+
+                if ($file_name != "") {
+                    $dimension = (new ImageController())->saveThumbnailImageFromS3($key->image);
+                    if ($dimension != "") {
+                        if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+
+                            (new ImageController())->saveNewWebpImageInToS3($file_name);
+
+                            (new ImageController())->unlinkFile($key->image);
+                        }
+                        sleep(1);
+
+                        DB::beginTransaction();
+                        DB::update('UPDATE
+                                images SET height = ?, width = ?, attribute1 = ?, attribute2 = ?
+                                WHERE id = ?', [$dimension['height'], $dimension['width'], $file_name, $no_of_times_update, $key->id]);
+                        DB::commit();
+                        $count = $count + 1;
+                        $updated_images[] = $key->image;
+                    } else {
+                        $remaining_images[] = $key->image;
+                    }
+                } else {
+                    $remaining_images[] = $key->image;
+                }
+            }
+
+            $result_array = array('total_updated_images' => count($total_sample_images), 'updated_images' => $updated_images, 'remaining_images' => $remaining_images);
+            $result = json_decode(json_encode($result_array), true);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Sample images updated successfully.', 'cause' => '', 'data' => $result));
+
+        } catch
+        (Exception $e) {
+            Log::error("updateAllSampleImages : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} createInvalidation   createInvalidation
+     * @apiName createInvalidation
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "img_id": 356,
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "json_data": {
+     * "text_json": [],
+     * "sticker_json": [],
+     * "image_sticker_json": [
+     * {
+     * "xPos": 0,
+     * "yPos": 0,
+     * "image_sticker_image": "",
+     * "angle": 0,
+     * "is_round": 0,
+     * "height": 800,
+     * "width": 500
+     * }
+     * ],
+     * "frame_json": {
+     * "frame_image": "frame_15.7"
+     * },
+     * "background_json": {},
+     * "sample_image": "sample_15.7",
+     * "is_featured": 0,
+     * "height": 800,
+     * "width": 800
+     * }
+     * },
+     * file:image1.jpeg
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Json data updated successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function createInvalidation(Request $request)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+
+            /* This api used to create Invalidation for S3 to delete CDN caching of s3_bucket */
+            $base_url = (new ImageController())->getBaseUrl();
+            if ($request->hasFile('file')) {
+                $file = Input::file('file');
+                //$file_type = $file->getMimeType();
+
+                if (($response = (new ImageController())->verifyImage($file)) != '')
+                    return $response;
+
+                $image = $file->getClientOriginalName();//(new ImageController())->generateNewFileName('test_webp_image', $file);
+
+                (new ImageController())->saveOriginalImage($image);
+
+                $original_sourceFile = $base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
+
+                //return array($original_sourceFile);
+                $disk = Storage::disk('s3');
+                $original_targetFile = "imageflyer/webp_original_new/" . $image;
+
+                $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
+                return $response = Response::json(array('code' => 200, 'message' => 'File uploaded successfully.', 'cause' => '', 'data' => "http://d2738jkpoo0kon.cloudfront.net/imageflyer/webp_original_new/" . $image));
+
+            } else {
+                return $response = Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+
+            /*//$request = json_decode($request->getContent());
+            $client = CloudFrontClient::factory(array(
+                'credentials' => array(
+                    'key' => 'AKIAIATYIJ5MPKANS7QA',
+                    'secret' => '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',
+                ),
+                'region' => 'us-east-2',
+                'version' => 'latest',
+            ));
+
+            $caller_reference = time();
+
+
+            $result = $client->createInvalidation([
+                'DistributionId' => 'E1CURG7RSP7L0C', // REQUIRED
+                'InvalidationBatch' => [ // REQUIRED
+                    'CallerReference' => $caller_reference, // REQUIRED
+                    'Paths' => [ // REQUIRED
+                        'Items' => ['http://d2738jkpoo0kon.cloudfront.net/imageflyer/webp_original_new/best_wallpapers_for_girl.jpg'],
+                        'Quantity' => 1, // REQUIRED
+                    ],
+                ],
+            ]);
+
+            dd($result);*/
+
+
+        } catch
+        (Exception $e) {
+            Log::error("createInvalidation : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'create invalidation.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /* ========================================= Tags =========================================*/
+
+    /**
+     * @api {post} addTag   addTag
+     * @apiName addTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_name":"Nature" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addTag(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_name'), $request)) != '')
+                return $response;
+
+            $tag_name = trim($request->tag_name);
+            $create_at = date('Y-m-d H:i:s');
+
+            $result = DB::select('SELECT * FROM tag_master WHERE tag_name = ?', [$tag_name]);
+            if (count($result) > 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'Tag already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            DB::beginTransaction();
+
+            DB::insert('INSERT INTO tag_master (tag_name,is_active, create_time) VALUES(?, ?, ?)', [$tag_name, 1, $create_at]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateTag   updateTag
+     * @apiName updateTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_id":1, //compulsory
+     * "tag_name":"Featured" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateTag(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_id', 'tag_name'), $request)) != '')
+                return $response;
+
+            $tag_id = $request->tag_id;
+            $tag_name = trim($request->tag_name);
+
+            $result = DB::select('SELECT * FROM tag_master WHERE tag_name = ? AND id != ?', [$tag_name, $tag_id]);
+            if (count($result) > 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'Tag already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            DB::beginTransaction();
+
+            DB::update('UPDATE
+                              tag_master
+                            SET
+                              tag_name = ?
+                            WHERE
+                              id = ? ',
+                [$tag_name, $tag_id]);
+
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("updateTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteTag   deleteTag
+     * @apiName deleteTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag deleted successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteTag(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_id'), $request)) != '')
+                return $response;
+
+            $tag_id = $request->tag_id;
+
+            DB::beginTransaction();
+
+            DB::delete('DELETE FROM tag_master where id = ? ', [$tag_id]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllTags   getAllTags
+     * @apiName getAllTags
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All tags fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 4,
+     * "result": [
+     * {
+     * "tag_id": 1,
+     * "tag_name": "test"
+     * },
+     * {
+     * "tag_id": 2,
+     * "tag_name": "Offer & Sales"
+     * },
+     * {
+     * "tag_id": 3,
+     * "tag_name": "Mobile Apps"
+     * },
+     * {
+     * "tag_id": 4,
+     * "tag_name": "Photography"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllTags()
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!Cache::has("pel:getAllTags")) {
+                $result = Cache::rememberforever("getAllTags", function () {
+                    return DB::select('SELECT
+                                        id AS tag_id,
+                                        tag_name
+                                        FROM
+                                        tag_master
+                                        WHERE is_active = ? ORDER BY update_time DESC', [1]);
+                });
+            }
+
+            $redis_result = Cache::get("getAllTags");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'All tags fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllTags : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all tags.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =========================================| Get Old Font (Non-commercial) |=========================================*/
+
+    /**
+     * @api {post} getSamplesOfNonCommercialFont   getSamplesOfNonCommercialFont
+     * @apiName getSamplesOfNonCommercialFont
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     *  "catalog_id":1, //compulsory
+     *  "order_by":1,
+     *  "order_type":1
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -3030,180 +7180,93 @@ class AdminController extends Controller
      * }
      * }
      */
-    public function getImagesByCatalogIdForAdmin(Request $request_body)
+    public function getSamplesOfNonCommercialFont()
     {
         try {
-            $request = json_decode($request_body->getContent());
-            //Log::info("getImagesByCatalogId Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
-                return $response;
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-            $this->catalog_id = $request->catalog_id;
+            /*define follwoing variables into constant before use this API
 
-            if (!Cache::has("pel:getImagesByCatalogIdForAdmin$this->catalog_id")) {
-                $result = Cache::rememberforever("getImagesByCatalogIdForAdmin$this->catalog_id", function () {
-                    $result = DB::select('SELECT
-                                          im.id as img_id,
-                                          IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as thumbnail_img,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
-                                          IF(im.json_data IS NOT NULL,1,0) as is_json_data,
-                                          coalesce(im.json_data,"") as json_data,
-                                          coalesce(im.is_featured,"") as is_featured,
-                                          coalesce(im.is_free,0) as is_free,
-                                          coalesce(im.is_portrait,0) as is_portrait
-                                        FROM
-                                          images as im
-                                        where
-                                          im.is_active = 1 AND
-                                          im.catalog_id = ? AND
-                                          isnull(im.original_img) AND
-                                          isnull(im.display_img)
-                                        order by im.updated_at DESC', [$this->catalog_id]);
+            'NON_COMMERCIAL_FONT_PATH' => "fonts/American Typewriter Condensed.ttf,fonts/style10.ttf,fonts/Blanch Condensed Inline.ttf,fonts/CoronetLTStd-Bold.ttf,fonts/daunpenh.ttf,fonts/Filxgirl.TTF,fonts/LFAX.TTF,fonts/LFAXI.TTF,fonts/ufonts.com_lydian-cursive-bt.ttf,fonts/Medusa Gothic.otf,fonts/PrestigeEliteStd-Bd.otf,fonts/VAGRoundedStd-Bold.ttf,fonts/VAGRoundedStd-Light.ttf",
+    'NON_COMMERCIAL_FONT_NAME' => "AmericanTypewriter-Condensed,BacktoBlackDemo,Blanch-CondensedInline,CoronetLTStd-Bold,DaunPenh,FiolexGirls-Regular,LucidaFax,LucidaFax-Italic,LydianCursiveBT-Regular,MedusaGothic,PrestigeEliteStd-Bd,VAGRoundedStd-Bold,VAGRoundedStd-Light"
 
-                    foreach ($result as $key) {
-                        if ($key->json_data != "") {
-                            $key->json_data = json_decode($key->json_data);
-                        }
+            */
 
+
+            $non_commercial_fonts_android = explode(",", Config::get('constant.NON_COMMERCIAL_FONT_PATH')); //get non-commercial fonts using fontPath
+            $non_commercial_fonts_ios = explode(",", Config::get('constant.NON_COMMERCIAL_FONT_NAME')); //get non-commercial fonts using fontName
+
+            $json_list_of_android = array(); //array of json which contains non-commercial fonts (android)
+            $json_list_of_ios = array(); //array of json which contains non-commercial fonts (ios)
+            $json_list_of_android_new = array();
+            foreach ($non_commercial_fonts_android as $key) {
+
+                $list_of_android_match = DB::select('SELECT
+                                    DISTINCT id
+                                  FROM images
+                                  WHERE
+                                    JSON_SEARCH(json_data,"all",?, NULL , "$.text_json[*].fontPath") IS NOT NULL', [$key]);
+
+
+                foreach ($list_of_android_match as $id) {
+                    //$json_list_of_android[] = $id;
+                    $json_list_of_android[] = $id;
+
+                }
+
+
+            }
+            //return $json_list_of_android;
+
+            foreach ($non_commercial_fonts_ios as $key) {
+
+                $list_of_ios_match = DB::select('SELECT
+                                    DISTINCT id
+                                  FROM images
+                                  WHERE
+                                    JSON_SEARCH(json_data,"all",?, NULL , "$.text_json[*].fontName") IS NOT NULL', [$key]);
+
+                /*$list_of_ios_match = DB::select('SELECT
+                                    DISTINCT id,
+                                    IF(image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as original_img
+                                  FROM images
+                                  WHERE
+                                    JSON_SEARCH(json_data,"all",?, NULL , "$.text_json[*].fontName") IS NOT NULL', [$key]);*/
+
+                foreach ($list_of_ios_match as $id) {
+                    //$json_list_of_ios[] = $id->img_ids;
+                    if (!in_array($id, $json_list_of_android)) {
+                        $json_list_of_ios[] = $id;
                     }
-                    return $result;
-                });
-            }
-            $redis_result = Cache::get("getImagesByCatalogIdForAdmin$this->catalog_id");
 
-            if (!$redis_result) {
-                $redis_result = [];
+                }
+
             }
 
+            //return $json_list_of_ios;
 
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Images Fetched Successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
+            //return array_merge($json_list_of_android, $json_list_of_ios);
+
+            $result = array_merge($json_list_of_android, $json_list_of_ios);
+            $not_existed_id = array_unique($result);
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Fonts fetched successfully.', 'cause' => '', 'data' => ['result' => $not_existed_id]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getImagesByCatalogIdForAdmin Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' Fetched Image By Catalog Id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSamplesOfNonCommercialFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
 
-    /**
-     * @api {post} getImagesByCatalogId   getImagesByCatalogId
-     * @apiName getImagesByCatalogId
-     * @apiGroup User
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     *  "catalog_id":1
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Catalog Images Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "image_list": [
-     * {
-     * "img_id": 13,
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e5ec3f2_catalog_image_1502433765.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e5ec3f2_catalog_image_1502433765.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d51e5ec3f2_catalog_image_1502433765.png"
-     * },
-     * {
-     * "img_id": 14,
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e65fdf3_catalog_image_1502433766.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e65fdf3_catalog_image_1502433766.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d51e65fdf3_catalog_image_1502433766.png"
-     * },
-     * {
-     * "img_id": 11,
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e4e7d68_catalog_image_1502433764.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e4e7d68_catalog_image_1502433764.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d51e4e7d68_catalog_image_1502433764.png"
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getImagesByCatalogId(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            //Log::info("getImagesByCatalogId Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $this->catalog_id = $request->catalog_id;
-
-            if (!Cache::has("pel:getImagesByCatalogId$this->catalog_id")) {
-                $result = Cache::rememberforever("getImagesByCatalogId$this->catalog_id", function () {
-                    $result = DB::select('SELECT
-                                          im.id as img_id,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
-                                          IF(im.json_data IS NOT NULL,1,0) as is_json_data,
-                                          coalesce(im.json_data,"") as json_data,
-                                          coalesce(im.is_featured,"") as is_featured,
-                                          coalesce(im.is_free,0) as is_free,
-                                          coalesce(im.is_portrait,0) as is_portrait,
-                                          coalesce(im.search_category,"") as search_category
-                                        FROM
-                                          images as im
-                                        where
-                                          im.is_active = 1 AND
-                                          im.catalog_id = ? AND
-                                          isnull(im.original_img) AND
-                                          isnull(im.display_img)
-                                        order by im.updated_at DESC', [$this->catalog_id]);
-
-                    foreach ($result as $key) {
-                        if ($key->json_data != "") {
-                            $key->json_data = json_decode($key->json_data);
-                        }
-
-                    }
-                    return $result;
-                });
-            }
-            $redis_result = Cache::get("getImagesByCatalogId$this->catalog_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Images Fetched Successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getImagesByCatalogId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' Fetched Image By Catalog Id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-
-
-
-    /* ======================================== Link Catalog ===================================== */
+    /* =========================================| Font Module |=========================================*/
 
     /**
-     * @api {post} getAllCatalog   getAllCatalog
-     * @apiName getAllCatalog
+     * @api {post} addFont   addFont
+     * @apiName addFont
      * @apiGroup Admin
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
@@ -3213,2587 +7276,92 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Catalog Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 2,
-     * "catalog_list": [
-     * {
-     * "catalog_id": 17,
-     * "sub_category_id": 4,
-     * "name": "Dragon Tattoo",
-     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59895317393b0_catalog_img_1502171927.png",
-     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59895317393b0_catalog_img_1502171927.png",
-     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59895317393b0_catalog_img_1502171927.png",
-     * "is_free": 1
-     * },
-     * {
-     * "catalog_id": 17,
-     * "sub_category_id": 10,
-     * "name": "Dragon Tattoo",
-     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59895317393b0_catalog_img_1502171927.png",
-     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59895317393b0_catalog_img_1502171927.png",
-     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59895317393b0_catalog_img_1502171927.png",
-     * "is_free": 1
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getAllCatalog()
-    {
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE is_active = ?', [1]);
-            $total_row = $total_row_result[0]->total;
-            //return $total_row;
-
-            if (!Cache::has("pel:getAllCatalog")) {
-                $result = Cache::rememberforever("getAllCatalog", function () {
-                    return DB::select('SELECT
-                                        ct.id as catalog_id,
-                                        sct.sub_category_id,
-                                        ct.name,
-                                        IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                        IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
-                                        ct.is_free
-                                      FROM
-                                        catalog_master as ct,
-                                        sub_category_catalog as sct
-                                      WHERE
-                                        sct.catalog_id=ct.id AND
-                                        sct.is_active=1
-                                      order by ct.updated_at DESC');
-                });
-            }
-
-            $redis_result = Cache::get("getAllCatalog");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'catalog_list' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get All Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} linkCatalog linkCatalog
-     * @apiName linkCatalog
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "catalog_id":2,
-     * "sub_category_id":10
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Catalog Linked Successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function linkCatalog(Request $request)
-    {
-        try {
-
-            $request = json_decode($request->getContent());
-            //Log::info("linkCatalog Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'sub_category_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-            //$query=DB::select('select * from sub_category_catalog WHERE sub_category_id = ? AND catalog_id = ?',[$sub_category_id,$catalog_id]);
-            $catalog_id = $request->catalog_id;
-            $sub_category_id = $request->sub_category_id;
-
-            $create_at = date('Y-m-d H:i:s');
-            $is_ative = 1;
-            DB::beginTransaction();
-
-
-            //return $catalog_id;
-
-            DB::insert('insert into sub_category_catalog(sub_category_id,catalog_id,created_at) values (?, ?, ?)', [$sub_category_id, $catalog_id, $create_at]);
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog Linked Successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("linkCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getAllSubCategoryForLinkCatalog   getAllSubCategoryForLinkCatalog
-     * @apiName getAllSubCategoryForLinkCatalog
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "catalog_id":18,
-     * "sub_category_id":20
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "SubCategory Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "category_list": [
-     * {
-     * "sub_category_id": 13,
-     * "name": "Background",
-     * "linked": 0
-     * },
-     * {
-     * "sub_category_id": 12,
-     * "name": "Frames",
-     * "linked": 1
-     * },
-     * {
-     * "sub_category_id": 10,
-     * "name": "Goggles",
-     * "linked": 0
-     * },
-     * {
-     * "sub_category_id": 9,
-     * "name": "Hair Style",
-     * "linked": 0
-     * },
-     * {
-     * "sub_category_id": 4,
-     * "name": "Tattoos",
-     * "linked": 0
-     * },
-     * {
-     * "sub_category_id": 11,
-     * "name": "Turbans",
-     * "linked": 0
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getAllSubCategoryForLinkCatalog(Request $request)
-    {
-        try {
-
-            $request = json_decode($request->getContent());
-            //Log::info("getImagesByCatalogId Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'category_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $this->catalog_id = $request->catalog_id;
-            $this->category_id = $request->category_id;
-
-
-            //return $total_row;
-
-            if (!Cache::has("pel:getAllSubCategoryForLinkCatalog$this->catalog_id->$this->category_id")) {
-                $result = Cache::rememberforever("getAllSubCategoryForLinkCatalog$this->catalog_id->$this->category_id", function () {
-
-                    return DB::select('SELECT
-                                          id AS sub_category_id,
-                                          name,
-                                          IF((SELECT sub_category_id
-                                              FROM sub_category_catalog scc
-                                              WHERE catalog_id = ? and sc.id=scc.sub_category_id and scc.is_active=1 LIMIT 1) ,1,0) as linked
-                                          FROM sub_category sc
-                                          WHERE
-                                            sc.is_active = 1 AND
-                                            sc.category_id=?
-                                          ORDER BY name', [$this->catalog_id, $this->category_id]);
-
-//                    return DB::select('SELECT
-//                                          id AS sub_category_id,
-//                                          name,
-//                                          IF((SELECT sub_category_id
-//                                           FROM sub_category_catalog scc
-//                                           WHERE catalog_id = ? and sc.id=scc.sub_category_id and scc.is_active=1 LIMIT 1) ,1,0) as linked
-//                                        FROM sub_category sc
-//                                        WHERE is_active = 1
-//                                        ORDER BY name',[$this->catalog_id]);
-                });
-
-            }
-
-            $redis_result = Cache::get("getAllSubCategoryForLinkCatalog$this->catalog_id->$this->category_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'SubCategory Fetched Successfully.', 'cause' => '', 'data' => ['category_list' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllSubCategoryForLinkCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get All Sub Category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} deleteLinkedCatalog deleteLinkedCatalog
-     * @apiName deleteLinkedCatalog
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "catalog_id":2,
-     * "sub_category_id":10
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Catalog unlinked Successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function deleteLinkedCatalog(Request $request)
-    {
-        try {
-            $request = json_decode($request->getContent());
-            //Log::info("Request Data:", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'sub_category_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $catalog_id = $request->catalog_id;
-            $sub_category_id = $request->sub_category_id;
-
-            $is_active = 0;
-            DB::beginTransaction();
-
-            //$result = DB::select('select image from catalog_master where id = ?', [$catalog_id]);
-            //$image_name = $result[0]->image;
-
-            //$result = DB::select('select image from images where catalog_id = ?', [$catalog_id]);
-            //$result = DB::select('SELECT sub_category_id from sub_category_catalog WHERE sub_category_id=? and is_active=? and catalog_id = ?', [$sub_category_id, 1, $catalog_id]);
-            $result = DB::select('SELECT count(*) as count_catalog from sub_category_catalog WHERE catalog_id = ? and is_active = 1', [$catalog_id]);
-            //return $result[0]->count_catalog;
-            if ($result[0]->count_catalog > 1) {
-                DB::delete('delete from sub_category_catalog where sub_category_id = ? AND catalog_id = ? ', [$sub_category_id, $catalog_id]);
-                $response = Response::json(array('code' => 200, 'message' => 'Catalog unlinked Successfully!.', 'cause' => '', 'data' => json_decode('{}')));
-
-            } else {
-                $response = Response::json(array('code' => 201, 'message' => 'Unable to de-link this catalog, it is not linked with any other application.', 'cause' => '', 'data' => json_decode("{}")));
-
-            }
-
-
-            DB::commit();
-
-//            //Image Delete in image_bucket
-//            (new ImageController())->deleteImage($image_name);
-//
-//            Log::info("catalog_id:", [$image_name]);
-//            foreach ($result as $rw) {
-//                //Image Delete in image_bucket
-//                (new ImageController())->deleteImage($rw->image);
-//            }
-
-        } catch (Exception $e) {
-            Log::error("deleteLinkedCatalog Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete Linked Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /* ========================================= URL ============================================== */
-
-    /**
-     * @api {post} addLink addLink
-     * @apiName addLink
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
      * request_data:{
-     * "sub_category_id":46,
-     * "name":"QR Scanner",
-     * "url":"https://play.google.com/store/apps/details?id=com.optimumbrewlab.dqnentrepreneur&hl=en",
-     * "platform":"Android",
-     * "app_description":"This is test description."
+     * "catalog_id":280, //compulsory
+     * "ios_font_name":"3d", //compulsory
+     * "android_font_name":"fonts/3d.ttf", //compulsory
+     * "is_replace":1 //compulsory 1=replace font file, 0=don't replace font file
      * }
-     * file:ob.png
-     * logo_file:logo_image.png
+     * file:3d.ttf //compulsory
+     * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Link Added Successfully.",
+     * "message": "Font added successfully.",
      * "cause": "",
      * "data": {}
      * }
      */
-    public function addLink(Request $request_body)
+    public function addFont(Request $request_body)
     {
         try {
 
-//            if (!$request_body->has('request_data'))
-//                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-//
-//            $request = json_decode($request_body->input('request_data'));
-//
-//            Log::info("request data :", [$request]);
-//            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'platform', 'url', 'platform'), $request)) != '')
-//                return $response;
-//
-//            $token = JWTAuth::getToken();
-//            JWTAuth::toUser($token);
-//
-//            if (!$request_body->hasFile('file')) {
-//                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-//            } else {
-//                $image_array = Input::file('file');
-//                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-//                    return $response;
-//
-//                $app_image = (new ImageController())->generateNewFileName('app_image', $image_array);
-//                //Log::info("file size :",[filesize($profile_img)]);
-//                (new ImageController())->saveOriginalImage($app_image);
-//                (new ImageController())->saveCompressedImage($app_image);
-//                (new ImageController())->saveThumbnailImage($app_image);
-//            }
-//
-//            $sub_category_id = $request->sub_category_id;
-//            $name = $request->name;
-//            $url = $request->url;
-//            $platform = $request->platform;
-//            $create_at = date('Y-m-d H:i:s');
-//
-//            $data = array('name' => $name,
-//                'image' => $app_image,
-//                //'logo_image' => "",//$app_logo,
-//                'url' => $url,
-//                'platform' => $platform,
-//                'created_at' => $create_at);
-//            DB::beginTransaction();
-//            $advertise_link_id = DB::table('advertise_links')->insertGetId($data);
-//
-//            DB::insert('insert into sub_category_advertise_links(sub_category_id, advertise_link_id, is_active, created_at) VALUES (?, ?, ?, ?)', [$sub_category_id, $advertise_link_id, 1, $create_at]);
-//
-//            DB::commit();
-//
-//            $response = Response::json(array('code' => 200, 'message' => 'Link Added Successfully.', 'cause' => '', 'data' => json_decode('{}')));
-
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
 
             if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
-            //Log::info("request data :", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('platform', 'url', 'platform', 'app_description'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            //$sub_category_id = $request->sub_category_id;
-            $name = $request->name;
-            $url = $request->url;
-            $platform = $request->platform;
-            $app_description = $request->app_description;
-            $create_at = date('Y-m-d H:i:s');
-
-//            if (($response = (new VerificationController())->checkIfAdvertisementExist($url)) != '')
-//                return $response;
-
-            if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveOriginalImage($app_image);
-                (new ImageController())->saveCompressedImage($app_image);
-                (new ImageController())->saveThumbnailImage($app_image);
-                //(new ImageController())->saveImageInToSpaces($app_image);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($app_image);
-                }
-
-
-            }
-
-            //Logo Image
-            if (!$request_body->hasFile('logo_file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field logo_file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $logo_image_array = Input::file('logo_file');
-                if (($response = (new ImageController())->verifyImage($logo_image_array)) != '')
-                    return $response;
-
-                $app_logo = (new ImageController())->generateNewFileName('app_logo_image', $logo_image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveMultipleOriginalImage($app_logo, 'logo_file');
-                (new ImageController())->saveCompressedImage($app_logo);
-                (new ImageController())->saveThumbnailImage($app_logo);
-                //(new ImageController())->saveImageInToSpaces($app_logo);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($app_logo);
-                }
-            }
-
-            $data = array('name' => $name,
-                'image' => $app_image,//Application banner
-                'app_logo_img' => $app_logo,//$app_logo,
-                'url' => $url,
-                'platform' => $platform,
-                'app_description' => $app_description,
-                'created_at' => $create_at);
-            DB::beginTransaction();
-            $advertise_link_id = DB::table('advertise_links')->insertGetId($data);
-
-            //DB::insert('insert into sub_category_advertise_links(sub_category_id, advertise_link_id, is_active, created_at) VALUES (?, ?, ?, ?)', [$sub_category_id, $advertise_link_id, 1, $create_at]);
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Link Added Successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("addLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    public function addLinkWithAppLogo(Request $request_body)
-    {
-        try {
-
-            if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-
-            $request = json_decode($request_body->input('request_data'));
-
-            //Log::info("request data :", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'platform', 'url', 'platform', 'app_description'), $request)) != '')
-                return $response;
-
-//            $token = JWTAuth::getToken();
-//            JWTAuth::toUser($token);
-
-            if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveOriginalImage($app_image);
-                (new ImageController())->saveCompressedImage($app_image);
-                (new ImageController())->saveThumbnailImage($app_image);
-                //(new ImageController())->saveImageInToSpaces($app_image);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($app_image);
-                }
-
-            }
-
-            //Logo Image
-            if (!$request_body->hasFile('logo_file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field logo_file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $logo_image_array = Input::file('logo_file');
-                if (($response = (new ImageController())->verifyImage($logo_image_array)) != '')
-                    return $response;
-
-                $app_logo = (new ImageController())->generateNewFileName('app_logo_image', $logo_image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveMultipleOriginalImage($app_logo, 'logo_file');
-                (new ImageController())->saveCompressedImage($app_logo);
-                (new ImageController())->saveThumbnailImage($app_logo);
-
-                //(new ImageController())->saveImageInToSpaces($app_logo);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($app_logo);
-                }
-
-            }
-
-
-            $sub_category_id = $request->sub_category_id;
-            $name = $request->name;
-            $url = $request->url;
-            $platform = $request->platform;
-            $app_description = $request->app_description;
-            $create_at = date('Y-m-d H:i:s');
-
-            $data = array('name' => $name,
-                'image' => $app_image,//Application banner
-                'app_logo_img' => $app_logo,//$app_logo,
-                'url' => $url,
-                'platform' => $platform,
-                'app_description' => $app_description,
-                'created_at' => $create_at);
-            DB::beginTransaction();
-            $advertise_link_id = DB::table('advertise_links')->insertGetId($data);
-
-            DB::insert('insert into sub_category_advertise_links(sub_category_id, advertise_link_id, is_active, created_at) VALUES (?, ?, ?, ?)', [$sub_category_id, $advertise_link_id, 1, $create_at]);
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Link Added Successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("addLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} updateLink updateLink
-     * @apiName updateLink
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "sub_category_id": 46,
-     * "advertise_link_id": 51,
-     * "name": "QR Scanner",
-     * "url": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.dqnentrepreneur&hl=en",
-     * "platform": "Android",
-     * "app_description": "This is test description"
-     * }
-     * file:ob.png //optional
-     * logo_file:ob.png //optional
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Link Updated Successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function updateLink(Request $request_body)
-    {
-        try {
-
-//            if (!$request_body->has('request_data'))
-//                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-//
-//            $request = json_decode($request_body->input('request_data'));
-//
-//            Log::info("request data :", [$request]);
-//            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'name', 'platform', 'url'), $request)) != '')
-//                return $response;
-//
-//            $token = JWTAuth::getToken();
-//            JWTAuth::toUser($token);
-//
-//            $advertise_link_id = $request->advertise_link_id;
-//            $name = $request->name;
-//            $url = $request->url;
-//            $platform = $request->platform;
-//            $create_at = date('Y-m-d H:i:s');
-//            $image_name = '';
-//            $logo_image_name = '';
-//            DB::beginTransaction();
-//
-//            if ((!$request_body->hasFile('file'))) {
-//                //Log::info("Without Both file.");
-//                DB::update('update advertise_links
-//                            SET name = ?,
-//                                url = ?,
-//                                platform = ?,
-//                                created_at = ?
-//                            WHERE
-//                                id = ?', [$name, $url, $platform, $create_at, $advertise_link_id]);
-//            } else {
-//                Log::info("Only File");
-//                $image_array = Input::file('file');
-//                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-//                    return $response;
-//
-//                $app_image = (new ImageController())->generateNewFileName('app_image', $image_array);
-//                //Log::info("file size :",[filesize($profile_img)]);
-//                (new ImageController())->saveMultipleOriginalImage($app_image, 'file');
-//                (new ImageController())->saveCompressedImage($app_image);
-//                (new ImageController())->saveThumbnailImage($app_image);
-//
-//                $result = DB::select('select image from advertise_links where id = ?', [$advertise_link_id]);
-//                $image_name = $result[0]->image;
-//
-//                DB::update('update advertise_links
-//                            SET name = ?,
-//                                image = ?,
-//                                url = ?,
-//                                platform = ?,
-//                                created_at = ?
-//                            WHERE
-//                                id = ?', [$name, $app_image, $url, $platform, $create_at, $advertise_link_id]);
-//
-//            }
-//            DB::commit();
-//
-//            //Image Delete in image_bucket
-//            if ($image_name) {
-//                (new ImageController())->deleteImage($image_name);
-//            }
-//            if ($logo_image_name) {
-//                (new ImageController())->deleteImage($logo_image_name);
-//            }
-
-            if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-
-            $request = json_decode($request_body->input('request_data'));
-
-            //Log::info("request data :", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'name', 'platform', 'url', 'app_description'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $advertise_link_id = $request->advertise_link_id;
-            $name = $request->name;
-            $url = $request->url;
-            $platform = $request->platform;
-            $app_description = $request->app_description;
-            $create_at = date('Y-m-d H:i:s');
-            $image_name = '';
-            $logo_image_name = '';
-            DB::beginTransaction();
-
-            if ((!$request_body->hasFile('file')) && (!$request_body->hasFile('logo_file'))) {
-                //Log::info("Without Both file.");
-                DB::update('update advertise_links
-                            SET name = ?,
-                                url = ?,
-                                platform = ?,
-                                app_description = ?,
-                                created_at = ?
-                            WHERE
-                                id = ?', [$name, $url, $platform, $app_description, $create_at, $advertise_link_id]);
-            } elseif ((!$request_body->hasFile('logo_file')) && $request_body->hasFile('file')) {
-                //Log::info("Only File");
-                $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveMultipleOriginalImage($app_image, 'file');
-                (new ImageController())->saveCompressedImage($app_image);
-                (new ImageController())->saveThumbnailImage($app_image);
-                //(new ImageController())->saveImageInToSpaces($app_image);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($app_image);
-                }
-
-                $result = DB::select('select image from advertise_links where id = ?', [$advertise_link_id]);
-                $image_name = $result[0]->image;
-
-                DB::update('update advertise_links
-                            SET name = ?,
-                                image = ?,
-                                url = ?,
-                                platform = ?,
-                                app_description = ?,
-                                created_at = ?
-                            WHERE
-                                id = ?', [$name, $app_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
-
-            } elseif ($request_body->hasFile('logo_file') && (!$request_body->hasFile('file'))) {
-                //Log::info("Only Logo-File");
-                $image_array = Input::file('logo_file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $logo_image = (new ImageController())->generateNewFileName('app_logo_image', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
-                (new ImageController())->saveCompressedImage($logo_image);
-                (new ImageController())->saveThumbnailImage($logo_image);
-                //(new ImageController())->saveImageInToSpaces($logo_image);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($logo_image);
-                }
-
-                $result = DB::select('select app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
-                $logo_image_name = $result[0]->app_logo_img;
-
-                DB::update('update advertise_links
-                            SET name = ?,
-                                app_logo_img = ?,
-                                url = ?,
-                                platform = ?,
-                                app_description = ?,
-                                created_at = ?
-                            WHERE
-                                id = ?', [$name, $logo_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
-
-            } else {
-                //Log::info("Both File");
-                $image_array = Input::file('file');
-                $logo_image_array = Input::file('logo_file');
-
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                if (($response = (new ImageController())->verifyImage($logo_image_array)) != '')
-                    return $response;
-
-                $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
-                $logo_image = (new ImageController())->generateNewFileName('app_logo_image', $logo_image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveOriginalImage($app_image);
-                (new ImageController())->saveCompressedImage($app_image);
-                (new ImageController())->saveThumbnailImage($app_image);
-                //(new ImageController())->saveImageInToSpaces($app_image);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($app_image);
-                }
-
-
-                (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
-                (new ImageController())->saveCompressedImage($logo_image);
-                (new ImageController())->saveThumbnailImage($logo_image);
-                //(new ImageController())->saveImageInToSpaces($logo_image);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($logo_image);
-                }
-
-
-                $result = DB::select('select image,app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
-                $image_name = $result[0]->image;
-                $logo_image_name = $result[0]->app_logo_img;
-
-                DB::update('update advertise_links
-                            SET name = ?,
-                                image = ?,
-                                app_logo_img = ?,
-                                url = ?,
-                                platform = ?,
-                                app_description = ?,
-                                created_at = ?
-                            WHERE
-                                id = ?', [$name, $app_image, $logo_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
-
-            }
-
-
-            DB::commit();
-
-            //Image Delete in image_bucket
-            if ($image_name) {
-                (new ImageController())->deleteImage($image_name);
-            }
-            if ($logo_image_name) {
-                (new ImageController())->deleteImage($logo_image_name);
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Link Updated Successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("updateLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Update Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    public function updateLinkWithAppLogo(Request $request_body)
-    {
-        try {
-
-            if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-
-            $request = json_decode($request_body->input('request_data'));
-
-            //Log::info("request data :", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'name', 'platform', 'url', 'app_description'), $request)) != '')
-                return $response;
-
-//            $token = JWTAuth::getToken();
-//            JWTAuth::toUser($token);
-
-            $advertise_link_id = $request->advertise_link_id;
-            $name = $request->name;
-            $url = $request->url;
-            $platform = $request->platform;
-            $app_description = $request->app_description;
-            $create_at = date('Y-m-d H:i:s');
-            $image_name = '';
-            $logo_image_name = '';
-            DB::beginTransaction();
-
-            if ((!$request_body->hasFile('file')) && (!$request_body->hasFile('logo_file'))) {
-                //Log::info("Without Both file.");
-                DB::update('update advertise_links
-                            SET name = ?,
-                                url = ?,
-                                platform = ?,
-                                app_description = ?,
-                                created_at = ?
-                            WHERE
-                                id = ?', [$name, $url, $platform, $app_description, $create_at, $advertise_link_id]);
-            } elseif ((!$request_body->hasFile('logo_file')) && $request_body->hasFile('file')) {
-                //Log::info("Only File");
-                $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveMultipleOriginalImage($app_image, 'file');
-                (new ImageController())->saveCompressedImage($app_image);
-                (new ImageController())->saveThumbnailImage($app_image);
-                //(new ImageController())->saveImageInToSpaces($app_image);
-
-                $result = DB::select('select image from advertise_links where id = ?', [$advertise_link_id]);
-                $image_name = $result[0]->image;
-
-                DB::update('update advertise_links
-                            SET name = ?,
-                                image = ?,
-                                url = ?,
-                                platform = ?,
-                                app_description = ?,
-                                created_at = ?
-                            WHERE
-                                id = ?', [$name, $app_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
-
-            } elseif ($request_body->hasFile('logo_file') && (!$request_body->hasFile('file'))) {
-                //Log::info("Only Logo-File");
-                $image_array = Input::file('logo_file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $logo_image = (new ImageController())->generateNewFileName('app_logo_image', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
-                (new ImageController())->saveCompressedImage($logo_image);
-                (new ImageController())->saveThumbnailImage($logo_image);
-                //(new ImageController())->saveImageInToSpaces($logo_image);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($logo_image);
-                }
-
-
-                $result = DB::select('select app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
-                $logo_image_name = $result[0]->app_logo_img;
-
-                DB::update('update advertise_links
-                            SET name = ?,
-                                app_logo_img = ?,
-                                url = ?,
-                                platform = ?,
-                                app_description = ?,
-                                created_at = ?
-                            WHERE
-                                id = ?', [$name, $logo_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
-
-            } else {
-                //Log::info("Both File");
-                $image_array = Input::file('file');
-                $logo_image_array = Input::file('logo_file');
-
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                if (($response = (new ImageController())->verifyImage($logo_image_array)) != '')
-                    return $response;
-
-                $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
-                $logo_image = (new ImageController())->generateNewFileName('app_logo_image', $logo_image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveOriginalImage($app_image);
-                (new ImageController())->saveCompressedImage($app_image);
-                (new ImageController())->saveThumbnailImage($app_image);
-                //(new ImageController())->saveImageInToSpaces($app_image);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($app_image);
-                }
-
-                (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
-                (new ImageController())->saveCompressedImage($logo_image);
-                (new ImageController())->saveThumbnailImage($logo_image);
-                //(new ImageController())->saveImageInToSpaces($logo_image);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($logo_image);
-                }
-
-                $result = DB::select('select image,app_logo_img from advertise_links where id = ?', [$advertise_link_id]);
-                $image_name = $result[0]->image;
-                $logo_image_name = $result[0]->app_logo_img;
-
-                DB::update('update advertise_links
-                            SET name = ?,
-                                image = ?,
-                                app_logo_img = ?,
-                                url = ?,
-                                platform = ?,
-                                app_description = ?,
-                                created_at = ?
-                            WHERE
-                                id = ?', [$name, $app_image, $logo_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
-
-            }
-
-
-            DB::commit();
-
-            //Image Delete in image_bucket
-            if ($image_name) {
-                (new ImageController())->deleteImage($image_name);
-            }
-            if ($logo_image_name) {
-                (new ImageController())->deleteImage($logo_image_name);
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Link Updated Successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("updateLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Update Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} deleteLink deleteLink
-     * @apiName deleteLink
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     *  "advertise_link_id:1
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Link Deleted Successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function deleteLink(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            //Log::info("request data :", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $advertise_link_id = $request->advertise_link_id;
-
-            DB::beginTransaction();
-
-            //DB::delete('delete FROM sub_category_advertise_links WHERE advertise_link_id = ?', [$advertise_link_id]);
-
-            DB::delete('delete FROM advertise_links where id = ? ', [$advertise_link_id]);
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Link Deleted Successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("deleteLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getAllLink   getAllLink
-     * @apiName getAllLink
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":1,
-     * "page":1,
-     * "item_count":10
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "All Link Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 2,
-     * "is_next_page": false,
-     * "link_list": [
-     * {
-     * "advertise_link_id": 51,
-     * "name": "QR Scanner",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/5a0437f82a94f_banner_image_1510225912.jpg",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/5a0437f82a94f_banner_image_1510225912.jpg",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/5a0437f82a94f_banner_image_1510225912.jpg",
-     * "app_logo_thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/5a0437f82ad37_app_logo_image_1510225912.jpg",
-     * "app_logo_compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/5a0437f82ad37_app_logo_image_1510225912.jpg",
-     * "app_logo_original_img": "http://localhost/ob_photolab_backend/image_bucket/original/5a0437f82ad37_app_logo_image_1510225912.jpg",
-     * "url": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.dqnentrepreneur&hl=en",
-     * "platform": "Android",
-     * "app_description": "This is test description"
-     * },
-     * {
-     * "advertise_link_id": 52,
-     * "name": "QR Scanner",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/5a04375d4c4ed_banner_image_1510225757.jpg",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/5a04375d4c4ed_banner_image_1510225757.jpg",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/5a04375d4c4ed_banner_image_1510225757.jpg",
-     * "app_logo_thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/5a0437600e172_app_logo_image_1510225760.jpeg",
-     * "app_logo_compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/5a0437600e172_app_logo_image_1510225760.jpeg",
-     * "app_logo_original_img": "http://localhost/ob_photolab_backend/image_bucket/original/5a0437600e172_app_logo_image_1510225760.jpeg",
-     * "url": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.dqnentrepreneur&hl=en",
-     * "platform": "Android",
-     * "app_description": "This is test description."
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getAllLink(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            //Log::info([$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $this->sub_category_id = $request->sub_category_id;
-            $this->page = $request->page;
-            $this->item_count = $request->item_count;
-            //$item_count = Config::get('constant.PAGINATION_ITEM_LIMIT');
-            $this->offset = ($this->page - 1) * $this->item_count;
-
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_advertise_links where is_active = ? AND sub_category_id = ?', [1, $this->sub_category_id]);
-            $total_row = $total_row_result[0]->total;
-            //return $total_row_result;
-            if (!Cache::has("pel:getAllLink$this->page:$this->item_count:$this->sub_category_id")) {
-                $result = Cache::rememberforever("getAllLink$this->page:$this->item_count:$this->sub_category_id", function () {
-                    return DB::select('SELECT
-                                        adl.id as advertise_link_id,
-                                        adl.name,
-                                        IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
-                                        IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
-                                        IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
-                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
-                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
-                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
-                                        adl.url,
-                                        adl.platform,
-                                        if(adl.app_description!="",adl.app_description,"") as app_description
-                                      FROM
-                                        advertise_links as adl,
-                                        sub_category_advertise_links as sadl
-                                      WHERE
-                                        sadl.sub_category_id = ? AND
-                                        sadl.advertise_link_id=adl.id AND
-                                        sadl.is_active=1
-                                      order by adl.updated_at DESC
-                                      LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
-
-//                    return DB::select('SELECT
-//                                        adl.id as advertise_link_id,
-//                                        adl.name,
-//                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . '",adl.image),"") as thumbnail_img,
-//                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . '",adl.image),"") as compressed_img,
-//                                        IF(adl.image != "",CONCAT("' . $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . '",adl.image),"") as original_img,
-//                                        adl.url,
-//                                        adl.platform
-//                                      FROM
-//                                        advertise_links as adl,
-//                                        sub_category_advertise_links as sadl
-//                                      WHERE
-//                                        sadl.sub_category_id = ? AND
-//                                        sadl.advertise_link_id=adl.id AND
-//                                        sadl.is_active=1
-//                                      order by adl.updated_at DESC
-//                                      LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
-                });
-            }
-            //->$this->sub_category_id
-            $redis_result = Cache::get("getAllLink$this->page:$this->item_count:$this->sub_category_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-
-            $response = Response::json(array('code' => 200, 'message' => 'All Link Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'link_list' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' Fetched All Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getAdvertiseLink   getAdvertiseLink
-     * @apiName getAdvertiseLink
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":31,
-     * "platform":"ios"
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Advertise Link Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "link_list": [
-     * {
-     * "advertise_link_id": 44,
-     * "name": "Suitescene",
-     * "platform": "iOS",
-     * "linked": 1
-     * },
-     * {
-     * "advertise_link_id": 41,
-     * "name": "Bhavesh Gabani",
-     * "platform": "iOS",
-     * "linked": 0
-     * },
-     * {
-     * "advertise_link_id": 40,
-     * "name": "Visa",
-     * "platform": "iOS",
-     * "linked": 0
-     * },
-     * {
-     * "advertise_link_id": 39,
-     * "name": "QR Code Scanner : Barcode QR-Code Generator App",
-     * "platform": "iOS",
-     * "linked": 0
-     * },
-     * {
-     * "advertise_link_id": 38,
-     * "name": "Photo Editor Lab – Stickers , Filters & Frames",
-     * "platform": "iOS",
-     * "linked": 0
-     * },
-     * {
-     * "advertise_link_id": 37,
-     * "name": "QR Barcode Scanner : QR Bar Code Generator App",
-     * "platform": "iOS",
-     * "linked": 0
-     * },
-     * {
-     * "advertise_link_id": 36,
-     * "name": "Cut Paste - Background Eraser",
-     * "platform": "iOS",
-     * "linked": 0
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getAdvertiseLink(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            //Log::info([$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'platform'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $this->sub_category_id = $request->sub_category_id;
-            $this->platform = $request->platform;
-
-            if (!Cache::has("pel:getAdvertiseLink:$this->sub_category_id-$this->platform")) {
-                $result = Cache::rememberforever("getAdvertiseLink:$this->sub_category_id-$this->platform", function () {
-                    return DB::select('SELECT
-                                          adl.id AS advertise_link_id,
-                                          adl.name,
-                                          adl.platform,
-                                          IF((SELECT advertise_link_id
-                                              FROM sub_category_advertise_links AS scal
-                                              WHERE sub_category_id = ? AND adl.id = scal.advertise_link_id AND scal.is_active = 1
-                                              LIMIT 1), 1, 0) AS linked
-                                        FROM
-                                          advertise_links AS adl
-                                        WHERE
-                                          adl.is_active = 1 AND
-                                          adl.platform = ?
-                                        ORDER BY adl.updated_at DESC', [$this->sub_category_id, $this->platform]);
-                });
-            }
-
-            $redis_result = Cache::get("getAdvertiseLink:$this->sub_category_id-$this->platform");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise Link Fetched Successfully.', 'cause' => '', 'data' => ['link_list' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllAdvertiseLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' Fetched Advertise Link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} addAdvertiseLink addAdvertiseLink
-     * @apiName addAdvertiseLink
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "advertise_link_id":2,
-     * "sub_category_id":31
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Advertise Linked Successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function addAdvertiseLink(Request $request)
-    {
-        try {
-
-            $request = json_decode($request->getContent());
-            //Log::info("addAdvertiseLink Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'sub_category_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $advertise_link_id = $request->advertise_link_id;
-            $sub_category_id = $request->sub_category_id;
-
-            $create_at = date('Y-m-d H:i:s');
-            DB::beginTransaction();
-
-            //return $catalog_id;
-            DB::insert('insert into sub_category_advertise_links(sub_category_id,advertise_link_id,created_at) values (?, ?, ?)', [$sub_category_id, $advertise_link_id, $create_at]);
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise Linked Successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("addAdvertiseLink Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Link Advertise.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} unlinkAdvertise unlinkAdvertise
-     * @apiName unlinkAdvertise
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "advertise_link_id":2,
-     * "sub_category_id":31
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Advertise unLinked Successfully!.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function unlinkAdvertise(Request $request)
-    {
-        try {
-            $request = json_decode($request->getContent());
-            //Log::info("unlinkAdvertise Request Data:", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'sub_category_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $advertise_link_id = $request->advertise_link_id;
-            $sub_category_id = $request->sub_category_id;
-
-            $is_active = 0;
-            DB::beginTransaction();
-
-            $result = DB::select('SELECT sub_category_id from sub_category_advertise_links WHERE sub_category_id = ? and is_active = 1', [$sub_category_id]);
-
-
-            if (sizeOf($result) > 1) {
-                DB::update('update sub_category_advertise_links set is_active = ? where sub_category_id = ? AND advertise_link_id = ? ', [$is_active, $sub_category_id, $advertise_link_id]);
-                $response = Response::json(array('code' => 200, 'message' => 'Advertise unLinked Successfully!.', 'cause' => '', 'data' => json_decode('{}')));
-
-            } else {
-                $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'unLink this Advertise, it is not linked with any other app.', 'cause' => '', 'data' => json_decode("{}")));
-
-            }
-
-
-            DB::commit();
-
-        } catch (Exception $e) {
-            Log::error("unlinkAdvertise Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'unLinked Advertise.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /* ========================================= Other ==============================================*/
-
-    /**
-     * @api {post} getAllUser   getAllUser
-     * @apiName getAllUser
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":1,
-     * "page":1,
-     * "item_count":30,
-     * "order_by":"device_id",//optinal
-     * "order_type":"ASC"//optional
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "All User Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 15,
-     * "list_user": [
-     * {
-     * "device_id": 15,
-     * "device_reg_id": "AD64EF08F134750CC09D489F90B9DFF623A91FC84AD3A9468A068E679B5C83D7",
-     * "device_platform": "ios",
-     * "device_model_name": "iPhone",
-     * "device_vendor_name": "Apple",
-     * "device_os_version": "10.0.2",
-     * "device_udid": "A70B3F58-75EF-4C76-ADEC-14E93D57887E",
-     * "device_resolution": "320.0568.0",
-     * "device_carrier": "",
-     * "device_country_code": "US",
-     * "device_language": "en-US",
-     * "device_local_code": "en-US",
-     * "device_default_time_zone": "Pacific/Chatham",
-     * "device_library_version": "",
-     * "device_application_version": "1.0.3",
-     * "device_type": "phone",
-     * "device_registration_date": "2017-05-12 05:07:33 +0000",
-     * "is_active": 1,
-     * "is_count": 5,
-     * "create_time": "2017-06-03 10:38:03",
-     * "update_time": "2017-06-24 13:17:14"
-     * },
-     * {
-     * "device_id": 14,
-     * "device_reg_id": "",
-     * "device_platform": "ios",
-     * "device_model_name": "iPhone",
-     * "device_vendor_name": "Apple",
-     * "device_os_version": "10.3.1",
-     * "device_udid": "C104766F-B9CE-49D8-BEB3-101F04E849CF",
-     * "device_resolution": "375.0667.0",
-     * "device_carrier": "",
-     * "device_country_code": "US",
-     * "device_language": "en-US",
-     * "device_local_code": "en-US",
-     * "device_default_time_zone": "Asia/Kolkata",
-     * "device_library_version": "",
-     * "device_application_version": "1.0.3",
-     * "device_type": "phone",
-     * "device_registration_date": "2017-05-24 05:43:18 +0000",
-     * "is_active": 1,
-     * "is_count": 5,
-     * "create_time": "2017-05-24 11:13:18",
-     * "update_time": "2017-06-24 13:17:14"
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getAllUser(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-            $this->sub_category_id = $request->sub_category_id;
-            $this->item_count = $request->item_count;
-            $this->page = $request->page;
-            $this->order_by = isset($request->order_by) ? $request->order_by : 'device_id';
-            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
-            $this->offset = ($this->page - 1) * $this->item_count;
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  device_master where sub_category_id = ?', [$this->sub_category_id]);
-            $total_row = $total_row_result[0]->total;
-
-            if (!Cache::has("pel:getAllUser$this->page:$this->item_count:$this->order_by:$this->order_type>$this->sub_category_id")) {
-                $result = Cache::rememberforever("getAllUser$this->page:$this->item_count:$this->order_by:$this->order_type>$this->sub_category_id", function () {
-                    return DB::select('SELECT
-                                    dm.device_id,
-                                    dm.device_reg_id,
-                                    dm.device_platform,
-                                    dm.device_model_name,
-                                    dm.device_vendor_name,
-                                    dm.device_os_version,
-                                    dm.device_udid,
-                                    dm.device_resolution,
-                                    dm.device_carrier,
-                                    dm.device_country_code,
-                                    dm.device_language,
-                                    dm.device_local_code,
-                                    dm.device_default_time_zone,
-                                    dm.device_library_version,
-                                    dm.device_application_version,
-                                    dm.device_type,
-                                    dm.device_registration_date,
-                                    dm.is_active,
-                                    dm.is_count,
-                                    dm.create_time,
-                                    dm.update_time
-                                  FROM
-                                  device_master AS dm
-                                  WHERE
-                                  dm.sub_category_id = ?
-                                  ORDER BY dm.' . $this->order_by . ' ' . $this->order_type . '
-                                  LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
-                });
-            }
-
-            $redis_result = Cache::get("getAllUser$this->page:$this->item_count:$this->order_by:$this->order_type>$this->sub_category_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-
-            $response = Response::json(array('code' => 200, 'message' => 'All User Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'list_user' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all User.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getPurchaseUser   getPurchaseUser
-     * @apiName getPurchaseUser
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":1,
-     * "page":1,
-     * "item_count":30,
-     * "order_by":"order_number",//optional
-     * "order_type":"ASC"//optional
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "All Purchase User Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 9,
-     * "list_user": [
-     * {
-     * "order_number": "Null1494507231573",
-     * "tot_order_amount": 2.99,
-     * "currency_code": "USD",
-     * "device_platform": "android",
-     * "create_time": "2017-05-11 18:23:49"
-     * },
-     * {
-     * "order_number": "Null1494508061564",
-     * "tot_order_amount": 2.99,
-     * "currency_code": "USD",
-     * "device_platform": "android",
-     * "create_time": "2017-05-11 18:37:39"
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getPurchaseUser(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $this->sub_category_id = $request->sub_category_id;
-            $this->item_count = $request->item_count;
-            $this->page = $request->page;
-            $this->order_by = isset($request->order_by) ? $request->order_by : 'id';
-            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
-            $this->offset = ($this->page - 1) * $this->item_count;
-
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  order_master where sub_category_id = ?', [$this->sub_category_id]);
-            $total_row = $total_row_result[0]->total;
-            if (!Cache::has("pel:getPurchaseUser$this->page:$this->item_count:$this->order_by:$this->order_type>$this->sub_category_id")) {
-                $result = Cache::rememberforever("getPurchaseUser$this->page:$this->item_count:$this->order_by:$this->order_type>$this->sub_category_id", function () {
-                    return DB::select('SELECT
-                                        om.order_number,
-                                        om.tot_order_amount,
-                                        om.currency_code,
-                                        om.device_platform,
-                                        om.create_time
-                                      FROM
-                                      order_master AS om
-                                      WHERE
-                                      om.sub_category_id = ?
-                                      order by om.' . $this->order_by . ' ' . $this->order_type . '
-                                      LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
-                });
-            }
-
-            $redis_result = Cache::get("getPurchaseUser$this->page:$this->item_count:$this->order_by:$this->order_type>$this->sub_category_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-            $response = Response::json(array('code' => 200, 'message' => 'All Purchase User Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'list_user' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getPurchasaeUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'getUserProfile.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getAllRestoreDevice   getAllRestoreDevice
-     * @apiName getAllRestoreDevice
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":1,
-     * "page":1,
-     * "item_count":30,
-     * "order_by":"order_number",
-     * "order_type":"ASC"
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "App Restore Device Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 9,
-     * "is_next_page": false,
-     * "list_device": [
-     * {
-     * "id": 1,
-     * "order_number": "Null1494507231573",
-     * "device_udid": "ff505a7a500c931a",
-     * "restore": 1,
-     * "create_time": "2017-05-11 12:53:49",
-     * "update_time": "2017-05-11 18:23:49"
-     * },
-     * {
-     * "id": 2,
-     * "order_number": "Null1494508061564",
-     * "device_udid": "ff505a7a500c931a",
-     * "restore": 1,
-     * "create_time": "2017-05-11 13:07:39",
-     * "update_time": "2017-05-11 18:37:39"
-     * },
-     * {
-     * "id": 3,
-     * "order_number": "Null1494508092829",
-     * "device_udid": "ff505a7a500c931a",
-     * "restore": 1,
-     * "create_time": "2017-05-11 13:08:11",
-     * "update_time": "2017-05-11 18:38:11"
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getAllRestoreDevice(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'item_count'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $this->sub_category_id = $request->sub_category_id;
-            $this->item_count = $request->item_count;
-            $this->page = $request->page;
-            $this->order_by = isset($request->order_by) ? $request->order_by : 'id';
-            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
-            $this->offset = ($this->page - 1) * $this->item_count;
-
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  restore_device where sub_category_id = ?', [$this->sub_category_id]);
-            $total_row = $total_row_result[0]->total;
-
-            if (!Cache::has("pel:getAllRestoreDevice$this->page:$this->item_count:$this->order_by:$this->order_type->$this->sub_category_id")) {
-                $result = Cache::rememberforever("getAllRestoreDevice$this->page:$this->item_count:$this->order_by:$this->order_type->$this->sub_category_id", function () {
-                    return DB::select('SELECT
-                                    *
-                                  FROM
-                                  restore_device AS rd
-                                  WHERE
-                                  sub_category_id = ?
-                                  ORDER BY rd.' . $this->order_by . ' ' . $this->order_type . '
-                                  LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
-                });
-            }
-
-            $redis_result = Cache::get("getAllRestoreDevice$this->page:$this->item_count:$this->order_by:$this->order_type->$this->sub_category_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'App Restore Device Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'list_device' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllRestoreDevice Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'getAllRestoreDevice.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} searchUser   searchUser
-     * @apiName searchUser
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     *  "sub_category_id":20,
-     *  "search_type":"device_id",
-     *  "search_query":"10"
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Search User Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "list_user": [
-     * {
-     * "sub_category_id": 20,
-     * "device_id": 10,
-     * "device_reg_id": "911F5C2F54F94DC6037C1A249B0BC98BFF5B17DF2A1C8CE5A546201A5B8DCF6B",
-     * "device_platform": "android",
-     * "device_model_name": "Micromax AQ4501",
-     * "device_vendor_name": "Micromax",
-     * "device_os_version": "6.0.1",
-     * "device_udid": "809111aa1121",
-     * "device_resolution": "480x782",
-     * "device_carrier": "",
-     * "device_country_code": "IN",
-     * "device_language": "en",
-     * "device_local_code": "NA",
-     * "device_default_time_zone": "Asia/Calcutta",
-     * "device_library_version": "1",
-     * "device_application_version": "",
-     * "device_type": "phone",
-     * "device_registration_date": "2017-07-06T15:58:11 +0530",
-     * "is_active": 1,
-     * "is_count": 0,
-     * "create_time": "2017-07-07 15:48:05",
-     * "update_time": "2017-07-07 15:48:05"
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function searchUser(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_type', 'search_query'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $sub_category_id = $request->sub_category_id;
-            $search_type = $request->search_type;
-            $search_query = '%' . $request->search_query . '%';
-
-            $result = DB::select('SELECT
-                                    dm.sub_category_id,
-                                    dm.device_id,
-                                    dm.device_reg_id,
-                                    dm.device_platform,
-                                    dm.device_model_name,
-                                    dm.device_vendor_name,
-                                    dm.device_os_version,
-                                    dm.device_udid,
-                                    dm.device_resolution,
-                                    dm.device_carrier,
-                                    dm.device_country_code,
-                                    dm.device_language,
-                                    dm.device_local_code,
-                                    dm.device_default_time_zone,
-                                    dm.device_library_version,
-                                    dm.device_application_version,
-                                    dm.device_type,
-                                    dm.device_registration_date,
-                                    dm.is_active,
-                                    dm.is_count,
-                                    dm.create_time,
-                                    dm.update_time
-                                  FROM
-                                    device_master AS dm
-                                  WHERE
-                                    dm.sub_category_id = ? AND
-                                    dm.' . $search_type . '
-                                  LIKE ?', [$sub_category_id, $search_query]);
-
-
-            $response = Response::json(array('code' => 200, 'message' => 'Search User Fetched Successfully.', 'cause' => '', 'data' => ['list_user' => $result]));
-
-        } catch (Exception $e) {
-            Log::error("searchUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' search user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} searchPurchaseUser   searchPurchaseUser
-     * @apiName searchPurchaseUser
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     *  "sub_category_id":20,
-     *  "search_type":"order_number",
-     *  "search_query":"10"
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Purchase User Successfully fetch.",
-     * "cause": "",
-     * "data": {
-     * "list_user": [
-     * {
-     * "sub_category_id":20,
-     * "order_number": "1000000297266758",
-     * "tot_order_amount": 1.99,
-     * "currency_code": "USD",
-     * "device_platform": "ios",
-     * "create_time": null
-     * },
-     * {
-     * "sub_category_id":20,
-     * "order_number": "1100000297266758",
-     * "tot_order_amount": 1.99,
-     * "currency_code": "USD",
-     * "device_platform": "ios",
-     * "create_time": null
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function searchPurchaseUser(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_type', 'search_query'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $sub_category_id = $request->sub_category_id;
-            $search_type = $request->search_type;
-            $search_query = '%' . $request->search_query . '%';
-
-            $result = DB::select('SELECT
-                                    om.sub_category_id,
-                                    om.order_number,
-                                    om.tot_order_amount,
-                                    om.currency_code,
-                                    om.device_platform,
-                                    om.create_time
-                                  FROM
-                                    order_master AS om
-                                  WHERE
-                                    om.sub_category_id = ? AND
-                                    om.' . $search_type . '
-                                  LIKE ?', [$sub_category_id, $search_query]);
-
-
-            $response = Response::json(array('code' => 200, 'message' => 'Purchase User Fetched Successfully.', 'cause' => '', 'data' => ['list_user' => $result]));
-
-        } catch (Exception $e) {
-            Log::error("searchPurchaseUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search UserProfile.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} searchRestoreDevice   searchRestoreDevice
-     * @apiName searchRestoreDevice
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     *  "sub_category_id":20,
-     *  "search_type":"order_number", // or device_udid
-     *  "search_query":"249"
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "App Restore Device Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "list_device": [
-     * {
-     * "id": 3,
-     * "sub_category_id":20,
-     * "order_number": "2494322134113",
-     * "device_udid": "ff505a7a500c931a",
-     * "restore": 1,
-     * "create_time": "2017-07-07 10:19:58",
-     * "update_time": "2017-07-07 15:49:58"
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function searchRestoreDevice(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_type', 'search_query'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $sub_category_id = $request->sub_category_id;
-            $search_type = $request->search_type;
-            $search_query = '%' . $request->search_query . '%';
-
-            $result = DB::select('SELECT
-                            *
-                          FROM
-                          restore_device AS rd
-                          WHERE
-                            rd.sub_category_id = ? AND
-                            ' . $search_type . '
-                          LIKE ?', [$sub_category_id, $search_query]);
-
-
-            $response = Response::json(array('code' => 200, 'message' => 'App Restore Device Fetched Successfully.', 'cause' => '', 'data' => ['list_device' => $result]));
-
-        } catch (Exception $e) {
-            Log::error("searchRestoreDevice Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search RestoreDevice.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} updateUserProfile   updateUserProfile
-     * @apiName updateUserProfile
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "first_name":"jitu",
-     * "last_name":"admin",
-     * "phone_number_1":"9173527938",
-     * "address_line_1":"Rander",
-     * "city":"surat",
-     * "state":"Gujarat",
-     * "pincode":"395010",
-     * "latitude":"",
-     * "longitude":""
-     * }
-     * file:image //optional
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Profile Updated Successfully.",
-     * "cause": "",
-     * "response": ""
-     * }
-     */
-    public function updateUserProfile(Request $request_body)
-    {
-        try {
-
-            //Required parameter
-            if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'response' => json_decode("{}")));
-
-            $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('first_name',
-                    'last_name',
-                    'phone_number_1',
-                    'address_line_1',
-                    'city',
-                    'state',
-                    'pincode'), $request)) != ''
+            if (($response = (new VerificationController())->validateRequiredParameter(array(
+                    'catalog_id',
+                    'ios_font_name',
+                    'android_font_name',
+                    'is_replace'
+                ), $request)) != ''
             )
                 return $response;
 
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $user_data = JWTAuth::parseToken()->authenticate();
-            $user_id = $user_data->email_id;
-
-            if ($request_body->hasFile('file')) {
-                $image_array = Input::file('file');
-
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $profile_img = (new ImageController())->generateNewFileName('profile_img', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
-                (new ImageController())->saveOriginalImage($profile_img);
-                (new ImageController())->saveCompressedImage($profile_img);
-                (new ImageController())->saveThumbnailImage($profile_img);
-                //(new ImageController())->saveImageInToSpaces($profile_img);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($profile_img);
-                }
-
-            } else {
-                $result = DB::table("user_detail")->where('user_id', $user_id)->get();
-                $profile_img = isset($result[0]->profile_img) ? $result[0]->profile_img : "";
-            }
-
-            $first_name = isset($request->first_name) ? $request->first_name : "";
-            $last_name = isset($request->last_name) ? $request->last_name : "";
-            $phone_number_1 = isset($request->phone_number_1) ? $request->phone_number_1 : "";
-            $address_line_1 = isset($request->address_line_1) ? $request->address_line_1 : "";
-
-            DB::beginTransaction();
-
-            DB::update('UPDATE
-                          user_detail
-                        SET
-                          first_name = ?,
-                          last_name = ?,
-                          profile_img = ?,
-                          phone_number_1 = ?,
-                          address_line_1 = ?
-                        WHERE
-                          email_id = ? ',
-                [$first_name, $last_name, $profile_img, $phone_number_1, $address_line_1, $user_id]);
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Profile Updated Successfully.', 'cause' => '', 'response' => json_decode('{}')));
-
-        } catch (Exception $e) {
-            Log::error("update UserProfile Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'updateUserProfile.', 'cause' => $e->getMessage(), 'response' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getImageDetails   getImageDetails
-     * @apiName getImageDetails
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "page":1,
-     * "item_count":10,
-     * "order_by":"size",
-     * "order_type":"ASC"
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "All User Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 36,
-     * "is_next_page": true,
-     * "image_details": [
-     * {
-     * "name": "59687a44dcae2_background_img_1500019268.png",
-     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59687a44dcae2_background_img_1500019268.png",
-     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59687a44dcae2_background_img_1500019268.png",
-     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59687a44dcae2_background_img_1500019268.png",
-     * "directory_name": "compress",
-     * "type": "png",
-     * "size": 4572880,
-     * "height": 1440,
-     * "width": 1920,
-     * "created_at": "2017-07-14 08:01:11"
-     * },
-     * {
-     * "name": "59687aeb86626_background_img_1500019435.png",
-     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59687aeb86626_background_img_1500019435.png",
-     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59687aeb86626_background_img_1500019435.png",
-     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59687aeb86626_background_img_1500019435.png",
-     * "directory_name": "compress",
-     * "type": "png",
-     * "size": 3820520,
-     * "height": 1904,
-     * "width": 2000,
-     * "created_at": "2017-07-14 08:03:57"
-     * },
-     * {
-     * "name": "59687aa95d6be_background_img_1500019369.png",
-     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59687aa95d6be_background_img_1500019369.png",
-     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59687aa95d6be_background_img_1500019369.png",
-     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59687aa95d6be_background_img_1500019369.png",
-     * "directory_name": "original",
-     * "type": "png",
-     * "size": 2863220,
-     * "height": 2000,
-     * "width": 2000,
-     * "created_at": "2017-07-14 08:02:50"
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getImageDetails(Request $request_body)
-    {
-        try {
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $this->item_count = $request->item_count;
-            $this->page = $request->page;
-            $this->order_by = isset($request->order_by) ? $request->order_by : 'size';
-            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
-            $this->offset = ($this->page - 1) * $this->item_count;
-
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM image_details');
-            $total_row = $total_row_result[0]->total;
-
-            if (!Cache::has("pel:getImageDetails$this->page:$this->item_count:$this->order_by:$this->order_type")) {
-                $result = Cache::rememberforever("getImageDetails$this->page:$this->item_count:$this->order_by:$this->order_type", function () {
-                    return DB::select('SELECT
-                                        id.name,
-                                        IF(id.name != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",id.name),"") as thumbnail_img,
-                                        IF(id.name != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",id.name),"") as compressed_img,
-                                        IF(id.name != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",id.name),"") as original_img,
-                                        id.directory_name,
-                                        id.type,
-                                        id.size,
-                                        id.height,
-                                        id.width,
-                                        id.created_at
-                                      FROM
-                                        image_details AS id
-                                      ORDER BY id.' . $this->order_by . ' ' . $this->order_type . '
-                                      LIMIT ?,?', [$this->offset, $this->item_count]);
-                });
-            }
-
-            $redis_result = Cache::get("getImageDetails$this->page:$this->item_count:$this->order_by:$this->order_type");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'All User Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'image_details' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllUser Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' Get Image Details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /* ====================================| Json |==================================*/
-
-    /**
-     * @api {post} addCatalogImagesForJson   addCatalogImagesForJson
-     * @apiName addCatalogImagesForJson
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * request_data:{
-     * "is_replace":0 //compulsory 0=do not replace the existing file, 2=replace the existing file
-     * },
-     * file[]:1.jpg,
-     * file[]:2.jpg,
-     * file[]:3.jpg,
-     * file[]:4.jpg
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Json images added successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function addCatalogImagesForJson(Request $request_body)
-    {
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            //Required parameter
-            if (!$request_body->has('request_data'))
-                return Response::json(array('code' => 201, 'message' => 'required field request_data is missing or empty', 'cause' => '', 'response' => json_decode("{}")));
-
-            $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('is_replace'), $request)) != '')
-                return $response;
-
+            $catalog_id = $request->catalog_id;
+            $ios_font_name = $request->ios_font_name;
+            $android_font_name = $request->android_font_name;
             $is_replace = $request->is_replace;
+            $create_at = date('Y-m-d H:i:s');
+            DB::beginTransaction();
+            if (!$request_body->hasFile('file')) {
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
 
-            if ($request_body->hasFile('file')) {
-                $images_array = Input::file('file');
+                $file_array = Input::file('file');
+
+                if (($response = (new ImageController())->verifyFontFile($file_array)) != '')
+                    return $response;
 
                 if ($is_replace == 0) {
-                    if (($response = (new ImageController())->checkIsImageExist($images_array)) != '')
+                    if (($response = (new VerificationController())->checkIsFontExist($file_array)) != '')
                         return $response;
                 }
 
-                //return $images_array;
-                foreach ($images_array as $image_array) {
+                $file_name = $file_array->getClientOriginalName();
+                $font_name = (new ImageController())->saveFontFile($file_name, $is_replace);
 
-                    (new ImageController())->unlinkImage($image_array);
-
-
-                    if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                        return $response;
-
-                    (new ImageController())->saveResourceImage($image_array);
-
-                    $bg_image = $image_array->getClientOriginalName();
-
-                    if (env('STORAGE') === 'S3_BUCKET') {
-                        (new ImageController())->saveResourceImageInToSpaces($bg_image);
-                    }
-
-                    //$base_url = (new ImageController())->getBaseUrl();
-
-                    //$resourceFile = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
-
-                    /*//return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
-                    $disk = Storage::disk('spaces');
-                    //Storage::delete(public_path($path));
-
-
-                    $resourceFile_targetFile = "photoeditorlab/resource/" . $bg_image;
-
-                    $disk->delete(public_path($resourceFile_targetFile));
-                    $disk->put($resourceFile_targetFile, file_get_contents($resourceFile), 'public');*/
-
-                    //(new ImageController())->unlinkfile($bg_image);
-                }
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Json images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
-
-        } catch
-        (Exception $e) {
-            Log::error("addCatalogImagesForJson Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} addJson   addJson
-     * @apiName addJson
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "catalog_id": 155,
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "json_data": {
-     * "text_json": [],
-     * "sticker_json": [],
-     * "image_sticker_json": [
-     * {
-     * "xPos": 0,
-     * "yPos": 0,
-     * "image_sticker_image": "",
-     * "angle": 0,
-     * "is_round": 0,
-     * "height": 800,
-     * "width": 500
-     * }
-     * ],
-     * "frame_json": {
-     * "frame_image": "frame_15.7"
-     * },
-     * "background_json": {},
-     * "sample_image": "sample_15.7",
-     * "is_featured": 0,
-     * "height": 800,
-     * "width": 800
-     * }
-     * },
-     * file:image1.jpeg
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Json added successfully!.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function addJson(Request $request_body)
-    {
-
-        try {
-            $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free', 'search_category'), $request)) != '')
-                return $response;
-
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $catalog_id = $request->catalog_id;
-            //dd($json_list);
-
-            $json_data = $request->json_data;
-            $is_free = $request->is_free;
-            $is_featured = $request->is_featured;
-            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
-            //$search_category = isset($request->search_category) ? $request->search_category : NULL;
-            $search_category = $request->search_category;
-            $created_at = date('Y-m-d H:i:s');
-            //Log::info('request_data', ['request_data' => $request]);
-
-            if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
-                return $response;
-
-
-            DB::beginTransaction();
-            if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-
-                $image_array = Input::file('file');
-                //return $images_array;
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
-                $file_name = (new ImageController())->saveOriginalImage($catalog_image);
-
-                /*$original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-                $image_array->move($original_path, $catalog_image);*/
-
-                (new ImageController())->saveCompressedImage($catalog_image);
-                $dimension = (new ImageController())->saveThumbnailImage($catalog_image);
-                //(new ImageController())->saveImageInToSpaces($catalog_image);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($catalog_image);
-                    (new ImageController())->saveWebpImageInToSpaces($file_name);
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveFontInToS3($file_name);
                 }
 
-
-                /*DB::insert('INSERT
-                                INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at, attribute1)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at, $file_name]);*/
-
+                $android_font_name = "fonts/$file_name";
+                $ios_font_name = $file_name;
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, search_category, height, width, created_at, attribute1)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $created_at, $file_name]);
-
-
-                DB::commit();
-            }
-
-            if (strstr($file_name, '.webp')) {
-
-                $response = Response::json(array('code' => 200, 'message' => 'Json added successfully.', 'cause' => '', 'data' => json_decode('{}')));
-
-
-            } else {
-                $response = Response::json(array('code' => 200, 'message' => 'Json added successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' => json_decode('{}')));
+                                  font_master(catalog_id, font_name, font_file, ios_font_name, android_font_name, is_active, create_time)
+                                VALUES(?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $font_name, $file_name, $ios_font_name, $android_font_name, 1, $create_at]);
 
             }
+            DB::commit();
 
-
-        } catch
-        (Exception $e) {
-            Log::error("addJson Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    public function addJsonOld(Request $request_body)
-    {
-
-        try {
-            $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free'), $request)) != '')
-                return $response;
-
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $catalog_id = $request->catalog_id;
-            //dd($json_list);
-
-            $json_data = $request->json_data;
-            $is_free = $request->is_free;
-            $is_featured = $request->is_featured;
-            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
-            $created_at = date('Y-m-d H:i:s');
-
-            //Log::info('request_data', ['request_data' => $request]);
-
-
-            DB::beginTransaction();
-            if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-
-                $image_array = Input::file('file');
-                //return $images_array;
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
-                //(new ImageController())->saveOriginalImage($background_img);
-
-                $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-                $image_array->move($original_path, $catalog_image);
-
-                (new ImageController())->saveCompressedImage($catalog_image);
-                (new ImageController())->saveThumbnailImage($catalog_image);
-                //(new ImageController())->saveImageInToSpaces($catalog_image);
-
-
-                DB::insert('INSERT
-                                INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at)
-                                VALUES(?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at]);
-
-
-                DB::commit();
-            }
-
-
-            $response = Response::json(array('code' => 200, 'message' => 'Json added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
-
-        } catch
-        (Exception $e) {
-            Log::error("addJson Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 200, 'message' => 'Font added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add font.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
     }
 
     /**
-     * @api {post} editJsonData   editJsonData
-     * @apiName editJsonData
+     * @api {post} editFont   editFont
+     * @apiName editFont
      * @apiGroup Admin
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
@@ -5802,309 +7370,130 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "img_id": 356,
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "json_data": {
-     * "text_json": [],
-     * "sticker_json": [],
-     * "image_sticker_json": [
      * {
-     * "xPos": 0,
-     * "yPos": 0,
-     * "image_sticker_image": "",
-     * "angle": 0,
-     * "is_round": 0,
-     * "height": 800,
-     * "width": 500
-     * }
-     * ],
-     * "frame_json": {
-     * "frame_image": "frame_15.7"
-     * },
-     * "background_json": {},
-     * "sample_image": "sample_15.7",
-     * "is_featured": 0,
-     * "height": 800,
-     * "width": 800
-     * }
-     * },
-     * file:image1.jpeg
+     * "font_id":1, //compulsory
+     * "ios_font_name":"3d", //optional
+     * "android_font_name":"3d.ttf" //optional
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Json data updated successfully!.",
+     * "message": "Font edited successfully.",
      * "cause": "",
      * "data": {}
      * }
      */
-    public function editJsonDataOld(Request $request_body)
+    public function editFont(Request $request_body)
     {
-
         try {
-            $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('is_featured', 'is_free', 'img_id'), $request)) != '')
-                return $response;
-
 
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-            //$catalog_id = $request->catalog_id;
-            //dd($json_list);
-            $img_id = $request->img_id;
-            $json_data = isset($request->json_data) ? $request->json_data : '';
-            $is_free = $request->is_free;
-            $is_featured = $request->is_featured;
-            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
-            $created_at = date('Y-m-d H:i:s');
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('font_id'), $request)) != '')
+                return $response;
 
-            //Log::info('request_data', ['request_data' => $request]);
-
+            $font_id = $request->font_id;
+            $ios_font_name = isset($request->ios_font_name) ? $request->ios_font_name : '';
+            $android_font_name = isset($request->android_font_name) ? $request->android_font_name : '';
 
             DB::beginTransaction();
-            if ($request_body->hasFile('file')) {
-                $image_array = Input::file('file');
-                //return $images_array;
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+            /*if ($request_body->hasFile('file')) {
+
+                $file_array = Input::file('file');
+                if (($response = (new ImageController())->verifyFontFile($file_array)) != '')
                     return $response;
 
-                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
-                (new ImageController())->saveOriginalImage($catalog_image);
+                if (($response = (new VerificationController())->checkIsFontExist($file_array)) != '')
+                    return $response;
 
-                /*$original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-                $image_array->move($original_path, $catalog_image);*/
+                //$file_name = (new ImageController())->generateNewFileName('font_file', $image_array);
+                $file_name = $file_array->getClientOriginalName();
+                (new ImageController())->saveFontFile($file_name, 1);
 
-                (new ImageController())->saveCompressedImage($catalog_image);
-                (new ImageController())->saveThumbnailImage($catalog_image);
-                //(new ImageController())->saveImageInToSpaces($catalog_image);
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($file_array);
+                }
 
-                //Log::info('Encoded json_data', ['json_data' => json_encode($json_data)]);
-
-                DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
-
-            } else {
-
-                DB::update('UPDATE
-                                images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
-                                WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
+                DB::update('UPDATE font_master AS fm SET
+                                font_file = ?,
+                                fm.ios_font_name = IF(? != "",?,fm.ios_font_name),
+                                fm.android_font_name = IF(? != "",?,fm.android_font_name)
+                              WHERE fm.id = ?', [$ios_font_name, $ios_font_name, $android_font_name, $android_font_name, $file_name, $font_id]);
 
 
-            }
+            } else {*/
+            DB::update('UPDATE font_master AS fm SET
+                                fm.ios_font_name = IF(? != "",?,fm.ios_font_name),
+                                fm.android_font_name = IF(? != "",?,fm.android_font_name)
+                              WHERE fm.id = ?', [$ios_font_name, $ios_font_name, $android_font_name, $android_font_name, $font_id]);
+            /*}*/
             DB::commit();
 
-            $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
-
-        } catch
-        (Exception $e) {
-            Log::error("editJsonData Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 200, 'message' => 'Font edited successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("editFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit font.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
     }
-
-    public function editJsonData(Request $request_body)
-    {
-
-        try {
-            $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('is_featured', 'is_free', 'img_id'), $request)) != '')
-                return $response;
-
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            //$catalog_id = $request->catalog_id;
-            //dd($json_list);
-            $img_id = $request->img_id;
-            $json_data = isset($request->json_data) ? $request->json_data : '';
-            $is_free = $request->is_free;
-            $is_featured = $request->is_featured;
-            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
-            $search_category = isset($request->search_category) ? $request->search_category : NULL;
-            $created_at = date('Y-m-d H:i:s');
-
-            //Log::info('request_data', ['request_data' => $request]);
-
-            if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
-                return $response;
-
-
-            DB::beginTransaction();
-            if ($request_body->hasFile('file')) {
-                $image_array = Input::file('file');
-                //return $images_array;
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
-                $file_name = (new ImageController())->saveOriginalImage($catalog_image);
-
-                /*$original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-                $image_array->move($original_path, $catalog_image);*/
-
-                (new ImageController())->saveCompressedImage($catalog_image);
-                $dimension = (new ImageController())->saveThumbnailImage($catalog_image);
-                //(new ImageController())->saveImageInToSpaces($catalog_image);
-
-                //Log::info('Encoded json_data', ['json_data' => json_encode($json_data)]);
-
-                if (env('STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToSpaces($catalog_image);
-                    (new ImageController())->saveWebpImageInToSpaces($file_name);
-                }
-
-
-                /*DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
-
-                DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $file_name, $img_id]);
-                DB::commit();
-
-                if (strstr($file_name, '.webp')) {
-
-                    $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
-
-
-                } else {
-                    $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' => json_decode('{}')));
-
-                }
-            } else {
-
-                $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND attribute1 IS NULL', [$img_id]);
-                DB::beginTransaction();
-                if (count($is_exist) > 0) {
-
-                    //Log::info('webp original');
-                    $file_data = (new ImageController())->saveWebpImage($is_exist[0]->image);
-
-                    if (env('STORAGE') === 'S3_BUCKET') {
-                        (new ImageController())->saveWebpImageInToSpaces($file_data['filename']);
-                    }
-
-                    DB::update('UPDATE
-                                images SET height = ?, width = ?, attribute1 = ?
-                                WHERE id = ?', [$file_data['height'], $file_data['width'], $file_data['filename'], $img_id]);
-                    DB::commit();
-
-                }
-
-                $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND width IS NULL AND height IS NULL AND attribute1 IS NOT NULL', [$img_id]);
-                if (count($is_exist) > 0) {
-
-                    //Log::info('webp thumbnail');
-                    $dimension = (new ImageController())->saveWebpThumbnailImage($is_exist[0]->image);
-
-                    if (env('STORAGE') === 'S3_BUCKET') {
-                        //(new ImageController())->saveWebpImageInToSpaces($is_exist[0]->attribute1);
-                        (new ImageController())->saveWebpThumbnailImageInToSpaces($is_exist[0]->attribute1);
-                    }
-
-                    //Log::info('dimension : ',['dimension' => $dimension]);
-
-                    DB::update('UPDATE
-                                images SET height = ?, width =?
-                                WHERE id = ?', [$dimension['height'], $dimension['width'], $img_id]);
-                    DB::commit();
-                }
-
-
-                DB::update('UPDATE
-                                images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?
-                                WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $img_id]);
-
-                DB::commit();
-
-                $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
-
-            }
-            DB::commit();
-
-
-        } catch
-        (Exception $e) {
-            Log::error("editJsonData Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /* =================================| Link Advertisement to another subcategory |=============================*/
 
     /**
-     * @api {post} linkAdvertisementWithSubCategory linkAdvertisementWithSubCategory
-     * @apiName linkAdvertisementWithSubCategory
+     * @api {post} deleteFont   deleteFont
+     * @apiName deleteFont
      * @apiGroup Admin
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
      * {
-     *  Key: Authorization
-     *  Value: Bearer token
+     * Key: Authorization
+     * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "advertise_link_id":57,
-     * "sub_category_id":47
+     * "font_id":1 //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Advertisement Linked Successfully.",
+     * "message": "Font deleted successfully!.",
      * "cause": "",
      * "data": {}
      * }
      */
-    public function linkAdvertisementWithSubCategory(Request $request)
+    public function deleteFont(Request $request)
     {
         try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
 
             $request = json_decode($request->getContent());
-            //Log::info("linkAdvertisementWithSubCategory Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'sub_category_id'), $request)) != '')
+            //Log::info("request data of deleteFont :", [$request]);
+            if (($response = (new VerificationController())->validateRequiredParameter(array('font_id'), $request)) != '')
                 return $response;
 
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-            //$query=DB::select('select * from sub_category_catalog WHERE sub_category_id = ? AND catalog_id = ?',[$sub_category_id,$catalog_id]);
-            $advertise_link_id = $request->advertise_link_id;
-            $sub_category_id = $request->sub_category_id;
+            $font_id = $request->font_id;
 
-            $create_at = date('Y-m-d H:i:s');
-            //$is_ative = 1;
             DB::beginTransaction();
 
-
-            //return $catalog_id;
-            DB::insert('insert into sub_category_advertise_links(sub_category_id,advertise_link_id,created_at) values (?, ?, ?)', [$sub_category_id, $advertise_link_id, $create_at]);
+            DB::delete('DELETE FROM font_master where id = ? ', [$font_id]);
 
             DB::commit();
 
-            $response = Response::json(array('code' => 200, 'message' => 'Advertisement Linked Successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Font deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
-            Log::error("linkAdvertisementWithSubCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link advertisement with sub_category..', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("deleteFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete font.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
     }
 
     /**
-     * @api {post} getAllAdvertisementForLinkAdvertisement   getAllAdvertisementForLinkAdvertisement
-     * @apiName getAllAdvertisementForLinkAdvertisement
+     * @api {post} getAllFontsByCatalogIdForAdmin   getAllFontsByCatalogIdForAdmin
+     * @apiName getAllFontsByCatalogIdForAdmin
      * @apiGroup Admin
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
@@ -6114,714 +7503,199 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "advertise_link_id":57,
-     * "category_id":2
+     *  "catalog_id":1, //compulsory
+     *  "order_by":1, //optional
+     *  "order_type":1 //optional
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "SubCategory Fetched Successfully.",
+     * "message": "Fonts fetched successfully.",
      * "cause": "",
      * "data": {
-     * "category_list": [
-     * {
-     * "sub_category_id": 33,
-     * "name": "All Sticker Catalogs",
-     * "linked": 0
-     * },
-     * {
-     * "sub_category_id": 47,
-     * "name": "Collage maker Stickers",
-     * "linked": 1
-     * },
-     * {
-     * "sub_category_id": 31,
-     * "name": "Fancy QR Generator",
-     * "linked": 0
-     * },
-     * {
-     * "sub_category_id": 36,
-     * "name": "GreetingsCard Stickers",
-     * "linked": 0
-     * },
-     * {
-     * "sub_category_id": 49,
-     * "name": "Quotes Creator Stickers",
-     * "linked": 1
-     * },
-     * {
-     * "sub_category_id": 28,
-     * "name": "Selfie With Ganesha Stickers",
-     * "linked": 0
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getAllAdvertisementForLinkAdvertisement(Request $request)
-    {
-        try {
-
-            $request = json_decode($request->getContent());
-            //Log::info("getAllAdvertisementForLinkAdvertisement Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'category_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $this->advertise_link_id = $request->advertise_link_id;
-            $this->category_id = $request->category_id;
-
-
-            //return $total_row;
-
-            if (!Cache::has("pel:getAllAdvertisementForLinkAdvertisement$this->advertise_link_id->$this->category_id")) {
-                $result = Cache::rememberforever("getAllAdvertisementForLinkAdvertisement$this->advertise_link_id->$this->category_id", function () {
-
-                    return DB::select('SELECT
-                                            id AS sub_category_id,
-                                            name,
-                                            IF((SELECT sub_category_id
-                                              FROM sub_category_advertise_links scc
-                                              WHERE advertise_link_id = ? and sc.id=scc.sub_category_id and scc.is_active=1 LIMIT 1) ,1,0) as linked
-                                            FROM sub_category sc
-                                            WHERE
-                                            sc.is_active = 1 AND
-                                            sc.category_id = ?
-                                            ORDER BY name', [$this->advertise_link_id, $this->category_id]);
-                });
-
-            }
-
-            $redis_result = Cache::get("getAllAdvertisementForLinkAdvertisement$this->advertise_link_id->$this->category_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'SubCategory Fetched Successfully.', 'cause' => '', 'data' => ['category_list' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllAdvertisementForLinkAdvertisement Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get All Sub Category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} deleteLinkedAdvertisement deleteLinkedAdvertisement
-     * @apiName deleteLinkedAdvertisement
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "advertise_link_id":57,
-     * "sub_category_id":47
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Advertisement unlinked successfully!.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function deleteLinkedAdvertisement(Request $request)
-    {
-        try {
-            $request = json_decode($request->getContent());
-            //Log::info("Request Data:", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'sub_category_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $advertise_link_id = $request->advertise_link_id;
-            $sub_category_id = $request->sub_category_id;
-
-            DB::beginTransaction();
-//
-//            $result = DB::select('SELECT count(*) as count_catalog from sub_category_advertise_links WHERE advertise_link_id = ? and is_active = 1', [$advertise_link_id]);
-//
-//            if ($result[0]->count_catalog > 1) {
-            DB::delete('delete from sub_category_advertise_links where sub_category_id = ? AND advertise_link_id = ? ', [$sub_category_id, $advertise_link_id]);
-            $response = Response::json(array('code' => 200, 'message' => 'Advertisement unlinked successfully!.', 'cause' => '', 'data' => json_decode('{}')));
-
-//            } else {
-//                $response = Response::json(array('code' => 201, 'message' => 'Unable to de-link this advertisement, it is not linked with any other application.', 'cause' => '', 'data' => json_decode("{}")));
-//
-//            }
-
-            DB::commit();
-
-        } catch (Exception $e) {
-            Log::error("deleteLinkedAdvertisement Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete linked advertisement.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /* =================================| Link Advertisement |=============================*/
-
-    /**
-     * @api {post} getAllAdvertisements   getAllAdvertisements
-     * @apiName getAllAdvertisements
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "page":1,
-     * "item_count":2
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "All Link Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 42,
-     * "is_next_page": true,
+     * "total_count": 10,
      * "result": [
      * {
-     * "advertise_link_id": 79,
-     * "name": "Invitation Maker Card Creator",
-     * "thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a1e834d53_banner_image_1515561448.jpg",
-     * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a1e834d53_banner_image_1515561448.jpg",
-     * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a1e834d53_banner_image_1515561448.jpg",
-     * "app_logo_thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a1e88910f_app_logo_image_1515561448.png",
-     * "app_logo_compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a1e88910f_app_logo_image_1515561448.png",
-     * "app_logo_original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a1e88910f_app_logo_image_1515561448.png",
-     * "url": "https://itunes.apple.com/mu/app/invitation-maker-card-creator/id1320828574?mt=8",
-     * "platform": "iOS",
-     * "app_description": "Create your own invitation card for party, birthday, wedding ceremony, engagement/ring ceremony within seconds using beautiful and professional templates."
+     * "font_id": 94,
+     * "font_name": "Baloo Thambi Regular",
+     * "font_file": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/baloo_thambi_regular.ttf",
+     * "ios_font_name": "Baloo Thambi Regular",
+     * "android_font_name": "fonts/baloo_thambi_regular.ttf",
+     * "is_active": 1
      * },
      * {
-     * "advertise_link_id": 78,
-     * "name": "Digital Business Card Maker",
-     * "thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a158980cd_banner_image_1515561304.jpg",
-     * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a158980cd_banner_image_1515561304.jpg",
-     * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a158980cd_banner_image_1515561304.jpg",
-     * "app_logo_thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a15977977_app_logo_image_1515561305.png",
-     * "app_logo_compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a15977977_app_logo_image_1515561305.png",
-     * "app_logo_original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a15977977_app_logo_image_1515561305.png",
-     * "url": "https://itunes.apple.com/mu/app/digital-business-card-maker/id1316860834?mt=8",
-     * "platform": "iOS",
-     * "app_description": "Create your own business card within seconds using beautiful and professional templates."
+     * "font_id": 93,
+     * "font_name": "Baloo Tammudu Regular",
+     * "font_file": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/baloo_tammudu_regular.ttf",
+     * "ios_font_name": "Baloo Tammudu Regular",
+     * "android_font_name": "fonts/baloo_tammudu_regular.ttf",
+     * "is_active": 1
      * }
      * ]
      * }
      * }
      */
-    public function getAllAdvertisements(Request $request)
-    {
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request->getContent());
-            //Log::info("getAllAdvertisement Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count'), $request)) != '')
-                return $response;
-
-            $this->page = $request->page;
-            $this->item_count = $request->item_count;
-            //$item_count = Config::get('constant.PAGINATION_ITEM_LIMIT');
-            $this->offset = ($this->page - 1) * $this->item_count;
-
-            $total_row_result = DB::select('SELECT COUNT(*) as total FROM  advertise_links where is_active = ?', [1]);
-            $total_row = $total_row_result[0]->total;
-
-            //return $total_row;
-
-            if (!Cache::has("pel:getAllAdvertisements$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getAllAdvertisements$this->page:$this->item_count", function () {
-
-                    return DB::select('SELECT
-                                          adl.id as advertise_link_id,
-                                          adl.name,
-                                          IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
-                                          IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
-                                          IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
-                                          adl.url,
-                                          adl.platform,
-                                          if(adl.app_description!="",adl.app_description,"") as app_description
-                                        FROM
-                                          advertise_links as adl
-                                        WHERE
-                                          is_active=1
-                                        order by adl.updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
-                });
-
-            }
-
-            $redis_result = Cache::get("getAllAdvertisements$this->page:$this->item_count");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-
-            $response = Response::json(array('code' => 200, 'message' => 'All Link Fetched Successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllAdvertisements Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all advertisements.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getAllAdvertisementToLinkAdvertisement   getAllAdvertisementToLinkAdvertisement
-     * @apiName getAllAdvertisementToLinkAdvertisement
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":63
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Advertisements fetched successfully.",
-     * "cause": "",
-     * "data": {
-     * "result": [
-     * {
-     * "advertise_link_id": 79,
-     * "name": "Invitation Maker Card Creator",
-     * "thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a1e834d53_banner_image_1515561448.jpg",
-     * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a1e834d53_banner_image_1515561448.jpg",
-     * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a1e834d53_banner_image_1515561448.jpg",
-     * "app_logo_thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a1e88910f_app_logo_image_1515561448.png",
-     * "app_logo_compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a1e88910f_app_logo_image_1515561448.png",
-     * "app_logo_original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a1e88910f_app_logo_image_1515561448.png",
-     * "url": "https://itunes.apple.com/mu/app/invitation-maker-card-creator/id1320828574?mt=8",
-     * "platform": "iOS",
-     * "app_description": "Create your own invitation card for party, birthday, wedding ceremony, engagement/ring ceremony within seconds using beautiful and professional templates.",
-     * "linked": 1
-     * },
-     * {
-     * "advertise_link_id": 78,
-     * "name": "Digital Business Card Maker",
-     * "thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a158980cd_banner_image_1515561304.jpg",
-     * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a158980cd_banner_image_1515561304.jpg",
-     * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a158980cd_banner_image_1515561304.jpg",
-     * "app_logo_thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a55a15977977_app_logo_image_1515561305.png",
-     * "app_logo_compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a55a15977977_app_logo_image_1515561305.png",
-     * "app_logo_original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a55a15977977_app_logo_image_1515561305.png",
-     * "url": "https://itunes.apple.com/mu/app/digital-business-card-maker/id1316860834?mt=8",
-     * "platform": "iOS",
-     * "app_description": "Create your own business card within seconds using beautiful and professional templates.",
-     * "linked": 1
-     * },
-     * {
-     * "advertise_link_id": 77,
-     * "name": "Romantic Love Photo Editor",
-     * "thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a1e813f47368_banner_image_1511948607.png",
-     * "compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1e813f47368_banner_image_1511948607.png",
-     * "original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1e813f47368_banner_image_1511948607.png",
-     * "app_logo_thumbnail_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a1e814000aa9_app_logo_image_1511948608.png",
-     * "app_logo_compressed_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1e814000aa9_app_logo_image_1511948608.png",
-     * "app_logo_original_img": "http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1e814000aa9_app_logo_image_1511948608.png",
-     * "url": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.lovephotoeditor",
-     * "platform": "Android",
-     * "app_description": "Romantic Love Photo Editor - Realistic Photo Effects, Beautiful Photo Frames, Stickers, etc.",
-     * "linked": 0
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getAllAdvertisementToLinkAdvertisement(Request $request)
-    {
-        try {
-
-            $request = json_decode($request->getContent());
-            //Log::info("getAllAdvertisementToLinkAdvertisement Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $this->sub_category_id = $request->sub_category_id;
-
-
-            //return $total_row;
-
-            if (!Cache::has("pel:getAllAdvertisementToLinkAdvertisement$this->sub_category_id")) {
-                $result = Cache::rememberforever("getAllAdvertisementToLinkAdvertisement$this->sub_category_id", function () {
-
-                    return DB::select('SELECT
-                                          adl.id as advertise_link_id,
-                                          adl.name,
-                                          IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
-                                          IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
-                                          IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
-                                          IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
-                                          adl.url,
-                                          adl.platform,
-                                          if(adl.app_description!="",adl.app_description,"") as app_description,
-                                          IF((SELECT sub_category_id
-                                              FROM sub_category_advertise_links scc
-                                              WHERE sub_category_id = ? and adl.id=scc.advertise_link_id and scc.is_active=1 LIMIT 1) ,1,0) as linked
-                                        FROM
-                                          advertise_links as adl
-                                        WHERE
-                                          adl.is_active=1
-                                        order by adl.updated_at DESC', [$this->sub_category_id]);
-                });
-
-            }
-
-            $redis_result = Cache::get("getAllAdvertisementToLinkAdvertisement$this->sub_category_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertisements fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllAdvertisementToLinkAdvertisement Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all advertisements.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /* =====================================| Content Migrations |=============================================*/
-
-    /**
-     * @api {post} addAppContentViaMigration   addAppContentViaMigration
-     * @apiName addAppContentViaMigration
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "sub_category_id":1,
-     * "is_free":1,//optional
-     * "name":"Nature-2017",
-     * "is_featured":1 //compulsory
-     * }
-     * file:image.jpeg
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "sub category added successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function addAppContentViaMigration(Request $request)
+    public function getAllFontsByCatalogIdForAdmin(Request $request_body)
     {
         try {
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-            $request = json_decode($request->getContent());
-
-            //Log::info("Request Data:", [$request]);
-
+            $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
                 return $response;
 
-            $catalog_id = $request->catalog_id;
+            $this->catalog_id = $request->catalog_id;
+            $this->order_by = isset($request->order_by) ? $request->order_by : 'update_time'; //field name
+            $this->order_type = strtolower(isset($request->order_type) ? $request->order_type : 'DESC'); //asc or desc
 
-            ////(new ImageController())->saveImageInToSpacesForMigration('5aac98f036be9_sub_category_img_1521260784.png');
+            if (!Cache::has("pel:getAllFontsByCatalogIdForAdmin$this->catalog_id:$this->order_by:$this->order_type")) {
+                $result = Cache::rememberforever("getAllFontsByCatalogIdForAdmin$this->catalog_id:$this->order_by:$this->order_type", function () {
 
+                    $result = DB::select('SELECT
+                                              fm.id as font_id,
+                                              fm.font_name,
+                                              IF(fm.font_file != "",CONCAT("' . Config::get('constant.FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . '",fm.font_file),"") as font_file,
+                                              coalesce(fm.ios_font_name,"") as ios_font_name,
+                                              coalesce(fm.android_font_name,"") as android_font_name,
+                                              fm.is_active
+                                            FROM
+                                              font_master as fm
+                                            where
+                                              fm.is_active = 1 AND
+                                              fm.catalog_id = ?
+                                              ORDER BY fm.' . $this->order_by . ' ' . $this->order_type, [$this->catalog_id]);
+
+                    return $result;
+                });
+            }
+            $redis_result = Cache::get("getAllFontsByCatalogIdForAdmin$this->catalog_id:$this->order_by:$this->order_type");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Fonts fetched successfully.', 'cause' => '', 'data' => ['total_count' => count($redis_result), 'result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllFontsByCatalogIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =========================================| Statistics Module |=========================================*/
+
+    /**
+     * @api {post} getSummaryByAdmin   getSummaryByAdmin
+     * @apiName getSummaryByAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Summary fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 33,
+     * "result": [
+     * {
+     * "sub_category_id": 20,
+     * "category_id": 2,
+     * "name": "Independence Day Stickers",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "no_of_catalogs": 7,
+     * "content_count": 81,
+     * "free_content": 6,
+     * "paid_content": 75,
+     * "last_uploaded_date": "2018-03-10 07:02:54",
+     * "is_active": 1,
+     * "last_uploaded_count": 6
+     * },
+     * {
+     * "sub_category_id": 28,
+     * "category_id": 2,
+     * "name": "Selfie With Ganesha Stickers",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/59957acc474a9_category_img_1502968524.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/59957acc474a9_category_img_1502968524.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/59957acc474a9_category_img_1502968524.png",
+     * "no_of_catalogs": 5,
+     * "content_count": 9,
+     * "free_content": 0,
+     * "paid_content": 9,
+     * "last_uploaded_date": "2017-08-18 05:18:33",
+     * "is_active": 1,
+     * "last_uploaded_count": 5
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getSummaryByAdmin()
+    {
+        try {
+            /*$token = JWTAuth::getToken();
+            JWTAuth::toUser($token);*/
 
             $result = DB::select('SELECT
-                              im.id,
-                              scm.sub_category_id,
-                              im.image,
-                              im.original_img,
-                              im.display_img,
-                              im.image_type,
-                              im.json_data,
-                              im.created_at,
-                              im.updated_at
-                            FROM images AS im,
-                               sub_category_catalog AS scm WHERE scm.catalog_id = im.catalog_id AND scm.catalog_id = ?', [$catalog_id]);
-
-            $sub_category_and_catalog = DB::select('SELECT
-                                                          DISTINCT scm.id,
-                                                          cm.image AS catalog_image,
-                                                          sc.image AS sub_category_image,
-                                                          scm.sub_category_id
-                                                        FROM
-                                                          sub_category_catalog AS scm,
-                                                          catalog_master AS cm,
-                                                          sub_category AS sc
-                                                          WHERE sc.id = scm.sub_category_id AND cm.id = scm.catalog_id AND scm.catalog_id = ?', [$catalog_id]);
-            foreach ($sub_category_and_catalog as $key) {
-
-                if ($key->sub_category_image) {
-
-                    //(new ImageController())->saveImageInToSpacesForMigration($key->sub_category_image);
-
-                }
-
-            }
-
-            if (count($sub_category_and_catalog) > 0) {
-
-                /*if ($sub_category_and_catalog[0]->sub_category_image) {
-
-                    //(new ImageController())->saveImageInToSpaces($sub_category_and_catalog[0]->sub_category_image);
-
-
-                }*/
-
-                if ($sub_category_and_catalog[0]->catalog_image) {
-
-                    //(new ImageController())->saveImageInToSpacesForMigration($sub_category_and_catalog[0]->catalog_image);
-                }
-
-            }
+                                      DISTINCT scm.id AS sub_category_id,
+                                      scm.category_id,
+                                      scm.name,
+                                      IF(scm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as thumbnail_img,
+                                      IF(scm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as compressed_img,
+                                      IF(scm.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as original_img,
+                                      count(DISTINCT scc.catalog_id) AS no_of_catalogs,
+                                      count(cm.catalog_id) AS content_count,
+                                      count(IF(cm.is_free=1,1, NULL)) AS free_content,
+                                      count(IF(cm.is_free=0,1, NULL)) AS paid_content,
+                                      coalesce((max(cm.created_at)),"") AS last_uploaded_date,
+                                      scm.is_active
+                                    FROM
+                                      sub_category AS scm LEFT JOIN sub_category_catalog AS scc
+                                      LEFT JOIN images AS cm
+                                        ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                        ON scm.id = scc.sub_category_id AND scc.is_active = 1
+                                    GROUP BY scm.id HAVING scm.is_active = 1 AND scm.category_id = ? ORDER BY last_uploaded_date DESC', [2]);
 
             foreach ($result as $key) {
+                $last_uploaded_count = DB::select('SELECT
+                                      DISTINCT scm.id AS sub_category_id,
+                                      scm.category_id,
+                                      count(IF(DATE(cm.created_at)=date(?),1,NULL)) AS last_uploaded_count,
+                                      scm.is_active
+                                    FROM
+                                      sub_category AS scm LEFT JOIN sub_category_catalog AS scc
+                                      LEFT JOIN images AS cm
+                                        ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                        ON scm.id = scc.sub_category_id AND scc.is_active = 1
+                                    GROUP BY scm.id HAVING scm.is_active = 1 AND scm.category_id = ? AND scm.id = ?
+                                    ORDER BY scm.category_id DESC', [$key->last_uploaded_date, $key->category_id, $key->sub_category_id]);
 
-
-                if ($key->image) {
-
-                    //(new ImageController())->saveImageInToSpacesForMigration($key->image);
-
-
-                }
-
-                if ($key->original_img) {
-
-                    //(new ImageController())->saveImageInToSpacesForMigration($key->original_img);
-
-
-                }
-
-                if ($key->display_img) {
-
-                    //(new ImageController())->saveImageInToSpacesForMigration($key->display_img);
-
-
-                }
-
-                /*if($key->json_data){
-
-                    $data = array(json_decode($key->json_data));
-                    dd($data['image_sticker_json']);
-
-
-                }*/
-
+                $key->last_uploaded_count = $last_uploaded_count[0]->last_uploaded_count;
             }
 
-            if (count($result) > 0) {
-
-                $response = Response::json(array('code' => 200, 'message' => 'Content uploaded successfully.', 'cause' => '', 'data' => json_decode('{}')));
-
-            } else {
-                $response = Response::json(array('code' => 201, 'message' => 'Invalid catalog id.', 'cause' => '', 'data' => json_decode('{}')));
-
-            }
-
+            $response = Response::json(array('code' => 200, 'message' => 'Summary fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($result), 'result' => $result]));
 
         } catch (Exception $e) {
-            Log::error("addAppContentViaMigration Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Add Catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-
-        return $response;
-    }
-
-    /* =========================================| Advertise Category |=========================================*/
-
-    /**
-     * @api {post} addAdvertisementCategory   addAdvertisementCategory
-     * @apiName addAdvertisementCategory
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "category_id":1,
-     * "name":"Nature"
-     * }
-     * file:image.jpeg
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "sub category added successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function addAdvertisementCategory(Request $request_body)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category'), $request)) != '')
-                return $response;
-
-            $advertise_category = $request->advertise_category;
-            $create_at = date('Y-m-d H:i:s');
-
-            DB::beginTransaction();
-            DB::insert('insert into advertise_category_master (advertise_category, is_active, create_time)  VALUES(?, ?, ?)', [$advertise_category, 1, $create_at]);
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("addAdvertisementCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
         return $response;
     }
 
     /**
-     * @api {post} editAdvertisementCategory   editAdvertisementCategory
-     * @apiName editAdvertisementCategory
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "category_id":1,
-     * "name":"Nature"
-     * }
-     * file:image.jpeg
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "sub category added successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function editAdvertisementCategory(Request $request_body)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category', 'advertise_category_id'), $request)) != '')
-                return $response;
-
-            $advertise_category = $request->advertise_category;
-            $advertise_category_id = $request->advertise_category_id;
-
-            DB::beginTransaction();
-            DB::update('UPDATE advertise_category_master SET advertise_category = ? WHERE id = ?', [$advertise_category, $advertise_category_id]);
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("editAdvertisementCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} deleteAdvertisementCategory   deleteAdvertisementCategory
-     * @apiName deleteAdvertisementCategory
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "category_id":1,
-     * "name":"Nature"
-     * }
-     * file:image.jpeg
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "sub category added successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function deleteAdvertisementCategory(Request $request_body)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category_id'), $request)) != '')
-                return $response;
-
-            $advertise_category_id = $request->advertise_category_id;
-
-            DB::beginTransaction();
-            DB::delete('DELETE FROM advertise_category_master WHERE id = ?', [$advertise_category_id]);
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise category deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("deleteAdvertisementCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete advertise category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getAllAdvertiseCategory   getAllAdvertiseCategory
-     * @apiName getAllAdvertiseCategory
+     * @api {post} getSummaryOfAllServersByAdmin   getSummaryOfAllServersByAdmin
+     * @apiName getSummaryOfAllServersByAdmin
      * @apiGroup Admin
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
@@ -6835,421 +7709,87 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Advertise categories fetched successfully.",
-     * "cause": "",
-     * "data": [
-     * {
-     * "advertise_category_id": 3,
-     * "advertise_category": "Rewarded Video",
-     * "is_active": 1,
-     * "create_time": "2018-07-16 09:07:07",
-     * "update_time": "2018-07-16 09:07:07"
-     * },
-     * {
-     * "advertise_category_id": 1,
-     * "advertise_category": "Banner",
-     * "is_active": 1,
-     * "create_time": "2018-07-16 09:06:47",
-     * "update_time": "2018-07-16 09:06:47"
-     * },
-     * {
-     * "advertise_category_id": 2,
-     * "advertise_category": "Intertial",
-     * "is_active": 1,
-     * "create_time": "2018-07-16 09:06:47",
-     * "update_time": "2018-07-16 09:06:47"
-     * }
-     * ]
-     * }
-     */
-    public function getAllAdvertiseCategory(Request $request)
-    {
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            if (!Cache::has("pel:getAllAdvertiseCategory")) {
-                $result = Cache::rememberforever("getAllAdvertiseCategory", function () {
-
-                    return DB::select('SELECT
-                                          id AS advertise_category_id,
-                                          advertise_category,
-                                          is_active,
-                                          create_time,
-                                          update_time
-                                        FROM
-                                          advertise_category_master
-                                        WHERE
-                                          is_active=1
-                                        order by update_time DESC');
-                });
-
-            }
-
-            $redis_result = Cache::get("getAllAdvertiseCategory");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise categories fetched successfully.', 'cause' => '', 'data' => $redis_result));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllAdvertiseCategory Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all advertise categories.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    /* =========================================| Link Advertise Category |=========================================*/
-
-    /**
-     * @api {post} addAdvertiseServerId   addAdvertiseServerId
-     * @apiName addAdvertiseServerId
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "advertise_category_id":1, //compulsory
-     * "sub_category_id":10, //compulsory
-     * "server_id":"vdfjdsjhfbhjbjd" //compulsory
-     * "sub_category_advertise_server_id":"vdfjdsjhfbhjbjd"
-     * "device_platform":1 //compulsory 1=Ios, 2=Android
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Advertise server id added successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function addAdvertiseServerId(Request $request_body)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_category_id', 'sub_category_id', 'server_id', 'device_platform'), $request)) != '')
-                return $response;
-
-            $advertise_category_id = $request->advertise_category_id;
-            $sub_category_id = $request->sub_category_id;
-            $server_id = $request->server_id;
-            $device_platform = $request->device_platform;
-            $sub_category_advertise_server_id = isset($request->sub_category_advertise_server_id) ? $request->sub_category_advertise_server_id : 0;
-
-            if (($response = (new VerificationController())->validateAdvertiseServerId($server_id)) != '')
-                return $response;
-
-            if ($sub_category_advertise_server_id === 0) {
-                $create_time = date('Y-m-d H:i:s');
-
-                DB::beginTransaction();
-                DB::insert('insert into sub_category_advertise_server_id_master (advertise_category_id, sub_category_id, server_id, device_platform, is_active, create_time)    VALUES(?, ?, ?, ?, ?, ?)', [$advertise_category_id, $sub_category_id, $server_id, $device_platform, 1, $create_time]);
-                DB::commit();
-
-                $response = Response::json(array('code' => 200, 'message' => 'Advertise server id added successfully.', 'cause' => '', 'data' => json_decode('{}')));
-            } else {
-                if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_advertise_server_id'), $request)) != '')
-                    return $response;
-
-                DB::beginTransaction();
-                DB::update('UPDATE sub_category_advertise_server_id_master SET server_id = ? WHERE id = ?', [$server_id, $sub_category_advertise_server_id]);
-                DB::commit();
-
-                $response = Response::json(array('code' => 200, 'message' => 'Advertise server id updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
-            }
-
-        } catch (Exception $e) {
-            Log::error("addAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add or update advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} updateAdvertiseServerId   updateAdvertiseServerId
-     * @apiName updateAdvertiseServerId
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_advertise_server_id":1, //compulsory
-     * "advertise_category_id":1, //compulsory
-     * "server_id":"absdjdfgjfj" //compulsory
-     * }
-     * @apiSuccessExample Success-Response:
-     *{
-     * "code": 200,
-     * "message": "Advertise server id updated successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function updateAdvertiseServerId(Request $request_body)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_advertise_server_id', 'advertise_category_id', 'server_id'), $request)) != '')
-                return $response;
-
-            $sub_category_advertise_server_id = $request->sub_category_advertise_server_id;
-            $advertise_category_id = $request->advertise_category_id;
-            $server_id = $request->server_id;
-
-            DB::beginTransaction();
-            DB::update('UPDATE sub_category_advertise_server_id_master SET advertise_category_id = ?, server_id = ? WHERE id = ?', [$advertise_category_id, $server_id, $sub_category_advertise_server_id]);
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("updateAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} deleteAdvertiseServerId   deleteAdvertiseServerId
-     * @apiName deleteAdvertiseServerId
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_advertise_server_id":1 //compulsory
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Advertise server id deleted successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function deleteAdvertiseServerId(Request $request_body)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_advertise_server_id'), $request)) != '')
-                return $response;
-
-            $sub_category_advertise_server_id = $request->sub_category_advertise_server_id;
-
-            DB::beginTransaction();
-            DB::delete('DELETE FROM sub_category_advertise_server_id_master WHERE id = ?', [$sub_category_advertise_server_id]);
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("deleteAdvertiseServerId Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} getAdvertiseServerIdForAdmin   getAdvertiseServerIdForAdmin
-     * @apiName getAdvertiseServerIdForAdmin
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     *{
-     * "sub_category_id":66 //compulsory
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Advertise server id fetched successfully.",
+     * "message": "Summary fetched successfully.",
      * "cause": "",
      * "data": {
+     * "total_record": 2,
+     * "summary_of_all_servers": [
+     * {
+     * "total_record": 33,
      * "result": [
      * {
-     * "advertise_category_id": 3,
-     * "advertise_category": "Rewarded Video",
+     * "sub_category_id": 20,
+     * "category_id": 2,
+     * "name": "Independence Day Stickers",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png",
+     * "no_of_catalogs": 7,
+     * "content_count": 81,
+     * "free_content": 6,
+     * "paid_content": 75,
+     * "last_uploaded_date": "2018-03-10 07:02:54",
      * "is_active": 1,
-     * "create_time": "2018-07-16 09:07:07",
-     * "update_time": "2018-07-16 09:07:07",
-     * "android": [],
-     * "ios": [
-     * {
-     * "sub_category_advertise_server_id": 1,
-     * "advertise_category_id": 3,
-     * "sub_category_id": 66,
-     * "server_id": "Test Rewarded Video Ad Id 1",
-     * "device_platform": 1,
-     * "is_active": 1,
-     * "create_time": "2018-07-18 09:09:22",
-     * "update_time": "2018-07-18 09:09:22"
-     * }
-     * ]
-     * },
-     * {
-     * "advertise_category_id": 1,
-     * "advertise_category": "Banner",
-     * "is_active": 1,
-     * "create_time": "2018-07-16 09:06:47",
-     * "update_time": "2018-07-16 09:06:47",
-     * "android": [
-     * {
-     * "sub_category_advertise_server_id": 2,
-     * "advertise_category_id": 1,
-     * "sub_category_id": 66,
-     * "server_id": "Test Banner Ad Id 1",
-     * "device_platform": 2,
-     * "is_active": 1,
-     * "create_time": "2018-07-18 09:10:23",
-     * "update_time": "2018-07-18 09:10:23"
+     * "last_uploaded_count": 6
      * }
      * ],
-     * "ios": []
+     * "server_url": "localhost"
      * },
      * {
-     * "advertise_category_id": 2,
-     * "advertise_category": "Intertial",
+     * "total_record": 33,
+     * "result": [
+     * {
+     * "sub_category_id": 95,
+     * "category_id": 2,
+     * "name": "Test",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c4ac74046e7a_sub_category_img_1548404544.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c4ac74046e7a_sub_category_img_1548404544.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c4ac74046e7a_sub_category_img_1548404544.jpg",
+     * "no_of_catalogs": 2,
+     * "content_count": 19,
+     * "free_content": 0,
+     * "paid_content": 19,
+     * "last_uploaded_date": "2019-01-25 09:42:17",
      * "is_active": 1,
-     * "create_time": "2018-07-16 09:06:47",
-     * "update_time": "2018-07-16 09:06:47",
-     * "android": [],
-     * "ios": []
+     * "last_uploaded_count": 19
+     * }
+     * ],
+     * "server_url": "192.168.0.113"
      * }
      * ]
      * }
      * }
      */
-    public function getAdvertiseServerIdForAdmin(Request $request)
+    public function getSummaryOfAllServersByAdmin()
     {
         try {
-
-            $request = json_decode($request->getContent());
-            //Log::info("getAllAdvertisementToLinkAdvertisement Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
-                return $response;
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-            $this->sub_category_id = $request->sub_category_id;
-
-
-            //return $total_row;
-
-            if (!Cache::has("pel:getAdvertiseServerIdForAdmin$this->sub_category_id")) {
-                $result = Cache::rememberforever("getAdvertiseServerIdForAdmin$this->sub_category_id", function () {
-
-                    $category = DB::select('SELECT
-                                          id AS advertise_category_id,
-                                          advertise_category,
-                                          is_active,
-                                          create_time,
-                                          update_time
-                                        FROM
-                                          advertise_category_master
-                                        WHERE
-                                          is_active=1
-                                        order by update_time DESC');
-
-                    foreach ($category as $key) {
-                        $android_server_id = DB::select('SELECT
-                                          id AS sub_category_advertise_server_id,
-                                          advertise_category_id,
-                                          sub_category_id,
-                                          server_id,
-                                          device_platform,
-                                          is_active,
-                                          create_time,
-                                          update_time
-                                        FROM
-                                          sub_category_advertise_server_id_master
-                                        WHERE
-                                          sub_category_id = ? AND
-                                          advertise_category_id = ? AND
-                                          device_platform = 2 AND
-                                          is_active=1
-                                        order by update_time DESC', [$this->sub_category_id, $key->advertise_category_id]);
-
-                        $ios_server_id = DB::select('SELECT
-                                          id AS sub_category_advertise_server_id,
-                                          advertise_category_id,
-                                          sub_category_id,
-                                          server_id,
-                                          device_platform,
-                                          is_active,
-                                          create_time,
-                                          update_time
-                                        FROM
-                                          sub_category_advertise_server_id_master
-                                        WHERE
-                                          sub_category_id = ? AND
-                                          advertise_category_id = ? AND
-                                          device_platform = 1 AND
-                                          is_active=1
-                                        order by update_time DESC', [$this->sub_category_id, $key->advertise_category_id]);
-
-                        $key->android = $android_server_id;
-                        $key->ios = $ios_server_id;
-                    }
-                    return $category;
-
-
-                });
-
+            $server_list = explode(",", Config::get('constant.SERVER_LIST'));
+            $all_server_list = array();
+            $i = 0; // used for array indexing
+            foreach ($server_list as $key) {
+                $client = new Client();
+                $output = $client->post($key); //$key is a url of api
+                $data = json_decode($output->getBody()->getContents(), true);
+                $data['data']['server_url'] = parse_url($key, PHP_URL_HOST);
+                $all_server_list[$i] = $data['data'];
+                $i++;
             }
 
-            $redis_result = Cache::get("getAdvertiseServerIdForAdmin$this->sub_category_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Advertise server id fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+            $response = Response::json(array('code' => 200, 'message' => 'Summary fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($all_server_list), 'summary_of_all_servers' => $all_server_list]));
 
         } catch (Exception $e) {
-            Log::error("getAdvertiseServerIdForAdmin Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get advertise server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary of all servers.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryOfAllServersByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
         return $response;
     }
 
-    /* =====================================| Update All Sample Images |==============================================*/
-
     /**
-     * @api {post} updateAllSampleImages   updateAllSampleImages
-     * @apiName updateAllSampleImages
+     * @api {post} getSummaryDetailFromDiffServer   getSummaryDetailFromDiffServer
+     * @apiName getSummaryDetailFromDiffServer
      * @apiGroup Admin
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
@@ -7258,500 +7798,182 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "img_id": 356,
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "json_data": {
-     * "text_json": [],
-     * "sticker_json": [],
-     * "image_sticker_json": [
      * {
-     * "xPos": 0,
-     * "yPos": 0,
-     * "image_sticker_image": "",
-     * "angle": 0,
-     * "is_round": 0,
-     * "height": 800,
-     * "width": 500
-     * }
-     * ],
-     * "frame_json": {
-     * "frame_image": "frame_15.7"
-     * },
-     * "background_json": {},
-     * "sample_image": "sample_15.7",
-     * "is_featured": 0,
-     * "height": 800,
-     * "width": 800
-     * }
-     * },
-     * file:image1.jpeg
+     * "api_url":"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api", //compulsory
+     * "category_id":2, //compulsory
+     * "sub_category_id":66, //compulsory
+     * "from_date":"2018-01-01", //compulsory
+     * "to_date":"2019-05-06", //compulsory
+     * "page":2, //compulsory
+     * "item_count":2, //compulsory
+     * "order_by":"date",
+     * "order_type":"desc"
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Json data updated successfully!.",
+     * "message": "Summary details fetched successfully.",
      * "cause": "",
-     * "data": {}
+     * "data": {
+     * "code": 200,
+     * "message": "Summary fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 59,
+     * "is_next_page": true,
+     * "result": [
+     * {
+     * "date": "2018-09-11",
+     * "uploaded_content_count": 1
+     * },
+     * {
+     * "date": "2018-09-07",
+     * "uploaded_content_count": 2
+     * }
+     * ]
+     * }
+     * }
      * }
      */
-    public function updateAllSampleImages(Request $request)
+    public function getSummaryDetailFromDiffServer(Request $request)
     {
-
         try {
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
             $request = json_decode($request->getContent());
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'item_count', 'page', 'no_of_times_update'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('api_url', 'category_id', 'sub_category_id', 'from_date', 'to_date', 'page', 'item_count'), $request)) != '')
                 return $response;
 
+            $api_url = $request->api_url . "/getSummaryByDateRange";
+            $category_id = $request->category_id;
             $sub_category_id = $request->sub_category_id;
-            $item_count = $request->item_count;
+            $from_date = $request->from_date;
+            $to_date = $request->to_date;
             $page = $request->page;
-            $no_of_times_update = $request->no_of_times_update;
-            $offset = ($page - 1) * $item_count;
+            $item_count = $request->item_count;
+            $order_by = isset($request->order_by) ? $request->order_by : 'date'; //field name
+            $order_type = isset($request->order_type) ? $request->order_type : 'DESC'; //asc or desc
 
-            $total_sample_images = DB::select('SELECT i.*
-                                    FROM images AS i,
-                                        sub_category_catalog AS scc
-                                    WHERE
-                                    i.json_data IS NOT NULL AND
-                                    i.json_data !="" AND
-                                    i.catalog_id = scc.catalog_id AND
-                                    scc.sub_category_id = ? AND scc.is_active = 1
-                                    ORDER BY i.updated_at ASC', [$sub_category_id]);
+            $request_body = array(
+                'json' => array(
+                    'category_id' => $category_id,
+                    'sub_category_id' => $sub_category_id,
+                    'from_date' => $from_date,
+                    'to_date' => $to_date,
+                    'page' => $page,
+                    'item_count' => $item_count,
+                    'order_by' => $order_by,
+                    'order_type' => $order_type,
+                )
+            );
 
+            $client = new Client();
+            $output = $client->post($api_url, $request_body);
+            $data = json_decode($output->getBody()->getContents(), true);
 
-            $sample_images = DB::select('SELECT i.*
-                                    FROM images AS i,
-                                        sub_category_catalog AS scc
-                                    WHERE
-                                    i.json_data IS NOT NULL AND
-                                    i.json_data !="" AND
-                                    i.catalog_id = scc.catalog_id AND
-                                    scc.sub_category_id = ? AND scc.is_active = 1
-                                    ORDER BY i.updated_at ASC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
-
-
-            $count = 0;
-            $remaining_images = array();
-            $updated_images = array();
-            foreach ($sample_images as $key) {
-                //Log::info('sample images : ',['image' => $key->image]);
-
-                $file_name = (new ImageController())->saveOriginalImageFromToS3($key->image);
-
-                if ($file_name != "") {
-                    $dimension = (new ImageController())->saveThumbnailImageFromS3($key->image);
-                    if ($dimension != "") {
-                        if (env('STORAGE') === 'S3_BUCKET') {
-
-                            (new ImageController())->saveNewWebpImageInToSpaces($file_name);
-
-                            (new ImageController())->unlinkfile($key->image);
-                        }
-                        sleep(1);
-
-                        DB::beginTransaction();
-                        DB::update('UPDATE
-                                images SET height = ?, width = ?, attribute1 = ?, attribute2 = ?
-                                WHERE id = ?', [$dimension['height'], $dimension['width'], $file_name, $no_of_times_update, $key->id]);
-                        DB::commit();
-                        $count = $count + 1;
-                        $updated_images[] = $key->image;
-                    } else {
-                        $remaining_images[] = $key->image;
-                    }
-                } else {
-                    $remaining_images[] = $key->image;
-                }
-            }
-
-            $result_array = array('total_updated_images' => count($total_sample_images), 'updated_images' => $updated_images, 'remaining_images' => $remaining_images);
-            $result = json_decode(json_encode($result_array), true);
-
-            $response = Response::json(array('code' => 200, 'message' => 'Sample images updated successfully!.', 'cause' => '', 'data' => $result));
-
-        } catch
-        (Exception $e) {
-            Log::error("updateAllSampleImages Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} createInvalidation   createInvalidation
-     * @apiName createInvalidation
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "img_id": 356,
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "json_data": {
-     * "text_json": [],
-     * "sticker_json": [],
-     * "image_sticker_json": [
-     * {
-     * "xPos": 0,
-     * "yPos": 0,
-     * "image_sticker_image": "",
-     * "angle": 0,
-     * "is_round": 0,
-     * "height": 800,
-     * "width": 500
-     * }
-     * ],
-     * "frame_json": {
-     * "frame_image": "frame_15.7"
-     * },
-     * "background_json": {},
-     * "sample_image": "sample_15.7",
-     * "is_featured": 0,
-     * "height": 800,
-     * "width": 800
-     * }
-     * },
-     * file:image1.jpeg
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Json data updated successfully!.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function createInvalidation(Request $request)
-    {
-
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $base_url = (new ImageController())->getBaseUrl();
-            if ($request->hasFile('file')) {
-                $file = Input::file('file');
-                //$file_type = $file->getMimeType();
-
-                if (($response = (new ImageController())->verifyImage($file)) != '')
-                    return $response;
-
-                $image = $file->getClientOriginalName();//(new ImageController())->generateNewFileName('test_webp_image', $file);
-
-                (new ImageController())->saveOriginalImage($image);
-
-                $original_sourceFile = $base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
-
-                //return array($original_sourceFile);
-                $disk = Storage::disk('s3');
-                $original_targetFile = "imageflyer/webp_original_new/" . $image;
-
-                $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
-                return $response = Response::json(array('code' => 200, 'message' => 'File uploaded successfully.', 'cause' => '', 'data' => "http://d2738jkpoo0kon.cloudfront.net/imageflyer/webp_original_new/" . $image));
-
-            } else {
-                return $response = Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode('{}')));
-            }
-
-
-            /*//$request = json_decode($request->getContent());
-            $client = CloudFrontClient::factory(array(
-                'credentials' => array(
-                    'key' => 'AKIAIATYIJ5MPKANS7QA',
-                    'secret' => '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',
-                ),
-                'region' => 'us-east-2',
-                'version' => 'latest',
-            ));
-
-            $caller_reference = time();
-
-
-            $result = $client->createInvalidation([
-                'DistributionId' => 'E1CURG7RSP7L0C', // REQUIRED
-                'InvalidationBatch' => [ // REQUIRED
-                    'CallerReference' => $caller_reference, // REQUIRED
-                    'Paths' => [ // REQUIRED
-                        'Items' => ['http://d2738jkpoo0kon.cloudfront.net/imageflyer/webp_original_new/best_wallpapers_for_girl.jpg'],
-                        'Quantity' => 1, // REQUIRED
-                    ],
-                ],
-            ]);
-
-            dd($result);*/
-
-
-        } catch
-        (Exception $e) {
-            Log::error("createInvalidation Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'create invalidation.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /* ========================================= Tags =========================================*/
-
-    /**
-     * @api {post} addTag   addTag
-     * @apiName addTag
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     *  Key: Authorization
-     *  Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "tag_name":"Nature" //compulsory
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Tag added successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function addTag(Request $request_body)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            //Log::info("request data :", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_name'), $request)) != '')
-                return $response;
-
-            $tag_name = trim($request->tag_name);
-            $create_at = date('Y-m-d H:i:s');
-
-            $result = DB::select('SELECT * FROM tag_master WHERE tag_name = ?',[$tag_name]);
-            if(count($result) > 0)
-            {
-                return $response = Response::json(array('code' => 201, 'message' => 'Tag already exist.', 'cause' => '', 'data' => json_decode('{}')));
-            }
-
-            DB::beginTransaction();
-
-            DB::insert('insert into tag_master (tag_name,is_active, create_time) VALUES(?, ?, ?)', [$tag_name, 1, $create_at]);
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Tag added successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("addTag Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} updateTag   updateTag
-     * @apiName updateTag
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "tag_id":1, //compulsory
-     * "tag_name":"Featured" //compulsory
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Tag updated successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function updateTag(Request $request_body)
-    {
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            //Log::info("request data :", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_id', 'tag_name'), $request)) != '')
-                return $response;
-
-            $tag_id = $request->tag_id;
-            $tag_name = trim($request->tag_name);
-
-            $result = DB::select('SELECT * FROM tag_master WHERE tag_name = ? AND id != ?',[$tag_name, $tag_id]);
-            if(count($result) > 0)
-            {
-                return $response = Response::json(array('code' => 201, 'message' => 'Tag already exist.', 'cause' => '', 'data' => json_decode('{}')));
-            }
-
-            DB::beginTransaction();
-
-            DB::update('UPDATE
-                              tag_master
-                            SET
-                              tag_name = ?
-                            WHERE
-                              id = ? ',
-                [$tag_name, $tag_id]);
-
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Tag updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Summary details fetched successfully.', 'cause' => '', 'data' => $data));
 
         } catch (Exception $e) {
-            Log::error("updateTag Error :", ['error' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-
-        return $response;
-    }
-
-    /**
-     * @api {post} deleteTag   deleteTag
-     * @apiName deleteTag
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "tag_id":1 //compulsory
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Tag deleted successfully!.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function deleteTag(Request $request_body)
-    {
-        try {
-            $request = json_decode($request_body->getContent());
-            //Log::info("request data :", [$request]);
-            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_id'), $request)) != '')
-                return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $tag_id = $request->tag_id;
-
-            DB::beginTransaction();
-
-            DB::delete('DELETE FROM tag_master where id = ? ', [$tag_id]);
-
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Tag deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("deleteTag Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryDetailFromDiffServer : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
         return $response;
     }
 
     /**
-     * @api {post} getAllTags   getAllTags
-     * @apiName getAllTags
+     * @api {post} getSummaryByDateRange   getSummaryByDateRange
+     * @apiName getSummaryByDateRange
      * @apiGroup Admin
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
      * {
-     * Key: Authorization
-     * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
      * {
+     * "category_id":2, //compulsory
+     * "sub_category_id":66, //compulsory
+     * "from_date":"2018-01-01", //compulsory
+     * "to_date":"2019-05-06", //compulsory
+     * "page":1, //compulsory
+     * "item_count":10, //compulsory
+     * "order_by":"date",
+     * "order_type":"desc"
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "All tags fetched successfully.",
+     * "message": "Summary fetched successfully.",
      * "cause": "",
      * "data": {
-     * "total_record": 4,
+     * "total_record": 59,
+     * "is_next_page": true,
      * "result": [
      * {
-     * "tag_id": 1,
-     * "tag_name": "test"
+     * "date": "2018-01-09",
+     * "uploaded_content_count": 86
      * },
      * {
-     * "tag_id": 2,
-     * "tag_name": "Offer & Sales"
-     * },
-     * {
-     * "tag_id": 3,
-     * "tag_name": "Mobile Apps"
-     * },
-     * {
-     * "tag_id": 4,
-     * "tag_name": "Photography"
+     * "date": "2018-03-16",
+     * "uploaded_content_count": 50
      * }
      * ]
      * }
      * }
      */
-    public function getAllTags(Request $request_body)
+    public function getSummaryByDateRange(Request $request)
     {
         try {
+            /*$token = JWTAuth::getToken();
+            JWTAuth::toUser($token);*/
 
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'from_date', 'to_date', 'page', 'item_count'), $request)) != '')
+                return $response;
 
-            if (!Cache::has("pel:getAllTags")) {
-                $result = Cache::rememberforever("getAllTags", function () {
-                    return DB::select('SELECT
-                                        id AS tag_id,
-                                        tag_name
-                                        FROM
-                                        tag_master
-                                        WHERE is_active = ? ORDER BY update_time DESC', [1]);
-                });
-            }
+            $category_id = $request->category_id;
+            $sub_category_id = $request->sub_category_id;
+            $from_date = $request->from_date;
+            $to_date = $request->to_date;
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $offset = ($page - 1) * $item_count;
+            $order_by = isset($request->order_by) ? $request->order_by : 'date'; //field name
+            $order_type = isset($request->order_type) ? $request->order_type : 'DESC'; //asc or desc
 
-            $redis_result = Cache::get("getAllTags");
+            $total_row_result = DB::select('SELECT
+                                                  DATE (cm.created_at) AS date,
+                                                  count(*) AS total
+                                                FROM
+                                                  sub_category AS scm LEFT JOIN sub_category_catalog AS scc
+                                                  LEFT JOIN images AS cm
+                                                    ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                                    ON scm.id = scc.sub_category_id AND scc.is_active = 1 AND scm.category_id = ? AND scm.id = ?
+                                                  WHERE cm.created_at BETWEEN ? AND ?
+                                                GROUP BY date', [$category_id, $sub_category_id, $from_date, $to_date]);
 
-            if (!$redis_result) {
-                $redis_result = [];
-            }
+            $total_row = count($total_row_result);
 
-            $response = Response::json(array('code' => 200, 'message' => 'All tags fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'result' => $redis_result]));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+            $uploaded_content_count = DB::select('SELECT
+                                                  DATE (cm.created_at) AS date,
+                                                  count(*) AS uploaded_content_count
+                                                FROM
+                                                  sub_category AS scm LEFT JOIN sub_category_catalog AS scc
+                                                  LEFT JOIN images AS cm
+                                                    ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                                    ON scm.id = scc.sub_category_id AND scc.is_active = 1 AND scm.category_id = ? AND scm.id = ?
+                                                  WHERE cm.created_at BETWEEN ? AND ?
+                                                GROUP BY date
+                                                ORDER BY  ' . $order_by . ' ' . $order_type . ' LIMIT ?,?', [$category_id, $sub_category_id, $from_date, $to_date, $offset, $item_count]);
+
+            $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
+
+            $response = Response::json(array('code' => 200, 'message' => 'Summary fetched successfully.', 'cause' => '', 'data' => ['total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $uploaded_content_count]));
 
         } catch (Exception $e) {
-            Log::error("getAllTags Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all tags.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary by date range.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryByDateRange : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
         return $response;
     }
@@ -7805,7 +8027,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("redisInfo Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("redisInfo : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Get Redis-Cache Keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -7847,15 +8069,15 @@ class AdminController extends Controller
     public function deleteRedisKeys(Request $request_body)
     {
         try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
             //Log::info("request data :", [$request]);
 
             if (($response = (new VerificationController())->validateRequiredParam(array('keys_list'), $request)) != '')
                 return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
 
             $keys = $request->keys_list;
 
@@ -7871,7 +8093,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("redisInfo Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("redisInfo : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Delete Redis Keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -7921,13 +8143,14 @@ class AdminController extends Controller
     public function getRedisKeyDetail(Request $request_body)
     {
         try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
             $request = json_decode($request_body->getContent());
             //Log::info("getRedisKeyDetails Request:", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('key'), $request)) != '')
                 return $response;
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
 
             $key = $request->key;
             $key_detail = \Illuminate\Support\Facades\Redis::get($key);
@@ -7935,7 +8158,7 @@ class AdminController extends Controller
             $result = ['keys_detail' => unserialize($key_detail)];
             $response = Response::json(array('code' => 200, 'message' => 'Redis Key Detail Fetched Successfully.', 'cause' => '', 'data' => $result));
         } catch (Exception $e) {
-            Log::error("getRedisKeyDetail Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getRedisKeyDetail : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Get Redis-Cache Key Detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -7973,8 +8196,117 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getRedisKeyDetail Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("clearRedisCache : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Get Redis-Cache Key Detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function testMail()
+    {
+        try {
+
+            $from_email_id = 'alagiyanirav@gmail.com';
+            $to_email_id = 'pinal.optimumbrew@gmail.com';
+            $template = 'simple';
+            $subject = 'PhotoEditorLab: Test Mail';
+            $message_body = array(
+                'message' => 'This is a test mail from PhotoEditorLab.',
+                'user_name' => 'Admin'
+            );
+            $api_name = 'testMail';
+            $api_description = 'Send test mail.';
+
+            $this->dispatch(new EmailJob($to_email_id, $from_email_id, $subject, $message_body, $template, $api_name, $api_description));
+            $response = Response::json(array('code' => 200, 'message' => 'Email sent successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+
+        } catch (Swift_TransportException $e) {
+            Log::error("testMail (Swift_TransportException) : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'send mail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        } catch (Exception $e) {
+            Log::error("testMail : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'send mail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function getPhpInfo()
+    {
+        try {
+
+            return $php_info = phpinfo();
+
+        } catch (Exception $e) {
+            Log::error("getPhpInfo : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get php_info.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //Fetch table information from database (use for only debugging query issue)
+    public function getDatabaseInfo(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('query'), $request)) != '')
+                return $response;
+
+            $query = $request->query;
+            return DB::select("$query");
+
+        } catch (Exception $e) {
+            Log::error("getDatabaseInfo : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get database information.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //Fetch constants (use for only debugging constant variables)
+    public function getConstants(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('variable_name'), $request)) != '')
+                return $response;
+
+            $variable_name = $request->variable_name;
+            return Config::get("constant.$variable_name");
+
+        } catch (Exception $e) {
+            Log::error("getConstants : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get constants.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //Artisan commands (use for only debugging artisan commands)
+    public function runArtisanCommands(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('command'), $request)) != '')
+                return $response;
+
+            $command = $request->command;
+            $exitCode = Artisan::call($command);
+            return $exitCode;
+
+        } catch (Exception $e) {
+            Log::error("runArtisanCommands : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'run artisan command.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }

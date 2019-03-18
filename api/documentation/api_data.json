@@ -20,7 +20,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"category added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Category added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -44,12 +44,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"category_id\":1,\n\"name\":\"Nature\"\n}\nfile:image.jpeg",
+          "content": "{\nrequest_data:{\n\"category_id\":1, //compulsory\n\"name\":\"Nature\" //compulsory\n},\nfile:image.jpeg //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"sub category added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub category added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -189,7 +189,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"sub_category_id\":1,\n\"is_free\":1,//optional\n\"name\":\"Nature-2017\",\n\"is_featured\":1 //compulsory\n}\nfile:image.jpeg",
+          "content": "{\nrequest_data:{\n\"sub_category_id\":1,\n\"is_free\":1,//optional\n\"name\":\"Nature-2017\",\n\"is_featured\":1 //compulsory\n},\nfile:image.jpeg //compulsory\n}",
           "type": "json"
         },
         {
@@ -291,9 +291,9 @@
   },
   {
     "type": "post",
-    "url": "addFeaturedImage",
-    "title": "addFeaturedImage",
-    "name": "addFeaturedImage",
+    "url": "addFont",
+    "title": "addFont",
+    "name": "addFont",
     "group": "Admin",
     "version": "1.0.0",
     "success": {
@@ -305,12 +305,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"catalog_id\":10\n},\noriginal_img:image1.jpeg,\ndisplay_img:image12.jpeg\n}",
+          "content": "{\nrequest_data:{\n\"catalog_id\":280, //compulsory\n\"ios_font_name\":\"3d\", //compulsory\n\"android_font_name\":\"fonts/3d.ttf\", //compulsory\n\"is_replace\":1 //compulsory 1=replace font file, 0=don't replace font file\n}\nfile:3d.ttf //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Featured Images added successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Font added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -432,35 +432,6 @@
       ]
     },
     "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
-    "url": "addZipFile",
-    "title": "addZipFile",
-    "name": "addZipFile",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\nfile[]:1.jpg,\nfile[]:2.jpg,\nfile[]:3.jpg,\nfile[]:4.jpg\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Json images added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -653,12 +624,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"catalog_id\":3\n}",
+          "content": "{\n\"catalog_id\":3 //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Deleted Successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Catalog deleted successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -682,12 +653,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"img_id\":1\n}",
+          "content": "{\n\"img_id\":1 //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Image Deleted Successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Normal image deleted successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -716,7 +687,36 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"category deleted successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Category deleted successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "deleteFont",
+    "title": "deleteFont",
+    "name": "deleteFont",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"font_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Font deleted successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -856,12 +856,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":3\n}",
+          "content": "{\n\"sub_category_id\":3 //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"sub category deleted successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub category deleted successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -1016,6 +1016,35 @@
   },
   {
     "type": "post",
+    "url": "editFont",
+    "title": "editFont",
+    "name": "editFont",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"font_id\":1, //compulsory\n\"ios_font_name\":\"3d\", //optional\n\"android_font_name\":\"3d.ttf\" //optional\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Font edited successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "editJsonData",
     "title": "editJsonData",
     "name": "editJsonData",
@@ -1064,7 +1093,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Advertise Link Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"link_list\": [\n{\n\"advertise_link_id\": 44,\n\"name\": \"Suitescene\",\n\"platform\": \"iOS\",\n\"linked\": 1\n},\n{\n\"advertise_link_id\": 41,\n\"name\": \"Bhavesh Gabani\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 40,\n\"name\": \"Visa\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 39,\n\"name\": \"QR Code Scanner : Barcode QR-Code Generator App\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 38,\n\"name\": \"Photo Editor Lab � Stickers , Filters & Frames\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 37,\n\"name\": \"QR Barcode Scanner : QR Bar Code Generator App\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 36,\n\"name\": \"Cut Paste - Background Eraser\",\n\"platform\": \"iOS\",\n\"linked\": 0\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Advertise Link Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"link_list\": [\n{\n\"advertise_link_id\": 44,\n\"name\": \"Suitescene\",\n\"platform\": \"iOS\",\n\"linked\": 1\n},\n{\n\"advertise_link_id\": 41,\n\"name\": \"Bhavesh Gabani\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 40,\n\"name\": \"Visa\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 39,\n\"name\": \"QR Code Scanner : Barcode QR-Code Generator App\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 38,\n\"name\": \"PhotoEditorLab � Stickers , Filters & Frames\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 37,\n\"name\": \"QR Barcode Scanner : QR Bar Code Generator App\",\n\"platform\": \"iOS\",\n\"linked\": 0\n},\n{\n\"advertise_link_id\": 36,\n\"name\": \"Cut Paste - Background Eraser\",\n\"platform\": \"iOS\",\n\"linked\": 0\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1262,12 +1291,41 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n \"page\":1\n}",
+          "content": "{\n \"page\":1 //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All Category Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 8,\n\"is_next_page\": false,\n\"category_list\": [\n{\n\"category_id\": 9,\n\"name\": \"demo 3\"\n},\n{\n\"category_id\": 8,\n\"name\": \"demo 2\"\n},\n{\n\"category_id\": 7,\n\"name\": \"demo1\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"All category fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 8,\n\"is_next_page\": false,\n\"category_list\": [\n{\n\"category_id\": 9,\n\"name\": \"demo 3\"\n},\n{\n\"category_id\": 8,\n\"name\": \"demo 2\"\n},\n{\n\"category_id\": 7,\n\"name\": \"demo1\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getAllFontsByCatalogIdForAdmin",
+    "title": "getAllFontsByCatalogIdForAdmin",
+    "name": "getAllFontsByCatalogIdForAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n \"catalog_id\":1, //compulsory\n \"order_by\":1, //optional\n \"order_type\":1 //optional\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Fonts fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_count\": 10,\n\"result\": [\n{\n\"font_id\": 94,\n\"font_name\": \"Baloo Thambi Regular\",\n\"font_file\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/baloo_thambi_regular.ttf\",\n\"ios_font_name\": \"Baloo Thambi Regular\",\n\"android_font_name\": \"fonts/baloo_thambi_regular.ttf\",\n\"is_active\": 1\n},\n{\n\"font_id\": 93,\n\"font_name\": \"Baloo Tammudu Regular\",\n\"font_file\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/baloo_tammudu_regular.ttf\",\n\"ios_font_name\": \"Baloo Tammudu Regular\",\n\"android_font_name\": \"fonts/baloo_tammudu_regular.ttf\",\n\"is_active\": 1\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1378,12 +1436,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"category_id\":1\n}",
+          "content": "{\n\"category_id\":1 //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"SubCategory Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 0,\n\"category_list\": []\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub categories fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 0,\n\"category_list\": []\n}\n}",
           "type": "json"
         }
       ]
@@ -1509,6 +1567,35 @@
   },
   {
     "type": "post",
+    "url": "getDataByCatalogIdForAdmin",
+    "title": "getDataByCatalogIdForAdmin",
+    "name": "getDataByCatalogIdForAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n \"catalog_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Data fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 182,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d5644e1424_catalog_image_1502434884.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d5644e1424_catalog_image_1502434884.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d5644e1424_catalog_image_1502434884.png\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_free\": 0,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "getImageDetails",
     "title": "getImageDetails",
     "name": "getImageDetails",
@@ -1529,35 +1616,6 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"All User Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 36,\n\"is_next_page\": true,\n\"image_details\": [\n{\n\"name\": \"59687a44dcae2_background_img_1500019268.png\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59687a44dcae2_background_img_1500019268.png\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59687a44dcae2_background_img_1500019268.png\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/59687a44dcae2_background_img_1500019268.png\",\n\"directory_name\": \"compress\",\n\"type\": \"png\",\n\"size\": 4572880,\n\"height\": 1440,\n\"width\": 1920,\n\"created_at\": \"2017-07-14 08:01:11\"\n},\n{\n\"name\": \"59687aeb86626_background_img_1500019435.png\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59687aeb86626_background_img_1500019435.png\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59687aeb86626_background_img_1500019435.png\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/59687aeb86626_background_img_1500019435.png\",\n\"directory_name\": \"compress\",\n\"type\": \"png\",\n\"size\": 3820520,\n\"height\": 1904,\n\"width\": 2000,\n\"created_at\": \"2017-07-14 08:03:57\"\n},\n{\n\"name\": \"59687aa95d6be_background_img_1500019369.png\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59687aa95d6be_background_img_1500019369.png\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59687aa95d6be_background_img_1500019369.png\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/59687aa95d6be_background_img_1500019369.png\",\n\"directory_name\": \"original\",\n\"type\": \"png\",\n\"size\": 2863220,\n\"height\": 2000,\n\"width\": 2000,\n\"created_at\": \"2017-07-14 08:02:50\"\n}\n]\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
-    "url": "getImagesByCatalogIdForAdmin",
-    "title": "getImagesByCatalogIdForAdmin",
-    "name": "getImagesByCatalogIdForAdmin",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n \"catalog_id\":1\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Images Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 360,\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a169952c71b0_catalog_image_1511430482.jpg\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a169952c71b0_catalog_image_1511430482.jpg\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a169952c71b0_catalog_image_1511430482.jpg\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_free\": 0\n},\n{\n\"img_id\": 359,\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a1697482f0a2_json_image_1511429960.jpg\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1697482f0a2_json_image_1511429960.jpg\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1697482f0a2_json_image_1511429960.jpg\",\n\"is_json_data\": 1,\n\"json_data\": \"test\",\n\"is_featured\": \"0\",\n\"is_free\": 0\n},\n{\n\"img_id\": 352,\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a0d7f290a6df_catalog_image_1510833961.jpg\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7f290a6df_catalog_image_1510833961.jpg\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a0d7f290a6df_catalog_image_1510833961.jpg\",\n\"is_json_data\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 440,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 210,\n\"width\": 210\n},\n{\n\"xPos\": 0,\n\"yPos\": 211,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 270,\n\"width\": 430\n},\n{\n\"xPos\": 353,\n\"yPos\": 439,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 320,\n\"width\": 297\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_1.6.png\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_1.6.jpg\",\n\"height\": 800,\n\"width\": 650,\n\"is_featured\": 0\n},\n\"is_featured\": \"0\",\n\"is_free\": 1\n},\n{\n\"img_id\": 355,\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a0d7faa3b1bc_catalog_image_1510834090.jpg\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7faa3b1bc_catalog_image_1510834090.jpg\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a0d7faa3b1bc_catalog_image_1510834090.jpg\",\n\"is_json_data\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 800,\n\"width\": 500\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_15.7.png\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_15.7.jpg\",\n\"is_featured\": 0,\n\"height\": 800,\n\"width\": 800\n},\n\"is_featured\": \"1\",\n\"is_free\": 1\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1683,6 +1741,35 @@
   },
   {
     "type": "post",
+    "url": "getSamplesOfNonCommercialFont",
+    "title": "getSamplesOfNonCommercialFont",
+    "name": "getSamplesOfNonCommercialFont",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n \"catalog_id\":1, //compulsory\n \"order_by\":1,\n \"order_type\":1\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Images Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 360,\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a169952c71b0_catalog_image_1511430482.jpg\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a169952c71b0_catalog_image_1511430482.jpg\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a169952c71b0_catalog_image_1511430482.jpg\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_free\": 0\n},\n{\n\"img_id\": 359,\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a1697482f0a2_json_image_1511429960.jpg\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1697482f0a2_json_image_1511429960.jpg\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1697482f0a2_json_image_1511429960.jpg\",\n\"is_json_data\": 1,\n\"json_data\": \"test\",\n\"is_featured\": \"0\",\n\"is_free\": 0\n},\n{\n\"img_id\": 352,\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a0d7f290a6df_catalog_image_1510833961.jpg\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7f290a6df_catalog_image_1510833961.jpg\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a0d7f290a6df_catalog_image_1510833961.jpg\",\n\"is_json_data\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 440,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 210,\n\"width\": 210\n},\n{\n\"xPos\": 0,\n\"yPos\": 211,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 270,\n\"width\": 430\n},\n{\n\"xPos\": 353,\n\"yPos\": 439,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 320,\n\"width\": 297\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_1.6.png\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_1.6.jpg\",\n\"height\": 800,\n\"width\": 650,\n\"is_featured\": 0\n},\n\"is_featured\": \"0\",\n\"is_free\": 1\n},\n{\n\"img_id\": 355,\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a0d7faa3b1bc_catalog_image_1510834090.jpg\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a0d7faa3b1bc_catalog_image_1510834090.jpg\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a0d7faa3b1bc_catalog_image_1510834090.jpg\",\n\"is_json_data\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 800,\n\"width\": 500\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_15.7.png\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_15.7.jpg\",\n\"is_featured\": 0,\n\"height\": 800,\n\"width\": 800\n},\n\"is_featured\": \"1\",\n\"is_free\": 1\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "getSubCategoryByCategoryId",
     "title": "getSubCategoryByCategoryId",
     "name": "getSubCategoryByCategoryId",
@@ -1702,7 +1789,123 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"SubCategory Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"is_next_page\": false,\n \"category_name\": \"Background\",\n\"category_list\": [\n{\n\"sub_category_id\": 10,\n\"category_id\": 1,\n\"name\": \"Love-3\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/5971dc9c891f5_category_img_1500634268.jpg\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/5971dc9c891f5_category_img_1500634268.jpg\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/5971dc9c891f5_category_img_1500634268.jpg\"\n},\n{\n\"sub_category_id\": 1,\n\"category_id\": 1,\n\"name\": \"Nature\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59719cfa423f3_category_img_1500617978.jpg\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59719cfa423f3_category_img_1500617978.jpg\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/59719cfa423f3_category_img_1500617978.jpg\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub categories are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"is_next_page\": false,\n \"category_name\": \"Background\",\n\"category_list\": [\n{\n\"sub_category_id\": 10,\n\"category_id\": 1,\n\"name\": \"Love-3\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/5971dc9c891f5_category_img_1500634268.jpg\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/5971dc9c891f5_category_img_1500634268.jpg\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/5971dc9c891f5_category_img_1500634268.jpg\"\n},\n{\n\"sub_category_id\": 1,\n\"category_id\": 1,\n\"name\": \"Nature\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59719cfa423f3_category_img_1500617978.jpg\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59719cfa423f3_category_img_1500617978.jpg\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/59719cfa423f3_category_img_1500617978.jpg\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryByAdmin",
+    "title": "getSummaryByAdmin",
+    "name": "getSummaryByAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n},\n{\n\"sub_category_id\": 28,\n\"category_id\": 2,\n\"name\": \"Selfie With Ganesha Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/59957acc474a9_category_img_1502968524.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/59957acc474a9_category_img_1502968524.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/59957acc474a9_category_img_1502968524.png\",\n\"no_of_catalogs\": 5,\n\"content_count\": 9,\n\"free_content\": 0,\n\"paid_content\": 9,\n\"last_uploaded_date\": \"2017-08-18 05:18:33\",\n\"is_active\": 1,\n\"last_uploaded_count\": 5\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryByDateRange",
+    "title": "getSummaryByDateRange",
+    "name": "getSummaryByDateRange",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"category_id\":2, //compulsory\n\"sub_category_id\":66, //compulsory\n\"from_date\":\"2018-01-01\", //compulsory\n\"to_date\":\"2019-05-06\", //compulsory\n\"page\":1, //compulsory\n\"item_count\":10, //compulsory\n\"order_by\":\"date\",\n\"order_type\":\"desc\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 59,\n\"is_next_page\": true,\n\"result\": [\n{\n\"date\": \"2018-01-09\",\n\"uploaded_content_count\": 86\n},\n{\n\"date\": \"2018-03-16\",\n\"uploaded_content_count\": 50\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryDetailFromDiffServer",
+    "title": "getSummaryDetailFromDiffServer",
+    "name": "getSummaryDetailFromDiffServer",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"api_url\":\"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api\", //compulsory\n\"category_id\":2, //compulsory\n\"sub_category_id\":66, //compulsory\n\"from_date\":\"2018-01-01\", //compulsory\n\"to_date\":\"2019-05-06\", //compulsory\n\"page\":2, //compulsory\n\"item_count\":2, //compulsory\n\"order_by\":\"date\",\n\"order_type\":\"desc\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary details fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 59,\n\"is_next_page\": true,\n\"result\": [\n{\n\"date\": \"2018-09-11\",\n\"uploaded_content_count\": 1\n},\n{\n\"date\": \"2018-09-07\",\n\"uploaded_content_count\": 2\n}\n]\n}\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryOfAllServersByAdmin",
+    "title": "getSummaryOfAllServersByAdmin",
+    "name": "getSummaryOfAllServersByAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"summary_of_all_servers\": [\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n}\n],\n\"server_url\": \"localhost\"\n},\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 95,\n\"category_id\": 2,\n\"name\": \"Test\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"no_of_catalogs\": 2,\n\"content_count\": 19,\n\"free_content\": 0,\n\"paid_content\": 19,\n\"last_uploaded_date\": \"2019-01-25 09:42:17\",\n\"is_active\": 1,\n\"last_uploaded_count\": 19\n}\n],\n\"server_url\": \"192.168.0.113\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1876,7 +2079,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"search category fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"category_list\": [\n{\n\"category_id\": 1,\n\"name\": \"Featured\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Search category fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"category_list\": [\n{\n\"category_id\": 1,\n\"name\": \"Featured\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1987,12 +2190,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"category_id\":1,\n\"name\":\"ca\"\n}",
+          "content": "{\n\"category_id\":1, //compulsory\n\"name\":\"ca\" //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"SubCategory Search Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"category_list\": [\n{\n\"sub_category_id\": 28,\n\"name\": \"Sub-category\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/597c6e5045aa8_category_img_1501326928.png\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/597c6e5045aa8_category_img_1501326928.png\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/597c6e5045aa8_category_img_1501326928.png\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub category fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"category_list\": [\n{\n\"sub_category_id\": 28,\n\"name\": \"Sub-category\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/597c6e5045aa8_category_img_1501326928.png\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/597c6e5045aa8_category_img_1501326928.png\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/597c6e5045aa8_category_img_1501326928.png\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2161,12 +2364,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"catalog_id\":1,\n\"name\":\"bg-catalog\",\n\"is_free\":1,\n\"is_featured\":1\n}\nfile:image.png //optional",
+          "content": "{\nrequest_data:{\n\"catalog_id\":1,\n\"name\":\"bg-catalog\",\n\"is_free\":1,\n\"is_featured\":1\n},\nfile:image.png //optional\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Updated Successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Catalog updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -2195,7 +2398,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"category updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Category updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -2225,35 +2428,6 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Featured Background Images updated successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
-    "url": "updateFeaturedImage",
-    "title": "updateFeaturedImage",
-    "name": "updateFeaturedImage",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "request_data:{\n\"img_id\":10\n},\noriginal_img:image1.jpeg,\ndisplay_img:image12.jpeg\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Featured Images added successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -2306,12 +2480,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"sub_category_id\":2,\n\"name\":\"Love-Category\"\n}\nfile:image.png //optional",
+          "content": "{\nrequest_data:{\n\"sub_category_id\":2, //compulsory\n\"name\":\"Love-Category\" //optional\n}\nfile:image.png //optional\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"sub category updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub category updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -2335,12 +2509,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"img_id\":1\n}\nfile:\"\"",
+          "content": "request_data:{\n\"img_id\":1 //compulsory\n}\nfile:\"\" //compulsory",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Image Updated Successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Normal image updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -2398,7 +2572,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Profile Updated Successfully.\",\n\"cause\": \"\",\n\"response\": \"\"\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Profile Updated Successfully.\",\n\"cause\": \"\",\n\"data\": \"\"\n}",
           "type": "json"
         }
       ]
@@ -2804,7 +2978,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": \"200\",\n\"message\": \"Question and answer fetched successfully.\",\n\"cause\": \"\",\n\"response\": {\n\"total_record\": 1,\n\"is_next_page\": false,\n\"result\": [\n{\n\"question_id\": 5,\n\"question_type\": 1,\n\"question\": \"test\",\n\"answer\": \"<p style=\\\"margin: 0cm 0cm 15pt; line-height: 19.2pt; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial;\\\"><font color=\\\"#333333\\\" face=\\\"Georgia, serif\\\"><span style=\\\"font-size: 17.3333px;\\\">test</span></font></p>\",\n\"create_time\": \"2018-12-26 04:58:34\",\n\"update_time\": \"2018-12-26 04:58:34\",\n\"search_text\": 0.36247622966766\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Question and answer fetched successfully.\",\n\"cause\": \"\",\n\"response\": {\n\"total_record\": 1,\n\"is_next_page\": false,\n\"result\": [\n{\n\"question_id\": 5,\n\"question_type\": 1,\n\"question\": \"test\",\n\"answer\": \"<p style=\\\"margin: 0cm 0cm 15pt; line-height: 19.2pt; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial;\\\"><font color=\\\"#333333\\\" face=\\\"Georgia, serif\\\"><span style=\\\"font-size: 17.3333px;\\\">test</span></font></p>\",\n\"create_time\": \"2018-12-26 04:58:34\",\n\"update_time\": \"2018-12-26 04:58:34\",\n\"search_text\": 0.36247622966766\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -3123,7 +3297,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": \"200\",\n\"message\": \"Question and answer fetched successfully.\",\n\"cause\": \"\",\n\"response\": {\n\"total_record\": 1,\n\"is_next_page\": false,\n\"result\": [\n{\n\"question_id\": 5,\n\"question_type\": 1,\n\"question\": \"test\",\n\"answer\": \"<p style=\\\"margin: 0cm 0cm 15pt; line-height: 19.2pt; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial;\\\"><font color=\\\"#333333\\\" face=\\\"Georgia, serif\\\"><span style=\\\"font-size: 17.3333px;\\\">test</span></font></p>\",\n\"create_time\": \"2018-12-26 04:58:34\",\n\"update_time\": \"2018-12-26 04:58:34\",\n\"search_text\": 0.36247622966766\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Question and answer fetched successfully.\",\n\"cause\": \"\",\n\"response\": {\n\"total_record\": 1,\n\"is_next_page\": false,\n\"result\": [\n{\n\"question_id\": 5,\n\"question_type\": 1,\n\"question\": \"test\",\n\"answer\": \"<p style=\\\"margin: 0cm 0cm 15pt; line-height: 19.2pt; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial;\\\"><font color=\\\"#333333\\\" face=\\\"Georgia, serif\\\"><span style=\\\"font-size: 17.3333px;\\\">test</span></font></p>\",\n\"create_time\": \"2018-12-26 04:58:34\",\n\"update_time\": \"2018-12-26 04:58:34\",\n\"search_text\": 0.36247622966766\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -3215,6 +3389,64 @@
   },
   {
     "type": "post",
+    "url": "getAllFontsByCatalogId",
+    "title": "getAllFontsByCatalogId",
+    "name": "getAllFontsByCatalogId",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"catalog_id\":328 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Fonts fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"font_id\": 80,\n\"catalog_id\": 333,\n\"font_name\": \"Shonar Bangla Bold\",\n\"font_file\": \"Shonar-Bold.ttf\",\n\"font_url\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar-Bold.ttf\"\n},\n{\n\"font_id\": 79,\n\"catalog_id\": 333,\n\"font_name\": \"Shonar Bangla\",\n\"font_file\": \"Shonar.ttf\",\n\"font_url\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar.ttf\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getAllSamplesWithWebp",
+    "title": "getAllSamplesWithWebp",
+    "name": "getAllSamplesWithWebp",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"catalog_id\": 398, //compulsory\n\"sub_category_id\": 97 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Samples fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 4,\n\"result\": [\n{\n\"json_id\": 3387,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7d03b31ef_json_image_1550810371.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 100,\n\"width\": 320,\n\"search_category\": \"banners\",\n\"original_img_height\": 100,\n\"original_img_width\": 320,\n\"updated_at\": \"2019-03-01 04:59:31\"\n},\n{\n\"json_id\": 3388,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7e1599291_json_image_1550810645.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"search_category\": \"Brochures\",\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-03-01 04:59:04\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "getBackgroundCatalogBySubCategoryId",
     "title": "getBackgroundCatalogBySubCategoryId",
     "name": "getBackgroundCatalogBySubCategoryId",
@@ -3293,6 +3525,122 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Catalog Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"last_sync_time\": \"2017-11-28 06:55:14\",\n\"category_list\": [\n{\n\"catalog_id\": 168,\n\"name\": \"Business Card Catalog2\",\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"catalog_id\": 167,\n\"name\": \"Business Card Catalog1\",\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a17fab520a09_catalog_img_1511520949.png\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a17fab520a09_catalog_img_1511520949.png\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a17fab520a09_catalog_img_1511520949.png\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getCatalogBySubCategoryIdWithWebp",
+    "title": "getCatalogBySubCategoryIdWithWebp",
+    "name": "getCatalogBySubCategoryIdWithWebp",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":97, //compulsory\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n\"is_free\":1 //optional, 1=free & 0=paid\n\"is_featured\":1 //optional, 1=featured(Ex: get template categories) & 0=normal(Ex: et sticker categories)\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Catalogs fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 21,\n\"is_next_page\": true,\n\"result\": [\n{\n\"catalog_id\": 498,\n\"name\": \"Party\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c7914a7c12f5_catalog_img_1551439015.webp\",\n\"webp_original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c7914a7c12f5_catalog_img_1551439015.webp\",\n\"is_featured\": 1,\n\"is_free\": 1,\n\"updated_at\": \"2019-03-01 11:16:56\"\n},\n{\n\"catalog_id\": 497,\n\"name\": \"Offer & Sales\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c7912eee5c0e_catalog_img_1551438574.webp\",\n\"webp_original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c7912eee5c0e_catalog_img_1551438574.webp\",\n\"is_featured\": 1,\n\"is_free\": 1,\n\"updated_at\": \"2019-03-01 11:09:35\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getCatalogsByType",
+    "title": "getCatalogsByType",
+    "name": "getCatalogsByType",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":94, //compulsory\n\"is_free\":1 //optional, 1=free & 0=paid\n\"is_featured\":1 //optional, 1=featured & 0=normal\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Catalogs fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"catalog_id\": 279,\n\"name\": \"Animal1\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c39b8ba93df0_catalog_img_1547286714.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c39b8ba93df0_catalog_img_1547286714.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c39b8ba93df0_catalog_img_1547286714.png\",\n\"is_featured\": 0,\n\"is_free\": 1,\n\"updated_at\": \"2019-01-12 09:51:55\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getCatalogsByTypeInWebp",
+    "title": "getCatalogsByTypeInWebp",
+    "name": "getCatalogsByTypeInWebp",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":94, //compulsory\n\"is_free\":1 //optional, 1=free & 0=paid\n\"is_featured\":1 //optional, 1=featured & 0=normal\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Catalogs fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"catalog_id\": 333,\n\"name\": \"Shonar Bangla\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c419ca410289_catalog_img_1547803812.webp\",\n\"is_featured\": 0,\n\"is_free\": 1,\n\"updated_at\": \"2019-01-18 09:30:12\"\n},\n{\n\"catalog_id\": 332,\n\"name\": \"Roboto\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c419c992fbeb_catalog_img_1547803801.webp\",\n\"is_featured\": 0,\n\"is_free\": 1,\n\"updated_at\": \"2019-01-18 09:30:01\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getContentByCatalogId",
+    "title": "getContentByCatalogId",
+    "name": "getContentByCatalogId",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"catalog_id\":397, //compulsory\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 135,\n\"is_next_page\": true,\n\"result\": [\n{\n\"img_id\": 3303,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n},\n{\n\"img_id\": 3304,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -3466,7 +3814,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Images Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 13,\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e5ec3f2_catalog_image_1502433765.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e5ec3f2_catalog_image_1502433765.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d51e5ec3f2_catalog_image_1502433765.png\"\n},\n{\n\"img_id\": 14,\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e65fdf3_catalog_image_1502433766.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e65fdf3_catalog_image_1502433766.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d51e65fdf3_catalog_image_1502433766.png\"\n},\n{\n\"img_id\": 11,\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d51e4e7d68_catalog_image_1502433764.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d51e4e7d68_catalog_image_1502433764.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d51e4e7d68_catalog_image_1502433764.png\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Images fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 3303,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_free\": 0,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n},\n{\n\"img_id\": 3304,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_free\": 0,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -3490,12 +3838,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"page\":1, //compulsory\n\"item_count\":4, //compulsory and must be >=3 && <=200\n\"search_query\":\"nature\"\n}",
+          "content": "{\n\"page\":1, //compulsory\n\"search_query\":\"nature\"\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Images fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"is_next_page\": true,\n\"is_cache\": 0,\n\"result\": {\n\"totalHits\": 500,\n\"hits\": [\n{\n\"largeImageURL\": \"https://pixabay.com/get/e835b60d20f6023ed1584d05fb1d4f95e571e5d21eac104491f5c678a4edbcbe_1280.jpg\",\n\"webformatHeight\": 373,\n\"webformatWidth\": 640,\n\"likes\": 1736,\n\"imageWidth\": 3160,\n\"id\": 1072823,\n\"user_id\": 1720744,\n\"views\": 455334,\n\"comments\": 199,\n\"pageURL\": \"https://pixabay.com/en/road-forest-season-autumn-fall-1072823/\",\n\"imageHeight\": 1846,\n\"webformatURL\": \"https://pixabay.com/get/e835b60d20f6023ed1584d05fb1d4f95e571e5d21eac104491f5c678a4edbcbe_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 87,\n\"tags\": \"road, forest, season\",\n\"downloads\": 180992,\n\"user\": \"valiunic\",\n\"favorites\": 1503,\n\"imageSize\": 3819762,\n\"previewWidth\": 150,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/12/01/20-20-44-483_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072823_150.jpg\"\n}\n],\n\"total\": 238950\n}\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Images fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"user_profile_url\": \"https://pixabay.com/users/\",\n\"is_next_page\": true,\n\"is_cache\": 0,\n\"result\": {\n\"totalHits\": 500,\n\"hits\": [\n{\n\"largeImageURL\": \"https://pixabay.com/get/e835b60d20f6023ed1584d05fb1d4797e47ee0dc1fb70c4090f5c071a1edb3bcdd_1280.jpg\",\n\"webformatHeight\": 373,\n\"webformatWidth\": 640,\n\"likes\": 1918,\n\"imageWidth\": 3160,\n\"id\": 1072823,\n\"user_id\": 1720744,\n\"views\": 546053,\n\"comments\": 218,\n\"pageURL\": \"https://pixabay.com/photos/road-forest-season-autumn-fall-1072823/\",\n\"imageHeight\": 1846,\n\"webformatURL\": \"https://pixabay.com/get/e835b60d20f6023ed1584d05fb1d4797e47ee0dc1fb70c4090f5c071a1edb3bcdd_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 87,\n\"tags\": \"road, forest, season\",\n\"downloads\": 219192,\n\"user\": \"valiunic\",\n\"favorites\": 1634,\n\"imageSize\": 3819762,\n\"previewWidth\": 150,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/12/01/20-20-44-483_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072823_150.jpg\"\n}\n],\n\"total\": 248144\n}\n}\n}",
           "type": "json"
         }
       ]
@@ -3563,6 +3911,35 @@
   },
   {
     "type": "post",
+    "url": "getJsonSampleDataFilterBySearchTag",
+    "title": "getJsonSampleDataFilterBySearchTag",
+    "name": "getJsonSampleDataFilterBySearchTag",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":51, //Compulsory\n\"page\":2, //Compulsory\n\"item_count\":10 //Compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 5,\n\"is_next_page\": false,\n\"result\": [\n{\n\"category_name\": \"Flyer\",\n\"content_list\": [\n{\n\"json_id\": 3385,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6e289c967e9_json_image_1550723228.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"search_category\": \"Flyer,Fitness\",\n\"original_img_height\": 800,\n\"original_img_width\": 650,\n\"updated_at\": \"2019-02-21 04:28:03\"\n}\n]\n},\n{\n\"category_name\": \"Business Card\",\n\"content_list\": []\n},\n{\n\"category_name\": \"Brochure\",\n\"content_list\": [\n{\n\"json_id\": 3325,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"search_category\": \"Brochure\",\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-02-20 11:07:06\"\n}\n]\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "getJsonSampleDataWithLastSyncTime",
     "title": "getJsonSampleDataWithLastSyncTime",
     "name": "getJsonSampleDataWithLastSyncTime",
@@ -3606,12 +3983,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"page\":2,\n\"item_count\":10,\n\"catalog_id\":167,\n\"sub_category_id\":51,\n\"last_sync_time\": \"2017-11-28 00:00:00\"\n}",
+          "content": "{\n\"catalog_id\": 398,\n\"item_count\": 20,\n\"last_sync_time\": \"0\",\n\"page\": 1,\n\"sub_category_id\": 97\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All json fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 23,\n\"is_next_page\": true,\n\"last_sync_time\": \"2018-06-21 12:04:36\",\n\"data\": [\n{\n\"json_id\": 1190,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0ae54e2105_json_image_1521528404.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"json_id\": 1185,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5ab0af12d9bae_json_image_1521528594.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"updated_at\": \"2018-06-21 12:04:32\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Samples fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 3,\n\"is_next_page\": false,\n\"data\": [\n{\n\"json_id\": 3326,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d3523a43b5_json_image_1550660899.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 0,\n\"height\": 256,\n\"width\": 512,\n\"search_category\": \"Twitter\",\n\"original_img_height\": 512,\n\"original_img_width\": 1024,\n\"updated_at\": \"2019-02-20 11:08:20\"\n},\n{\n\"json_id\": 3325,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"search_category\": \"Brochure\",\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-02-20 11:07:06\"\n}\n],\n\"last_sync_time\": \"2019-02-21 09:50:37\"\n}\n}",
           "type": "json"
         }
       ]
@@ -3733,35 +4110,6 @@
       ]
     },
     "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "User"
-  },
-  {
-    "type": "post",
-    "url": "getZipFile",
-    "title": "getZipFile",
-    "name": "getZipFile",
-    "group": "User",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"file_name\":\"sample.zip\" //compulsory\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Featured json images fetch successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"url\": \"sample.zip\"\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {

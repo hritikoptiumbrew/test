@@ -19,16 +19,12 @@ class ImageController extends Controller
     // get base url
     public function getBaseUrl()
     {
-
         // get base url in local/live server
         return Config::get('constant.ACTIVATION_LINK_PATH');
-        //return 'http://'.$_SERVER['HTTP_HOST'].'/'.Config::get('constant.PROJECT_NAME');
-        //$a='http://'.$_SERVER['HTTP_HOST'].'/'.Config::get('constant.PROJECT_NAME');
-        //var_dump($a);
     }
 
 
-    //verify image
+    // Verify Image
     public function verifyImage($image_array)
     {
 
@@ -38,14 +34,67 @@ class ImageController extends Controller
         $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
 
         if (!($image_type == 'image/png' || $image_type == 'image/jpeg'))
-            $response = Response::json(array('code' => '201', 'message' => 'Please select PNG or JPEG file', 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($image_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => '201', 'message' => 'File Size is greater then 5MB', 'cause' => '', 'response' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 5MB', 'cause' => '', 'data' => json_decode("{}")));
         else
             $response = '';
         return $response;
     }
 
+    // Verify Image
+    public function validateHeightWidthOfSampleImage($image_array, $json_data)
+    {
+        // Open image as a string
+        $data = file_get_contents($image_array);
+
+        // getimagesizefromstring function accepts image data as string & return file info
+        $file_info = getimagesizefromstring($data);
+
+        // Display the image content
+        $width = $file_info[0];
+        $height = $file_info[1];
+
+        //Log::info('validateHeightWidthOfSampleImage height & width : ',['height_from_img' => $height, 'width_from_img' => $width, 'height_from_json' => $json_data->height, 'width_from_json' => $json_data->width]);
+
+        if ($json_data->height == $height && $json_data->width == $width) {
+            $response = '';
+        } else {
+            return $response = Response::json(array('code' => 201, 'message' => 'Height & width of the sample image doesn\'t match with height & width given in json.', 'cause' => '', 'data' => json_decode("{}")));
+        }
+
+        return $response;
+    }
+
+    // Validate Fonts
+    public function validateFonts($json_data)
+    {
+        $text_json = $json_data->text_json;
+        $exist_count = 0;
+
+        foreach ($text_json as $key) {
+            $ios_font_name = $key->fontName;
+            $android_font_name = $key->fontPath;
+
+            $is_exist = DB::select('SELECT id FROM font_master WHERE ios_font_name = ? AND android_font_name = ?', [$ios_font_name, $android_font_name]);
+
+            if (count($is_exist) == 0) {
+                Log::info('validateFonts font not exist : ',['query_result' => $is_exist, 'ios_font_name' => $ios_font_name, 'android_font_name' => $android_font_name]);
+                $exist_count = $exist_count + 1;
+            }
+
+        }
+
+        if ($exist_count > 0) {
+            $response = Response::json(array('code' => 201, 'message' => 'Fonts used by json does not exist in the server.', 'cause' => '', 'data' => json_decode("{}")));
+        } else {
+            $response = '';
+        }
+
+        return $response;
+    }
+
+    // Verify Video
     public function verifyVideo($video_array)
     {
 
@@ -60,16 +109,16 @@ class ImageController extends Controller
         //quicktime ==>.mov
 
         if (!($video_type == 'video/x-ms-asf' || $video_type == 'video/mp4' || $video_type == 'video/webm' || $video_type == 'video/quicktime')) {
-            return $response = Response::json(array('code' => '201', 'message' => 'Please select asf or mp4 or webm(mkv) or mov file', 'cause' => '', 'data' => json_decode("{}")));
+            return $response = Response::json(array('code' => 201, 'message' => 'Please select asf or mp4 or webm(mkv) or mov file', 'cause' => '', 'data' => json_decode("{}")));
 
         } elseif ($video_size > $MAXIMUM_FILESIZE) {
-            return $response = Response::json(array('code' => '201', 'message' => 'File Size is greater then 10MB', 'cause' => '', 'data' => json_decode("{}")));
+            return $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 10MB', 'cause' => '', 'data' => json_decode("{}")));
         } else
             $response = '';
         return $response;
     }
 
-    // verify audio
+    // Verify Audio
     public function verifyAudio($audio_array)
     {
 
@@ -82,15 +131,33 @@ class ImageController extends Controller
         //quicktime ==>.mov
 
         if (!($audio_type == 'audio/mpeg' || $audio_type == 'application/octet-stream')) {
-            return $response = Response::json(array('code' => '201', 'message' => 'Please select 3gp or mp4 audio file', 'cause' => '', 'data' => json_decode("{}")));
+            return $response = Response::json(array('code' => 201, 'message' => 'Please select 3gp or mp4 audio file', 'cause' => '', 'data' => json_decode("{}")));
         } elseif ($audio_size > $MAXIMUM_FILESIZE) {
-            return $response = Response::json(array('code' => '201', 'message' => 'File Size is greater then 10MB', 'cause' => '', 'data' => json_decode("{}")));
+            return $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 10MB', 'cause' => '', 'data' => json_decode("{}")));
         } else
             $response = '';
         return $response;
     }
 
-    //generate image new name
+    // Verify Font File
+    public function verifyFontFile($image_array)
+    {
+
+        $file_type = $image_array->getMimeType();
+        $file_size = $image_array->getSize();
+        //Log::info("Font file : ", ['type' => $file_type, 'size' => $file_size]);
+        $MAXIMUM_FILESIZE = 1 * 1024 * 1024;
+
+        if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/vnd.ms-opentype'))
+            $response = Response::json(array('code' => 201, 'message' => 'Please select TTF or OTF file.', 'cause' => '', 'data' => json_decode("{}")));
+        elseif ($file_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 1MB.', 'cause' => '', 'data' => json_decode("{}")));
+        else
+            $response = '';
+        return $response;
+    }
+
+    // Generate Image New Name
     public function generateNewFileName($image_type, $image_array)
     {
 
@@ -102,63 +169,64 @@ class ImageController extends Controller
         return $new_file_name;
     }
 
-    // Save original Image
+    // Save Original Image
     public function saveOriginalImage($img)
     {
-        $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-        Input::file('file')->move($original_path, $img);
-        $path = $original_path . $img;
-        $this->saveImageDetails($path, 'original');
-        $original_img_size = filesize($path);
-
-        //convert image into .webp format
-        $file_data = pathinfo(basename($path));
-        $webp_name = $file_data['filename'];
-
-        /*
-             *  -q Set image quality
-             *  -o Output file name
-         */
-
-        $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH') . $webp_name . '.webp';
-        $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $img;
-        $quality = Config::get('constant.QUALITY');
-        $libwebp = Config::get('constant.PATH_OF_CWEBP');
-
-        $cmd = "$libwebp -q $quality $org_path -o $webp_path";
-
-        if (env('APP_ENV') != 'local') {
-            $result = (!shell_exec($cmd));
-        } else {
-            $result = (!exec($cmd));
+        try {
+            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+            Input::file('file')->move($original_path, $img);
+            $path = $original_path . $img;
+            $this->saveImageDetails($path, 'original');
+        } catch (Exception $e) {
+            Log::error("saveOriginalImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
-
-        /*$base_url = (new ImageController())->getBaseUrl();
-
-        $webp_org_path = $base_url . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
-
-        $headers = get_headers($webp_org_path, true);
-        $webp_img_size = $headers['Content-Length'];
-
-        if ($webp_img_size > $original_img_size) {
-
-            $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
-            unlink($webp_org_path);
-            $webp_org_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $img;
-            File::copy($path, $webp_org_path);
-            return $img;
-
-        } else {
-            return $webp_name . '.webp';
-
-        }*/
-
-        return $webp_name . '.webp';
-
-
     }
 
-// Save encoded Image
+    // Save Webp Original Image
+    public function saveWebpOriginalImage($img)
+    {
+        try {
+            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+            $path = $original_path . $img;
+
+            //convert image into .webp format
+            $file_data = pathinfo(basename($path));
+            $webp_name = $file_data['filename'];
+
+            /*
+                 *  -q Set image quality
+                 *  -o Output file name
+             */
+
+            $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH') . $webp_name . '.webp';
+            $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $img;
+            $quality = Config::get('constant.QUALITY');
+            $libwebp = Config::get('constant.PATH_OF_CWEBP');
+
+            $cmd = "$libwebp -q $quality $org_path -o $webp_path";
+
+            if (Config::get('constant.APP_ENV') != 'local') {
+                $result = (!shell_exec($cmd));
+            } else {
+                $result = (!exec($cmd));
+            }
+
+            return $webp_name . '.webp';
+        } catch (Exception $e) {
+            Log::error("saveWebpOriginalImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+    }
+
+    // Save Original Image From Array
+    public function saveOriginalImageFromArray($image_array, $img)
+    {
+        $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+        $image_array->move($original_path, $img);
+        $path = $original_path . $img;
+        $this->saveImageDetails($path, 'original');
+    }
+
+    // Save encoded Image
     public function saveEncodedImage($image_array, $professional_img)
     {
         $path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
@@ -197,7 +265,8 @@ class ImageController extends Controller
             foreach ($_FILES['file'] as $check) {
                 chmod($dest1, 0777);
                 copy($dest1, $dest2);
-                Log::error("Exception :", [$e->getMessage()]);
+                Log::error("saveCompressedImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+
             }
 
         }
@@ -240,10 +309,34 @@ class ImageController extends Controller
             //use for Image Details
             $this->saveImageDetails($thumbnail_path, 'thumbnail');
 
+        } catch (Exception $e) {
+            Log::error("saveThumbnailImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
+            $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
+            foreach ($_FILES['file'] as $check) {
+                chmod($dest1, 0777);
+                copy($dest1, $dest2);
+            }
+            return "";
+        }
+    }
+
+    // Save Thumbnail Image
+    public function saveWebpThumbnailImage($professional_img)
+    {
+        try {
+            $array = $this->getThumbnailWidthHeight($professional_img);
+            $width = $array['width'];
+            $height = $array['height'];
+            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
+            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
+
             $file_data = pathinfo(basename($thumbnail_path));
             //convert image into .webp format
             $webp_name = $file_data['filename'];
             $image_size = getimagesize($original_path);
+            $org_img_height = $image_size[1];
+            $org_img_width = $image_size[0];
             $width_orig = ($image_size[0] * 50) / 100;
             $height_orig = ($image_size[1] * 50) / 100;
 
@@ -263,29 +356,29 @@ class ImageController extends Controller
             if ($width_orig < 200 or $height_orig < 200) {
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_path";
-                if (env('APP_ENV') != 'local') {
+                if (Config::get('constant.APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
                 } else {
                     // For windows
                     $result = (!exec($cmd));
                 }
-                return array('height' => $height, 'width' => $width);
+                return array('height' => $height, 'width' => $width, 'org_img_height' => $org_img_height, 'org_img_width' => $org_img_width);
             } else {
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
-                if (env('APP_ENV') != 'local') {
+                if (Config::get('constant.APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
                 } else {
                     // For windows
                     $result = (!exec($cmd));
                 }
-                return array('height' => $height_orig, 'width' => $width_orig);
+                return array('height' => $height_orig, 'width' => $width_orig, 'org_img_height' => $org_img_height, 'org_img_width' => $org_img_width);
             }
 
         } catch (Exception $e) {
-            Log::error("saveThumbnailImage Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveThumbnailImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
             $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
             foreach ($_FILES['file'] as $check) {
@@ -296,7 +389,7 @@ class ImageController extends Controller
         }
     }
 
-    // save Compressed and Thumbnail Image
+    // Save Compressed and Thumbnail Image
     public function saveCompressedThumbnailImage($source_url, $destination_url, $thumbnail_path)
     {
 
@@ -372,7 +465,7 @@ class ImageController extends Controller
                 File::copy($original_path . $img_name, $compress_path . $img_name);
             }
         } catch (Exception $e) {
-            Log::error(["Exception :", $e->getMessage(), "TraceAsString :", $e->getTraceAsString()]);
+            Log::error("CompressImageCheck : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
 
     }
@@ -383,15 +476,22 @@ class ImageController extends Controller
     {
         try {
 
-            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image_name;
-            $compressed_path = '../..' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $image_name;
-            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image_name;
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
 
-            File::delete($original_path);
-            File::delete($compressed_path);
-            File::delete($thumbnail_path);
-            DB::beginTransaction();
+                $this->deleteObjectFromS3($image_name, 'original');
+                $this->deleteObjectFromS3($image_name, 'compressed');
+                $this->deleteObjectFromS3($image_name, 'thumbnail');
+
+            } else {
+
+                $this->unlinkFileFromLocalStorage($image_name, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'));
+                $this->unlinkFileFromLocalStorage($image_name, Config::get('constant.COMPRESSED_IMAGES_DIRECTORY'));
+                $this->unlinkFileFromLocalStorage($image_name, Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY'));
+
+            }
+
             /* Image Details delete */
+            DB::beginTransaction();
             DB::delete('DELETE
                         FROM
                           image_details
@@ -400,13 +500,13 @@ class ImageController extends Controller
             DB::commit();
 
         } catch (Exception $e) {
-            Log::error("Exception :", ["Error :" => $e->getMessage(), "TraceAsString :" => $e->getTraceAsString()]);
+            Log::error("deleteImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
             return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' delete image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
     }
 
-    //image Analysis
+    //Image Analysis
     public function  saveImageDetails($image_path, $image_directory)
     {
         try {
@@ -430,23 +530,20 @@ class ImageController extends Controller
 
             DB::commit();
         } catch (Exception $e) {
-            Log::error("Exception :", ["Error :" => $e->getMessage(), "TraceAsString :" => $e->getTraceAsString()]);
+            Log::error("saveImageDetails : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
-            return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' save image details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'save image details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
     }
 
-    // Save original Image
+    // Save Original Image
     public function saveMultipleOriginalImage($img, $file_name)
     {
 
         $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
         Input::file($file_name)->move($original_path, $img);
-//
-//        $original_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-//        Input::file($file_name)->move($original_path, $img);
-//
-//        //use for Image Details
+
+        //use for Image Details
         $path = $original_path . $img;
         $this->saveImageDetails($path, 'original');
     }
@@ -477,7 +574,7 @@ class ImageController extends Controller
             foreach ($_FILES[$file_name] as $check) {
                 chmod($dest1, 0777);
                 copy($dest1, $dest2);
-                Log::error("Exception :", [$e->getMessage()]);
+                Log::error("saveMultipleCompressedImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             }
         }
 
@@ -509,144 +606,172 @@ class ImageController extends Controller
 
     public function saveResourceImage($image_array)
     {
-        $bg_image = $image_array->getClientOriginalName();
-        $original_path = '../..' . Config::get('constant.RESOURCE_IMAGES_DIRECTORY');
-        $image_array->move($original_path, $bg_image);
+        $image = $image_array->getClientOriginalName();
+        $resource_path = Config::get('constant.RESOURCE_IMAGES_DIRECTORY');
+        $this->unlinkFileFromLocalStorage($image, $resource_path);
+        $original_path = '../..' . $resource_path;
+        $image_array->move($original_path, $image);
 
     }
 
-    public function unlinkImage($image_array)
-    {
-        $bg_image = $image_array->getClientOriginalName();
-
-        $image_path = '../..' . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
-
-        if (File::exists($image_path)) {
-            //File::delete($image_path);
-            unlink($image_path);
-        }
-//                   File::delete($filename);
-
-    }
-
-    //unlinkImage from image_bucket
-    public function unlinkfile($image_array)
+    public function saveFontFile($file_name, $is_replace)
     {
         try {
 
-            //$bg_image = $image_array->getClientOriginalName();
+            if ($is_replace == 0) {
 
-            $original_image_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image_array;
+                $source_file_path = '../..' . Config::get('constant.TEMP_FILE_DIRECTORY') . $file_name;
+                $destination_file_path = '../..' . Config::get('constant.FONT_FILE_DIRECTORY') . $file_name;
 
-            //Log::info('path : ',['path' => $image_array]);
-            //if (File::exists($original_image_path)) {
-            if (fopen($original_image_path, "r")) {
-                //File::delete($image_path);
-                unlink($original_image_path);
+                //move file from temp to fonts directory
+                rename($source_file_path, $destination_file_path);
             } else {
-                return 1;
+
+                $destination_path = '../..' . Config::get('constant.FONT_FILE_DIRECTORY');
+                Input::file('file')->move($destination_path, $file_name);
+
             }
 
-            $compressed_image_path = '../..' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $image_array;
+            $font_name = (new VerificationController())->getFontName($file_name);
+            return $font_name;
 
-            //if (File::exists($compressed_image_path)) {
-            if (fopen($compressed_image_path, "r")) {
-                //File::delete($image_path);
+        } catch (Exception $e) {
+            Log::error("saveFontFile : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+
+        }
+
+    }
+
+    // Unlink Image From image_bucket
+    public function unlinkFile($image)
+    {
+        try {
+
+            $original_image_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
+
+            if (($is_exist = ($this->checkFileExist($original_image_path)) != 0)) {
+                unlink($original_image_path);
+            }
+
+            $compressed_image_path = '../..' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $image;
+
+            if (($is_exist = ($this->checkFileExist($compressed_image_path)) != 0)) {
                 unlink($compressed_image_path);
             }
 
-            $thumbnail_image_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image_array;
+            $thumbnail_image_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image;
 
-            //if (File::exists($thumbnail_image_path)) {
-            if (fopen($thumbnail_image_path, "r")) {
-                //File::delete($image_path);
+            if (($is_exist = ($this->checkFileExist($thumbnail_image_path)) != 0)) {
                 unlink($thumbnail_image_path);
             }
 
+
         } catch (Exception $e) {
+            Log::error("unlinkFile : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
 
 
     }
 
-    //saveImageInToSpaces
-    public function saveImageInToSpaces($image)
+    // Save Image InTo S3
+    public function saveImageInToS3($image)
     {
         try {
-            $base_url = (new ImageController())->getBaseUrl();
 
-
-            $original_sourceFile = $base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
-            $compressed_sourceFile = $base_url . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $image;
-            $thumbnail_sourceFile = $base_url . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image;
-
-            //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
+            $original_sourceFile = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
+            $compressed_sourceFile = '../..' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $image;
+            $thumbnail_sourceFile = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $image;
 
             $disk = Storage::disk('s3');
-            if (fopen($original_sourceFile, "r")) {
-
+            if (($is_exist = ($this->checkFileExist($original_sourceFile)) != 0)) {
                 $original_targetFile = "imageflyer/original/" . $image;
                 $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
 
+                //unlink file from local storage
+                unlink($original_sourceFile);
             }
 
-            if (fopen($compressed_sourceFile, "r")) {
-
+            if (($is_exist = ($this->checkFileExist($compressed_sourceFile)) != 0)) {
                 $compressed_targetFile = "imageflyer/compressed/" . $image;
                 $disk->put($compressed_targetFile, file_get_contents($compressed_sourceFile), 'public');
 
+                //unlink file from local storage
+                unlink($compressed_sourceFile);
             }
 
-            if (fopen($thumbnail_sourceFile, "r")) {
-
+            if (($is_exist = ($this->checkFileExist($thumbnail_sourceFile)) != 0)) {
                 $thumbnail_targetFile = "imageflyer/thumbnail/" . $image;
                 $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile), 'public');
 
+                //unlink file from local storage
+                unlink($thumbnail_sourceFile);
             }
 
-            (new ImageController())->unlinkfile($image);
+            /*$this->unlinkFileFromLocalStorage($image, $original_directory);
+            $this->unlinkFileFromLocalStorage($image, $compressed_directory);
+            $this->unlinkFileFromLocalStorage($image, $thumbnail_directory);*/
+
 
         } catch (Exception $e) {
-            Log::error("saveImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveImageInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
 
 
     }
 
-    //saveImageInToSpaces
-    public function saveResourceImageInToSpaces($image)
+    // Save Font InTo S3
+    public function saveFontInToS3($file)
     {
         try {
-            $base_url = (new ImageController())->getBaseUrl();
+            $original_sourceFile = '../..' . Config::get('constant.FONT_FILE_DIRECTORY') . $file;
+            $disk = Storage::disk('s3');
+            $this->deleteObjectFromS3($file, 'fonts');
+
+            if (($is_exist = ($this->checkFileExist($original_sourceFile)) != 0)) {
+
+                $original_targetFile = "imageflyer/fonts/" . $file;
+                $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
+
+                unlink($original_sourceFile);
+
+            }
+
+        } catch (Exception $e) {
+            Log::error("saveFontInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+
+        }
 
 
-            $old_file = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $image;
-            $resource_sourceFile = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $image;
+    }
+
+    // Save Resource Image InTo S3
+    public function saveResourceImageInToS3($image)
+    {
+        try {
+
+            $resource_dir = Config::get('constant.RESOURCE_IMAGES_DIRECTORY');
+            $resource_sourceFile = '../..' . $resource_dir . $image;
 
             $disk = Storage::disk('s3');
-            $disk->delete(public_path($old_file));
+            $this->deleteObjectFromS3($image, 'resource');
 
-            if (fopen($resource_sourceFile, "r")) {
-
+            if (($is_exist = ($this->checkFileExist($resource_sourceFile)) != 0)) {
                 $resource_targetFile = "imageflyer/resource/" . $image;
                 $disk->put($resource_targetFile, file_get_contents($resource_sourceFile), 'public');
 
+                //delete file from local storage
+                unlink($resource_sourceFile);
             }
 
-            //(new ImageController())->unlinkfile($image);
-
         } catch (Exception $e) {
-            Log::error("saveImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-
+            Log::error("saveResourceImageInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
-
-
     }
 
     //unlinkImage from image_bucket
-    public function saveImageInToSpacesForMigration($image)
+    public function saveImageInToS3ForMigration($image)
     {
         try {
             //$base_url = (new ImageController())->getBaseUrl();
@@ -682,9 +807,9 @@ class ImageController extends Controller
 
             }
 
-            (new ImageController())->unlinkfile($image);
+            (new ImageController())->unlinkFile($image);
         } catch (Exception $e) {
-            Log::error("saveImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveImageInToS3ForMigration : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
 
@@ -698,8 +823,8 @@ class ImageController extends Controller
         $original_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN');
         $path = $original_path . $img;
         //$original_img_size = filesize($path);
-        $headers = get_headers($path, true);
-        $original_img_size = $headers['Content-Length'];
+        //$headers = get_headers($path, true);
+        //$original_img_size = $headers['Content-Length'];
         $array = $this->getThumbnailWidthHeightForWebp($img);
         $width = $array['width'];
         $height = $array['height'];
@@ -718,28 +843,28 @@ class ImageController extends Controller
         */
 
         $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_ORIGINAL_IMG_PATH') . $webp_name . '.webp';
-        $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') .$img ;
+        $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $img;
         //$org_path = $path;
         $quality = Config::get('constant.QUALITY');
         $libwebp = Config::get('constant.PATH_OF_CWEBP');
         $cmd = "$libwebp -q $quality $org_path -o $webp_path";
 
         //Log::info($cmd);
-        if (env('APP_ENV') != 'local') {
+        if (Config::get('constant.APP_ENV') != 'local') {
             $result = (!shell_exec($cmd));
         } else {
             $result = (!exec($cmd));
         }
 
-        $base_url = (new ImageController())->getBaseUrl();
-        $webp_org_path = $base_url . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
-        $headers = get_headers($webp_org_path, true);
-        $webp_img_size = $headers['Content-Length'];
+        //$base_url = (new ImageController())->getBaseUrl();
+        //$webp_org_path = $base_url . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $webp_name . '.webp';
+        //$headers = get_headers($webp_org_path, true);
+        //$webp_img_size = $headers['Content-Length'];
 
 
         /* save webp_thumbnail */
         $webp_thumb_path = Config::get('constant.IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH') . $webp_name . '.webp';
-        $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') .$img ;//$path;
+        $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $img;//$path;
         $quality = Config::get('constant.QUALITY');
         $libwebp = Config::get('constant.PATH_OF_CWEBP');
 
@@ -747,7 +872,7 @@ class ImageController extends Controller
         if ($width_orig < 200 or $height_orig < 200) {
 
             $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_thumb_path";
-            if (env('APP_ENV') != 'local') {
+            if (Config::get('constant.APP_ENV') != 'local') {
                 //For Linux
                 $result = (!shell_exec($cmd));
             } else {
@@ -772,7 +897,7 @@ class ImageController extends Controller
 
             $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_thumb_path";
 
-            if (env('APP_ENV') != 'local') {
+            if (Config::get('constant.APP_ENV') != 'local') {
                 //For Linux
                 $result = (!shell_exec($cmd));
             } else {
@@ -795,8 +920,8 @@ class ImageController extends Controller
         }
     }
 
-    // Save webp Image
-    public function saveWebpThumbnailImage($img)
+    // Save webp_thumbnail Image From S3
+    public function saveWebpThumbnailImageFromS3($img)
     {
         try {
             $original_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN');
@@ -806,17 +931,9 @@ class ImageController extends Controller
             //convert image into .webp format
             $file_data = pathinfo(basename($path));
             $webp_name = $file_data['filename'];
-            $webp_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $webp_name . '.webp';
+            $webp_thumbnail_dir = Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY');
 
-            try {
-
-                if (fopen($webp_path, "r")) {
-
-                    unlink($webp_path);
-                }
-            } catch (Exception $e) {
-                Log::Debug("saveWebpThumbnailImage is_exist? :", ['Exception_msg : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-            }
+            $this->unlinkFileFromLocalStorage($webp_name, $webp_thumbnail_dir);
 
             $image_size = getimagesize($path);
             $width_orig = round(($image_size[0] * 50) / 100);
@@ -842,7 +959,7 @@ class ImageController extends Controller
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_path";
                 //Log::info('cmd 1: ',['cmd' => $cmd]);
-                if (env('APP_ENV') != 'local') {
+                if (Config::get('constant.APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
                 } else {
@@ -856,7 +973,7 @@ class ImageController extends Controller
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
                 //Log::info('cmd 2: ',['cmd' => $cmd]);
-                if (env('APP_ENV') != 'local') {
+                if (Config::get('constant.APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
                 } else {
@@ -868,7 +985,7 @@ class ImageController extends Controller
 
         } catch (Exception $e) {
 
-            Log::error("saveWebpImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveWebpThumbnailImageFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $image_size = getimagesize($path);
             $width_orig = round(($image_size[0] * 50) / 100);
             $height_orig = round(($image_size[1] * 50) / 100);
@@ -893,7 +1010,7 @@ class ImageController extends Controller
             if ($width_orig < 200 or $height_orig < 200) {
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_path";
-                if (env('APP_ENV') != 'local') {
+                if (Config::get('constant.APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
                 } else {
@@ -904,7 +1021,7 @@ class ImageController extends Controller
             } else {
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
-                if (env('APP_ENV') != 'local') {
+                if (Config::get('constant.APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
                 } else {
@@ -917,86 +1034,42 @@ class ImageController extends Controller
         }
     }
 
-    //unlinkImage from image_bucket
-    public function saveWebpImageInToSpaces($image)
+    // Save Webp Image InTo S3
+    public function saveWebpImageInToS3($image)
     {
         try {
-            $base_url = (new ImageController())->getBaseUrl();
 
+            /*$webp_original_dir = Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY');
+            $webp_thumbnail_dir = Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY');*/
 
-            $original_sourceFile = $base_url . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $image;
-            $thumbnail_sourceFile = $base_url . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $image;
-
-            //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
+            $original_sourceFile = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $image;
+            $thumbnail_sourceFile = '../..' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $image;
 
             $disk = Storage::disk('s3');
-            if (fopen($original_sourceFile, "r")) {
+            if (($is_exist = ($this->checkFileExist($original_sourceFile)) != 0)) {
 
                 $original_targetFile = "imageflyer/webp_original/" . $image;
                 $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
 
-                $original_image_path = '../..' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY') . $image;
-
-                if (fopen($original_image_path, "r")) {
-                    //File::delete($image_path);
-                    //Log::info('s3');
-                    unlink($original_image_path);
-                }
-
+                //delete file from local storage
+                unlink($original_sourceFile);
 
             }
-
-            if (fopen($thumbnail_sourceFile, "r")) {
+            if (($is_exist = ($this->checkFileExist($thumbnail_sourceFile)) != 0)) {
 
                 $thumbnail_targetFile = "imageflyer/webp_thumbnail/" . $image;
                 $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile), 'public');
 
-                $thumbnail_image_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $image;
-
-                if (fopen($thumbnail_image_path, "r")) {
-                    //File::delete($image_path);
-                    unlink($thumbnail_image_path);
-                }
-
+                //delete file from local storage
+                unlink($thumbnail_sourceFile);
 
             }
 
-            //(new ImageController())->unlinkfile($image);
-
 
         } catch (Exception $e) {
-            Log::error("saveWebpImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveWebpImageInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
-
-
-    }
-
-    //verify zip file
-    public function verifyZipFile($image_array)
-    {
-
-        $file_type = $image_array->getMimeType();
-        $file_size = $image_array->getSize();
-        //Log::info('extension : ', ['extension' => $file_type]);
-        //Log::info("Image Size",[$image_size]);
-        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
-
-        if (!($file_type == 'application/zip'))
-            $response = Response::json(array('code' => '201', 'message' => 'Please select zip file.', 'cause' => '', 'response' => json_decode("{}")));
-        elseif ($file_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => '201', 'message' => 'File size is greater then 10MB', 'cause' => '', 'response' => json_decode("{}")));
-        else
-            $response = '';
-        return $response;
-    }
-
-    public function saveZipFile($file_data)
-    {
-        $file = $file_data->getClientOriginalName();
-        $file_path = '../..' . Config::get('constant.ZIP_FILE_DIRECTORY');
-        $file_data->move($file_path, $file);
-
     }
 
     // Get Thumbnail Width Height
@@ -1021,74 +1094,62 @@ class ImageController extends Controller
         return $array;
     }
 
-    //saveWebpThumbnailImageInToSpaces
-    public function saveWebpThumbnailImageInToSpaces($image)
+    // Save Webp Thumbnail Image InTo S3
+    public function saveWebpThumbnailImageInToS3($image)
     {
         try {
-            $base_url = (new ImageController())->getBaseUrl();
 
-            $thumbnail_sourceFile = $base_url . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $image;
+            $base_url = (new ImageController())->getBaseUrl();
+            $webp_thumbnail_dir = Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY');
+
+            $thumbnail_sourceFile = $base_url . $webp_thumbnail_dir . $image;
 
             $disk = Storage::disk('s3');
-
-            if (fopen($thumbnail_sourceFile, "r")) {
+            if (($is_exist = ($this->checkFileExist($thumbnail_sourceFile)) != 0)) {
 
                 $thumbnail_targetFile = "imageflyer/webp_thumbnail/" . $image;
                 $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile), 'public');
 
-                $thumbnail_image_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY') . $image;
-
-                if (fopen($thumbnail_image_path, "r")) {
-                    //File::delete($image_path);
-                    unlink($thumbnail_image_path);
-                }
-
-
+                //delete file from local storage
+                unlink($thumbnail_sourceFile);
             }
-
-            //(new ImageController())->unlinkfile($image);
 
 
         } catch (Exception $e) {
-            Log::error("saveWebpThumbnailImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveWebpThumbnailImageInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
-
-
     }
 
-    //saveWebpThumbnailImageInToSpaces
+    // Save Original Image From To S3
     public function saveOriginalImageFromToS3($image)
     {
         try {
-            $base_url = (new ImageController())->getBaseUrl();
 
             $original_img_of_s3 = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $image;
 
             $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-            $path = $original_path.$image;
-            try{
-                if (fopen($path, "r")) {
+            $path = $original_path . $image;
+            try {
 
-                    if (env('STORAGE') === 'S3_BUCKET') {
+                if (($is_exist = ($this->checkFileExist($path)) != 0)) {
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                         unlink($path);
                     }
 
                 }
-            }
-            catch(Exception $e)
-            {
-                Log::Debug("saveOriginalImageFromToS3 is_exist? :", ['Exception_msg : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+
+            } catch (Exception $e) {
+                Log::Debug("saveOriginalImageFromToS3 is_exist? : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             }
 
-            //Input::file('file')->move($original_path, $image);
-            if (env('STORAGE') === 'S3_BUCKET') {
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                 copy($original_img_of_s3, $path);
             }
 
 
             $this->saveImageDetails($path, 'original');
-            $original_img_size = filesize($path);
+            //$original_img_size = filesize($path);
 
             //convert image into .webp format
             $file_data = pathinfo(basename($path));
@@ -1107,7 +1168,7 @@ class ImageController extends Controller
             $cmd = "$libwebp -q $quality $org_path -o $webp_path";
             //Log::info('webp command : ',['command' => $cmd]);
 
-            if (env('APP_ENV') != 'local') {
+            if (Config::get('constant.APP_ENV') != 'local') {
                 $result = (!shell_exec($cmd));
             } else {
                 $result = (!exec($cmd));
@@ -1138,7 +1199,7 @@ class ImageController extends Controller
 
         } catch (Exception $e) {
 
-            Log::error("saveOriginalImageFromToS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveOriginalImageFromToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return "";
 
         }
@@ -1146,28 +1207,31 @@ class ImageController extends Controller
 
     }
 
+    // Check Is Image Exist
     public function checkIsImageExist($image_array)
     {
         try {
+
             $exist_files_array = array();
-            //$base_url = (new ImageController())->getBaseUrl();
             foreach ($image_array as $key) {
 
-                $bg_image = $key->getClientOriginalName();
+                $image = $key->getClientOriginalName();
+                $image_url = Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $image;
 
-                $image_path = Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $bg_image;
-                //$image_path = $base_url . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $bg_image;
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
 
-                try{
-                    if (fopen($image_path, "r")) {
-                        $exist_files_array[] = array('url' => Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $bg_image, 'name' => $bg_image);
+                    $disk = Storage::disk('s3');
+                    $value = "imageflyer/resource/" . $image;
+                    if ($disk->exists($value)) {
+
+                        $exist_files_array[] = array('url' => $image_url, 'name' => $image);
                     }
-                }catch (Exception $e) {
-                    Log::Debug("checkIsImageExist :", ['Exception_msg : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
-                    return $response = '';
+                } else {
+                    $image_path = '../..' . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $image;
+                    if (($is_exist = ($this->checkFileExist($image_path)) != 0)) {
+                        $exist_files_array[] = array('url' => $image_url, 'name' => $image);
+                    }
                 }
-
-
             }
             if (sizeof($exist_files_array) > 0) {
                 $array = array('existing_files' => $exist_files_array);
@@ -1177,8 +1241,10 @@ class ImageController extends Controller
             } else {
                 return $response = '';
             }
+
+
         } catch (Exception $e) {
-            Log::error("checkIsImageExist Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("checkIsImageExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return $response = '';
         }
 
@@ -1195,7 +1261,7 @@ class ImageController extends Controller
             $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
             $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
 
-            if (env('STORAGE') === 'S3_BUCKET') {
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                 $img = Image::make($original_path)->resize($width, $height);
                 $img->save($thumbnail_path);
 
@@ -1227,7 +1293,7 @@ class ImageController extends Controller
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width $height -o $webp_path";
                 //Log::info('webp thumbnail command : ',['command' => $cmd]);
-                if (env('APP_ENV') != 'local') {
+                if (Config::get('constant.APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
                 } else {
@@ -1240,7 +1306,7 @@ class ImageController extends Controller
 
                 $cmd = "$libwebp -q $quality $org_path -resize $width_orig $height_orig -o $webp_path";
                 //Log::info('webp thumbnail command (aspect ratio) : ',['command' => $cmd]);
-                if (env('APP_ENV') != 'local') {
+                if (Config::get('constant.APP_ENV') != 'local') {
                     //For Linux
                     $result = (!shell_exec($cmd));
                 } else {
@@ -1253,32 +1319,32 @@ class ImageController extends Controller
 
         } catch (Exception $e) {
 
-            Log::error("saveThumbnailImageFromS3 Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveThumbnailImageFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return "";
         }
     }
 
-    //unlinkImage from image_bucket
-    public function saveNewWebpImageInToSpaces($image)
+    // Save New Webp Image InTo S3
+    public function saveNewWebpImageInToS3($image)
     {
         try {
             $base_url = (new ImageController())->getBaseUrl();
 
-
             $original_sourceFile = $base_url . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $image;
             $thumbnail_sourceFile = $base_url . Config::get('constant.WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY') . $image;
-
+            $original_image_path = '../..' . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $image;
+            $thumbnail_image_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY') . $image;
             //return array($original_sourceFile,$compressed_sourceFile, $thumbnail_sourceFile);
 
             $disk = Storage::disk('s3');
+
             if (fopen($original_sourceFile, "r")) {
 
                 $original_targetFile = "imageflyer/webp_original_new/" . $image;
                 $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
 
-                $original_image_path = '../..' . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $image;
 
-                if (fopen($original_image_path, "r")) {
+                if (($is_exist = ($this->checkFileExist($original_image_path)) != 0)) {
                     //File::delete($image_path);
                     //Log::info('s3');
                     unlink($original_image_path);
@@ -1292,24 +1358,70 @@ class ImageController extends Controller
                 $thumbnail_targetFile = "imageflyer/webp_thumbnail_new/" . $image;
                 $disk->put($thumbnail_targetFile, file_get_contents($thumbnail_sourceFile), 'public');
 
-                $thumbnail_image_path = '../..' . Config::get('constant.WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY') . $image;
-
-                if (fopen($thumbnail_image_path, "r")) {
+                if (($is_exist = ($this->checkFileExist($thumbnail_image_path)) != 0)) {
                     //File::delete($image_path);
                     unlink($thumbnail_image_path);
                 }
-
 
             }
 
             //(new ImageController())->unlinkfile($image);
 
-
         } catch (Exception $e) {
-            Log::error("saveNewWebpImageInToSpaces Exception :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("saveNewWebpImageInToS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
-
-
     }
+
+    // unlinkFileFromLocalStorage
+    public function unlinkFileFromLocalStorage($file, $path)
+    {
+        try {
+
+            $original_image_path = '../..' . $path . $file;
+
+            if (($is_exist = ($this->checkFileExist($original_image_path)) != 0)) {
+                unlink($original_image_path);
+            }
+
+        } catch (Exception $e) {
+            Log::debug("unlinkFileFromLocalStorage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+
+        }
+    }
+
+    //checkFileExist
+    public function checkFileExist($file_path)
+    {
+        try {
+            //if (fopen($original_sourceFile, "r")) {
+            if (File::exists($file_path)) {
+                //Log::info('file exist : ',['path' => $file_path]);
+                $response = 1;
+            } else {
+                $response = 0;
+                //Log::info('file does not exist : ', ['path' => $file_path]);
+            }
+
+        } catch (Exception $e) {
+            $response = 0;
+            Log::debug("checkFileExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+        return $response;
+    }
+
+    public function deleteObjectFromS3($file, $directory)
+    {
+        try {
+
+            $disk = Storage::disk('s3');
+            $original = "imageflyer/$directory/" . $file;
+            $disk->delete($original);
+
+        } catch (Exception $e) {
+            Log::debug("deleteObjectFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+
+        }
+    }
+
 }
