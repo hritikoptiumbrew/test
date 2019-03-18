@@ -96,7 +96,7 @@ class EmailJob extends Job implements ShouldQueue
             // send email to admin
             $template = 'simple';
             $email_id = Config::get('constant.ADMIN_EMAIL_ID'); //'gabanidipali@gmail.com';
-            $subject = 'Email failed';
+            $subject = 'PhotoEditorLab: Email failed';
             $message_body = 'Failed Job Id = ' . $failed_job_id . '<br>' . 'User Id = ' . $user_id . '<br>' . 'API Name = ' . $api_name . '<br>' . 'API Description = ' . $api_description;
             $data = array('template' => $template, 'email' => $email_id, 'subject' => $subject, 'message_body' => $message_body);
             Mail::send($data['template'], $data, function ($message) use ($data) {

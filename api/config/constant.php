@@ -15,7 +15,7 @@ return [
     //'XMPP_HOST' => '192.168.0.113', //local
 
 
-    'EXCEPTION_ERROR' => 'Photo Editor Lab is unable to ',
+    'EXCEPTION_ERROR' => 'PhotoEditorLab is unable to ',
     'DATE_FORMAT' => 'Y-m-d H:i:s',
 
     /* For local server */
