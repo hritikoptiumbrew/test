@@ -4,9 +4,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MdButtonModule, MdInputModule, MdDialogModule, MdRadioModule, MdSidenavModule, MdSelectModule, MdTabsModule, MdCheckboxModule, MdSnackBarModule, MdAutocompleteModule, MdChipsModule } from '@angular/material';
+import { MdButtonModule, MdInputModule, MdDialogModule, MdRadioModule, MdSidenavModule, MdSelectModule, MdTabsModule, MdCheckboxModule, MdSnackBarModule, MdAutocompleteModule, MdChipsModule, MdExpansionModule } from '@angular/material';
 import { AngularFontAwesomeModule } from 'angular-font-awesome/angular-font-awesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { Daterangepicker } from 'ng2-daterangepicker';
 import { AppRoutes } from './app.routes';
 import { DataService } from './data.service';
 import { AuthenticationService } from './authentication.service';
@@ -66,6 +67,8 @@ import { GaAdsByCategoryComponent } from './ga-ads-by-category/ga-ads-by-categor
 import { ExistingImagesListComponent } from './existing-images-list/existing-images-list.component';
 import { SearchTagsComponent } from './search-tags/search-tags.component';
 import { FontListComponent } from './font-list/font-list.component';
+import { StatisticsComponent } from './statistics/statistics.component';
+import { StatisticsDetailsComponent } from './statistics-details/statistics-details.component';
 
 @NgModule({
   declarations: [
@@ -124,6 +127,8 @@ import { FontListComponent } from './font-list/font-list.component';
     ExistingImagesListComponent,
     SearchTagsComponent,
     FontListComponent,
+    StatisticsComponent,
+    StatisticsDetailsComponent,
   ],
   imports: [
     BrowserModule,
@@ -143,6 +148,8 @@ import { FontListComponent } from './font-list/font-list.component';
     MdCheckboxModule,
     MdAutocompleteModule,
     MdChipsModule,
+    MdExpansionModule,
+    Daterangepicker,
     NgbModule.forRoot(),
     RouterModule.forRoot(AppRoutes, { useHash: true })
   ],
@@ -177,6 +184,7 @@ import { FontListComponent } from './font-list/font-list.component';
     ConfirmActionComponent,
     GaAdsByCategoryComponent,
     ExistingImagesListComponent,
+    StatisticsDetailsComponent,
   ],
   providers: [DataService, AuthenticationService],
   bootstrap: [AppComponent],

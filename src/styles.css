@@ -673,3 +673,7 @@ img {
     height: 80px;
     z-index: 1;
 }
+
+.mat-expansion-panel-body {
+    padding: 0 !important;
+}

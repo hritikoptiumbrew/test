@@ -29,6 +29,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a (click)="nav_statistics()" class="li-height" [ngClass]="selected_nav_statistics">
+                        <i class="fa fa-bar-chart"></i>&nbsp;&nbsp; Statistics
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a (click)="nav_images_with_details()" class="li-height" [ngClass]="selected_nav_images_with_details">
                         <i class="fa fa-info-circle font-18"></i>&nbsp;&nbsp; Image Details
                     </a>

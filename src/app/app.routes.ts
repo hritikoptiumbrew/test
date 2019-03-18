@@ -18,6 +18,7 @@ import { PromocodeManagementComponent } from './promocode-management/promocode-m
 import { UserGeneratedDesignsComponent } from './user-generated-designs/user-generated-designs.component';
 import { AdmobAdsComponent } from './admob-ads/admob-ads.component';
 import { SearchTagsComponent } from './search-tags/search-tags.component';
+import { StatisticsComponent } from './statistics/statistics.component';
 import { FontListComponent } from './font-list/font-list.component';
 
 export const AppRoutes = [
@@ -42,4 +43,5 @@ export const AppRoutes = [
     { path: 'admin/settings', component: SettingsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/admob-ads', component: AdmobAdsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/search-tags', component: SearchTagsComponent, canActivate: [AuthenticationService] },
+    { path: 'admin/statistics', component: StatisticsComponent, canActivate: [AuthenticationService] },
 ]

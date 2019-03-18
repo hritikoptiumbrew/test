@@ -22,6 +22,7 @@ export class NavigationComponent implements OnInit {
   selected_nav_redis_cache: any;
   selected_nav_promocodes: any;
   selected_nav_search_tags: any;
+  selected_nav_statistics: any;
 
   token: any;
   loading: any;
@@ -88,6 +89,9 @@ export class NavigationComponent implements OnInit {
     if (this.router.url == "/admin/search-tags") {
       this.selected_nav_search_tags = "selected";
     }
+    if (this.router.url == "/admin/statistics") {
+      this.selected_nav_statistics = "selected";
+    }
     if (this.router.url == "/admin/image-details") {
       this.selected_nav_images_with_details = "selected";
     }
@@ -114,6 +118,9 @@ export class NavigationComponent implements OnInit {
   }
   nav_search_tags() {
     this.router.navigate(['/admin/search-tags']);
+  }
+  nav_statistics() {
+    this.router.navigate(['/admin/statistics']);
   }
   nav_redis_cache() {
     this.router.navigate(['/admin/redis-cache']);
