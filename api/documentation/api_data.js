@@ -44,7 +44,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\nrequest_data:{\n\"category_id\":1, //compulsory\n\"name\":\"Nature\" //compulsory\n},\nfile:image.jpeg //compulsory\n}",
+          "content": "{\n\"request_data\":{\n\"category_id\":1, //compulsory\n\"name\":\"Nature\", //compulsory\n\"is_featured\":1 //compulsory 1=featured (for templates), 0=normal (shapes, textArt,etc...)\n},\n\"file\":image.jpeg //compulsory\n}",
           "type": "json"
         },
         {
@@ -1441,7 +1441,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Sub categories fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 0,\n\"category_list\": []\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub categories fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 13,\n\"category_list\": [\n{\n\"sub_category_id\": 86,\n\"category_id\": 1,\n\"sub_category_name\": \"Background Changer Frame\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5b333358a7cf6_category_img_1530082136.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5b333358a7cf6_category_img_1530082136.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5b333358a7cf6_category_img_1530082136.png\",\n\"is_featured\": 0\n},\n{\n\"sub_category_id\": 79,\n\"category_id\": 1,\n\"sub_category_name\": \"Video Flyer Frame\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5afe5d71c4f60_category_img_1526619505.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5afe5d71c4f60_category_img_1526619505.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5afe5d71c4f60_category_img_1526619505.jpg\",\n\"is_featured\": 0\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1789,7 +1789,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Sub categories are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"is_next_page\": false,\n \"category_name\": \"Background\",\n\"category_list\": [\n{\n\"sub_category_id\": 10,\n\"category_id\": 1,\n\"name\": \"Love-3\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/5971dc9c891f5_category_img_1500634268.jpg\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/5971dc9c891f5_category_img_1500634268.jpg\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/5971dc9c891f5_category_img_1500634268.jpg\"\n},\n{\n\"sub_category_id\": 1,\n\"category_id\": 1,\n\"name\": \"Nature\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59719cfa423f3_category_img_1500617978.jpg\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59719cfa423f3_category_img_1500617978.jpg\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/59719cfa423f3_category_img_1500617978.jpg\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub categories fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 33,\n\"is_next_page\": true,\n\"category_name\": \"Sticker\",\n\"category_list\": [\n{\n\"sub_category_id\": 66,\n\"category_id\": 2,\n\"name\": \"All Templates\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"is_featured\": 0\n},\n{\n\"sub_category_id\": 97,\n\"category_id\": 2,\n\"name\": \"Brand Maker\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6d33c860e1e_sub_category_img_1550660552.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6d33c860e1e_sub_category_img_1550660552.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6d33c860e1e_sub_category_img_1550660552.jpg\",\n\"is_featured\": 0\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1818,7 +1818,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n},\n{\n\"sub_category_id\": 28,\n\"category_id\": 2,\n\"name\": \"Selfie With Ganesha Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/59957acc474a9_category_img_1502968524.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/59957acc474a9_category_img_1502968524.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/59957acc474a9_category_img_1502968524.png\",\n\"no_of_catalogs\": 5,\n\"content_count\": 9,\n\"free_content\": 0,\n\"paid_content\": 9,\n\"last_uploaded_date\": \"2017-08-18 05:18:33\",\n\"is_active\": 1,\n\"last_uploaded_count\": 5\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"is_featured\": 10,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n},\n{\n\"sub_category_id\": 28,\n\"category_id\": 2,\n\"name\": \"Selfie With Ganesha Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/59957acc474a9_category_img_1502968524.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/59957acc474a9_category_img_1502968524.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/59957acc474a9_category_img_1502968524.png\",\n\"no_of_catalogs\": 5,\n\"content_count\": 9,\n\"free_content\": 0,\n\"paid_content\": 9,\n\"is_featured\": 10,\n\"last_uploaded_date\": \"2017-08-18 05:18:33\",\n\"is_active\": 1,\n\"last_uploaded_count\": 5\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1842,7 +1842,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"category_id\":2, //compulsory\n\"sub_category_id\":66, //compulsory\n\"from_date\":\"2018-01-01\", //compulsory\n\"to_date\":\"2019-05-06\", //compulsory\n\"page\":1, //compulsory\n\"item_count\":10, //compulsory\n\"order_by\":\"date\",\n\"order_type\":\"desc\"\n}",
+          "content": "{\n\"category_id\":2, //compulsory\n\"sub_category_id\":66, //compulsory\n\"from_date\":\"2018-01-01\", //compulsory yy-mm-dd\n\"to_date\":\"2019-05-06\", //compulsory\n\"page\":1, //compulsory\n\"item_count\":10, //compulsory\n\"order_by\":\"date\",\n\"order_type\":\"desc\"\n}",
           "type": "json"
         },
         {
@@ -1905,7 +1905,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"summary_of_all_servers\": [\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n}\n],\n\"server_url\": \"localhost\"\n},\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 95,\n\"category_id\": 2,\n\"name\": \"Test\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"no_of_catalogs\": 2,\n\"content_count\": 19,\n\"free_content\": 0,\n\"paid_content\": 19,\n\"last_uploaded_date\": \"2019-01-25 09:42:17\",\n\"is_active\": 1,\n\"last_uploaded_count\": 19\n}\n],\n\"server_url\": \"192.168.0.113\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"summary_of_all_servers\": [\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n}\n],\n\"server_url\": \"localhost\",\n\"api_url\": \"http://localhost/photo_editor_lab_backend/api/public/api/\"\n},\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 95,\n\"category_id\": 2,\n\"name\": \"Test\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"no_of_catalogs\": 2,\n\"content_count\": 19,\n\"free_content\": 0,\n\"paid_content\": 19,\n\"last_uploaded_date\": \"2019-01-25 09:42:17\",\n\"is_active\": 1,\n\"last_uploaded_count\": 19\n}\n],\n\"server_url\": \"192.168.0.113\",\n\"api_url\": \"http://192.168.0.113/photo_editor_lab_backend/api/public/api/\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2195,7 +2195,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Sub category fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"category_list\": [\n{\n\"sub_category_id\": 28,\n\"name\": \"Sub-category\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/597c6e5045aa8_category_img_1501326928.png\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/597c6e5045aa8_category_img_1501326928.png\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/597c6e5045aa8_category_img_1501326928.png\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub category fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"category_list\": [\n{\n\"sub_category_id\": 28,\n\"name\": \"Sub-category\",\n\"thumbnail_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/597c6e5045aa8_category_img_1501326928.png\",\n\"compressed_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/597c6e5045aa8_category_img_1501326928.png\",\n\"original_img\": \"http://192.168.0.102/ob_photolab_backend/image_bucket/original/597c6e5045aa8_category_img_1501326928.png\",\n\"is_featured\":1\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2259,6 +2259,64 @@ define({ "api": [
       ]
     },
     "filename": "./app/Http/Controllers/NotificationController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "setCatalogRankOnTheTopByAdmin",
+    "title": "setCatalogRankOnTheTopByAdmin",
+    "name": "setCatalogRankOnTheTopByAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"catalog_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Rank set successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "setContentRankOnTheTopByAdmin",
+    "title": "setContentRankOnTheTopByAdmin",
+    "name": "setContentRankOnTheTopByAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"img_id\":1963 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Rank set successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2480,7 +2538,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\nrequest_data:{\n\"sub_category_id\":2, //compulsory\n\"name\":\"Love-Category\" //optional\n}\nfile:image.png //optional\n}",
+          "content": "{\n\"request_data\":{\n\"sub_category_id\":2, //compulsory\n\"name\":\"Love-Category\", //optional\n\"is_featured\":1 //compulsory 1=featured (for templates), 0=normal (shapes, textArt,etc...)\n}\n\"file\":image.png //optional\n}",
           "type": "json"
         },
         {

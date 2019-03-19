@@ -720,11 +720,12 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * request_data:{
+     * "request_data":{
      * "category_id":1, //compulsory
-     * "name":"Nature" //compulsory
+     * "name":"Nature", //compulsory
+     * "is_featured":1 //compulsory 1=featured (for templates), 0=normal (shapes, textArt,etc...)
      * },
-     * file:image.jpeg //compulsory
+     * "file":image.jpeg //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -745,10 +746,11 @@ class AdminController extends Controller
 
             $request = json_decode($request_body->input('request_data'));
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'name'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'name', 'is_featured'), $request)) != '')
                 return $response;
             $category_id = $request->category_id;
             $name = trim($request->name);
+            $is_featured = $request->is_featured;
             $create_at = date('Y-m-d H:i:s');
 
             if (($response = (new VerificationController())->checkIfSubCategoryExist($name, 0)) != '')
@@ -776,8 +778,8 @@ class AdminController extends Controller
             DB::beginTransaction();
 
             DB::insert('insert into sub_category
-                        (name,category_id,image,created_at) VALUES(?,?,?,?)',
-                [$name, $category_id, $category_img, $create_at]);
+                        (name,category_id,image,is_featured,created_at) VALUES(?,?,?,?,?)',
+                [$name, $category_id, $category_img, $is_featured, $create_at]);
 
             DB::commit();
 
@@ -802,11 +804,12 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * request_data:{
+     * "request_data":{
      * "sub_category_id":2, //compulsory
-     * "name":"Love-Category" //optional
+     * "name":"Love-Category", //optional
+     * "is_featured":1 //compulsory 1=featured (for templates), 0=normal (shapes, textArt,etc...)
      * }
-     * file:image.png //optional
+     * "file":image.png //optional
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -828,11 +831,12 @@ class AdminController extends Controller
 
             $request = json_decode($request_body->input('request_data'));
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'name'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'name', 'is_featured'), $request)) != '')
                 return $response;
 
             $sub_category_id = $request->sub_category_id;
             $name = trim($request->name);
+            $is_featured = $request->is_featured;
             $image_name = '';
 
             if (($response = (new VerificationController())->checkIfSubCategoryExist($name, $sub_category_id)) != '')
@@ -862,19 +866,21 @@ class AdminController extends Controller
                               sub_category
                             SET
                               name = ?,
-                              image = ?
+                              image = ?,
+                              is_featured = ?
                             WHERE
                               id = ? ',
-                    [$name, $sub_category_img, $sub_category_id]);
+                    [$name, $sub_category_img, $is_featured, $sub_category_id]);
 
             } else {
                 DB::update('UPDATE
                               sub_category
                             SET
-                              name = ?
+                              name = ?,
+                              is_featured = ?
                             WHERE
                               id = ? ',
-                    [$name, $sub_category_id]);
+                    [$name, $is_featured, $sub_category_id]);
             }
 
 
@@ -962,28 +968,30 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Sub categories are fetched successfully.",
+     * "message": "Sub categories fetched successfully.",
      * "cause": "",
      * "data": {
-     * "total_record": 2,
-     * "is_next_page": false,
-     *  "category_name": "Background",
+     * "total_record": 33,
+     * "is_next_page": true,
+     * "category_name": "Sticker",
      * "category_list": [
      * {
-     * "sub_category_id": 10,
-     * "category_id": 1,
-     * "name": "Love-3",
-     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/5971dc9c891f5_category_img_1500634268.jpg",
-     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/5971dc9c891f5_category_img_1500634268.jpg",
-     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/5971dc9c891f5_category_img_1500634268.jpg"
+     * "sub_category_id": 66,
+     * "category_id": 2,
+     * "name": "All Templates",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c85fb452c3d4_sub_category_img_1552284485.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c85fb452c3d4_sub_category_img_1552284485.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c85fb452c3d4_sub_category_img_1552284485.jpg",
+     * "is_featured": 0
      * },
      * {
-     * "sub_category_id": 1,
-     * "category_id": 1,
-     * "name": "Nature",
-     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59719cfa423f3_category_img_1500617978.jpg",
-     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59719cfa423f3_category_img_1500617978.jpg",
-     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59719cfa423f3_category_img_1500617978.jpg"
+     * "sub_category_id": 97,
+     * "category_id": 2,
+     * "name": "Brand Maker",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6d33c860e1e_sub_category_img_1550660552.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6d33c860e1e_sub_category_img_1550660552.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6d33c860e1e_sub_category_img_1550660552.jpg",
+     * "is_featured": 0
      * }
      * ]
      * }
@@ -1024,7 +1032,8 @@ class AdminController extends Controller
                                         sct.name,
                                         IF(sct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as thumbnail_img,
                                         IF(sct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as compressed_img,
-                                        IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img
+                                        IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img,
+                                        sct.is_featured
                                       FROM
                                         sub_category as sct
                                       WHERE
@@ -1077,8 +1086,27 @@ class AdminController extends Controller
      * "message": "Sub categories fetched successfully.",
      * "cause": "",
      * "data": {
-     * "total_record": 0,
-     * "category_list": []
+     * "total_record": 13,
+     * "category_list": [
+     * {
+     * "sub_category_id": 86,
+     * "category_id": 1,
+     * "sub_category_name": "Background Changer Frame",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5b333358a7cf6_category_img_1530082136.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5b333358a7cf6_category_img_1530082136.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5b333358a7cf6_category_img_1530082136.png",
+     * "is_featured": 0
+     * },
+     * {
+     * "sub_category_id": 79,
+     * "category_id": 1,
+     * "sub_category_name": "Video Flyer Frame",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5afe5d71c4f60_category_img_1526619505.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5afe5d71c4f60_category_img_1526619505.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5afe5d71c4f60_category_img_1526619505.jpg",
+     * "is_featured": 0
+     * }
+     * ]
      * }
      * }
      */
@@ -1109,7 +1137,8 @@ class AdminController extends Controller
                                         sct.name as sub_category_name,
                                         IF(sct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as thumbnail_img,
                                         IF(sct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as compressed_img,
-                                        IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img
+                                        IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img,
+                                        sct.is_featured
                                       FROM
                                         sub_category as sct
                                       WHERE
@@ -1167,7 +1196,8 @@ class AdminController extends Controller
      * "name": "Sub-category",
      * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/597c6e5045aa8_category_img_1501326928.png",
      * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/597c6e5045aa8_category_img_1501326928.png",
-     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/597c6e5045aa8_category_img_1501326928.png"
+     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/597c6e5045aa8_category_img_1501326928.png",
+     * "is_featured":1
      * }
      * ]
      * }
@@ -1191,7 +1221,8 @@ class AdminController extends Controller
                                     sct.name,
                                     IF(sct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as thumbnail_img,
                                     IF(sct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as compressed_img,
-                                    IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img
+                                    IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img,
+                                    sct.is_featured
                                    FROM
                                       sub_category AS sct
                                     WHERE
@@ -7618,6 +7649,7 @@ class AdminController extends Controller
      * "content_count": 81,
      * "free_content": 6,
      * "paid_content": 75,
+     * "is_featured": 10,
      * "last_uploaded_date": "2018-03-10 07:02:54",
      * "is_active": 1,
      * "last_uploaded_count": 6
@@ -7633,6 +7665,7 @@ class AdminController extends Controller
      * "content_count": 9,
      * "free_content": 0,
      * "paid_content": 9,
+     * "is_featured": 10,
      * "last_uploaded_date": "2017-08-18 05:18:33",
      * "is_active": 1,
      * "last_uploaded_count": 5
@@ -7654,18 +7687,20 @@ class AdminController extends Controller
                                       IF(scm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as thumbnail_img,
                                       IF(scm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as compressed_img,
                                       IF(scm.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as original_img,
-                                      count(DISTINCT scc.catalog_id) AS no_of_catalogs,
-                                      count(cm.catalog_id) AS content_count,
+                                      count(DISTINCT cm.catalog_id) AS no_of_catalogs,
+                                      count(cm.id) AS content_count,
                                       count(IF(cm.is_free=1,1, NULL)) AS free_content,
                                       count(IF(cm.is_free=0,1, NULL)) AS paid_content,
+                                      count(IF(cm.is_featured=1,1, NULL)) AS is_featured,
                                       coalesce((max(cm.created_at)),"") AS last_uploaded_date,
+                                      scm.is_featured,
                                       scm.is_active
                                     FROM
                                       sub_category AS scm LEFT JOIN sub_category_catalog AS scc
                                       LEFT JOIN images AS cm
-                                        ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                        ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1 AND (cm.json_data IS NOT NULL OR cm.json_data!="")
                                         ON scm.id = scc.sub_category_id AND scc.is_active = 1
-                                    GROUP BY scm.id HAVING scm.is_active = 1 AND scm.category_id = ? ORDER BY last_uploaded_date DESC', [2]);
+                                    GROUP BY scm.id HAVING scm.is_active = 1 AND scm.category_id = ? AND scm.is_featured = 1 ORDER BY last_uploaded_date DESC', [2]);
 
             foreach ($result as $key) {
                 $last_uploaded_count = DB::select('SELECT
@@ -7733,7 +7768,8 @@ class AdminController extends Controller
      * "last_uploaded_count": 6
      * }
      * ],
-     * "server_url": "localhost"
+     * "server_url": "localhost",
+     * "api_url": "http://localhost/photo_editor_lab_backend/api/public/api/"
      * },
      * {
      * "total_record": 33,
@@ -7754,7 +7790,8 @@ class AdminController extends Controller
      * "last_uploaded_count": 19
      * }
      * ],
-     * "server_url": "192.168.0.113"
+     * "server_url": "192.168.0.113",
+     * "api_url": "http://192.168.0.113/photo_editor_lab_backend/api/public/api/"
      * }
      * ]
      * }
@@ -7774,6 +7811,7 @@ class AdminController extends Controller
                 $output = $client->post($key); //$key is a url of api
                 $data = json_decode($output->getBody()->getContents(), true);
                 $data['data']['server_url'] = parse_url($key, PHP_URL_HOST);
+                $data['data']['api_url'] = str_replace("getSummaryByAdmin", "", $key);//parse_url($key, PHP_URL_HOST);
                 $all_server_list[$i] = $data['data'];
                 $i++;
             }
@@ -7845,7 +7883,7 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('api_url', 'category_id', 'sub_category_id', 'from_date', 'to_date', 'page', 'item_count'), $request)) != '')
                 return $response;
 
-            $api_url = $request->api_url . "/getSummaryByDateRange";
+            $api_url = $request->api_url . "getSummaryByDateRange";
             $category_id = $request->category_id;
             $sub_category_id = $request->sub_category_id;
             $from_date = $request->from_date;
@@ -7893,7 +7931,7 @@ class AdminController extends Controller
      * {
      * "category_id":2, //compulsory
      * "sub_category_id":66, //compulsory
-     * "from_date":"2018-01-01", //compulsory
+     * "from_date":"2018-01-01", //compulsory yy-mm-dd
      * "to_date":"2019-05-06", //compulsory
      * "page":1, //compulsory
      * "item_count":10, //compulsory
@@ -7947,9 +7985,9 @@ class AdminController extends Controller
                                                 FROM
                                                   sub_category AS scm LEFT JOIN sub_category_catalog AS scc
                                                   LEFT JOIN images AS cm
-                                                    ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                                    ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1 AND (cm.json_data IS NOT NULL OR cm.json_data!="")
                                                     ON scm.id = scc.sub_category_id AND scc.is_active = 1 AND scm.category_id = ? AND scm.id = ?
-                                                  WHERE cm.created_at BETWEEN ? AND ?
+                                                  WHERE DATE (cm.created_at) BETWEEN ? AND ?
                                                 GROUP BY date', [$category_id, $sub_category_id, $from_date, $to_date]);
 
             $total_row = count($total_row_result);
@@ -7961,9 +7999,9 @@ class AdminController extends Controller
                                                 FROM
                                                   sub_category AS scm LEFT JOIN sub_category_catalog AS scc
                                                   LEFT JOIN images AS cm
-                                                    ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                                    ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1 AND (cm.json_data IS NOT NULL OR cm.json_data!="")
                                                     ON scm.id = scc.sub_category_id AND scc.is_active = 1 AND scm.category_id = ? AND scm.id = ?
-                                                  WHERE cm.created_at BETWEEN ? AND ?
+                                                  WHERE DATE (cm.created_at) BETWEEN ? AND ?
                                                 GROUP BY date
                                                 ORDER BY  ' . $order_by . ' ' . $order_type . ' LIMIT ?,?', [$category_id, $sub_category_id, $from_date, $to_date, $offset, $item_count]);
 
@@ -7974,6 +8012,111 @@ class AdminController extends Controller
         } catch (Exception $e) {
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary by date range.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             Log::error("getSummaryByDateRange : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} setCatalogRankOnTheTopByAdmin setCatalogRankOnTheTopByAdmin
+     * @apiName setCatalogRankOnTheTopByAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "catalog_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Rank set successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function setCatalogRankOnTheTopByAdmin(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $create_time = date('Y-m-d H:i:s');
+            DB::beginTransaction();
+            DB::update('UPDATE
+                            catalog_master
+                            SET updated_at = ?
+                            WHERE
+                            id = ?', [$create_time, $catalog_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("setCatalogRankOnTheTopByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'set catalog rank.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} setContentRankOnTheTopByAdmin setContentRankOnTheTopByAdmin
+     * @apiName setContentRankOnTheTopByAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "img_id":1963 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Rank set successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function setContentRankOnTheTopByAdmin(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('img_id'), $request)) != '')
+                return $response;
+
+            $img_id = $request->img_id;
+            $create_time = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
+            DB::update('UPDATE
+                            images
+                            SET updated_at = ?
+                            WHERE
+                            id = ?', [$create_time, $img_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("setContentRankOnTheTopByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'set content rank.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
