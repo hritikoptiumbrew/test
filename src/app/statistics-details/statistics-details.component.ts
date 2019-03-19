@@ -118,7 +118,7 @@ export class StatisticsDetailsComponent implements OnInit {
     this.token = localStorage.getItem('photoArtsAdminToken');
     this.dataService.postData('getSummaryDetailFromDiffServer',
       {
-        "api_url": "http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api",
+        "api_url": this.content_details.api_url,
         "category_id": this.content_details.category_id,
         "sub_category_id": this.content_details.sub_category_id,
         "from_date": this.start_date,

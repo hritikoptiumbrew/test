@@ -71,7 +71,8 @@ export class StatisticsComponent implements OnInit {
       });
   }
 
-  openDateRangePicker(content_details) {
+  openDateRangePicker(content_details, server_details) {
+    content_details.api_url = server_details.api_url;
     let dialogRef = this.dialog.open(StatisticsDetailsComponent, { data: content_details });
   }
 
