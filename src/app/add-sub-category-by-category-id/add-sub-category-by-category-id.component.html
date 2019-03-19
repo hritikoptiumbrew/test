@@ -5,8 +5,8 @@
   <div class="row pb-3 match-parent view-profile-img m-0-auto">
     <div class="col-12 text-center pr-0 pl-0 match-parent">
       <div class="match-parent">
-        <img *ngIf="sub_category_data.sub_category_img" [src]="sub_category_data.sub_category_img" class="pos-ab-img-upload img-240"
-          #imageElement>
+        <img *ngIf="sub_category_data.sub_category_img" [src]="sub_category_data.sub_category_img"
+          class="pos-ab-img-upload img-240" #imageElement>
         <button type="button" class="add-image-btn" (click)="onImageClicked($event)">
           <p class="plus"><i class="fa fa-camera"></i></p>
         </button>
@@ -17,8 +17,21 @@
   <div class="row pb-3">
     <label class="col-sm-3 m-0 pl-0 pr-0 pt-1 pb-1 font-weight-bold">Category</label>
     <div class="col-sm-9 pl-0 pr-0">
-      <input type="text" [(ngModel)]="sub_category_data.name" (keydown.enter)="addCategory(sub_category_data)" class="form-control"
-        maxlength="30">
+      <input type="text" [(ngModel)]="sub_category_data.name" (keydown.enter)="addCategory(sub_category_data)"
+        class="form-control" maxlength="30">
+    </div>
+  </div>
+  <div class="row pb-3">
+    <label class="col-sm-3 m-0 pl-0 pr-0 font-weight-bold">Type</label>
+    <div class="col-sm-9 pl-0 pr-0">
+      <md-radio-group [(ngModel)]="sub_category_data.is_featured">
+        <md-radio-button [value]="1">
+          Featured
+        </md-radio-button>
+        <md-radio-button [value]="0">
+          Normal
+        </md-radio-button>
+      </md-radio-group>
     </div>
   </div>
   <div class="row">

@@ -21,6 +21,19 @@
         maxlength="30">
     </div>
   </div>
+  <div class="row pb-3">
+    <label class="col-sm-3 m-0 pl-0 pr-0 font-weight-bold">Type</label>
+    <div class="col-sm-9 pl-0 pr-0">
+      <md-radio-group [(ngModel)]="sub_category_data.is_featured">
+        <md-radio-button [value]="1">
+          Featured
+        </md-radio-button>
+        <md-radio-button [value]="0">
+          Normal
+        </md-radio-button>
+      </md-radio-group>
+    </div>
+  </div>
   <div class="row">
     <div class="col-sm-12 pl-0 pr-0 text-center">
       <a md-raised-button class="btn title-bar" (click)="updateCategory(sub_category_data)">Update</a>

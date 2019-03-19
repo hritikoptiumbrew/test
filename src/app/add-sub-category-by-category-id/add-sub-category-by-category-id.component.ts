@@ -58,12 +58,17 @@ export class AddSubCategoryByCategoryIdComponent implements OnInit {
       this.errorMsg = "Name required";
       return false;
     }
+    else if (typeof sub_category_data.is_featured == "undefined") {
+      this.errorMsg = "Please select type";
+      return false;
+    }
     else {
 
       this.loading = this.dialog.open(LoadingComponent);
       let category_data = {
         'category_id': this.category_id,
-        'name': sub_category_data.name
+        'name': sub_category_data.name,
+        'is_featured': sub_category_data.is_featured
       };
       this.formData.append('request_data', JSON.stringify(category_data));
       this.dataService.postData('addSubCategory', this.formData,
