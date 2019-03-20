@@ -8,3 +8,19 @@ ALTER TABLE `images` ADD `original_img_height` INT(10) NULL DEFAULT '0' AFTER `w
 2) PhotoEditorLab : perform following query on database (19 March, 2019)
 ----------------------------------------------------------------------------
 ALTER TABLE `sub_category` CHANGE `is_catalog` `is_featured` TINYINT(1) NOT NULL DEFAULT '0';
+
+
+3) PhotoEditorLab : perform following query on database (20 March, 2019)
+----------------------------------------------------------------------------
+CREATE TABLE server_url_master (
+	id int(11) AUTO_INCREMENT NOT NULL,
+	server_url TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+	api_url TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+	is_active TINYINT(1) DEFAULT 0,
+	create_time timestamp DEFAULT NULL,
+	update_time TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	attribute1 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+	attribute2 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+	PRIMARY KEY(id)
+) ENGINE = INNODB

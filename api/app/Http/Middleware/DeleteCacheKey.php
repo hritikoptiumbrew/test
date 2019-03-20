@@ -339,11 +339,21 @@ class DeleteCacheKey
 
             }
 
-            //Category
+            //Search Tags
             if ($api == '/api/addTag' or $api == '/api/updateTag' or $api == '/api/deleteTag') {
 
                 //getAllTags
                 $keys = Redis::keys('pel:getAllTags*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            //ServerUrl
+            if ($api == '/api/addServerUrl' or $api == '/api/updateServerUrl' or $api == '/api/deleteServerUrl') {
+
+                //getAllServerUrls
+                $keys = Redis::keys('pel:getAllServerUrls*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }

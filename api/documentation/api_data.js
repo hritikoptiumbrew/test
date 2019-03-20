@@ -1799,122 +1799,6 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "getSummaryByAdmin",
-    "title": "getSummaryByAdmin",
-    "name": "getSummaryByAdmin",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"is_featured\": 10,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n},\n{\n\"sub_category_id\": 28,\n\"category_id\": 2,\n\"name\": \"Selfie With Ganesha Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/59957acc474a9_category_img_1502968524.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/59957acc474a9_category_img_1502968524.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/59957acc474a9_category_img_1502968524.png\",\n\"no_of_catalogs\": 5,\n\"content_count\": 9,\n\"free_content\": 0,\n\"paid_content\": 9,\n\"is_featured\": 10,\n\"last_uploaded_date\": \"2017-08-18 05:18:33\",\n\"is_active\": 1,\n\"last_uploaded_count\": 5\n}\n]\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
-    "url": "getSummaryByDateRange",
-    "title": "getSummaryByDateRange",
-    "name": "getSummaryByDateRange",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"category_id\":2, //compulsory\n\"sub_category_id\":66, //compulsory\n\"from_date\":\"2018-01-01\", //compulsory yy-mm-dd\n\"to_date\":\"2019-05-06\", //compulsory\n\"page\":1, //compulsory\n\"item_count\":10, //compulsory\n\"order_by\":\"date\",\n\"order_type\":\"desc\"\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 59,\n\"is_next_page\": true,\n\"result\": [\n{\n\"date\": \"2018-01-09\",\n\"uploaded_content_count\": 86\n},\n{\n\"date\": \"2018-03-16\",\n\"uploaded_content_count\": 50\n}\n]\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
-    "url": "getSummaryDetailFromDiffServer",
-    "title": "getSummaryDetailFromDiffServer",
-    "name": "getSummaryDetailFromDiffServer",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"api_url\":\"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api\", //compulsory\n\"category_id\":2, //compulsory\n\"sub_category_id\":66, //compulsory\n\"from_date\":\"2018-01-01\", //compulsory\n\"to_date\":\"2019-05-06\", //compulsory\n\"page\":2, //compulsory\n\"item_count\":2, //compulsory\n\"order_by\":\"date\",\n\"order_type\":\"desc\"\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Summary details fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 59,\n\"is_next_page\": true,\n\"result\": [\n{\n\"date\": \"2018-09-11\",\n\"uploaded_content_count\": 1\n},\n{\n\"date\": \"2018-09-07\",\n\"uploaded_content_count\": 2\n}\n]\n}\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
-    "url": "getSummaryOfAllServersByAdmin",
-    "title": "getSummaryOfAllServersByAdmin",
-    "name": "getSummaryOfAllServersByAdmin",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"summary_of_all_servers\": [\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n}\n],\n\"server_url\": \"localhost\",\n\"api_url\": \"http://localhost/photo_editor_lab_backend/api/public/api/\"\n},\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 95,\n\"category_id\": 2,\n\"name\": \"Test\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"no_of_catalogs\": 2,\n\"content_count\": 19,\n\"free_content\": 0,\n\"paid_content\": 19,\n\"last_uploaded_date\": \"2019-01-25 09:42:17\",\n\"is_active\": 1,\n\"last_uploaded_count\": 19\n}\n],\n\"server_url\": \"192.168.0.113\",\n\"api_url\": \"http://192.168.0.113/photo_editor_lab_backend/api/public/api/\"\n}\n]\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
     "url": "getUserFeedsBySubCategoryId",
     "title": "getUserFeedsBySubCategoryId",
     "name": "getUserFeedsBySubCategoryId",
@@ -3362,6 +3246,238 @@ define({ "api": [
     },
     "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_User"
+  },
+  {
+    "type": "post",
+    "url": "addServerUrl",
+    "title": "addServerUrl",
+    "name": "addServerUrl",
+    "group": "Statistics__admin_",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"server_url\":\"http://192.168.0.113/photo_editor_lab_backend\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Server url added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Statistics__admin_"
+  },
+  {
+    "type": "post",
+    "url": "deleteServerUrl",
+    "title": "deleteServerUrl",
+    "name": "deleteServerUrl",
+    "group": "Statistics__admin_",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"server_url_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"URL deleted successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Statistics__admin_"
+  },
+  {
+    "type": "post",
+    "url": "getAllServerUrls",
+    "title": "getAllServerUrls",
+    "name": "getAllServerUrls",
+    "group": "Statistics__admin_",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All urls fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"result\": [\n{\n\"server_url_id\": 2,\n\"server_url\": \"http://192.168.0.113/photo_editor_lab_backend_v1\",\n\"api_url\": \"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api/getSummaryByAdmin\"\n},\n{\n\"server_url_id\": 1,\n\"server_url\": \"http://localhost/photo_editor_lab_backend\",\n\"api_url\": \"http://localhost/photo_editor_lab_backend/api/public/api/getSummaryByAdmin\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Statistics__admin_"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryByAdmin",
+    "title": "getSummaryByAdmin",
+    "name": "getSummaryByAdmin",
+    "group": "Statistics__admin_",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"is_featured\": 10,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n},\n{\n\"sub_category_id\": 28,\n\"category_id\": 2,\n\"name\": \"Selfie With Ganesha Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/59957acc474a9_category_img_1502968524.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/59957acc474a9_category_img_1502968524.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/59957acc474a9_category_img_1502968524.png\",\n\"no_of_catalogs\": 5,\n\"content_count\": 9,\n\"free_content\": 0,\n\"paid_content\": 9,\n\"is_featured\": 10,\n\"last_uploaded_date\": \"2017-08-18 05:18:33\",\n\"is_active\": 1,\n\"last_uploaded_count\": 5\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Statistics__admin_"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryByDateRange",
+    "title": "getSummaryByDateRange",
+    "name": "getSummaryByDateRange",
+    "group": "Statistics__admin_",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"category_id\":2, //compulsory\n\"sub_category_id\":66, //compulsory\n\"from_date\":\"2018-01-01\", //compulsory yy-mm-dd\n\"to_date\":\"2019-05-06\", //compulsory\n\"page\":1, //compulsory\n\"item_count\":10, //compulsory\n\"order_by\":\"date\",\n\"order_type\":\"desc\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 59,\n\"is_next_page\": true,\n\"result\": [\n{\n\"date\": \"2018-01-09\",\n\"uploaded_content_count\": 86\n},\n{\n\"date\": \"2018-03-16\",\n\"uploaded_content_count\": 50\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Statistics__admin_"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryDetailFromDiffServer",
+    "title": "getSummaryDetailFromDiffServer",
+    "name": "getSummaryDetailFromDiffServer",
+    "group": "Statistics__admin_",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"api_url\":\"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api\", //compulsory\n\"category_id\":2, //compulsory\n\"sub_category_id\":66, //compulsory\n\"from_date\":\"2018-01-01\", //compulsory\n\"to_date\":\"2019-05-06\", //compulsory\n\"page\":2, //compulsory\n\"item_count\":2, //compulsory\n\"order_by\":\"date\",\n\"order_type\":\"desc\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary details fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 59,\n\"is_next_page\": true,\n\"result\": [\n{\n\"date\": \"2018-09-11\",\n\"uploaded_content_count\": 1\n},\n{\n\"date\": \"2018-09-07\",\n\"uploaded_content_count\": 2\n}\n]\n}\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Statistics__admin_"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryOfAllServersByAdmin",
+    "title": "getSummaryOfAllServersByAdmin",
+    "name": "getSummaryOfAllServersByAdmin",
+    "group": "Statistics__admin_",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"summary_of_all_servers\": [\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 20,\n\"category_id\": 2,\n\"name\": \"Independence Day Stickers\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d56c20e5bf_sub_category_img_1502435010.png\",\n\"no_of_catalogs\": 7,\n\"content_count\": 81,\n\"free_content\": 6,\n\"paid_content\": 75,\n\"last_uploaded_date\": \"2018-03-10 07:02:54\",\n\"is_active\": 1,\n\"last_uploaded_count\": 6\n}\n],\n\"server_url\": \"localhost\",\n\"api_url\": \"http://localhost/photo_editor_lab_backend/api/public/api/\"\n},\n{\n\"total_record\": 33,\n\"result\": [\n{\n\"sub_category_id\": 95,\n\"category_id\": 2,\n\"name\": \"Test\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c4ac74046e7a_sub_category_img_1548404544.jpg\",\n\"no_of_catalogs\": 2,\n\"content_count\": 19,\n\"free_content\": 0,\n\"paid_content\": 19,\n\"last_uploaded_date\": \"2019-01-25 09:42:17\",\n\"is_active\": 1,\n\"last_uploaded_count\": 19\n}\n],\n\"server_url\": \"192.168.0.113\",\n\"api_url\": \"http://192.168.0.113/photo_editor_lab_backend/api/public/api/\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Statistics__admin_"
+  },
+  {
+    "type": "post",
+    "url": "updateServerUrl",
+    "title": "updateServerUrl",
+    "name": "updateServerUrl",
+    "group": "Statistics__admin_",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"server_url_id\":1, //compulsory\n\"server_url\":\"http://192.168.0.113/photo_editor_lab_backend\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Server url updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Statistics__admin_"
   },
   {
     "type": "post",

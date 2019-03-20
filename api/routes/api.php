@@ -201,6 +201,10 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('runArtisanCommands', 'AdminController@runArtisanCommands');
 
     //Statistics of All servers
+    Route::post('addServerUrl', 'AdminController@addServerUrl');
+    Route::post('updateServerUrl', 'AdminController@updateServerUrl');
+    Route::post('deleteServerUrl', 'AdminController@deleteServerUrl');
+    Route::post('getAllServerUrls', 'AdminController@getAllServerUrls');
     Route::post('getSummaryOfAllServersByAdmin', 'AdminController@getSummaryOfAllServersByAdmin');
     Route::post('getSummaryDetailFromDiffServer', 'AdminController@getSummaryDetailFromDiffServer');
 
