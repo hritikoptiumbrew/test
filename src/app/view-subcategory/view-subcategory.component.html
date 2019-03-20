@@ -33,8 +33,8 @@
       <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of sub_category_list">
         <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
           <div class="card-img-wrap">
-            <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img" (click)="dataService.viewImage(category.original_img)"
-              alt="thumbnail image">
+            <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img"
+              (click)="dataService.viewImage(category.original_img)" alt="thumbnail image">
             <div *ngIf="category.is_free==0 && category.is_json_data==1" class="ribbon-wrapper-yellow">
               <div class="ribbon-yellow">PRO</div>
             </div>
@@ -43,10 +43,19 @@
           <div class="row title-bar pt-2 pb-2 font-18 align-middle">
             <div class="col-12">
               <a title="Update">
-                <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer" (click)="updateSubCategory(category)"></i>
+                <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
+                  (click)="updateSubCategory(category)"></i>
               </a>
               <a title="Delete">
-                <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer" (click)="deleteSubCategory(category)"></i>
+                <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer"
+                  (click)="deleteSubCategory(category)"></i>
+              </a>
+              <a title="Move to first" class="cursor-pointer" (click)="moveToFirst(category)">
+                <svg class="action-btn" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M24 32h336c13.3 0 24 10.7 24 24v24c0 13.3-10.7 24-24 24H24C10.7 104 0 93.3 0 80V56c0-13.3 10.7-24 24-24zm66.4 280.5l65.6-65.6V456c0 13.3 10.7 24 24 24h24c13.3 0 24-10.7 24-24V246.9l65.6 65.6c9.4 9.4 24.6 9.4 33.9 0l17-17c9.4-9.4 9.4-24.6 0-33.9L209 126.1c-9.4-9.4-24.6-9.4-33.9 0L39.5 261.6c-9.4 9.4-9.4 24.6 0 33.9l17 17c9.4 9.4 24.6 9.4 33.9 0z"
+                    fill="#099407"></path>
+                </svg>
               </a>
             </div>
           </div>

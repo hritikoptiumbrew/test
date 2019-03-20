@@ -18,13 +18,14 @@ export class StatisticsDetailsComponent implements OnInit {
   public pickerOptions = {
     startDate: moment().subtract(6, 'days'),
     endDate: moment(),
-    showDropdowns: true,
+    showDropdowns: false,
     locale: { format: 'YYYY-MM-DD' },
     opens: 'left',
+    minDate: '2015-01-01',
     ranges: {
       'This Week': [moment().subtract(6, 'days'), moment()],
-      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
       'This Month': [moment().startOf('month'), moment().endOf('month')],
+      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
       'This Year': [moment().startOf('year'), moment().endOf('year')],
       'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
     }
@@ -91,6 +92,7 @@ export class StatisticsDetailsComponent implements OnInit {
   }
 
   itemPerPageChanged(itemsPerPage) {
+    this.currentPage = 1;
     this.itemsPerPage = itemsPerPage;
     this.getStatisticsData(this.currentPage, this.itemsPerPage, this.sortByTagName, this.order_type_val);
   }

@@ -8,47 +8,113 @@
         <app-navigation></app-navigation>
     </div>
     <div class="col-lg-10 pt-3 pb-3 div-scroll">
-        <div class="row pt-3 pb-3">
-            <div class="col-xl-3 col-lg-2 col-md-2 col-sm-1"></div>
-            <div class="col-xl-6 col-lg-8 col-md-8 col-sm-10 p-0 card-1" style="background-color: white;">
-                <div class="col-12 pt-3 pb-3 pr-3 pl-3 title-bar text-center">
-                    <label class="m-0 font-weight-bold"> Change Password </label>
-                </div>
-                <div class="col-12 pt-3 pb-3">
-                    <div class="col-12 pr-0 pl-0">
-                        <label>Current Password<span class="text-danger">*</span></label>
+        <div class="row pb-3">
+            <div class="col-xl-6 col-lg-6 col-md-6 p-0 col-sm-10">
+                <div class="row card-1" style="background-color: white;">
+                    <div class="col-12 pt-3 pb-3 pr-3 pl-3 title-bar text-center">
+                        <label class="m-0 font-weight-bold"> Change Password </label>
                     </div>
-                    <div class="col-12 pr-0 pl-0">
-                        <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)" [(ngModel)]="passwordData.current_password">
+                    <div class="col-12 pt-3 pb-3">
+                        <div class="col-12 pr-0 pl-0">
+                            <label>Current Password<span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-12 pr-0 pl-0">
+                            <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
+                                [(ngModel)]="passwordData.current_password">
+                        </div>
                     </div>
-                </div>
-                <div class="col-12">
-                    <div class="col-12 pr-0 pl-0">
-                        <label>New Password<span class="text-danger">*</span></label>
+                    <div class="col-12">
+                        <div class="col-12 pr-0 pl-0">
+                            <label>New Password<span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-12 pr-0 pl-0">
+                            <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
+                                [(ngModel)]="passwordData.new_password">
+                        </div>
                     </div>
-                    <div class="col-12 pr-0 pl-0">
-                        <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)" [(ngModel)]="passwordData.new_password">
+                    <div class="col-12 pt-3">
+                        <div class="col-12 pr-0 pl-0">
+                            <label>Repeat New Password<span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-12 pr-0 pl-0">
+                            <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
+                                [(ngModel)]="cnf_password">
+                        </div>
                     </div>
-                </div>
-                <div class="col-12 pt-3">
-                    <div class="col-12 pr-0 pl-0">
-                        <label>Repeat New Password<span class="text-danger">*</span></label>
+                    <div class="col-12 text-center">
+                        <a class="text-danger">{{errorMsg}} &nbsp;</a>
+                        <a class="text-info">{{successMsg}} &nbsp;</a>
                     </div>
-                    <div class="col-12 pr-0 pl-0">
-                        <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)" [(ngModel)]="cnf_password">
-                    </div>
-                </div>
-                <div class="col-12 text-center">
-                    <a class="text-danger">{{errorMsg}} &nbsp;</a>
-                    <a class="text-info">{{successMsg}} &nbsp;</a>
-                </div>
-                <div class="col-12">
-                    <div class="text-center pb-3">
-                        <button md-raised-button class="btn title-bar" (click)="changePassword(passwordData)">Save</button>
+                    <div class="col-12">
+                        <div class="text-center pb-3">
+                            <button md-raised-button class="btn title-bar"
+                                (click)="changePassword(passwordData)">Save</button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-lg-2 col-md-2 col-sm-1"></div>
+            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-10">
+                <div class="row card-1" style="background-color: white;">
+                    <div class="col-12 pt-3 pb-3 pr-3 pl-3 title-bar text-center">
+                        <label class="m-0 font-weight-bold"> Add New Server URL </label>
+                    </div>
+                    <div class="col-12 pt-3 pb-3">
+                        <div class="col-12 pr-0 pl-0">
+                            <input type="text" class="form-control" (keydown.enter)="saveNewServerURL(new_server_url)"
+                                [(ngModel)]="new_server_url" placeholder="Please enter new server URL here...">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-center pb-3">
+                            <button md-raised-button class="btn title-bar"
+                                (click)="saveNewServerURL(new_server_url)">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 card-1 pl-0 pr-0 table-responsive mb-3 table-style scroll"
+            style="max-height: 60vh; overflow: auto;">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr class="table-inverse">
+                        <th>#</th>
+                        <th>Server URL </th>
+                        <th>API URL</th>
+                        <th class="width-120px text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let server_details of server_list; let i = index;">
+                        <td>{{i+1}}</td>
+                        <td *ngIf="server_details.is_editing==false">{{server_details.server_url}}</td>
+                        <td *ngIf="server_details.is_editing==true">
+                            <input type="text" class="form-control" placeholder="Enter server URL..."
+                                [(ngModel)]="server_details.server_url"
+                                (keydown.enter)="saveUpdatedServerURL(server_details)">
+                        </td>
+                        <td style="font-size:14px;">{{server_details.api_url}}</td>
+                        <td class="text-center c-no-wrap" *ngIf="server_details.is_editing==false">
+                            <a title="Update">
+                                <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
+                                    (click)="updateServerURL(server_details)"></i>
+                            </a>
+                            <a title="Delete">
+                                <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer"
+                                    (click)="deleteServerURL(server_details)"></i>
+                            </a>
+                        </td>
+                        <td class="text-center width-140px c-no-wrap pl-1 pr-1" *ngIf="server_details.is_editing==true">
+                            <button class="btn btn-sm mr-2 btn-success"
+                                (click)="saveUpdatedServerURL(server_details)">SAVE</button>
+                            <button class="btn btn-sm btn-light" (click)="resetRow(server_details, i)">Cancel</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+                No Data Found
+            </h5>
         </div>
     </div>
 </div>

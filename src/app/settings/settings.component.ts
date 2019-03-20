@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { MdDialog } from '@angular/material';
+import { MdDialog, MdSnackBar, MdSnackBarConfig } from '@angular/material';
 import { Router } from '@angular/router';
 import { DataService } from '../data.service';
 import { LoadingComponent } from '../loading/loading.component';
+import { DeleteUserGeneratedComponent } from '../delete-user-generated/delete-user-generated.component';
 
 @Component({
   templateUrl: './settings.component.html'
@@ -15,9 +16,14 @@ export class SettingsComponent implements OnInit {
   cnf_password: any;
   passwordData: any = {};
   loading: any;
+  server_list: any[] = [];
+  tmp_server_list: any[] = [];
+  total_record: any;
+  new_server_url: any = "";
 
-
-  constructor(private dataService: DataService, private router: Router, public dialog: MdDialog) {
+  constructor(private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
+    this.token = localStorage.getItem('photoArtsAdminToken');
+    this.getStatisticsData();
   }
 
   ngOnInit() {
@@ -96,5 +102,185 @@ export class SettingsComponent implements OnInit {
         })
     }
   }
+
+  getStatisticsData() {
+    this.loading = this.dialog.open(LoadingComponent);
+    this.token = localStorage.getItem('photoArtsAdminToken');
+    this.dataService.postData('getAllServerUrls',
+      {}, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).subscribe(results => {
+        if (results.code == 200) {
+          this.server_list = results.data.result;
+          this.tmp_server_list = JSON.parse(JSON.stringify(results.data.result));
+          this.server_list.forEach(element => {
+            element.is_editing = false;
+          });
+          this.total_record = results.data.total_record;
+          this.loading.close();
+          this.errorMsg = "";
+          // this.showSuccess(results.message, false);
+        }
+        else if (results.code == 400) {
+          this.loading.close();
+          localStorage.removeItem("photoArtsAdminToken");
+          this.router.navigate(['/admin']);
+        }
+        else if (results.code == 401) {
+          this.token = results.data.new_token;
+          localStorage.setItem("photoArtsAdminToken", this.token);
+          this.getStatisticsData();
+        }
+        else {
+          this.loading.close();
+          this.successMsg = "";
+          this.errorMsg = results.message;
+          this.showError(results.message, false);
+        }
+      }, error => {
+        this.loading.close();
+        this.showError("Unable to connect with server, please reload the page.", false);
+        /* console.log(error.status); */
+        /* console.log(error); */
+      });
+  }
+
+  updateServerURL(server_details: any) {
+    this.server_list.forEach((element: any, i: number) => {
+      this.resetRow(element, i);
+    });
+    let category_data = JSON.parse(JSON.stringify(server_details));
+    server_details.is_editing = true;
+  }
+
+  resetRow(server_details: any, i: number) {
+    server_details.is_editing = false;
+    server_details.server_url = this.tmp_server_list[i].server_url;
+  }
+
+  saveNewServerURL(new_server_url) {
+    if (!new_server_url || new_server_url.trim() == "") {
+      this.showError("Please enter server URL", false);
+      return false;
+    }
+    else {
+      let request_data: any = {
+        "server_url": new_server_url
+      };
+      this.token = localStorage.getItem('photoArtsAdminToken');
+      this.dataService.postData('addServerUrl',
+        request_data, {
+          headers: {
+            'Authorization': 'Bearer ' + this.token
+          }
+        }).subscribe(results => {
+          if (results.code == 200) {
+            this.showSuccess(results.message, false);
+            this.new_server_url = "";
+            this.getStatisticsData();
+          }
+          else if (results.code == 400) {
+            this.loading.close();
+            localStorage.removeItem("photoArtsAdminToken");
+            this.router.navigate(['/admin']);
+          }
+          else if (results.code == 401) {
+            this.token = results.data.new_token;
+            localStorage.setItem("photoArtsAdminToken", this.token);
+            this.saveNewServerURL(new_server_url);
+          }
+          else {
+            this.loading.close();
+            this.successMsg = "";
+            this.errorMsg = results.message;
+            this.showError(results.message, false);
+          }
+        }, error => {
+          /* console.log(error.status); */
+          /* console.log(error); */
+          this.loading.close();
+        });
+    }
+  }
+
+  saveUpdatedServerURL(server_details) {
+    if (!server_details.server_url || server_details.server_url.trim() == "") {
+      this.showError("Please enter server URL", false);
+      return false;
+    }
+    else {
+      let request_data: any = {
+        "server_url_id": server_details.server_url_id,
+        "server_url": server_details.server_url
+      };
+      this.token = localStorage.getItem('photoArtsAdminToken');
+      this.dataService.postData('updateServerUrl',
+        request_data, {
+          headers: {
+            'Authorization': 'Bearer ' + this.token
+          }
+        }).subscribe(results => {
+          if (results.code == 200) {
+            this.showSuccess(results.message, false);
+            this.getStatisticsData();
+          }
+          else if (results.code == 400) {
+            this.loading.close();
+            localStorage.removeItem("photoArtsAdminToken");
+            this.router.navigate(['/admin']);
+          }
+          else if (results.code == 401) {
+            this.token = results.data.new_token;
+            localStorage.setItem("photoArtsAdminToken", this.token);
+            this.saveUpdatedServerURL(server_details);
+          }
+          else {
+            this.loading.close();
+            this.successMsg = "";
+            this.errorMsg = results.message;
+            this.showError(results.message, false);
+          }
+        }, error => {
+          /* console.log(error.status); */
+          /* console.log(error); */
+          this.loading.close();
+        });
+    }
+  }
+
+  deleteServerURL(server_details) {
+    let tmp_request_data = {
+      "server_url_id": server_details.server_url_id
+    };
+    let dialogRef = this.dialog.open(DeleteUserGeneratedComponent, { disableClose: true });
+    dialogRef.componentInstance.delete_request_data = tmp_request_data;
+    dialogRef.componentInstance.API_NAME = "deleteServerUrl";
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        this.getStatisticsData();
+      }
+    });
+  }
+
+  showError(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-error'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
+  }
+
+  showSuccess(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-success'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
+  }
+
 
 }

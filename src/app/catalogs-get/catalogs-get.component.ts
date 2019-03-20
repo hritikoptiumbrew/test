@@ -22,7 +22,9 @@ export class CatalogsGetComponent implements OnInit {
   private subCategoryId: any;
   private catalogName: any;
   private catalogId: any;
-  catalog_list: any[];
+  catalog_list: any[] = [];
+  featured_catalog_list: any[] = [];
+  normal_catalog_list: any[] = [];
   sub_category_name: any;
   errorMsg: any;
   searchErr: any;
@@ -68,6 +70,8 @@ export class CatalogsGetComponent implements OnInit {
   }
 
   getAllCatalogs(categoryId) {
+    this.featured_catalog_list = [];
+    this.normal_catalog_list = [];
     this.token = localStorage.getItem('photoArtsAdminToken');
     this.dataService.postData('getCatalogBySubCategoryId',
       {
@@ -81,6 +85,14 @@ export class CatalogsGetComponent implements OnInit {
           this.catalog_list = results.data.category_list;
           this.total_record = results.data.total_record;
           this.sub_category_name = results.data.category_name;
+          this.catalog_list.forEach(element => {
+            if (element.is_featured == 1) {
+              this.featured_catalog_list.push(element);
+            }
+            else {
+              this.normal_catalog_list.push(element);
+            }
+          });
           this.errorMsg = "";
           this.successMsg = results.message;
           this.loading.close();
@@ -103,6 +115,40 @@ export class CatalogsGetComponent implements OnInit {
       }, error => {
         /* console.log(error.status); */
         /* console.log(error); */
+      });
+  }
+
+  moveToFirst(category) {
+    this.loading = this.dialog.open(LoadingComponent);
+    this.dataService.postData('setCatalogRankOnTheTopByAdmin', {
+      "catalog_id": category.catalog_id
+    }, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).subscribe(results => {
+        if (results.code == 200) {
+          this.showSuccess(results.message, false);
+          this.getAllCatalogs(this.subCategoryId);
+          this.errorMsg = "";
+          this.searchErr = "";
+          // this.loading.close();
+        }
+        else if (results.code == 400) {
+          this.loading.close();
+          localStorage.removeItem("photoArtsAdminToken");
+          this.router.navigate(['/admin']);
+        }
+        else if (results.code == 401) {
+          this.token = results.data.new_token;
+          this.loading.close();
+          localStorage.setItem("photoArtsAdminToken", this.token);
+          this.moveToFirst(category);
+        }
+        else {
+          this.loading.close();
+          this.searchErr = results.message;
+        }
       });
   }
 
@@ -205,8 +251,19 @@ export class CatalogsGetComponent implements OnInit {
           }
         }).subscribe(results => {
           if (results.code == 200) {
+            this.featured_catalog_list = [];
+            this.normal_catalog_list = [];
             this.catalog_list = results.data.category_list;
             this.total_record = this.catalog_list.length;
+            this.sub_category_name = results.data.category_name;
+            this.catalog_list.forEach(element => {
+              if (element.is_featured == 1) {
+                this.featured_catalog_list.push(element);
+              }
+              else {
+                this.normal_catalog_list.push(element);
+              }
+            });
             this.errorMsg = "";
             this.searchErr = "";
             this.loading.close();

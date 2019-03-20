@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MdDialog } from '@angular/material';
+import { MdDialog, MdSnackBar, MdSnackBarConfig } from '@angular/material';
 import { DataService } from '../data.service';
 import { LoadingComponent } from '../loading/loading.component';
 import { UpdateSubcategoryImageByIdComponent } from '../update-subcategory-image-by-id/update-subcategory-image-by-id.component';
@@ -33,7 +33,7 @@ export class ViewSubcategoryComponent implements OnInit {
   loading: any;
   current_path: any = "";
 
-  constructor(public route: ActivatedRoute, private dataService: DataService, private router: Router, public dialog: MdDialog) {
+  constructor(public route: ActivatedRoute, private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.loading = this.dialog.open(LoadingComponent);
   }
 
@@ -161,6 +161,39 @@ export class ViewSubcategoryComponent implements OnInit {
     });
   }
 
+  moveToFirst(category) {
+    this.loading = this.dialog.open(LoadingComponent);
+    this.dataService.postData('setContentRankOnTheTopByAdmin', {
+      "img_id": category.img_id
+    }, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).subscribe(results => {
+        if (results.code == 200) {
+          this.showSuccess(results.message, false);
+          this.getAllCategories();
+          this.errorMsg = "";
+          // this.loading.close();
+        }
+        else if (results.code == 400) {
+          this.loading.close();
+          localStorage.removeItem("photoArtsAdminToken");
+          this.router.navigate(['/admin']);
+        }
+        else if (results.code == 401) {
+          this.token = results.data.new_token;
+          this.loading.close();
+          localStorage.setItem("photoArtsAdminToken", this.token);
+          this.moveToFirst(category);
+        }
+        else {
+          this.loading.close();
+          this.showError(results.message, false);
+        }
+      });
+  }
+
   updateSubCategory(category) {
     if (category.is_json_data == 1 || category.is_json_data == "1") {
       let catalog_data = JSON.parse(JSON.stringify(category));
@@ -195,6 +228,24 @@ export class ViewSubcategoryComponent implements OnInit {
         this.getAllCategories();
       }
     });
+  }
+
+  showError(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-error'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
+  }
+
+  showSuccess(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-success'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
   }
 
   getLocalStorageData() {

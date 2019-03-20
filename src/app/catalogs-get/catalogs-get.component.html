@@ -13,8 +13,8 @@
     </div>
     <div class="row mr-3 ml-3 pb-2 pt-2 title-bar">
       <div class="col pl-2 pr-2">
-        <input [(ngModel)]="searchQuery" class="form-control search-query-input" (keydown.enter)="searchData(searchQuery)"
-          placeholder="Search query...">
+        <input [(ngModel)]="searchQuery" class="form-control search-query-input"
+          (keydown.enter)="searchData(searchQuery)" placeholder="Search query...">
         <button class="form-control btn search-query-call" (click)="searchData(searchQuery)">
           <i class="fa fa-search"></i>
         </button>
@@ -26,38 +26,180 @@
       </div>
     </div>
     <div class="row pr-0 pl-0">
-      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of catalog_list">
-        <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
-          <div class="card-img-wrap">
-            <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img" (click)="dataService.viewImage(category.original_img)"
-              alt="{{category.name}} thumbnail image">
-            <div *ngIf="category.is_free==0" class="ribbon-wrapper-yellow">
-              <div class="ribbon-yellow">PRO</div>
+      <div class="col-12">
+        <md-accordion class="headers-align" multi="true">
+          <md-expansion-panel class="m-0" style="border-bottom: 1px solid #d2d2d2;">
+            <md-expansion-panel-header
+              style="background: #ffe8c7; font-weight: bold; max-height: 48px !important; line-height: 48px !important; border-bottom: 1px solid #d2d2d2;">
+              <md-panel-title style="line-height: 48px;">
+                Featured
+              </md-panel-title>
+              <md-panel-description style="line-height: 48px;">
+                Total count: {{featured_catalog_list.length}}
+              </md-panel-description>
+            </md-expansion-panel-header>
+            <div class="row">
+              <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of featured_catalog_list">
+                <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
+                  <div class="card-img-wrap">
+                    <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img"
+                      (click)="dataService.viewImage(category.original_img)" alt="{{category.name}} thumbnail image">
+                    <div *ngIf="category.is_free==0" class="ribbon-wrapper-yellow">
+                      <div class="ribbon-yellow">PRO</div>
+                    </div>
+                    <img alt="" *ngIf="category.is_featured==1" class="feature-img-templt"
+                      src="./assets/img/featured_img.png">
+                  </div>
+                  <h6 class="pt-2 pb-2 m-0">{{category.catalog_id}}. {{category.name}}</h6>
+                  <div class="row title-bar pt-2 pb-2 font-18 align-middle">
+                    <div class="col-12 col-12 p-0">
+                      <a title="View">
+                        <i class="fa fa-folder-open-o font-24 pr-2 text-success cursor-pointer"
+                          (click)="viewCatalog(category)"></i>
+                      </a>
+                      <a title="Update">
+                        <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
+                          (click)="updateCatalog(category)"></i>
+                      </a>
+                      <a title="Delete">
+                        <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer"
+                          (click)="deleteCatalog(category)"></i>
+                      </a>
+                      <a title="Link this catelog">
+                        <i class="fa fa-link font-20 text-calm pr-2 cursor-pointer" (click)="linkCatalog(category)"></i>
+                      </a>
+                      <a title="Move to first" class="cursor-pointer" (click)="moveToFirst(category)">
+                        <svg class="action-btn" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M24 32h336c13.3 0 24 10.7 24 24v24c0 13.3-10.7 24-24 24H24C10.7 104 0 93.3 0 80V56c0-13.3 10.7-24 24-24zm66.4 280.5l65.6-65.6V456c0 13.3 10.7 24 24 24h24c13.3 0 24-10.7 24-24V246.9l65.6 65.6c9.4 9.4 24.6 9.4 33.9 0l17-17c9.4-9.4 9.4-24.6 0-33.9L209 126.1c-9.4-9.4-24.6-9.4-33.9 0L39.5 261.6c-9.4 9.4-9.4 24.6 0 33.9l17 17c9.4 9.4 24.6 9.4 33.9 0z"
+                            fill="#099407"></path>
+                        </svg>
+                      </a>
+                      <!-- <a title="Migrate content ">
+                                      <i class="fa fa-clipboard font-20 text-white pr-2 cursor-pointer" (click)="addAppContentViaMigration(category)"></i>
+                                    </a> -->
+                    </div>
+                  </div>
+                  <!-- <i class="fa fa-check-square font-26 text-calm ab-top-left-5" *ngIf="category.is_featured==1"></i> -->
+                </div>
+              </div>
             </div>
-            <img alt="" *ngIf="category.is_featured==1" class="feature-img-templt" src="./assets/img/featured_img.png">
-          </div>
-          <h6 class="pt-2 pb-2 m-0">{{category.catalog_id}}. {{category.name}}</h6>
-          <div class="row title-bar pt-2 pb-2 font-18 align-middle">
-            <div class="col-12 col-12 p-0">
-              <a title="View">
-                <i class="fa fa-folder-open-o font-24 pr-2 text-success cursor-pointer" (click)="viewCatalog(category)"></i>
-              </a>
-              <a title="Update">
-                <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer" (click)="updateCatalog(category)"></i>
-              </a>
-              <a title="Delete">
-                <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer" (click)="deleteCatalog(category)"></i>
-              </a>
-              <a title="Link this catelog">
-                <i class="fa fa-link font-20 text-calm pr-2 cursor-pointer" (click)="linkCatalog(category)"></i>
-              </a>
-              <!-- <a title="Migrate content ">
-                <i class="fa fa-clipboard font-20 text-white pr-2 cursor-pointer" (click)="addAppContentViaMigration(category)"></i>
-              </a> -->
+          </md-expansion-panel>
+          <md-expansion-panel class="m-0" style="border-bottom: 1px solid #d2d2d2;">
+            <md-expansion-panel-header
+              style="background: #ffe8c7; font-weight: bold; max-height: 48px !important; line-height: 48px !important; border-bottom: 1px solid #d2d2d2;">
+              <md-panel-title style="line-height: 48px;">
+                Normal Catalogs
+              </md-panel-title>
+              <md-panel-description style="line-height: 48px;">
+                Total count: {{normal_catalog_list.length}}
+              </md-panel-description>
+            </md-expansion-panel-header>
+            <div class="row">
+              <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of normal_catalog_list">
+                <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
+                  <div class="card-img-wrap">
+                    <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img"
+                      (click)="dataService.viewImage(category.original_img)" alt="{{category.name}} thumbnail image">
+                    <div *ngIf="category.is_free==0" class="ribbon-wrapper-yellow">
+                      <div class="ribbon-yellow">PRO</div>
+                    </div>
+                    <img alt="" *ngIf="category.is_featured==1" class="feature-img-templt"
+                      src="./assets/img/featured_img.png">
+                  </div>
+                  <h6 class="pt-2 pb-2 m-0">{{category.catalog_id}}. {{category.name}}</h6>
+                  <div class="row title-bar pt-2 pb-2 font-18 align-middle">
+                    <div class="col-12 col-12 p-0">
+                      <a title="View">
+                        <i class="fa fa-folder-open-o font-24 pr-2 text-success cursor-pointer"
+                          (click)="viewCatalog(category)"></i>
+                      </a>
+                      <a title="Update">
+                        <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
+                          (click)="updateCatalog(category)"></i>
+                      </a>
+                      <a title="Delete">
+                        <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer"
+                          (click)="deleteCatalog(category)"></i>
+                      </a>
+                      <a title="Link this catelog">
+                        <i class="fa fa-link font-20 text-calm pr-2 cursor-pointer" (click)="linkCatalog(category)"></i>
+                      </a>
+                      <a title="Move to first" class="cursor-pointer" (click)="moveToFirst(category)">
+                        <svg class="action-btn" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M24 32h336c13.3 0 24 10.7 24 24v24c0 13.3-10.7 24-24 24H24C10.7 104 0 93.3 0 80V56c0-13.3 10.7-24 24-24zm66.4 280.5l65.6-65.6V456c0 13.3 10.7 24 24 24h24c13.3 0 24-10.7 24-24V246.9l65.6 65.6c9.4 9.4 24.6 9.4 33.9 0l17-17c9.4-9.4 9.4-24.6 0-33.9L209 126.1c-9.4-9.4-24.6-9.4-33.9 0L39.5 261.6c-9.4 9.4-9.4 24.6 0 33.9l17 17c9.4 9.4 24.6 9.4 33.9 0z"
+                            fill="#099407"></path>
+                        </svg>
+                      </a>
+                      <!-- <a title="Migrate content ">
+                                    <i class="fa fa-clipboard font-20 text-white pr-2 cursor-pointer" (click)="addAppContentViaMigration(category)"></i>
+                                  </a> -->
+                    </div>
+                  </div>
+                  <!-- <i class="fa fa-check-square font-26 text-calm ab-top-left-5" *ngIf="category.is_featured==1"></i> -->
+                </div>
+              </div>
             </div>
-          </div>
-          <!-- <i class="fa fa-check-square font-26 text-calm ab-top-left-5" *ngIf="category.is_featured==1"></i> -->
-        </div>
+          </md-expansion-panel>
+          <md-expansion-panel class="m-0" style="border-bottom: 1px solid #d2d2d2;" expanded="true">
+            <md-expansion-panel-header
+              style="background: #ffe8c7; font-weight: bold; max-height: 48px !important; line-height: 48px !important; border-bottom: 1px solid #d2d2d2;">
+              <md-panel-title style="line-height: 48px;">
+                All
+              </md-panel-title>
+              <md-panel-description style="line-height: 48px;">
+                Total count: {{total_record}}
+              </md-panel-description>
+            </md-expansion-panel-header>
+            <div class="row">
+              <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of catalog_list">
+                <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
+                  <div class="card-img-wrap">
+                    <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img"
+                      (click)="dataService.viewImage(category.original_img)" alt="{{category.name}} thumbnail image">
+                    <div *ngIf="category.is_free==0" class="ribbon-wrapper-yellow">
+                      <div class="ribbon-yellow">PRO</div>
+                    </div>
+                    <img alt="" *ngIf="category.is_featured==1" class="feature-img-templt"
+                      src="./assets/img/featured_img.png">
+                  </div>
+                  <h6 class="pt-2 pb-2 m-0">{{category.catalog_id}}. {{category.name}}</h6>
+                  <div class="row title-bar pt-2 pb-2 font-18 align-middle">
+                    <div class="col-12 col-12 p-0">
+                      <a title="View">
+                        <i class="fa fa-folder-open-o font-24 pr-2 text-success cursor-pointer"
+                          (click)="viewCatalog(category)"></i>
+                      </a>
+                      <a title="Update">
+                        <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
+                          (click)="updateCatalog(category)"></i>
+                      </a>
+                      <a title="Delete">
+                        <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer"
+                          (click)="deleteCatalog(category)"></i>
+                      </a>
+                      <a title="Link this catelog">
+                        <i class="fa fa-link font-20 text-calm pr-2 cursor-pointer" (click)="linkCatalog(category)"></i>
+                      </a>
+                      <a title="Move to first" class="cursor-pointer" (click)="moveToFirst(category)">
+                        <svg class="action-btn" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M24 32h336c13.3 0 24 10.7 24 24v24c0 13.3-10.7 24-24 24H24C10.7 104 0 93.3 0 80V56c0-13.3 10.7-24 24-24zm66.4 280.5l65.6-65.6V456c0 13.3 10.7 24 24 24h24c13.3 0 24-10.7 24-24V246.9l65.6 65.6c9.4 9.4 24.6 9.4 33.9 0l17-17c9.4-9.4 9.4-24.6 0-33.9L209 126.1c-9.4-9.4-24.6-9.4-33.9 0L39.5 261.6c-9.4 9.4-9.4 24.6 0 33.9l17 17c9.4 9.4 24.6 9.4 33.9 0z"
+                            fill="#099407"></path>
+                        </svg>
+                      </a>
+                      <!-- <a title="Migrate content ">
+                                    <i class="fa fa-clipboard font-20 text-white pr-2 cursor-pointer" (click)="addAppContentViaMigration(category)"></i>
+                                  </a> -->
+                    </div>
+                  </div>
+                  <!-- <i class="fa fa-check-square font-26 text-calm ab-top-left-5" *ngIf="category.is_featured==1"></i> -->
+                </div>
+              </div>
+            </div>
+          </md-expansion-panel>
+        </md-accordion>
       </div>
     </div>
     <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">

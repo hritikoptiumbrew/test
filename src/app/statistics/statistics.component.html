@@ -14,13 +14,13 @@
       </div>
     </div>
     <div class="row pr-0 pl-0" style="height: calc(100% - 50px);">
-      <div class="col-sm-12 pl-0 pr-0 table-responsive mb-3 table-style scroll" style="max-height: 100%;">
-        <md-accordion class="headers-align">
+      <div class="col-sm-12 pl-0 pr-0 table-responsive mb-3 scroll" style="max-height: 100%;">
+        <md-accordion class="headers-align" multi="true">
           <md-expansion-panel class="m-0" *ngFor="let server_details of server_list; let i = index;"
-            style="border-bottom: 1px solid #d2d2d2;">
+            style="border-bottom: 1px solid #d2d2d2;" expanded="true">
             <md-expansion-panel-header
-              style="background:#d4d4d4; max-height: 48px !important; line-height: 48px !important;">
-              <md-panel-title style="line-height: 48px;">
+              style="background: #ffe8c7; max-height: 48px !important; height: 48px; line-height: 48px; font-weight: bold; border-bottom: 1px solid #d2d2d2;">
+              <md-panel-title style="line-height: 48px; font-size: 17px;">
                 {{i+1}}. {{server_details.server_url}}
               </md-panel-title>
               <md-panel-description style="line-height: 48px;">
@@ -29,14 +29,14 @@
             </md-expansion-panel-header>
             <table class="table table-hover mb-0">
               <thead>
-                <tr class="table-inverse">
+                <tr>
                   <th style="width: 40px;">#</th>
                   <th>App Icon</th>
                   <th>Name</th>
                   <th class="text-center">Total Catalogs</th>
-                  <th class="text-center">Content Count</th>
-                  <th class="text-center">Free Content</th>
-                  <th class="text-center">Paid Content</th>
+                  <th class="text-center">Total Templates</th>
+                  <th class="text-center">Free Templates</th>
+                  <th class="text-center">Paid Templates</th>
                   <th class="text-center">Last Uploaded Count</th>
                   <th class="text-center">Last Uploaded On</th>
                   <th class="text-center width-120px">Action</th>
@@ -56,7 +56,8 @@
                   <td class="text-center">{{content_details.last_uploaded_count}}</td>
                   <td class="text-center">{{content_details.last_uploaded_date}}</td>
                   <td class="text-center">
-                    <a class="btn btn-sm btn-info text-white" (click)="openDateRangePicker(content_details, server_details)">View
+                    <a class="btn btn-sm btn-info text-white"
+                      (click)="openDateRangePicker(content_details, server_details)">View
                       more</a>
                   </td>
                 </tr>
