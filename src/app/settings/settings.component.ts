@@ -136,7 +136,8 @@ export class SettingsComponent implements OnInit {
         else {
           this.loading.close();
           this.successMsg = "";
-          this.errorMsg = results.message;
+          // this.errorMsg = results.message;
+          this.errorMsg = "";
           this.showError(results.message, false);
         }
       }, error => {
@@ -194,7 +195,7 @@ export class SettingsComponent implements OnInit {
           else {
             this.loading.close();
             this.successMsg = "";
-            this.errorMsg = results.message;
+            this.errorMsg = "";
             this.showError(results.message, false);
           }
         }, error => {
@@ -239,7 +240,7 @@ export class SettingsComponent implements OnInit {
           else {
             this.loading.close();
             this.successMsg = "";
-            this.errorMsg = results.message;
+            this.errorMsg = "";
             this.showError(results.message, false);
           }
         }, error => {
