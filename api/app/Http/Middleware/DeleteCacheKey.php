@@ -79,7 +79,7 @@ class DeleteCacheKey
             }
 
             //Catalog-Category
-            if ($api == '/api/addCatalog' or $api == '/api/updateCatalog' or $api == '/api/deleteCatalog' or $api == '/api/linkCatalog' or $api == '/api/deleteLinkedCatalog' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage') {
+            if ($api == '/api/addCatalog' or $api == '/api/updateCatalog' or $api == '/api/deleteCatalog' or $api == '/api/linkCatalog' or $api == '/api/deleteLinkedCatalog' or $api == '/api/setCatalogRankOnTheTopByAdmin') {
 
 
                 //getFeaturedCatalogBySubCategoryId
@@ -113,18 +113,6 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
-                //getSampleImagesForAdmin
-                $keys = Redis::keys('pel:getSampleImagesForAdmin*');
-                foreach ($keys as $key) {
-                    Redis::del($key);
-                }
-
-                //getSampleImagesForMobile
-                $keys = Redis::keys('pel:getSampleImagesForMobile*');
-                foreach ($keys as $key) {
-                    Redis::del($key);
-                }
-
                 //getAllSubCategoryForLinkCatalog
                 $keys = Redis::keys('pel:getAllSubCategoryForLinkCatalog*');
                 foreach ($keys as $key) {
@@ -133,12 +121,6 @@ class DeleteCacheKey
 
                 //getBackgroundCatalogBySubCategoryId
                 $keys = Redis::keys('pel:getBackgroundCatalogBySubCategoryId*');
-                foreach ($keys as $key) {
-                    Redis::del($key);
-                }
-
-                //All Sub Category Key
-                $keys = Redis::keys('pel:getAllSubCategory*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
@@ -152,7 +134,7 @@ class DeleteCacheKey
             }
 
             //Sub Category Images
-            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages') {
+            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin') {
 
                 //Category Wise Images Key
                 $keys = Redis::keys('pel:getImagesByCatalogId*');

@@ -204,6 +204,10 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('getSummaryOfAllServersByAdmin', 'AdminController@getSummaryOfAllServersByAdmin');
     Route::post('getSummaryDetailFromDiffServer', 'AdminController@getSummaryDetailFromDiffServer');
 
+    //Set rank of catalogs & templates
+    Route::post('setCatalogRankOnTheTopByAdmin', 'AdminController@setCatalogRankOnTheTopByAdmin');
+    Route::post('setContentRankOnTheTopByAdmin', 'AdminController@setContentRankOnTheTopByAdmin');
+
 });
 
 Route::post('addQuestionAnswer','QnAController@addQuestionAnswer');
