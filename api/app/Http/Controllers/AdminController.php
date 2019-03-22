@@ -7667,13 +7667,10 @@ class AdminController extends Controller
                 DB::insert('INSERT INTO server_url_master (server_url, api_url, is_active, create_time)  VALUES(?, ?, ?, ?)', [$server_url, $api_url, 1, $create_at]);
 
                 DB::commit();
-            }
-            else
-            {
+            } else {
                 return $response = Response::json(array('code' => 201, 'message' => 'Invalid server url.', 'cause' => '', 'data' => json_decode('{}')));
 
             }
-
 
 
             $response = Response::json(array('code' => 200, 'message' => 'Server url added successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -8106,7 +8103,7 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "api_url":"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api", //compulsory
+     * "api_url":"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api/", //compulsory
      * "category_id":2, //compulsory
      * "sub_category_id":66, //compulsory
      * "from_date":"2018-01-01", //compulsory
@@ -8281,6 +8278,169 @@ class AdminController extends Controller
         } catch (Exception $e) {
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary by date range.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             Log::error("getSummaryByDateRange : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getSummaryOfCatalogsFromDiffServer   getSummaryOfCatalogsFromDiffServer
+     * @apiName getSummaryOfCatalogsFromDiffServer
+     * @apiGroup Statistics (admin)
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "api_url":"http://192.168.0.113/photo_editor_lab_backend/api/public/api/", //compulsory
+     * "sub_category_id":66, //compulsory
+     * "from_date":"2019-03-21", //compulsory
+     * "to_date":"2019-05-06", //compulsory
+     * "order_by":"last_uploaded_date",
+     * "order_type":"desc"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Summary details fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "code": 200,
+     * "message": "Summary fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 3,
+     * "result": [
+     * {
+     * "catalog_name": "Branding",
+     * "content_count": 5,
+     * "last_uploaded_date": "2019-03-22 06:29:35"
+     * },
+     * {
+     * "catalog_name": "Birthday",
+     * "content_count": 18,
+     * "last_uploaded_date": "2019-03-22 06:03:02"
+     * }
+     * ]
+     * }
+     * }
+     * }
+     */
+    public function getSummaryOfCatalogsFromDiffServer(Request $request)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('api_url', 'sub_category_id', 'from_date', 'to_date'), $request)) != '')
+                return $response;
+
+            $api_url = $request->api_url . "getSummaryOfCatalogsByDateRange";
+            $sub_category_id = $request->sub_category_id;
+            $from_date = $request->from_date;
+            $to_date = $request->to_date;
+            $order_by = isset($request->order_by) ? $request->order_by : 'last_uploaded_date'; //field name
+            $order_type = isset($request->order_type) ? $request->order_type : 'desc'; //asc or desc
+
+            $request_body = array(
+                'json' => array(
+                    'sub_category_id' => $sub_category_id,
+                    'from_date' => $from_date,
+                    'to_date' => $to_date,
+                    'order_by' => $order_by,
+                    'order_type' => $order_type,
+                )
+            );
+
+            $client = new Client();
+            $output = $client->post($api_url, $request_body);
+            $data = json_decode($output->getBody()->getContents(), true);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Summary details fetched successfully.', 'cause' => '', 'data' => $data));
+
+        } catch (Exception $e) {
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryOfCatalogsFromDiffServer : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getSummaryOfCatalogsByDateRange   getSummaryOfCatalogsByDateRange
+     * @apiName getSummaryOfCatalogsByDateRange
+     * @apiGroup Statistics (admin)
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":66, //compulsory
+     * "from_date":"2018-01-01", //compulsory yy-mm-dd
+     * "to_date":"2019-05-06", //compulsory
+     * "order_by":"catalog_name",
+     * "order_type":"desc"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Summary fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 7,
+     * "result": [
+     * {
+     * "catalog_name": "Branding",
+     * "content_count": 82,
+     * "last_uploaded_date": "2019-03-20 07:39:33"
+     * },
+     * {
+     * "catalog_name": "Birthday",
+     * "content_count": 73,
+     * "last_uploaded_date": "2019-03-20 10:11:52"
+     * }
+     * ]
+     * }
+     * }
+     * }
+     */
+    public function getSummaryOfCatalogsByDateRange(Request $request)
+    {
+        try {
+            /*$token = JWTAuth::getToken();
+            JWTAuth::toUser($token);*/
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'from_date', 'to_date'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $from_date = $request->from_date;
+            $to_date = $request->to_date;
+            $order_by = isset($request->order_by) ? $request->order_by : 'last_uploaded_date'; //field name
+            $order_type = isset($request->order_type) ? strtolower($request->order_type) : 'desc'; //asc or desc
+
+            $uploaded_content_count = DB::select('SELECT
+                                                      ctm.name AS catalog_name,
+                                                      count(*) AS content_count,
+                                                      coalesce((max(cm.created_at)),"") AS last_uploaded_date
+                                                    FROM
+                                                      sub_category_catalog AS scc
+                                                      JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_active = 1 AND ctm.is_featured = 1 AND scc.sub_category_id = ?
+                                                      LEFT JOIN images AS cm
+                                                        ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1
+                                                    WHERE DATE (cm.created_at) BETWEEN ? AND ?
+                                                    GROUP BY catalog_name
+                                                    ORDER BY ' . $order_by . ' ' . $order_type, [$sub_category_id, $from_date, $to_date]);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Summary fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($uploaded_content_count), 'result' => $uploaded_content_count]));
+
+        } catch (Exception $e) {
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary by date range.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryOfCatalogsByDateRange : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
         return $response;
     }
