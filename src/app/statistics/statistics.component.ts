@@ -44,6 +44,11 @@ export class StatisticsComponent implements OnInit {
         if (results.code == 200) {
           this.server_list = results.data.summary_of_all_servers;
           this.total_record = results.data.total_record;
+          this.server_list.forEach(element => {
+            element.result.forEach(appname => {
+              appname.last_uploaded_date = this.dataService.formatDDMMMYYYYHHMMALOCAL(appname.last_uploaded_date);
+            });
+          });
           this.loading.close();
           this.errorMsg = "";
           // this.showSuccess(results.message, false);

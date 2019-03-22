@@ -4,6 +4,9 @@
       <div class="col pl-2 pr-2">
         <h5 class="pull-left pt-1 pl-3">{{content_details.name}}</h5>
         <h6 class="pull-right m-0 pt-1">Total Records : {{total_record}}</h6>
+        <button class="form-control btn search-query-reset hidden-md-down" (click)="resetAll()">
+          <i class="fa fa-refresh"></i>
+        </button>
         <md-select placeholder=" " [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-2 pull-right"
           (change)="itemPerPageChanged(itemsPerPage)">
           <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">

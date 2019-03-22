@@ -87,4 +87,14 @@ export class DataService {
     }
   }
 
+  formatDDMMMYYYYHHMMALOCAL(date) {
+    if (date) {
+      let stillUtc = moment.utc(date).toDate();
+      return moment(stillUtc).local().format('DD MMM, YYYY hh:mm A');
+    }
+    else {
+      return "";
+    }
+  }
+
 }

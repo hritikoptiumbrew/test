@@ -134,6 +134,9 @@ export class StatisticsDetailsByCatalogComponent implements OnInit {
         if (results.code == 200) {
           if (results.data) {
             this.content_list = results.data.data.result;
+            this.content_list.forEach(element => {
+              element.last_uploaded_date = this.dataService.formatDDMMMYYYYHHMMALOCAL(element.last_uploaded_date);
+            });
             this.total_record = results.data.data.total_record;
           }
           this.loading.close();
