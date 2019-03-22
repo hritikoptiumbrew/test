@@ -167,6 +167,14 @@ export class StatisticsDetailsByCatalogComponent implements OnInit {
       });
   }
 
+  resetAll() {
+    this.currentPage = 1;
+    this.order_type_val = undefined;
+    this.sortByTagName = undefined;
+    this.itemsPerPage = this.itemsPerPageArray[0].itemPerPageValue;
+    this.getStatisticsData(this.sortByTagName, this.order_type_val);
+  }
+
   showError(message, action) {
     let config = new MdSnackBarConfig();
     config.extraClasses = ['snack-error'];
