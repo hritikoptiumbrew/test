@@ -36,6 +36,7 @@ Route::get('getRedisInfo','AdminController@getRedisInfo');
 //Statistics of current server
 Route::post('getSummaryByAdmin', 'AdminController@getSummaryByAdmin');
 Route::post('getSummaryByDateRange', 'AdminController@getSummaryByDateRange');
+Route::post('getSummaryOfCatalogsByDateRange', 'AdminController@getSummaryOfCatalogsByDateRange');
 
 Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']], function() {
 
@@ -205,8 +206,9 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('updateServerUrl', 'AdminController@updateServerUrl');
     Route::post('deleteServerUrl', 'AdminController@deleteServerUrl');
     Route::post('getAllServerUrls', 'AdminController@getAllServerUrls');
-    Route::post('getSummaryOfAllServersByAdmin', 'AdminController@getSummaryOfAllServersByAdmin');
-    Route::post('getSummaryDetailFromDiffServer', 'AdminController@getSummaryDetailFromDiffServer');
+    Route::post('getSummaryOfAllServersByAdmin', 'AdminController@getSummaryOfAllServersByAdmin');//Statistics of All servers
+    Route::post('getSummaryDetailFromDiffServer', 'AdminController@getSummaryDetailFromDiffServer');//Statistics from other servers
+    Route::post('getSummaryOfCatalogsFromDiffServer', 'AdminController@getSummaryOfCatalogsFromDiffServer');//Statistics from other servers by catalogs
 
     //Set rank of catalogs & templates
     Route::post('setCatalogRankOnTheTopByAdmin', 'AdminController@setCatalogRankOnTheTopByAdmin');
