@@ -28,11 +28,11 @@
     <div class="row pr-0 pl-0">
       <div class="col-12">
         <md-accordion class="headers-align" multi="true">
-          <md-expansion-panel class="m-0" style="border-bottom: 1px solid #d2d2d2;">
+          <md-expansion-panel class="m-0" style="border-bottom: 1px solid #d2d2d2;" expanded="true">
             <md-expansion-panel-header
               style="background: #ffe8c7; font-weight: bold; max-height: 48px !important; line-height: 48px !important; border-bottom: 1px solid #d2d2d2;">
               <md-panel-title style="line-height: 48px;">
-                Featured
+                Templates
               </md-panel-title>
               <md-panel-description style="line-height: 48px;">
                 Total count: {{featured_catalog_list.length}}
@@ -83,13 +83,16 @@
                   <!-- <i class="fa fa-check-square font-26 text-calm ab-top-left-5" *ngIf="category.is_featured==1"></i> -->
                 </div>
               </div>
+              <h5 *ngIf="featured_catalog_list.length==0" class="pb-3 pt-3 pl-3 m-0">
+                No Data Found
+              </h5>
             </div>
           </md-expansion-panel>
           <md-expansion-panel class="m-0" style="border-bottom: 1px solid #d2d2d2;">
             <md-expansion-panel-header
               style="background: #ffe8c7; font-weight: bold; max-height: 48px !important; line-height: 48px !important; border-bottom: 1px solid #d2d2d2;">
               <md-panel-title style="line-height: 48px;">
-                Normal Catalogs
+                Collection
               </md-panel-title>
               <md-panel-description style="line-height: 48px;">
                 Total count: {{normal_catalog_list.length}}
@@ -140,9 +143,12 @@
                   <!-- <i class="fa fa-check-square font-26 text-calm ab-top-left-5" *ngIf="category.is_featured==1"></i> -->
                 </div>
               </div>
+              <h5 *ngIf="normal_catalog_list.length==0" class="pb-3 pt-3 pl-3 m-0">
+                No Data Found
+              </h5>
             </div>
           </md-expansion-panel>
-          <md-expansion-panel class="m-0" style="border-bottom: 1px solid #d2d2d2;" expanded="true">
+          <!-- <md-expansion-panel class="m-0" style="border-bottom: 1px solid #d2d2d2;" expanded="true">
             <md-expansion-panel-header
               style="background: #ffe8c7; font-weight: bold; max-height: 48px !important; line-height: 48px !important; border-bottom: 1px solid #d2d2d2;">
               <md-panel-title style="line-height: 48px;">
@@ -189,22 +195,15 @@
                             fill="#099407"></path>
                         </svg>
                       </a>
-                      <!-- <a title="Migrate content ">
-                                    <i class="fa fa-clipboard font-20 text-white pr-2 cursor-pointer" (click)="addAppContentViaMigration(category)"></i>
-                                  </a> -->
                     </div>
                   </div>
-                  <!-- <i class="fa fa-check-square font-26 text-calm ab-top-left-5" *ngIf="category.is_featured==1"></i> -->
                 </div>
               </div>
             </div>
-          </md-expansion-panel>
+          </md-expansion-panel> -->
         </md-accordion>
       </div>
     </div>
-    <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
-      No Data Found
-    </h5>
     <!--<div class="col-12 text-center">
       <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage" [directionLinks]="false"
         [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="inline-block mt-3"></ngb-pagination>

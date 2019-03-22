@@ -1,15 +1,15 @@
-<div class="row p-0" style="width:35vw;">
+<div class="row p-0" style="width:65vw;">
   <div class="col-lg-12 p-0">
     <div class="row pb-2 pt-2 title-bar">
       <div class="col pl-2 pr-2">
         <h5 class="pull-left pt-1 pl-3">{{content_details.name}}</h5>
         <h6 class="pull-right m-0 pt-1">Total Records : {{total_record}}</h6>
-        <md-select placeholder=" " [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-2 pull-right"
+        <!-- <md-select placeholder=" " [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-2 pull-right"
           (change)="itemPerPageChanged(itemsPerPage)">
           <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
             {{items.itemPerPageName}}
           </md-option>
-        </md-select>
+        </md-select> -->
       </div>
     </div>
     <div class="col-12 p-3">
@@ -28,20 +28,23 @@
         <table class="table table-hover mb-0">
           <thead>
             <tr class="table-inverse">
-              <th>#</th>
-              <th class="cursor-pointer"
-                (click)="sortBy('uploaded_content_count', order_type == true ? 'ASC' : 'DESC')">Uploaded
-                Content
+              <th class="width-75px">#</th>
+              <th class="cursor-pointer" (click)="sortBy('catalog_name', order_type == true ? 'ASC' : 'DESC')">Catalog
+                Name
               </th>
-              <th class="text-center cursor-pointer" (click)="sortBy('date', order_type == true ? 'ASC' : 'DESC')">
+              <th class="cursor-pointer" (click)="sortBy('content_count', order_type == true ? 'ASC' : 'DESC')">Uploaded
+                Templates
+              </th>
+              <th class="text-center cursor-pointer" (click)="sortBy('last_uploaded_date', order_type == true ? 'ASC' : 'DESC')">
                 Last Uploaded on</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let content_details of content_list; let i = index;">
               <td>{{i+1+(itemsPerPage * (currentPage-1))}}</td>
-              <td>{{content_details.uploaded_content_count}}</td>
-              <td class="text-center">{{content_details.date}}</td>
+              <td>{{content_details.catalog_name}}</td>
+              <td>{{content_details.content_count}}</td>
+              <td class="text-center">{{content_details.last_uploaded_date}}</td>
             </tr>
           </tbody>
         </table>
@@ -50,12 +53,12 @@
         </h5>
       </div>
     </div>
-    <div class="row pr-0 pl-0">
+    <!-- <div class="row pr-0 pl-0">
       <div class="col-12 text-center">
         <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true"
           *ngIf="total_record>itemsPerPage" [directionLinks]="false" [boundaryLinks]="true"
           (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="inline-block mt-3"></ngb-pagination>
       </div>
-    </div>
+    </div> -->
   </div>
 </div>

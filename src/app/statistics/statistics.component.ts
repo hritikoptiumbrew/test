@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { DataService } from '../data.service';
 import { LoadingComponent } from '../loading/loading.component';
 import { StatisticsDetailsComponent } from '../statistics-details/statistics-details.component';
+import { StatisticsDetailsByCatalogComponent } from '../statistics-details-by-catalog/statistics-details-by-catalog.component';
 
 @Component({
   selector: 'app-statistics',
@@ -74,6 +75,11 @@ export class StatisticsComponent implements OnInit {
   openDateRangePicker(content_details, server_details) {
     content_details.api_url = server_details.api_url;
     let dialogRef = this.dialog.open(StatisticsDetailsComponent, { data: content_details });
+  }
+
+  getDetailsByCatalogs(content_details, server_details) {
+    content_details.api_url = server_details.api_url;
+    let dialogRef = this.dialog.open(StatisticsDetailsByCatalogComponent, { data: content_details });
   }
 
   showError(message, action) {

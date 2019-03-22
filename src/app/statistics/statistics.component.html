@@ -39,7 +39,7 @@
                   <th class="text-center">Paid Templates</th>
                   <th class="text-center">Last Uploaded Count</th>
                   <th class="text-center">Last Uploaded On</th>
-                  <th class="text-center width-120px">Action</th>
+                  <th class="text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -57,8 +57,11 @@
                   <td class="text-center">{{content_details.last_uploaded_date}}</td>
                   <td class="text-center">
                     <a class="btn btn-sm btn-info text-white"
-                      (click)="openDateRangePicker(content_details, server_details)">View
-                      more</a>
+                      (click)="openDateRangePicker(content_details, server_details)"><i class="fa fa-eye"></i> By
+                      Date</a>
+                    <a class="btn btn-sm btn-info text-white"
+                      (click)="getDetailsByCatalogs(content_details, server_details)"><i class="fa fa-eye"></i> By
+                      Catalogs</a>
                   </td>
                 </tr>
               </tbody>

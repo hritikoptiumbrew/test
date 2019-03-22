@@ -69,6 +69,7 @@ import { SearchTagsComponent } from './search-tags/search-tags.component';
 import { FontListComponent } from './font-list/font-list.component';
 import { StatisticsComponent } from './statistics/statistics.component';
 import { StatisticsDetailsComponent } from './statistics-details/statistics-details.component';
+import { StatisticsDetailsByCatalogComponent } from './statistics-details-by-catalog/statistics-details-by-catalog.component';
 
 @NgModule({
   declarations: [
@@ -129,6 +130,7 @@ import { StatisticsDetailsComponent } from './statistics-details/statistics-deta
     FontListComponent,
     StatisticsComponent,
     StatisticsDetailsComponent,
+    StatisticsDetailsByCatalogComponent,
   ],
   imports: [
     BrowserModule,
@@ -185,6 +187,7 @@ import { StatisticsDetailsComponent } from './statistics-details/statistics-deta
     GaAdsByCategoryComponent,
     ExistingImagesListComponent,
     StatisticsDetailsComponent,
+    StatisticsDetailsByCatalogComponent,
   ],
   providers: [DataService, AuthenticationService],
   bootstrap: [AppComponent],
