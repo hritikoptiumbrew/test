@@ -7620,9 +7620,264 @@ class AdminController extends Controller
     /* =========================================| Statistics Module |=========================================*/
 
     /**
+     * @api {post} addServerUrl   addServerUrl
+     * @apiName addServerUrl
+     * @apiGroup Statistics (admin)
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "server_url":"http://192.168.0.113/photo_editor_lab_backend" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Server url added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addServerUrl(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('server_url'), $request)) != '')
+                return $response;
+
+            $server_url = trim($request->server_url);
+            $create_at = date('Y-m-d H:i:s');
+
+            $result = DB::select('SELECT * FROM server_url_master WHERE server_url = ?', [$server_url]);
+            if (count($result) > 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'URL already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            $api_url = "$server_url/api/public/api/getSummaryByAdmin";
+
+            if ((filter_var($server_url, FILTER_VALIDATE_URL))) {
+                DB::beginTransaction();
+
+                DB::insert('INSERT INTO server_url_master (server_url, api_url, is_active, create_time)  VALUES(?, ?, ?, ?)', [$server_url, $api_url, 1, $create_at]);
+
+                DB::commit();
+            }
+            else
+            {
+                return $response = Response::json(array('code' => 201, 'message' => 'Invalid server url.', 'cause' => '', 'data' => json_decode('{}')));
+
+            }
+
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Server url added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addServerUrl : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add server url.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateServerUrl   updateServerUrl
+     * @apiName updateServerUrl
+     * @apiGroup Statistics (admin)
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "server_url_id":1, //compulsory
+     * "server_url":"http://192.168.0.113/photo_editor_lab_backend" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Server url updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateServerUrl(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('server_url_id', 'server_url'), $request)) != '')
+                return $response;
+
+            $server_url_id = $request->server_url_id;
+            $server_url = trim($request->server_url);
+
+            $result = DB::select('SELECT * FROM server_url_master WHERE server_url = ? AND id != ?', [$server_url, $server_url_id]);
+            if (count($result) > 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'URL already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            $api_url = "$server_url/api/public/api/getSummaryByAdmin";
+
+            DB::beginTransaction();
+
+            DB::update('UPDATE
+                              server_url_master
+                            SET
+                              server_url = ?,
+                              api_url = ?
+                            WHERE
+                              id = ? ',
+                [$server_url, $api_url, $server_url_id]);
+
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Server url updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("updateServerUrl : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update server url.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteServerUrl   deleteServerUrl
+     * @apiName deleteServerUrl
+     * @apiGroup Statistics (admin)
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "server_url_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "URL deleted successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteServerUrl(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('server_url_id'), $request)) != '')
+                return $response;
+
+            $server_url_id = $request->server_url_id;
+
+            DB::beginTransaction();
+
+            DB::delete('DELETE FROM server_url_master where id = ? ', [$server_url_id]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'URL deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteServerUrl : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete server url.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllServerUrls   getAllServerUrls
+     * @apiName getAllServerUrls
+     * @apiGroup Statistics (admin)
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All urls fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 2,
+     * "result": [
+     * {
+     * "server_url_id": 2,
+     * "server_url": "http://192.168.0.113/photo_editor_lab_backend_v1",
+     * "api_url": "http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api/getSummaryByAdmin"
+     * },
+     * {
+     * "server_url_id": 1,
+     * "server_url": "http://localhost/photo_editor_lab_backend",
+     * "api_url": "http://localhost/photo_editor_lab_backend/api/public/api/getSummaryByAdmin"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllServerUrls()
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!Cache::has("pel:getAllServerUrls")) {
+                $result = Cache::rememberforever("getAllServerUrls", function () {
+                    return DB::select('SELECT
+                                        id AS server_url_id,
+                                        server_url,
+                                        api_url
+                                        FROM
+                                        server_url_master
+                                        WHERE is_active = ? ORDER BY update_time DESC', [1]);
+                });
+            }
+
+            $redis_result = Cache::get("getAllServerUrls");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'All urls fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllServerUrls : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all urls.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
      * @api {post} getSummaryByAdmin   getSummaryByAdmin
      * @apiName getSummaryByAdmin
-     * @apiGroup Admin
+     * @apiGroup Statistics (admin)
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
      * {
@@ -7731,7 +7986,7 @@ class AdminController extends Controller
     /**
      * @api {post} getSummaryOfAllServersByAdmin   getSummaryOfAllServersByAdmin
      * @apiName getSummaryOfAllServersByAdmin
-     * @apiGroup Admin
+     * @apiGroup Statistics (admin)
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
      * {
@@ -7803,17 +8058,31 @@ class AdminController extends Controller
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-            $server_list = explode(",", Config::get('constant.SERVER_LIST'));
+            $server_list = DB::select('SELECT
+                                        api_url
+                                        FROM
+                                        server_url_master
+                                        WHERE is_active = ? ORDER BY update_time DESC', [1]);
+
             $all_server_list = array();
             $i = 0; // used for array indexing
             foreach ($server_list as $key) {
                 $client = new Client();
-                $output = $client->post($key); //$key is a url of api
-                $data = json_decode($output->getBody()->getContents(), true);
-                $data['data']['server_url'] = parse_url($key, PHP_URL_HOST);
-                $data['data']['api_url'] = str_replace("getSummaryByAdmin", "", $key);//parse_url($key, PHP_URL_HOST);
-                $all_server_list[$i] = $data['data'];
-                $i++;
+
+                if ((filter_var($key->api_url, FILTER_VALIDATE_URL))) {
+                    Log::debug("getSummaryOfAllServersByAdmin CURL : ", ["api_url" => $key->api_url]);
+                    $output = $client->post($key->api_url); //$key is a url of api
+                    $data = json_decode($output->getBody()->getContents(), true);
+                    $data['data']['server_url'] = parse_url($key->api_url, PHP_URL_HOST);
+                    $data['data']['api_url'] = str_replace("getSummaryByAdmin", "", $key->api_url);//parse_url($key, PHP_URL_HOST);
+                    $all_server_list[$i] = $data['data'];
+                    $i++;
+
+                } else {
+                    Log::debug("getSummaryOfAllServersByAdmin error in CURL : ", ["api_url" => $key->api_url]);
+                }
+
+
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Summary fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($all_server_list), 'summary_of_all_servers' => $all_server_list]));
@@ -7828,7 +8097,7 @@ class AdminController extends Controller
     /**
      * @api {post} getSummaryDetailFromDiffServer   getSummaryDetailFromDiffServer
      * @apiName getSummaryDetailFromDiffServer
-     * @apiGroup Admin
+     * @apiGroup Statistics (admin)
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
      * {
@@ -7922,7 +8191,7 @@ class AdminController extends Controller
     /**
      * @api {post} getSummaryByDateRange   getSummaryByDateRange
      * @apiName getSummaryByDateRange
-     * @apiGroup Admin
+     * @apiGroup Statistics (admin)
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
      * {
@@ -8015,6 +8284,8 @@ class AdminController extends Controller
         }
         return $response;
     }
+
+    /* =================================| Set Rank of Catalogs & Templates |===================================*/
 
     /**
      * @api {post} setCatalogRankOnTheTopByAdmin setCatalogRankOnTheTopByAdmin
@@ -8166,12 +8437,12 @@ class AdminController extends Controller
             //$result = isset($redis_keys)?$redis_keys:'{}';
             $result = ['keys_list' => $redis_keys];
             //Log::info("Total Keys :", [count($redis_keys)]);
-            $response = Response::json(array('code' => 200, 'message' => 'Redis Keys Fetched Successfully.', 'cause' => '', 'data' => $result));
+            $response = Response::json(array('code' => 200, 'message' => 'Redis keys fetched successfully.', 'cause' => '', 'data' => $result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
             Log::error("redisInfo : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Get Redis-Cache Keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get redis-cache keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -8232,12 +8503,12 @@ class AdminController extends Controller
             foreach ($keys as $key) {
                 Redis::del($key->key);
             }
-            $response = Response::json(array('code' => 200, 'message' => 'Redis Keys Deleted Successfully.', 'cause' => '', 'data' => '{}'));
+            $response = Response::json(array('code' => 200, 'message' => 'Redis keys deleted successfully.', 'cause' => '', 'data' => '{}'));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("redisInfo : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Delete Redis Keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("deleteRedisKeys : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete redis keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -8299,10 +8570,10 @@ class AdminController extends Controller
             $key_detail = \Illuminate\Support\Facades\Redis::get($key);
             //return $key_detail;
             $result = ['keys_detail' => unserialize($key_detail)];
-            $response = Response::json(array('code' => 200, 'message' => 'Redis Key Detail Fetched Successfully.', 'cause' => '', 'data' => $result));
+            $response = Response::json(array('code' => 200, 'message' => 'Redis key detail fetched successfully.', 'cause' => '', 'data' => $result));
         } catch (Exception $e) {
             Log::error("getRedisKeyDetail : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Get Redis-Cache Key Detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get redis-cache key detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -8335,12 +8606,12 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             Redis::flushAll();
-            $response = Response::json(array('code' => 200, 'message' => 'Redis Keys Deleted Successfully.', 'cause' => '', 'data' => '{}'));
+            $response = Response::json(array('code' => 200, 'message' => 'Redis keys deleted successfully.', 'cause' => '', 'data' => '{}'));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
             Log::error("clearRedisCache : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Get Redis-Cache Key Detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'clear redis-cache.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
