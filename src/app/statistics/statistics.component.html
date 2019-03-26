@@ -17,7 +17,7 @@
       <div class="col-sm-12 pl-0 pr-0 table-responsive mb-3 scroll" style="max-height: 100%;">
         <md-accordion class="headers-align" multi="true">
           <md-expansion-panel class="m-0" *ngFor="let server_details of server_list; let i = index;"
-            style="border-bottom: 1px solid #d2d2d2;" expanded="true">
+            style="border-bottom: 1px solid #d2d2d2;" (opened)="viewServerDetails(server_details)">
             <md-expansion-panel-header
               style="background: #ffe8c7; max-height: 48px !important; height: 48px; line-height: 48px; font-weight: bold; border-bottom: 1px solid #d2d2d2;">
               <md-panel-title style="line-height: 48px; font-size: 17px;">

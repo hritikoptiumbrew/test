@@ -19,30 +19,34 @@
     <div class="row pr-3 pl-3 pt-2 pb-2">
       <div class="col-sm-12 pl-0 pr-0">
         <input type="file" class="form-control p-1 input-fonts" #fileInput (change)="fileChange($event)">
-        <input type="text" class="form-control input-font-name" placeholder="Enter font name..." [(ngModel)]="font_details.ios_font_name"
-          (keydown.enter)="uploadFontFile(font_details, '0')">
-        <input type="text" class="form-control input-font-name" placeholder="Enter font path..." [(ngModel)]="font_details.android_font_name"
-          (keydown.enter)="uploadFontFile(font_details, '0')">
-        <a md-raised-button class="btn mt-1 mb-1 title-bar" title="Upload selected font" (click)="uploadFontFile(font_details, '0')">
+        <input type="text" class="form-control input-font-name" placeholder="Enter font name..."
+          [(ngModel)]="font_details.ios_font_name" (keydown.enter)="uploadFontFile(font_details, '0')">
+        <input type="text" class="form-control input-font-name" placeholder="Enter font path..."
+          [(ngModel)]="font_details.android_font_name" (keydown.enter)="uploadFontFile(font_details, '0')">
+        <a md-raised-button class="btn mt-1 mb-1 title-bar" title="Upload selected font"
+          (click)="uploadFontFile(font_details, '0')">
           <i class="fa fa-plus font-18"></i> &nbsp;New Font
         </a>
-        <a md-raised-button class="btn mt-1 mb-1 title-bar" *ngIf="show_add==0" title="Replace selected font" (click)="uploadFontFile(font_details, '1')">
+        <a md-raised-button class="btn mt-1 mb-1 title-bar" *ngIf="show_add==0" title="Replace selected font"
+          (click)="uploadFontFile(font_details, '1')">
           Replace
         </a>
       </div>
     </div>
-    <div class="row pr-3 pl-3">
-      <div class="col-sm-12 card-1 pl-0 pr-0 table-responsive mb-3 table-style scroll">
+    <div class="row pr-3 pl-3 scroll" style="max-height: calc(100% - 110px); overflow: auto;">
+      <div class="col-sm-12 card-1 pl-0 pr-0 table-responsive mb-3" style="background:#ffffff;">
         <table class="table table-hover mb-0">
           <thead>
             <tr class="table-inverse">
               <th class="width-75px">#</th>
-              <th class="cursor-pointer" (click)="sortBy('font_name', order_type == true ? 'ASC' : 'DESC')">Font Name</th>
+              <th class="cursor-pointer" (click)="sortBy('font_name', order_type == true ? 'ASC' : 'DESC')">Font Name
+              </th>
               <th class="cursor-pointer" (click)="sortBy('ios_font_name', order_type == true ? 'ASC' : 'DESC')">Font
                 Name(iOS)</th>
               <th class="cursor-pointer" (click)="sortBy('android_font_name', order_type == true ? 'ASC' : 'DESC')">Font
                 Path(Android)</th>
-              <th class="text-center cursor-pointer" (click)="sortBy('is_active', order_type == true ? 'ASC' : 'DESC')">Status</th>
+              <th class="text-center cursor-pointer" (click)="sortBy('is_active', order_type == true ? 'ASC' : 'DESC')">
+                Status</th>
               <th class="text-center width-140px">Action</th>
             </tr>
           </thead>
@@ -52,13 +56,13 @@
               <td>{{font_details.font_name}}</td>
               <td *ngIf="font_details.is_editing==false">{{font_details.ios_font_name}}</td>
               <td *ngIf="font_details.is_editing==true">
-                <input type="text" class="form-control" placeholder="Enter font name..." [(ngModel)]="font_details.ios_font_name"
-                  (keydown.enter)="saveUpdatedFont(font_details)">
+                <input type="text" class="form-control" placeholder="Enter font name..."
+                  [(ngModel)]="font_details.ios_font_name" (keydown.enter)="saveUpdatedFont(font_details)">
               </td>
               <td *ngIf="font_details.is_editing==false">{{font_details.android_font_name}}</td>
               <td *ngIf="font_details.is_editing==true">
-                <input type="text" class="form-control" placeholder="Enter font path..." [(ngModel)]="font_details.android_font_name"
-                  (keydown.enter)="saveUpdatedFont(font_details)">
+                <input type="text" class="form-control" placeholder="Enter font path..."
+                  [(ngModel)]="font_details.android_font_name" (keydown.enter)="saveUpdatedFont(font_details)">
               </td>
               <td class="text-center">
                 <span *ngIf="font_details.is_active==0">In-Active</span>
@@ -67,7 +71,8 @@
               <td class="text-center width-140px" *ngIf="font_details.is_editing==false">
                 <a title="Update"><i class="fa fa-edit font-24 pr-2 pl-2 text-warning align-text-bottom cursor-pointer"
                     (click)="updateCategory(font_details)"></i></a>
-                <a title="Delete"><i class="fa fa-trash-o font-24 text-danger cursor-pointer" (click)="deleteCategory('deleteFont', font_details)"></i></a>
+                <a title="Delete"><i class="fa fa-trash-o font-24 text-danger cursor-pointer"
+                    (click)="deleteCategory('deleteFont', font_details)"></i></a>
               </td>
               <td class="text-center width-140px pl-1 pr-1" *ngIf="font_details.is_editing==true">
                 <button class="btn btn-sm mr-2 btn-success" (click)="saveUpdatedFont(font_details)">SAVE</button>

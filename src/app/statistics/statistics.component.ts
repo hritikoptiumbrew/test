@@ -35,20 +35,67 @@ export class StatisticsComponent implements OnInit {
   getStatisticsData() {
     this.loading = this.dialog.open(LoadingComponent);
     this.token = localStorage.getItem('photoArtsAdminToken');
-    this.dataService.postData('getSummaryOfAllServersByAdmin',
+    this.dataService.postData('getAllServerUrls',
       {}, {
         headers: {
           'Authorization': 'Bearer ' + this.token
         }
       }).subscribe(results => {
         if (results.code == 200) {
-          this.server_list = results.data.summary_of_all_servers;
+          this.server_list = results.data.result;
           this.total_record = results.data.total_record;
-          this.server_list.forEach(element => {
+          /* this.server_list.forEach(element => {
             element.result.forEach(appname => {
               appname.last_uploaded_date = this.dataService.formatDDMMMYYYYHHMMALOCAL(appname.last_uploaded_date);
             });
+          }); */
+          this.loading.close();
+          this.errorMsg = "";
+          // this.showSuccess(results.message, false);
+        }
+        else if (results.code == 400) {
+          this.loading.close();
+          localStorage.removeItem("photoArtsAdminToken");
+          this.router.navigate(['/admin']);
+        }
+        else if (results.code == 401) {
+          this.token = results.data.new_token;
+          localStorage.setItem("photoArtsAdminToken", this.token);
+          this.getStatisticsData();
+        }
+        else {
+          this.loading.close();
+          this.successMsg = "";
+          this.errorMsg = results.message;
+          this.showError(results.message, false);
+        }
+      }, error => {
+        this.loading.close();
+        this.showError("Unable to connect with server, please reload the page.", false);
+        /* console.log(error.status); */
+        /* console.log(error); */
+      });
+  }
+
+  viewServerDetails(server_details) {
+    this.loading = this.dialog.open(LoadingComponent);
+    this.token = localStorage.getItem('photoArtsAdminToken');
+    this.dataService.postData('getSummaryOfIndividualServerByAdmin',
+      {
+        "api_url": server_details.api_url
+      }, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).subscribe(results => {
+        if (results.code == 200) {
+          // this.server_list = results.data.result;
+          // this.total_record = results.data.total_record;
+          results.data.result.forEach(appname => {
+            appname.last_uploaded_date = this.dataService.formatDDMMMYYYYHHMMALOCAL(appname.last_uploaded_date);
           });
+          server_details.result = results.data.result;
+          server_details.total_record = results.data.total_record;
           this.loading.close();
           this.errorMsg = "";
           // this.showSuccess(results.message, false);
