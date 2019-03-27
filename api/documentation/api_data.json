@@ -3326,7 +3326,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All urls fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"result\": [\n{\n\"server_url_id\": 2,\n\"server_url\": \"http://192.168.0.113/photo_editor_lab_backend_v1\",\n\"api_url\": \"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api/getSummaryByAdmin\"\n},\n{\n\"server_url_id\": 1,\n\"server_url\": \"http://localhost/photo_editor_lab_backend\",\n\"api_url\": \"http://localhost/photo_editor_lab_backend/api/public/api/getSummaryByAdmin\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"All urls fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"result\": [\n{\n\"server_url_id\": 1,\n\"server_url\": \"http://localhost/photo_editor_lab_backend\",\n\"api_url\": \"http://localhost/photo_editor_lab_backend/api/public/api/\"\n},\n{\n\"server_url_id\": 2,\n\"server_url\": \"http://192.168.0.113/photo_editor_lab_backend_v1\",\n\"api_url\": \"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api/\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -3501,6 +3501,35 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Summary details fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 3,\n\"result\": [\n{\n\"catalog_name\": \"Branding\",\n\"content_count\": 5,\n\"last_uploaded_date\": \"2019-03-22 06:29:35\"\n},\n{\n\"catalog_name\": \"Birthday\",\n\"content_count\": 18,\n\"last_uploaded_date\": \"2019-03-22 06:03:02\"\n}\n]\n}\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Statistics__admin_"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryOfIndividualServerByAdmin",
+    "title": "getSummaryOfIndividualServerByAdmin",
+    "name": "getSummaryOfIndividualServerByAdmin",
+    "group": "Statistics__admin_",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"api_url\":\"http://localhost/photo_editor_lab_backend/api/public/api/\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 4,\n\"result\": [\n{\n\"sub_category_id\": 66,\n\"category_id\": 2,\n\"name\": \"All Templates\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"no_of_catalogs\": 7,\n\"content_count\": 650,\n\"free_content\": 650,\n\"paid_content\": 0,\n\"is_featured\": 1,\n\"last_uploaded_date\": \"2019-03-25 12:22:22\",\n\"is_active\": 1,\n\"last_uploaded_count\": 70\n}\n]\n}\n}",
           "type": "json"
         }
       ]
