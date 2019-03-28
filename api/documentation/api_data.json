@@ -4186,12 +4186,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":51, //Compulsory\n\"page\":2, //Compulsory\n\"item_count\":10 //Compulsory\n}",
+          "content": "{\n\"sub_category_id\":51 //Compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 5,\n\"is_next_page\": false,\n\"result\": [\n{\n\"category_name\": \"Flyer\",\n\"content_list\": [\n{\n\"json_id\": 3385,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6e289c967e9_json_image_1550723228.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"search_category\": \"Flyer,Fitness\",\n\"original_img_height\": 800,\n\"original_img_width\": 650,\n\"updated_at\": \"2019-02-21 04:28:03\"\n}\n]\n},\n{\n\"category_name\": \"Business Card\",\n\"content_list\": []\n},\n{\n\"category_name\": \"Brochure\",\n\"content_list\": [\n{\n\"json_id\": 3325,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"search_category\": \"Brochure\",\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-02-20 11:07:06\"\n}\n]\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"category_name\": \"Flyers\",\n\"content_list\": [\n{\n\"json_id\": 3390,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2019-03-27 11:07:33\"\n}\n]\n},\n{\n\"category_name\": \"Banners\",\n\"content_list\": []\n},\n{\n\"category_name\": \"Social Media Post\",\n\"content_list\": [\n{\n\"json_id\": 3386,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7b9d728c4_json_image_1550810013.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"height\": 540,\n\"width\": 540,\n\"updated_at\": \"2019-02-22 04:33:35\"\n}\n]\n}\n]\n}\n}",
           "type": "json"
         }
       ]

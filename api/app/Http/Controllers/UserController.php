@@ -1836,9 +1836,7 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "sub_category_id":51, //Compulsory
-     * "page":2, //Compulsory
-     * "item_count":10 //Compulsory
+     * "sub_category_id":51 //Compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -1846,46 +1844,38 @@ class UserController extends Controller
      * "message": "Templates fetched successfully.",
      * "cause": "",
      * "data": {
-     * "total_record": 5,
-     * "is_next_page": false,
      * "result": [
      * {
-     * "category_name": "Flyer",
+     * "category_name": "Flyers",
      * "content_list": [
      * {
-     * "json_id": 3385,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6e289c967e9_json_image_1550723228.webp",
+     * "json_id": 3390,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp",
      * "is_free": 1,
      * "is_featured": 1,
      * "is_portrait": 1,
      * "height": 400,
      * "width": 325,
-     * "search_category": "Flyer,Fitness",
-     * "original_img_height": 800,
-     * "original_img_width": 650,
-     * "updated_at": "2019-02-21 04:28:03"
+     * "updated_at": "2019-03-27 11:07:33"
      * }
      * ]
      * },
      * {
-     * "category_name": "Business Card",
+     * "category_name": "Banners",
      * "content_list": []
      * },
      * {
-     * "category_name": "Brochure",
+     * "category_name": "Social Media Post",
      * "content_list": [
      * {
-     * "json_id": 3325,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp",
+     * "json_id": 3386,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7b9d728c4_json_image_1550810013.webp",
      * "is_free": 1,
-     * "is_featured": 1,
-     * "is_portrait": 0,
-     * "height": 408,
-     * "width": 528,
-     * "search_category": "Brochure",
-     * "original_img_height": 816,
-     * "original_img_width": 1056,
-     * "updated_at": "2019-02-20 11:07:06"
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "height": 540,
+     * "width": 540,
+     * "updated_at": "2019-02-22 04:33:35"
      * }
      * ]
      * }
@@ -1904,21 +1894,17 @@ class UserController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->item_count = $request->item_count;
-            $this->page = $request->page;
-            $this->offset = ($this->page - 1) * $this->item_count;
 
-            if (!Cache::has("pel:getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->page:$this->item_count", function () {
+            if (!Cache::has("pel:getJsonSampleDataFilterBySearchTag$this->sub_category_id")) {
+                $result = Cache::rememberforever("getJsonSampleDataFilterBySearchTag$this->sub_category_id", function () {
 
                     $category_list = array("Flyers", "Business Card", "Brochures", "Banners", "Social Media Post");
                     $item_count_of_templates = Config::get('constant.ITEM_COUNT_OF_TEMPLATES');
 
-                    $total_row = count($category_list);
                     $categories_data = array();
                     foreach ($category_list as $key) {
                         $content_list = DB::select('SELECT
@@ -1929,9 +1915,6 @@ class UserController extends Controller
                                                           im.is_portrait,
                                                           coalesce(im.height,0) AS height,
                                                           coalesce(im.width,0) AS width,
-                                                          coalesce(im.search_category,"") AS search_category,
-                                                          im.original_img_height,
-                                                          im.original_img_width,
                                                           im.updated_at
                                                         FROM
                                                           images as im,
@@ -1952,14 +1935,13 @@ class UserController extends Controller
 
                     }
 
-                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $categories_data);
+                    return array('result' => $categories_data);
 
 
                 });
             }
 
-            $redis_result = Cache::get("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->page:$this->item_count");
+            $redis_result = Cache::get("getJsonSampleDataFilterBySearchTag$this->sub_category_id");
 
             if (!$redis_result) {
                 $redis_result = [];
