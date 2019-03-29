@@ -300,6 +300,9 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin|user,user_permissi
     //Get templates for Brand Maker
     Route::post('getJsonSampleDataFilterBySearchTag', 'UserController@getJsonSampleDataFilterBySearchTag'); //To get templates divide by categories
 
+    //Get templates for Brochure Maker with catalogs
+    Route::post('getFeaturedSamplesWithCatalogs', 'UserController@getFeaturedSamplesWithCatalogs'); //To get templates with catalogs
+
 });
 
 //Test mail

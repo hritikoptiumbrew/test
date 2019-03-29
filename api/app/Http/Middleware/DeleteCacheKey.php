@@ -131,6 +131,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getFeaturedSamplesWithCatalogs
+                $keys = Redis::keys('pel:getFeaturedSamplesWithCatalogs*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Sub Category Images
@@ -222,6 +228,12 @@ class DeleteCacheKey
 
                 //Delete Image details View Key
                 $keys = Redis::keys('pel:getImageDetails*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getFeaturedSamplesWithCatalogs
+                $keys = Redis::keys('pel:getFeaturedSamplesWithCatalogs*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }

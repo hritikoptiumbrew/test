@@ -7939,7 +7939,7 @@ class AdminController extends Controller
                                       IF(scm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as thumbnail_img,
                                       IF(scm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as compressed_img,
                                       IF(scm.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as original_img,
-                                      count(DISTINCT cm.catalog_id) AS no_of_catalogs,
+                                      count(DISTINCT ctm.id) AS no_of_catalogs,
                                       count(cm.id) AS content_count,
                                       count(IF(cm.is_free=1,1, NULL)) AS free_content,
                                       count(IF(cm.is_free=0,1, NULL)) AS paid_content,
@@ -7949,6 +7949,7 @@ class AdminController extends Controller
                                       scm.is_active
                                     FROM
                                       sub_category AS scm LEFT JOIN sub_category_catalog AS scc
+                                      LEFT JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1 AND ctm.is_active = 1
                                       LEFT JOIN images AS cm
                                         ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1 AND (cm.json_data IS NOT NULL OR cm.json_data!="")
                                         ON scm.id = scc.sub_category_id AND scc.is_active = 1
