@@ -35,6 +35,8 @@ export class AddJsonDataComponent implements OnInit {
   filtered_search_tags: Observable<string[]>;
   selected_search_tags: string[] = [];
   all_search_tags: string[] = [];
+  incorrect_fonts: any[] = [];
+  mismatch_fonts: any[] = [];
 
   constructor(public dialogRef: MdDialogRef<AddJsonDataComponent>, private dataService: DataService, private router: Router, private renderer: Renderer, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.search_tag_list = JSON.parse(localStorage.getItem("search_tag_list"));
@@ -130,6 +132,8 @@ export class AddJsonDataComponent implements OnInit {
   addCatalog(catalog_data) {
     this.token = localStorage.getItem('photoArtsAdminToken');
     let catalog_data_tmp = JSON.parse(JSON.stringify(catalog_data));
+    this.incorrect_fonts = [];
+    this.mismatch_fonts = [];
     /* let catalog_data_tmp = catalog_data; */
     if (typeof this.file == 'undefined' || this.file == "" || this.file == null) {
       this.errorMsg = "Image required";
@@ -180,6 +184,8 @@ export class AddJsonDataComponent implements OnInit {
         }).subscribe(results => {
           if (results.code == 200) {
             this.successMsg = results.message;
+            this.incorrect_fonts = [];
+            this.mismatch_fonts = [];
             this.loading.close();
             this.dialogRef.close();
           }
@@ -193,6 +199,12 @@ export class AddJsonDataComponent implements OnInit {
             this.loading.close();
             localStorage.setItem("photoArtsAdminToken", this.token);
             this.addCatalog(catalog_data_tmp);
+          }
+          else if (results.code == 433) {
+            this.showError(results.message, false);
+            this.incorrect_fonts = results.data.incorrect_fonts;
+            this.mismatch_fonts = results.data.mismatch_fonts;
+            this.loading.close();
           }
           else {
             this.loading.close();

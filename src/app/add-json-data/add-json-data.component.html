@@ -58,12 +58,13 @@
     </div>
     <div class="row col-12 p-0">
       <md-input-container class="w-100">
-        <input mdInput #input class="form-control" placeholder="Select / Enter New tag..." #fruitInput [formControl]="fruitCtrl"
-          (keyup.enter)="add(input)" [matAutocomplete]="auto" />
+        <input mdInput #input class="form-control" placeholder="Select / Enter New tag..." #fruitInput
+          [formControl]="fruitCtrl" (keyup.enter)="add(input)" [matAutocomplete]="auto" />
       </md-input-container>
       <md-chip-list #chipList>
         <md-chip *ngFor="let fruit of selected_search_tags" [selectable]="selectable" [removable]="removable">{{fruit}}
-          <i class="fa fa-close text-danger cursor-pointer p-1" mdChipRemove *ngIf="removable" (click)="remove(fruit)"></i>
+          <i class="fa fa-close text-danger cursor-pointer p-1" mdChipRemove *ngIf="removable"
+            (click)="remove(fruit)"></i>
         </md-chip>
       </md-chip-list>
       <md-autocomplete #auto="mdAutocomplete" class="scroll">
@@ -75,6 +76,54 @@
   </div>
   <div class="col-7 p-0">
     <textarea class="form-control json-inputbox" [(ngModel)]="catalog_data.json_data"></textarea>
+  </div>
+  <div class="col-sm-12 pl-0 pr-0 mt-3" *ngIf="incorrect_fonts.length > 0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr class="table-inverse">
+          <th class="pt-1 pb-1 text-center" colspan="4">Incorrect fonts</th>
+        </tr>
+        <tr>
+          <th class="pt-1 pb-1">Font name</th>
+          <th class="pt-1 pb-1">Correct font name</th>
+          <th class="pt-1 pb-1">Font path</th>
+          <th class="pt-1 pb-1">Correct font path</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let font_details of incorrect_fonts; let i = index;">
+          <td [ngClass]="font_details.is_correct_name==0 ? 'text-danger' : 'text-success'">{{font_details.font_name}}
+          </td>
+          <td>{{font_details.correct_font_name}}</td>
+          <td [ngClass]="font_details.is_correct_path==0 ? 'text-danger' : 'text-success'">{{font_details.font_path}}
+          </td>
+          <td>{{font_details.correct_font_path}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-12 pl-0 pr-0 mt-3" *ngIf="mismatch_fonts.length > 0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr class="table-inverse">
+          <th class="pt-1 pb-1 text-center" colspan="4">Mismatch fonts</th>
+        </tr>
+        <tr>
+          <th class="pt-1 pb-1">Font name</th>
+          <th class="pt-1 pb-1">Correct font path</th>
+          <th class="pt-1 pb-1">Font path</th>
+          <th class="pt-1 pb-1">Correct font name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let font_details of mismatch_fonts; let i = index;">
+          <td>{{font_details.font_name}}</td>
+          <td>{{font_details.correct_font_path}}</td>
+          <td>{{font_details.font_path}}</td>
+          <td>{{font_details.correct_font_name}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 <div class="row">

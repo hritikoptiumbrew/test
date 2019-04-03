@@ -51,7 +51,7 @@ export class UpdateSubCategoryByCategoryIdComponent implements OnInit {
   }
 
   updateCategory(sub_category_data) {
-    console.log(sub_category_data.is_featured);
+    // console.log(sub_category_data.is_featured);
     if (typeof sub_category_data.name == "undefined" || sub_category_data.name == "" || sub_category_data.name == null) {
       this.errorMsg = "Name required";
       return false;
