@@ -71,22 +71,82 @@ class ImageController extends Controller
     {
         $text_json = $json_data->text_json;
         $exist_count = 0;
+        $mismatch_fonts = array();
+        $incorrect_fonts = array();
 
         foreach ($text_json as $key) {
             $ios_font_name = $key->fontName;
             $android_font_name = $key->fontPath;
 
-            $is_exist = DB::select('SELECT id FROM font_master WHERE ios_font_name = ? AND android_font_name = ?', [$ios_font_name, $android_font_name]);
+            $is_exist = DB::select('SELECT id FROM font_master WHERE BINARY ios_font_name = ? AND BINARY android_font_name = ?', [$ios_font_name, $android_font_name]);
 
             if (count($is_exist) == 0) {
-                Log::info('validateFonts font not exist : ',['query_result' => $is_exist, 'ios_font_name' => $ios_font_name, 'android_font_name' => $android_font_name]);
+                Log::info('validateFonts font not exist : ', ['query_result' => $is_exist, 'ios_font_name' => $ios_font_name, 'android_font_name' => $android_font_name]);
+
+                $is_ios_font_name_exist = DB::select('SELECT id, ios_font_name, android_font_name FROM font_master WHERE ios_font_name = ?', [$ios_font_name]);
+                $is_android_font_name_exist = DB::select('SELECT id, ios_font_name, android_font_name FROM font_master WHERE android_font_name = ?', [$android_font_name]);
+
+                $is_correct_name = 0;
+                $is_correct_path = 0;
+
+                if (count($is_ios_font_name_exist) > 0) {
+                    $is_correct_name = (strcmp($ios_font_name, $is_ios_font_name_exist[0]->ios_font_name) != 0) ? 0 : 1;
+                }
+
+                if (count($is_android_font_name_exist) > 0) {
+                    $is_correct_path = (strcmp($android_font_name, $is_android_font_name_exist[0]->android_font_name) != 0) ? 0 : 1;
+
+                }
+
+
+                if (count($is_android_font_name_exist) > 0 && count($is_ios_font_name_exist) > 0 && $is_correct_name == 1 && $is_correct_path == 1) {
+
+
+                    $mismatch_fonts[] = array(
+                        'font_name' => $ios_font_name,
+                        'font_path' => $android_font_name,
+                        'correct_font_path' => $is_ios_font_name_exist[0]->android_font_name,
+                        'correct_font_name' => $is_android_font_name_exist[0]->ios_font_name
+                    );
+
+                } elseif (count($is_android_font_name_exist) == 0 && count($is_ios_font_name_exist) == 0) {
+                    $incorrect_fonts[] = array(
+                        'font_name' => $ios_font_name,
+                        'font_path' => $android_font_name,
+                        'correct_font_path' => 'Font not available',
+                        'correct_font_name' => 'Font not available',
+                        'is_correct_path' => 0,
+                        'is_correct_name' => 0
+                    );
+                } elseif (count($is_android_font_name_exist) > 0) {
+
+                    $incorrect_fonts[] = array(
+                        'font_name' => $ios_font_name,
+                        'font_path' => $android_font_name,
+                        'correct_font_path' => $is_android_font_name_exist[0]->android_font_name,
+                        'correct_font_name' => $is_android_font_name_exist[0]->ios_font_name,
+                        'is_correct_path' => (strcmp($android_font_name, $is_android_font_name_exist[0]->android_font_name) != 0) ? 0 : 1,
+                        'is_correct_name' => (strcmp($ios_font_name, $is_android_font_name_exist[0]->ios_font_name) != 0) ? 0 : 1
+                    );
+                } elseif (count($is_ios_font_name_exist) > 0) {
+                    $incorrect_fonts[] = array(
+                        'font_name' => $ios_font_name,
+                        'font_path' => $android_font_name,
+                        'correct_font_path' => $is_ios_font_name_exist[0]->android_font_name,
+                        'correct_font_name' => $is_ios_font_name_exist[0]->ios_font_name,
+                        'is_correct_path' => (strcmp($android_font_name, $is_ios_font_name_exist[0]->android_font_name) != 0) ? 0 : 1,
+                        'is_correct_name' => (strcmp($ios_font_name, $is_ios_font_name_exist[0]->ios_font_name) != 0) ? 0 : 1
+                    );
+                }
+
                 $exist_count = $exist_count + 1;
             }
 
         }
 
         if ($exist_count > 0) {
-            $response = Response::json(array('code' => 201, 'message' => 'Fonts used by json does not exist in the server.', 'cause' => '', 'data' => json_decode("{}")));
+            //$response = Response::json(array('code' => 201, 'message' => 'Fonts used by json does not exist in the server.', 'cause' => '', 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 433, 'message' => 'Fonts used by json does not exist in the server.', 'cause' => '', 'data' => ['mismatch_fonts' => $mismatch_fonts, 'incorrect_fonts' => $incorrect_fonts]));
         } else {
             $response = '';
         }
