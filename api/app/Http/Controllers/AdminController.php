@@ -7659,7 +7659,7 @@ class AdminController extends Controller
                 return $response = Response::json(array('code' => 201, 'message' => 'URL already exist.', 'cause' => '', 'data' => json_decode('{}')));
             }
 
-            $api_url = "$server_url/api/public/api/getSummaryByAdmin";
+            $api_url = "$server_url/api/public/api/";
 
             if ((filter_var($server_url, FILTER_VALIDATE_URL))) {
                 DB::beginTransaction();
@@ -7724,7 +7724,7 @@ class AdminController extends Controller
                 return $response = Response::json(array('code' => 201, 'message' => 'URL already exist.', 'cause' => '', 'data' => json_decode('{}')));
             }
 
-            $api_url = "$server_url/api/public/api/getSummaryByAdmin";
+            $api_url = "$server_url/api/public/api/";
 
             DB::beginTransaction();
 
@@ -7823,14 +7823,14 @@ class AdminController extends Controller
      * "total_record": 2,
      * "result": [
      * {
-     * "server_url_id": 2,
-     * "server_url": "http://192.168.0.113/photo_editor_lab_backend_v1",
-     * "api_url": "http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api/getSummaryByAdmin"
-     * },
-     * {
      * "server_url_id": 1,
      * "server_url": "http://localhost/photo_editor_lab_backend",
-     * "api_url": "http://localhost/photo_editor_lab_backend/api/public/api/getSummaryByAdmin"
+     * "api_url": "http://localhost/photo_editor_lab_backend/api/public/api/"
+     * },
+     * {
+     * "server_url_id": 2,
+     * "server_url": "http://192.168.0.113/photo_editor_lab_backend_v1",
+     * "api_url": "http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api/"
      * }
      * ]
      * }
@@ -7939,7 +7939,7 @@ class AdminController extends Controller
                                       IF(scm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as thumbnail_img,
                                       IF(scm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as compressed_img,
                                       IF(scm.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",scm.image),"") as original_img,
-                                      count(DISTINCT cm.catalog_id) AS no_of_catalogs,
+                                      count(DISTINCT ctm.id) AS no_of_catalogs,
                                       count(cm.id) AS content_count,
                                       count(IF(cm.is_free=1,1, NULL)) AS free_content,
                                       count(IF(cm.is_free=0,1, NULL)) AS paid_content,
@@ -7949,6 +7949,7 @@ class AdminController extends Controller
                                       scm.is_active
                                     FROM
                                       sub_category AS scm LEFT JOIN sub_category_catalog AS scc
+                                      LEFT JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1 AND ctm.is_active = 1
                                       LEFT JOIN images AS cm
                                         ON cm.catalog_id = scc.catalog_id AND cm.is_active = 1 AND (cm.json_data IS NOT NULL OR cm.json_data!="")
                                         ON scm.id = scc.sub_category_id AND scc.is_active = 1
@@ -8065,18 +8066,19 @@ class AdminController extends Controller
             $i = 0; // used for array indexing
             foreach ($server_list as $key) {
                 $client = new Client();
+                $api_url = $key->api_url . "getSummaryByAdmin";
 
-                if ((filter_var($key->api_url, FILTER_VALIDATE_URL))) {
-                    Log::debug("getSummaryOfAllServersByAdmin CURL : ", ["api_url" => $key->api_url]);
-                    $output = $client->post($key->api_url); //$key is a url of api
+                if ((filter_var($api_url, FILTER_VALIDATE_URL))) {
+                    Log::debug("getSummaryOfAllServersByAdmin CURL : ", ["api_url" => $api_url]);
+                    $output = $client->post($api_url); //$key is a url of api
                     $data = json_decode($output->getBody()->getContents(), true);
-                    $data['data']['server_url'] = parse_url($key->api_url, PHP_URL_HOST);
-                    $data['data']['api_url'] = str_replace("getSummaryByAdmin", "", $key->api_url);//parse_url($key, PHP_URL_HOST);
+                    $data['data']['server_url'] = parse_url($api_url, PHP_URL_HOST);
+                    $data['data']['api_url'] = str_replace("getSummaryByAdmin", "", $api_url);//parse_url($key, PHP_URL_HOST);
                     $all_server_list[$i] = $data['data'];
                     $i++;
 
                 } else {
-                    Log::debug("getSummaryOfAllServersByAdmin error in CURL : ", ["api_url" => $key->api_url]);
+                    Log::debug("getSummaryOfAllServersByAdmin error in CURL : ", ["api_url" => $api_url]);
                 }
 
 
@@ -8087,6 +8089,73 @@ class AdminController extends Controller
         } catch (Exception $e) {
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary of all servers.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             Log::error("getSummaryOfAllServersByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getSummaryOfIndividualServerByAdmin   getSummaryOfIndividualServerByAdmin
+     * @apiName getSummaryOfIndividualServerByAdmin
+     * @apiGroup Statistics (admin)
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "api_url":"http://localhost/photo_editor_lab_backend/api/public/api/" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Summary fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 4,
+     * "result": [
+     * {
+     * "sub_category_id": 66,
+     * "category_id": 2,
+     * "name": "All Templates",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c85fb452c3d4_sub_category_img_1552284485.jpg",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c85fb452c3d4_sub_category_img_1552284485.jpg",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c85fb452c3d4_sub_category_img_1552284485.jpg",
+     * "no_of_catalogs": 7,
+     * "content_count": 650,
+     * "free_content": 650,
+     * "paid_content": 0,
+     * "is_featured": 1,
+     * "last_uploaded_date": "2019-03-25 12:22:22",
+     * "is_active": 1,
+     * "last_uploaded_count": 70
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getSummaryOfIndividualServerByAdmin(Request $request)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('api_url'), $request)) != '')
+                return $response;
+
+            $api_url = $request->api_url . "getSummaryByAdmin";
+
+            $client = new Client();
+            $output = $client->post($api_url);
+            $data = json_decode($output->getBody()->getContents(), true);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Summary fetched successfully.', 'cause' => '', 'data' => $data['data']));
+
+        } catch (Exception $e) {
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get summary of individual servers.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getSummaryOfIndividualServerByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
         return $response;
     }

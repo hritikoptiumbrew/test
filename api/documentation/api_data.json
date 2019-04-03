@@ -3326,7 +3326,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All urls fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"result\": [\n{\n\"server_url_id\": 2,\n\"server_url\": \"http://192.168.0.113/photo_editor_lab_backend_v1\",\n\"api_url\": \"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api/getSummaryByAdmin\"\n},\n{\n\"server_url_id\": 1,\n\"server_url\": \"http://localhost/photo_editor_lab_backend\",\n\"api_url\": \"http://localhost/photo_editor_lab_backend/api/public/api/getSummaryByAdmin\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"All urls fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"result\": [\n{\n\"server_url_id\": 1,\n\"server_url\": \"http://localhost/photo_editor_lab_backend\",\n\"api_url\": \"http://localhost/photo_editor_lab_backend/api/public/api/\"\n},\n{\n\"server_url_id\": 2,\n\"server_url\": \"http://192.168.0.113/photo_editor_lab_backend_v1\",\n\"api_url\": \"http://192.168.0.113/photo_editor_lab_backend_v1/api/public/api/\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -3501,6 +3501,35 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Summary details fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 3,\n\"result\": [\n{\n\"catalog_name\": \"Branding\",\n\"content_count\": 5,\n\"last_uploaded_date\": \"2019-03-22 06:29:35\"\n},\n{\n\"catalog_name\": \"Birthday\",\n\"content_count\": 18,\n\"last_uploaded_date\": \"2019-03-22 06:03:02\"\n}\n]\n}\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Statistics__admin_"
+  },
+  {
+    "type": "post",
+    "url": "getSummaryOfIndividualServerByAdmin",
+    "title": "getSummaryOfIndividualServerByAdmin",
+    "name": "getSummaryOfIndividualServerByAdmin",
+    "group": "Statistics__admin_",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"api_url\":\"http://localhost/photo_editor_lab_backend/api/public/api/\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Summary fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 4,\n\"result\": [\n{\n\"sub_category_id\": 66,\n\"category_id\": 2,\n\"name\": \"All Templates\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"no_of_catalogs\": 7,\n\"content_count\": 650,\n\"free_content\": 650,\n\"paid_content\": 0,\n\"is_featured\": 1,\n\"last_uploaded_date\": \"2019-03-25 12:22:22\",\n\"is_active\": 1,\n\"last_uploaded_count\": 70\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -3998,6 +4027,35 @@
   },
   {
     "type": "post",
+    "url": "getFeaturedSamplesWithCatalogs",
+    "title": "getFeaturedSamplesWithCatalogs",
+    "name": "getFeaturedSamplesWithCatalogs",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":97, //compulsory\n\"catalog_id\":0, //compulsory, pass 0 if you don't have catalog_id(for 1st API call)\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All featured cards are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 34,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"catalog_id\": 398,\n\"name\": \"Misc\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-03-22 09:02:02\"\n},\n{\n\"catalog_id\": 500,\n\"name\": \"Services\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-03-22 09:02:00\"\n}\n],\n\"sample_cards\": [\n{\n\"json_id\": 3390,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2019-03-27 11:07:33\"\n},\n{\n\"json_id\": 3387,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7d03b31ef_json_image_1550810371.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 100,\n\"width\": 320,\n\"updated_at\": \"2019-03-22 10:36:44\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "getImageByUnsplash",
     "title": "getImageByUnsplash",
     "name": "getImageByUnsplash",
@@ -4157,12 +4215,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":51, //Compulsory\n\"page\":2, //Compulsory\n\"item_count\":10 //Compulsory\n}",
+          "content": "{\n\"sub_category_id\":51 //Compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 5,\n\"is_next_page\": false,\n\"result\": [\n{\n\"category_name\": \"Flyer\",\n\"content_list\": [\n{\n\"json_id\": 3385,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6e289c967e9_json_image_1550723228.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"search_category\": \"Flyer,Fitness\",\n\"original_img_height\": 800,\n\"original_img_width\": 650,\n\"updated_at\": \"2019-02-21 04:28:03\"\n}\n]\n},\n{\n\"category_name\": \"Business Card\",\n\"content_list\": []\n},\n{\n\"category_name\": \"Brochure\",\n\"content_list\": [\n{\n\"json_id\": 3325,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"search_category\": \"Brochure\",\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-02-20 11:07:06\"\n}\n]\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"category_name\": \"Flyers\",\n\"content_list\": [\n{\n\"json_id\": 3390,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2019-03-27 11:07:33\"\n}\n]\n},\n{\n\"category_name\": \"Banners\",\n\"content_list\": []\n},\n{\n\"category_name\": \"Social Media Post\",\n\"content_list\": [\n{\n\"json_id\": 3386,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7b9d728c4_json_image_1550810013.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"height\": 540,\n\"width\": 540,\n\"updated_at\": \"2019-02-22 04:33:35\"\n}\n]\n}\n]\n}\n}",
           "type": "json"
         }
       ]
