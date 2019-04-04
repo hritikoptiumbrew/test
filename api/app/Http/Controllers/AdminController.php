@@ -7361,9 +7361,14 @@ class AdminController extends Controller
                 if ($is_replace == 0) {
                     if (($response = (new VerificationController())->checkIsFontExist($file_array)) != '')
                         return $response;
+                    $file_name = str_replace(" ","",strtolower($file_array->getClientOriginalName()));
+                }
+                else
+                {
+                    $file_name = $file_array->getClientOriginalName();
                 }
 
-                $file_name = $file_array->getClientOriginalName();
+                //$file_name = $file_array->getClientOriginalName();
                 $font_name = (new ImageController())->saveFontFile($file_name, $is_replace);
 
                 if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
