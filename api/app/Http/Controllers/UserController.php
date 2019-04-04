@@ -1902,7 +1902,19 @@ class UserController extends Controller
             if (!Cache::has("pel:getJsonSampleDataFilterBySearchTag$this->sub_category_id")) {
                 $result = Cache::rememberforever("getJsonSampleDataFilterBySearchTag$this->sub_category_id", function () {
 
-                    $category_list = array("Flyers", "Business Card", "Brochures", "Banners", "Social Media Post");
+                    //$category_list = array("Flyers", "Business Card", "Brochures", "Banners", "Social Media Post");
+                    $category_list = array(
+                        "Business Cards",
+                        "Flyers",
+                        "Brochures",
+                        "Facebook Posts",
+                        "A4 Letterhead",
+                        "Instagram Posts",
+                        "Instagram Story",
+                        "Leaderboard Ad",
+                        "Skyscrapper Ad",
+                        "Miscellaneous"
+                    );
                     $item_count_of_templates = Config::get('constant.ITEM_COUNT_OF_TEMPLATES');
 
                     $categories_data = array();
