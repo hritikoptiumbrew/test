@@ -21,8 +21,8 @@
         <input type="file" class="form-control p-1 input-fonts" #fileInput (change)="fileChange($event)">
         <input type="text" class="form-control input-font-name" placeholder="Enter font name..."
           [(ngModel)]="font_details.ios_font_name" (keydown.enter)="uploadFontFile(font_details, '0')">
-        <input type="text" class="form-control input-font-name" placeholder="Enter font path..."
-          [(ngModel)]="font_details.android_font_name" (keydown.enter)="uploadFontFile(font_details, '0')">
+        <!-- <input type="text" class="form-control input-font-name" placeholder="Enter font path..."
+          [(ngModel)]="font_details.android_font_name" (keydown.enter)="uploadFontFile(font_details, '0')"> -->
         <a md-raised-button class="btn mt-1 mb-1 title-bar" title="Upload selected font"
           (click)="uploadFontFile(font_details, '0')">
           <i class="fa fa-plus font-18"></i> &nbsp;New Font
