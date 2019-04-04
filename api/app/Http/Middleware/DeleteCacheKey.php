@@ -191,7 +191,7 @@ class DeleteCacheKey
                 }
 
                 //getAllSamplesWithWebp
-                $keys = Redis::keys('pel:getAllSamplesWithWebp *');
+                $keys = Redis::keys('pel:getAllSamplesWithWebp*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }

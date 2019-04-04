@@ -305,7 +305,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\nrequest_data:{\n\"catalog_id\":280, //compulsory\n\"ios_font_name\":\"3d\", //compulsory\n\"android_font_name\":\"fonts/3d.ttf\", //compulsory\n\"is_replace\":1 //compulsory 1=replace font file, 0=don't replace font file\n}\nfile:3d.ttf //compulsory\n}",
+          "content": "{\nrequest_data:{\n\"catalog_id\":280, //compulsory\n\"ios_font_name\":\"3d\", //optional\n\"is_replace\":1 //compulsory 1=replace font file, 0=don't replace font file\n}\nfile:3d.ttf //compulsory\n}",
           "type": "json"
         },
         {
