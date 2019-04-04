@@ -146,14 +146,14 @@ export class FontListComponent implements OnInit {
       this.showError("Please choose font file to upload", false);
       return false;
     }
-    else if (!font_details.ios_font_name) {
+    /* else if (!font_details.ios_font_name) {
       this.showError("Please enter font name", false);
       return false;
     }
     else if (!font_details.android_font_name) {
       this.showError("Please enter font path", false);
       return false;
-    }
+    } */
     else {
       this.loading = this.dialog.open(LoadingComponent);
       let request_data: any = {
