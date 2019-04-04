@@ -7309,8 +7309,7 @@ class AdminController extends Controller
      * {
      * request_data:{
      * "catalog_id":280, //compulsory
-     * "ios_font_name":"3d", //compulsory
-     * "android_font_name":"fonts/3d.ttf", //compulsory
+     * "ios_font_name":"3d", //optional
      * "is_replace":1 //compulsory 1=replace font file, 0=don't replace font file
      * }
      * file:3d.ttf //compulsory
@@ -7336,16 +7335,14 @@ class AdminController extends Controller
             $request = json_decode($request_body->input('request_data'));
             if (($response = (new VerificationController())->validateRequiredParameter(array(
                     'catalog_id',
-                    'ios_font_name',
-                    'android_font_name',
                     'is_replace'
                 ), $request)) != ''
             )
                 return $response;
 
             $catalog_id = $request->catalog_id;
-            $ios_font_name = $request->ios_font_name;
-            $android_font_name = $request->android_font_name;
+            //$ios_font_name = $request->ios_font_name;
+            //$android_font_name = $request->android_font_name;
             $is_replace = $request->is_replace;
             $create_at = date('Y-m-d H:i:s');
             DB::beginTransaction();
@@ -7376,7 +7373,8 @@ class AdminController extends Controller
                 }
 
                 $android_font_name = "fonts/$file_name";
-                $ios_font_name = $file_name;
+                //$ios_font_name = $file_name;
+                $ios_font_name = isset($request->ios_font_name) ? $request->ios_font_name : $file_name;
 
                 DB::insert('INSERT
                                 INTO
