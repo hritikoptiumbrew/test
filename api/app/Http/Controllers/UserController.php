@@ -2059,7 +2059,7 @@ class UserController extends Controller
                                                 FROM
                                                   images
                                                 WHERE
-                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1 AND is_featured = 1) AND
                                                   is_featured = 1
                                                 ORDER BY updated_at DESC', [$this->sub_category_id]);
 
@@ -2081,8 +2081,7 @@ class UserController extends Controller
                                                   FROM
                                                     images
                                                   WHERE
-                                                    catalog_id = ? AND
-                                                    is_featured = 1
+                                                    catalog_id = ?
                                                   ORDER BY updated_at DESC', [$this->catalog_id]);
 
                     }
