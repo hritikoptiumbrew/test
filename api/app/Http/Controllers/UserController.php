@@ -1904,6 +1904,7 @@ class UserController extends Controller
 
                     //$category_list = array("Flyers", "Business Card", "Brochures", "Banners", "Social Media Post");
                     $category_list = array(
+                        "Logos",
                         "Business Cards",
                         "Flyers",
                         "Brochures",
