@@ -310,3 +310,6 @@ Route::post('testMail', 'AdminController@testMail');
 
 //PhpInfo
 Route::post('getPhpInfo', 'AdminController@getPhpInfo');
+
+//API to get fonts into font_collection (for designer use)
+Route::post('getAllFonts', 'AdminController@getAllFonts');

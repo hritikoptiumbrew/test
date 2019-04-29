@@ -1306,6 +1306,35 @@
   },
   {
     "type": "post",
+    "url": "getAllFonts",
+    "title": "getAllFonts",
+    "name": "getAllFonts",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n \"catalog_id\":1, //compulsory\n \"order_by\":1, //optional\n \"order_type\":1 //optional\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Fonts fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_count\": 10,\n\"result\": [\n{\n\"font_id\": 94,\n\"font_name\": \"Baloo Thambi Regular\",\n\"font_file\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/baloo_thambi_regular.ttf\",\n\"ios_font_name\": \"Baloo Thambi Regular\",\n\"android_font_name\": \"fonts/baloo_thambi_regular.ttf\",\n\"is_active\": 1\n},\n{\n\"font_id\": 93,\n\"font_name\": \"Baloo Tammudu Regular\",\n\"font_file\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/baloo_tammudu_regular.ttf\",\n\"ios_font_name\": \"Baloo Tammudu Regular\",\n\"android_font_name\": \"fonts/baloo_tammudu_regular.ttf\",\n\"is_active\": 1\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "getAllFontsByCatalogIdForAdmin",
     "title": "getAllFontsByCatalogIdForAdmin",
     "name": "getAllFontsByCatalogIdForAdmin",
@@ -4215,12 +4244,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":51 //Compulsory\n}",
+          "content": "{\n\"sub_category_id\":97, //compulsory\n\"search_category\":\"Leaderboard Ad\", //optional for templates screen\n\"page\":1, //optional for templates screen\n\"item_count\":20 //optional for templates screen\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"category_name\": \"Flyers\",\n\"content_list\": [\n{\n\"json_id\": 3390,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2019-03-27 11:07:33\"\n}\n]\n},\n{\n\"category_name\": \"Banners\",\n\"content_list\": []\n},\n{\n\"category_name\": \"Social Media Post\",\n\"content_list\": [\n{\n\"json_id\": 3386,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7b9d728c4_json_image_1550810013.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"height\": 540,\n\"width\": 540,\n\"updated_at\": \"2019-02-22 04:33:35\"\n}\n]\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 11,\n\"is_next_page\": false,\n\"templates_with_categories\": [\n{\n\"category_name\": \"Logos\",\n\"content_list\": []\n},\n{\n\"category_name\": \"Business Cards\",\n\"content_list\": [\n{\n\"json_id\": 4768,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5cac6c693d405_json_image_1554803817.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 0,\n\"height\": 300,\n\"width\": 525,\n\"updated_at\": \"2019-04-10 08:09:41\"\n}\n]\n},\n{\n\"category_name\": \"Flyers\",\n\"content_list\": [\n{\n\"json_id\": 3390,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2019-03-30 06:01:38\"\n}\n]\n}\n],\n\"template_list\": []\n}\n}",
           "type": "json"
         }
       ]

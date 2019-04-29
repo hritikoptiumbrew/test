@@ -1836,7 +1836,10 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "sub_category_id":51 //Compulsory
+     * "sub_category_id":97, //compulsory
+     * "search_category":"Leaderboard Ad", //optional for templates screen
+     * "page":1, //optional for templates screen
+     * "item_count":20 //optional for templates screen
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -1844,7 +1847,28 @@ class UserController extends Controller
      * "message": "Templates fetched successfully.",
      * "cause": "",
      * "data": {
-     * "result": [
+     * "total_record": 11,
+     * "is_next_page": false,
+     * "templates_with_categories": [
+     * {
+     * "category_name": "Logos",
+     * "content_list": []
+     * },
+     * {
+     * "category_name": "Business Cards",
+     * "content_list": [
+     * {
+     * "json_id": 4768,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5cac6c693d405_json_image_1554803817.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2019-04-10 08:09:41"
+     * }
+     * ]
+     * },
      * {
      * "category_name": "Flyers",
      * "content_list": [
@@ -1856,30 +1880,12 @@ class UserController extends Controller
      * "is_portrait": 1,
      * "height": 400,
      * "width": 325,
-     * "updated_at": "2019-03-27 11:07:33"
-     * }
-     * ]
-     * },
-     * {
-     * "category_name": "Banners",
-     * "content_list": []
-     * },
-     * {
-     * "category_name": "Social Media Post",
-     * "content_list": [
-     * {
-     * "json_id": 3386,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7b9d728c4_json_image_1550810013.webp",
-     * "is_free": 1,
-     * "is_featured": 0,
-     * "is_portrait": 1,
-     * "height": 540,
-     * "width": 540,
-     * "updated_at": "2019-02-22 04:33:35"
+     * "updated_at": "2019-03-30 06:01:38"
      * }
      * ]
      * }
-     * ]
+     * ],
+     * "template_list": []
      * }
      * }
      */
@@ -1898,28 +1904,38 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
+            $this->search_category = isset($request->search_category) ? strtolower(trim($request->search_category)) : "";
+            $this->page = isset($request->page) ? $request->page : 1;
+            $this->item_count = isset($request->item_count) ? $request->item_count : 20;
+            $this->offset = ($this->page - 1) * $this->item_count;
 
-            if (!Cache::has("pel:getJsonSampleDataFilterBySearchTag$this->sub_category_id")) {
-                $result = Cache::rememberforever("getJsonSampleDataFilterBySearchTag$this->sub_category_id", function () {
 
-                    //$category_list = array("Flyers", "Business Card", "Brochures", "Banners", "Social Media Post");
-                    $category_list = array(
-                        "Business Cards",
-                        "Flyers",
-                        "Brochures",
-                        "Facebook Posts",
-                        "A4 Letterhead",
-                        "Instagram Posts",
-                        "Instagram Story",
-                        "Leaderboard Ad",
-                        "Skyscrapper Ad",
-                        "Miscellaneous"
-                    );
-                    $item_count_of_templates = Config::get('constant.ITEM_COUNT_OF_TEMPLATES');
+            if (!Cache::has("pel:getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count")) {
+                $result = Cache::rememberforever("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count", function () {
 
-                    $categories_data = array();
-                    foreach ($category_list as $key) {
-                        $content_list = DB::select('SELECT
+
+                    if ($this->search_category == "") {
+                        //$category_list = array("Flyers", "Business Card", "Brochures", "Banners", "Social Media Post");
+                        $category_list = array(
+                            "Logos",
+                            "Business Cards",
+                            "Flyers",
+                            "Brochures",
+                            "Facebook Posts",
+                            "A4 Letterhead",
+                            "Instagram Posts",
+                            "Instagram Story",
+                            "Leaderboard Ad",
+                            "Skyscrapper Ad",
+                            "Miscellaneous"
+                        );
+                        $item_count_of_templates = Config::get('constant.ITEM_COUNT_OF_TEMPLATES');
+
+                        $categories_data = array();
+                        foreach ($category_list as $key) {
+
+                            $search_text = "%$key%";
+                            $content_list = DB::select('SELECT
                                                           im.id as json_id,
                                                           IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                           im.is_free,
@@ -1940,20 +1956,71 @@ class UserController extends Controller
                                                           scc.sub_category_id = ? AND
                                                           isnull(im.original_img) AND
                                                           isnull(im.display_img) AND
-                                                          MATCH(im.search_category) AGAINST("' . $key . '")
-                                                        ORDER BY im.search_category DESC LIMIT ?, ?', [$this->sub_category_id, 0, $item_count_of_templates]);
+                                                          im.search_category LIKE ?
+                                                        ORDER BY im.search_category DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, 0, $item_count_of_templates]);
 
-                        $categories_data[] = array('category_name' => $key, 'content_list' => $content_list);
+                            $categories_data[] = array('category_name' => $key, 'content_list' => $content_list);
+
+                        }
+                        $total_row = count($category_list);
+                        $search_result = [];
+                    } else {
+                        $search_text = "%$this->search_category%";
+                        $total_row_result = DB::select('SELECT count(*) as total
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img) AND
+                                                  im.search_category LIKE ?
+                                                ORDER BY im.search_category DESC', [$this->sub_category_id, $search_text]);
+
+                        $total_row = $total_row_result[0]->total;
+
+                        $search_result = DB::select('SELECT
+                                                  im.id as json_id,
+                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                  im.is_free,
+                                                  im.is_featured,
+                                                  im.is_portrait,
+                                                  coalesce(im.height,0) AS height,
+                                                  coalesce(im.width,0) AS width,
+                                                  im.updated_at,
+                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '") AS search_text
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img) AND
+                                                  im.search_category LIKE ?
+                                                ORDER BY search_text DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, $this->offset, $this->item_count]);
+                        $categories_data = [];
 
                     }
 
-                    return array('result' => $categories_data);
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    $result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'templates_with_categories' => $categories_data, 'template_list' => $search_result);
 
+                    return $result;
 
                 });
             }
 
-            $redis_result = Cache::get("getJsonSampleDataFilterBySearchTag$this->sub_category_id");
+            $redis_result = Cache::get("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count");
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -2059,7 +2126,7 @@ class UserController extends Controller
                                                 FROM
                                                   images
                                                 WHERE
-                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1 AND is_featured = 1) AND
                                                   is_featured = 1
                                                 ORDER BY updated_at DESC', [$this->sub_category_id]);
 
@@ -2081,8 +2148,7 @@ class UserController extends Controller
                                                   FROM
                                                     images
                                                   WHERE
-                                                    catalog_id = ? AND
-                                                    is_featured = 1
+                                                    catalog_id = ?
                                                   ORDER BY updated_at DESC', [$this->catalog_id]);
 
                     }

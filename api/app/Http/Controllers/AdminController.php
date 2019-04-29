@@ -1980,7 +1980,8 @@ class AdminController extends Controller
                                     IF(cm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as thumbnail_img,
                                     IF(cm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as compressed_img,
                                     IF(cm.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as original_img,
-                                    cm.is_free
+                                    cm.is_free,
+                                    cm.is_featured
                                    FROM
                                       catalog_master AS cm,
                                       sub_category_catalog as sct
@@ -7615,6 +7616,101 @@ class AdminController extends Controller
 
         } catch (Exception $e) {
             Log::error("getAllFontsByCatalogIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllFonts   getAllFonts
+     * @apiName getAllFonts
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     *  "catalog_id":1, //compulsory
+     *  "order_by":1, //optional
+     *  "order_type":1 //optional
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Fonts fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_count": 10,
+     * "result": [
+     * {
+     * "font_id": 94,
+     * "font_name": "Baloo Thambi Regular",
+     * "font_file": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/baloo_thambi_regular.ttf",
+     * "ios_font_name": "Baloo Thambi Regular",
+     * "android_font_name": "fonts/baloo_thambi_regular.ttf",
+     * "is_active": 1
+     * },
+     * {
+     * "font_id": 93,
+     * "font_name": "Baloo Tammudu Regular",
+     * "font_file": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/baloo_tammudu_regular.ttf",
+     * "ios_font_name": "Baloo Tammudu Regular",
+     * "android_font_name": "fonts/baloo_tammudu_regular.ttf",
+     * "is_active": 1
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllFonts(Request $request_body)
+    {
+        try {
+            /*$token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;*/
+
+            if (!Cache::has("pel:getAllFonts")) {
+                $result = Cache::rememberforever("getAllFonts", function () {
+
+                    $result = DB::select('SELECT
+                                              fm.id as font_id,
+                                              fm.catalog_id,
+                                              cm.name,
+                                              fm.font_name,
+                                              fm.font_file,
+                                              coalesce(fm.ios_font_name,"") as ios_font_name,
+                                              coalesce(fm.android_font_name,"") as android_font_name,
+                                              fm.is_active
+                                            FROM
+                                              catalog_master AS cm LEFT JOIN
+                                              font_master as fm ON cm.id = fm.catalog_id
+                                            where
+                                              fm.is_active = 1
+                                            ORDER BY cm.name', [$this->catalog_id]);
+
+                    return $result;
+                });
+            }
+            $redis_result = Cache::get("getAllFonts");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+
+            $response = Response::json(array('code' => 200, 'message' => 'Fonts fetched successfully.', 'cause' => '', 'data' => ['total_count' => count($redis_result), 'result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllFonts : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
