@@ -210,7 +210,9 @@ export class ViewSubcategoryComponent implements OnInit {
     }
     else {
       let sub_category_data = JSON.parse(JSON.stringify(category));
-      let dialogRef = this.dialog.open(UpdateSubcategoryImageByIdComponent);
+      let dialogRef = this.dialog.open(UpdateSubcategoryImageByIdComponent, {
+        panelClass:'add-image-dialog'
+      });
       dialogRef.componentInstance.sub_category_data = sub_category_data;
       dialogRef.afterClosed().subscribe(result => {
         if (!result) {

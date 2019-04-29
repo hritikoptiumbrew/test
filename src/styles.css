@@ -693,3 +693,7 @@ img {
 .mat-expansion-indicator {
     line-height: 48px !important;
 }
+
+.add-image-dialog {
+    width: 500px;
+}
