@@ -159,10 +159,10 @@ export class UpdateJsonDataComponent implements OnInit {
       this.errorMsg = "Select catalog type";
       return false;
     }
-    else if (this.selected_search_tags.length <= 0) {
+    /* else if (this.selected_search_tags.length <= 0) {
       this.errorMsg = "Please Select/Enter atleast one search tag";
       return false;
-    }
+    } */
     else if (typeof catalog_data_tmp.json_data == 'undefined' || this.trim(catalog_data_tmp.json_data) == "" || catalog_data_tmp.json_data == null) {
       this.errorMsg = "Please enter JSON data";
       return false;

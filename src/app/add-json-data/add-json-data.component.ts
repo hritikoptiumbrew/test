@@ -151,10 +151,10 @@ export class AddJsonDataComponent implements OnInit {
       this.errorMsg = "Select catalog type";
       return false;
     }
-    else if (this.selected_search_tags.length <= 0) {
+    /* else if (this.selected_search_tags.length <= 0) {
       this.errorMsg = "Please Select/Enter atleast one search tag";
       return false;
-    }
+    } */
     else if (typeof catalog_data_tmp.json_data == 'undefined' || this.trim(catalog_data_tmp.json_data) == "" || catalog_data_tmp.json_data == null) {
       this.errorMsg = "Please enter JSON data";
       return false;
@@ -173,7 +173,7 @@ export class AddJsonDataComponent implements OnInit {
         "is_portrait": catalog_data_tmp.is_portrait,
         "catalog_id": catalog_data_tmp.catalog_id,
         "json_data": catalog_data_tmp.json_data,
-        "search_category": tmp_selected_tags
+        "search_category": tmp_selected_tags == "" ? tmp_selected_tags : tmp_selected_tags
       };
       this.formData.append('request_data', JSON.stringify(request_data));
       this.dataService.postData('addJson', this.formData,
