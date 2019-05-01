@@ -1957,7 +1957,7 @@ class UserController extends Controller
                                                           isnull(im.original_img) AND
                                                           isnull(im.display_img) AND
                                                           im.search_category LIKE ?
-                                                        ORDER BY im.search_category DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, 0, $item_count_of_templates]);
+                                                        ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, 0, $item_count_of_templates]);
 
                             $categories_data[] = array('category_name' => $key, 'content_list' => $content_list);
 
@@ -1980,7 +1980,7 @@ class UserController extends Controller
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
                                                   im.search_category LIKE ?
-                                                ORDER BY im.search_category DESC', [$this->sub_category_id, $search_text]);
+                                                ORDER BY im.updated_at DESC', [$this->sub_category_id, $search_text]);
 
                         $total_row = $total_row_result[0]->total;
 
@@ -1992,8 +1992,7 @@ class UserController extends Controller
                                                   im.is_portrait,
                                                   coalesce(im.height,0) AS height,
                                                   coalesce(im.width,0) AS width,
-                                                  im.updated_at,
-                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '") AS search_text
+                                                  im.updated_at
                                                 FROM
                                                   images as im,
                                                   catalog_master AS cm,
@@ -2007,7 +2006,7 @@ class UserController extends Controller
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
                                                   im.search_category LIKE ?
-                                                ORDER BY search_text DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, $this->offset, $this->item_count]);
+                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, $this->offset, $this->item_count]);
                         $categories_data = [];
 
                     }
@@ -3887,7 +3886,7 @@ class UserController extends Controller
      * {
      * "id": 1070059276213702700,
      * "created_at": "2018-12-04 20:56:26",
-     * "text": "Celebrating the developer success story of <a class=\"tweet-author\" href=\"https://twitter.com/UnionMetrics\" target=\"_blank\">@UnionMetrics</a> platform whose underlying technology is built upon TwitterŠ<a href=\"https://t.co/lxA6ePkTMj\" target=\"_blank\">https://t.co/lxA6ePkTMj</a>",
+     * "text": "Celebrating the developer success story of <a class=\"tweet-author\" href=\"https://twitter.com/UnionMetrics\" target=\"_blank\">@UnionMetrics</a> platform whose underlying technology is built upon Twitterï¿½<a href=\"https://t.co/lxA6ePkTMj\" target=\"_blank\">https://t.co/lxA6ePkTMj</a>",
      * "favorite_count": 48,
      * "profile_image_url": "http://pbs.twimg.com/profile_images/880136122604507136/xHrnqf1T_400x400.jpg",
      * "account_url": "https://twitter.com/TwitterDev",
@@ -4277,14 +4276,16 @@ class UserController extends Controller
      * "catalog_id": 333,
      * "font_name": "Shonar Bangla Bold",
      * "font_file": "Shonar-Bold.ttf",
-     * "font_url": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar-Bold.ttf"
+     * "font_url": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar-Bold.ttf",
+     * "ios_font_name": "ShonarBangla-Bold"
      * },
      * {
      * "font_id": 79,
      * "catalog_id": 333,
      * "font_name": "Shonar Bangla",
      * "font_file": "Shonar.ttf",
-     * "font_url": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar.ttf"
+     * "font_url": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar.ttf",
+     * "ios_font_name": "ShonarBangla"
      * }
      * ]
      * }
@@ -4311,7 +4312,8 @@ class UserController extends Controller
                                               fm.catalog_id,
                                               fm.font_name,
                                               fm.font_file,
-                                              IF(fm.font_file != "",CONCAT("' . Config::get('constant.FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . '",fm.font_file),"") as font_url
+                                              IF(fm.font_file != "",CONCAT("' . Config::get('constant.FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . '",fm.font_file),"") as font_url,
+                                              fm.ios_font_name
                                             FROM
                                               font_master as fm
                                             where

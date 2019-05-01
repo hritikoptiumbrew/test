@@ -659,7 +659,7 @@ class AdminController extends Controller
 //                $command = $disk->getDriver()->getAdapter()->getClient()->getCommand('GetObject', [
 //                    'Bucket' => $config,
 //                    'Key' => $value,
-//                    //’ResponseContentDisposition’ => ‘attachment;’//for download
+//                    //ï¿½ResponseContentDispositionï¿½ => ï¿½attachment;ï¿½//for download
 //                ]);
 //
 //                //return $command;
@@ -2052,6 +2052,11 @@ class AdminController extends Controller
                     if (($response = (new ImageController())->verifyImage($image_array)) != '')
                         return $response;
 
+                    $tag_list = (new TagDetectController())->getTagInImageByBytes($image_array);
+                    if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
+                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+                    }
+
                     $normal_image = (new ImageController())->generateNewFileName('normal_image', $image_array);
                     (new ImageController())->saveOriginalImageFromArray($image_array, $normal_image);
                     (new ImageController())->saveCompressedImage($normal_image);
@@ -2063,8 +2068,8 @@ class AdminController extends Controller
 
                     DB::insert('INSERT
                                 INTO
-                                  images(catalog_id, image, created_at)
-                                VALUES(?, ?, ?) ', [$catalog_id, $normal_image, $create_at]);
+                                  images(catalog_id, image, search_category, created_at)
+                                VALUES(?, ?, ?, ?) ', [$catalog_id, $normal_image, $tag_list, $create_at]);
                 }
 
                 DB::commit();
@@ -2525,10 +2530,13 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
+     * {
      * request_data:{
-     * "img_id":1 //compulsory
+     * "img_id":1, //compulsory
+     * "search_category":"test,abc" //optional
      * }
      * file:"" //compulsory
+     * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -2553,14 +2561,25 @@ class AdminController extends Controller
                 return $response;
 
             $img_id = $request->img_id;
+            $search_category = isset($request->search_category) ? $request->search_category : '';
 
-            if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
+            if ($search_category != NULL or $search_category != "") {
+                if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
+                    return $response;
+            }
+
+            if ($request_body->hasFile('file')) {
+                /*return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {*/
                 $image_array = Input::file('file');
 
                 if (($response = (new ImageController())->verifyImage($image_array)) != '')
                     return $response;
+
+                $tag_list = (new TagDetectController())->getTagInImageByBytes($image_array);
+                if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
+                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+                }
 
                 $catalog_img = (new ImageController())->generateNewFileName('catalog_img', $image_array);
                 (new ImageController())->saveOriginalImage($catalog_img);
@@ -2573,22 +2592,28 @@ class AdminController extends Controller
 
                 $result = DB::select('SELECT image FROM images WHERE id = ?', [$img_id]);
                 $image_name = $result[0]->image;
-                DB::beginTransaction();
-                DB::update('UPDATE
-                              images
-                            SET
-                              image = ?
-                            WHERE
-                              id = ? ',
-                    [$catalog_img, $img_id]);
-                DB::commit();
+
 
                 if ($image_name) {
                     //Image Delete in image_bucket
                     (new ImageController())->deleteImage($image_name);
                 }
-
+            } else {
+                $catalog_img = "";
+                $tag_list = $search_category;
             }
+
+            DB::beginTransaction();
+            DB::update('UPDATE
+                              images
+                            SET
+                              image = IF(? != "",?,image),
+                              search_category = ?
+                            WHERE
+                              id = ? ',
+                [$catalog_img, $catalog_img, $tag_list, $img_id]);
+            DB::commit();
+
 
             $response = Response::json(array('code' => 200, 'message' => 'Normal image updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
@@ -3820,7 +3845,7 @@ class AdminController extends Controller
      * },
      * {
      * "advertise_link_id": 38,
-     * "name": "PhotoEditorLab – Stickers , Filters & Frames",
+     * "name": "PhotoEditorLab ï¿½ Stickers , Filters & Frames",
      * "platform": "iOS",
      * "linked": 0
      * },
@@ -4997,7 +5022,7 @@ class AdminController extends Controller
 
             $request = json_decode($request_body->input('request_data'));
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free', 'search_category'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free'), $request)) != '')
                 return $response;
 
             $catalog_id = $request->catalog_id;
@@ -5005,12 +5030,13 @@ class AdminController extends Controller
             $is_free = $request->is_free;
             $is_featured = $request->is_featured;
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
-            //$search_category = isset($request->search_category) ? $request->search_category : NULL;
-            $search_category = $request->search_category;
+            //$search_category = $request->search_category;
+            $search_category = isset($request->search_category) ? strtolower($request->search_category) : NULL;
             $created_at = date('Y-m-d H:i:s');
 
-            if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
-                return $response;
+            if ($search_category != NULL or $search_category != "") {
+                $search_category = $search_category . ',';
+            }
 
             if (($response = (new ImageController())->validateFonts($json_data)) != '')
                 return $response;
@@ -5026,6 +5052,26 @@ class AdminController extends Controller
 
                 if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
                     return $response;
+
+                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
+                if ($tag_list == "" or $tag_list == NULL) {
+
+                    if (Config::get('constant.CLARIFAI_API_KEY') != "") {
+                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+
+                    } else {
+                        //remove "," from the end
+                        $search_category = str_replace(",", "", $search_category);
+                    }
+                }
+
+                if (($response = (new VerificationController())->verifySearchCategory("$search_category$tag_list")) != '') {
+                    $response_details = (json_decode(json_encode($response), true));
+                    $data = $response_details['original']['data'];
+                    $tag_list = $data['search_tags'];
+                } else {
+                    $tag_list = "$search_category$tag_list";
+                }
 
                 $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
                 (new ImageController())->saveOriginalImage($catalog_image);
@@ -5049,7 +5095,7 @@ class AdminController extends Controller
                 DB::insert('INSERT
                                 INTO
                                   images(catalog_id, image, json_data, is_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, created_at, attribute1)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $tag_list, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
 
 
                 DB::commit();
@@ -5277,7 +5323,8 @@ class AdminController extends Controller
             $is_free = $request->is_free;
             $is_featured = $request->is_featured;
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
-            $search_category = isset($request->search_category) ? $request->search_category : NULL;
+            //$search_category = isset($request->search_category) ? $request->search_category : NULL;
+            $search_category = isset($request->search_category) ? strtolower($request->search_category) : NULL;
 
             //Log::info('request_data', ['request_data' => $request]);
             if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
@@ -5295,6 +5342,11 @@ class AdminController extends Controller
 
                 if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
                     return $response;
+
+                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
+                if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
+                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+                }
 
                 $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
                 (new ImageController())->saveOriginalImage($catalog_image);
@@ -5315,7 +5367,7 @@ class AdminController extends Controller
 
                 DB::update('UPDATE
                                 images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, original_img_height = ?, original_img_width = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $tag_list, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
                 DB::commit();
 
                 if (strstr($file_name, '.webp')) {
@@ -7221,7 +7273,7 @@ class AdminController extends Controller
             /*define follwoing variables into constant before use this API
 
             'NON_COMMERCIAL_FONT_PATH' => "fonts/American Typewriter Condensed.ttf,fonts/style10.ttf,fonts/Blanch Condensed Inline.ttf,fonts/CoronetLTStd-Bold.ttf,fonts/daunpenh.ttf,fonts/Filxgirl.TTF,fonts/LFAX.TTF,fonts/LFAXI.TTF,fonts/ufonts.com_lydian-cursive-bt.ttf,fonts/Medusa Gothic.otf,fonts/PrestigeEliteStd-Bd.otf,fonts/VAGRoundedStd-Bold.ttf,fonts/VAGRoundedStd-Light.ttf",
-    'NON_COMMERCIAL_FONT_NAME' => "AmericanTypewriter-Condensed,BacktoBlackDemo,Blanch-CondensedInline,CoronetLTStd-Bold,DaunPenh,FiolexGirls-Regular,LucidaFax,LucidaFax-Italic,LydianCursiveBT-Regular,MedusaGothic,PrestigeEliteStd-Bd,VAGRoundedStd-Bold,VAGRoundedStd-Light"
+            'NON_COMMERCIAL_FONT_NAME' => "AmericanTypewriter-Condensed,BacktoBlackDemo,Blanch-CondensedInline,CoronetLTStd-Bold,DaunPenh,FiolexGirls-Regular,LucidaFax,LucidaFax-Italic,LydianCursiveBT-Regular,MedusaGothic,PrestigeEliteStd-Bd,VAGRoundedStd-Bold,VAGRoundedStd-Light"
 
             */
 
@@ -7359,10 +7411,8 @@ class AdminController extends Controller
                 if ($is_replace == 0) {
                     if (($response = (new VerificationController())->checkIsFontExist($file_array)) != '')
                         return $response;
-                    $file_name = str_replace(" ","",strtolower($file_array->getClientOriginalName()));
-                }
-                else
-                {
+                    $file_name = str_replace(" ", "", strtolower($file_array->getClientOriginalName()));
+                } else {
                     $file_name = $file_array->getClientOriginalName();
                 }
 
@@ -7694,7 +7744,7 @@ class AdminController extends Controller
                                               font_master as fm ON cm.id = fm.catalog_id
                                             where
                                               fm.is_active = 1
-                                            ORDER BY cm.name', [$this->catalog_id]);
+                                            ORDER BY cm.name');
 
                     return $result;
                 });
@@ -8720,6 +8770,273 @@ class AdminController extends Controller
         return $response;
     }
 
+    /* =====================================| Set search tags of samples by sub_category |==============================================*/
+
+    /**
+     * @api {post} getSearchTagsForAllSampleImages   getSearchTagsForAllSampleImages
+     * @apiName getSearchTagsForAllSampleImages
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "img_id": 356,
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "json_data": {
+     * "text_json": [],
+     * "sticker_json": [],
+     * "image_sticker_json": [
+     * {
+     * "xPos": 0,
+     * "yPos": 0,
+     * "image_sticker_image": "",
+     * "angle": 0,
+     * "is_round": 0,
+     * "height": 800,
+     * "width": 500
+     * }
+     * ],
+     * "frame_json": {
+     * "frame_image": "frame_15.7"
+     * },
+     * "background_json": {},
+     * "sample_image": "sample_15.7",
+     * "is_featured": 0,
+     * "height": 800,
+     * "width": 800
+     * }
+     * },
+     * file:image1.jpeg
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Json data updated successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function getSearchTagsForAllSampleImages(Request $request)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'item_count', 'page', 'no_of_times_update'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $item_count = $request->item_count;
+            $page = $request->page;
+            $no_of_times_update = $request->no_of_times_update;
+            $offset = ($page - 1) * $item_count;
+
+            $total_sample_images = DB::select('SELECT count(i.id) AS total
+                                    FROM images AS i,
+                                        sub_category_catalog AS scc
+                                    WHERE
+                                    i.json_data IS NOT NULL AND
+                                    i.json_data !="" AND
+                                    i.catalog_id = scc.catalog_id AND
+                                    scc.sub_category_id = ? AND scc.is_active = 1
+                                    ORDER BY i.updated_at ASC', [$sub_category_id]);
+
+
+            $sample_images = DB::select('SELECT i.*
+                                    FROM images AS i,
+                                        sub_category_catalog AS scc
+                                    WHERE
+                                    i.json_data IS NOT NULL AND
+                                    i.json_data !="" AND
+                                    i.catalog_id = scc.catalog_id AND
+                                    scc.sub_category_id = ? AND scc.is_active = 1
+                                    ORDER BY i.updated_at ASC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
+
+
+            $count = 0;
+            $remaining_samples = array();
+            $updated_samples = array();
+            $file_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN');
+
+            foreach ($sample_images as $key) {
+                //Log::info('sample images : ',['image' => $key->image]);
+
+                $tag_list = (new TagDetectController())->getTagInImageByViaURL($key->image, $file_path);
+                if ($tag_list == "" or $tag_list == NULL) {
+                    //Log::info('Normal images : ',['tags' => $tag_list]);
+                    //return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+                    $remaining_samples[] = $key->image;
+
+                }
+
+                sleep(1);
+
+                DB::beginTransaction();
+                DB::update('UPDATE
+                                images SET search_category = ?, attribute3 = ?
+                                WHERE id = ?', [$tag_list, $no_of_times_update, $key->id]);
+                DB::commit();
+                $count = $count + 1;
+                $updated_samples[] = $key->image;
+
+
+            }
+
+            $result_array = array('total_records_to_update' => $total_sample_images[0]->total, 'updated_samples' => $updated_samples, 'remaining_samples' => $remaining_samples);
+            $result = json_decode(json_encode($result_array), true);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Search tags added successfully.', 'cause' => '', 'data' => $result));
+
+        } catch
+        (Exception $e) {
+            Log::error("getSearchTagsForAllSampleImages : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get search tags for sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getSearchTagsForAllNormalImages   getSearchTagsForAllNormalImages
+     * @apiName getSearchTagsForAllNormalImages
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * request_data:{
+     * "img_id": 356,
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "json_data": {
+     * "text_json": [],
+     * "sticker_json": [],
+     * "image_sticker_json": [
+     * {
+     * "xPos": 0,
+     * "yPos": 0,
+     * "image_sticker_image": "",
+     * "angle": 0,
+     * "is_round": 0,
+     * "height": 800,
+     * "width": 500
+     * }
+     * ],
+     * "frame_json": {
+     * "frame_image": "frame_15.7"
+     * },
+     * "background_json": {},
+     * "sample_image": "sample_15.7",
+     * "is_featured": 0,
+     * "height": 800,
+     * "width": 800
+     * }
+     * },
+     * file:image1.jpeg
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Json data updated successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function getSearchTagsForAllNormalImages(Request $request)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'item_count', 'page', 'no_of_times_update'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $item_count = $request->item_count;
+            $page = $request->page;
+            $no_of_times_update = $request->no_of_times_update;
+            $offset = ($page - 1) * $item_count;
+
+            $total_sample_images = DB::select('SELECT count(i.id) AS total
+                                                    FROM images AS i,
+                                                      sub_category_catalog AS scc
+                                                    WHERE
+                                                      (i.json_data IS NULL OR
+                                                      i.json_data = "") AND
+                                                      i.catalog_id = scc.catalog_id AND
+                                                      scc.sub_category_id = ? AND scc.is_active = 1
+                                                    ORDER BY i.updated_at ASC', [$sub_category_id]);
+
+
+            $sample_images = DB::select('SELECT i.*
+                                            FROM images AS i,
+                                              sub_category_catalog AS scc
+                                            WHERE
+                                              (i.json_data IS NULL OR
+                                               i.json_data = "") AND
+                                              i.catalog_id = scc.catalog_id AND
+                                              scc.sub_category_id = ? AND scc.is_active = 1
+                                            ORDER BY i.updated_at ASC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
+
+
+            $count = 0;
+            $remaining_samples = array();
+            $updated_samples = array();
+            $file_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN');
+
+            foreach ($sample_images as $key) {
+                //Log::info('sample images : ',['image' => $key->image]);
+
+                $tag_list = (new TagDetectController())->getTagInImageByViaURL($key->image, $file_path);
+                if ($tag_list == "" or $tag_list == NULL) {
+                    //return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+                    $remaining_samples[] = $key->image;
+
+                }
+
+                sleep(1);
+
+                DB::beginTransaction();
+                DB::update('UPDATE
+                                images SET search_category = ?, attribute3 = ?
+                                WHERE id = ?', [$tag_list, $no_of_times_update, $key->id]);
+                DB::commit();
+                $count = $count + 1;
+                $updated_samples[] = $key->image;
+
+
+            }
+
+                $result_array = array('total_records_to_update' => $total_sample_images[0]->total, 'updated_images' => $updated_samples, 'remaining_images' => $remaining_samples);
+            $result = json_decode(json_encode($result_array), true);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Search tags added successfully.', 'cause' => '', 'data' => $result));
+
+        } catch
+        (Exception $e) {
+            Log::error("getSearchTagsForAllNormalImages : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get search tags for normal images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     /* =====================================| Redis Cache Operation |==============================================*/
 
     /**
@@ -8974,6 +9291,7 @@ class AdminController extends Controller
     }
 
     public function getPhpInfo()
+
     {
         try {
 

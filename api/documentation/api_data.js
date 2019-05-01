@@ -1799,6 +1799,35 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "getSearchTagsForAllSampleImages",
+    "title": "getSearchTagsForAllSampleImages",
+    "name": "getSearchTagsForAllSampleImages",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "request_data:{\n\"img_id\": 356,\n\"is_free\": 1,\n\"is_featured\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 800,\n\"width\": 500\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_15.7\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_15.7\",\n\"is_featured\": 0,\n\"height\": 800,\n\"width\": 800\n}\n},\nfile:image1.jpeg\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Json data updated successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "getSubCategoryByCategoryId",
     "title": "getSubCategoryByCategoryId",
     "name": "getSubCategoryByCategoryId",
@@ -2480,7 +2509,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"img_id\":1 //compulsory\n}\nfile:\"\" //compulsory",
+          "content": "request_data:{\n\"img_id\":1, //compulsory\n\"search_category\":\"test,abc\" //compulsory\n}\nfile:\"\" //compulsory",
           "type": "json"
         },
         {
@@ -3698,7 +3727,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Fonts fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"font_id\": 80,\n\"catalog_id\": 333,\n\"font_name\": \"Shonar Bangla Bold\",\n\"font_file\": \"Shonar-Bold.ttf\",\n\"font_url\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar-Bold.ttf\"\n},\n{\n\"font_id\": 79,\n\"catalog_id\": 333,\n\"font_name\": \"Shonar Bangla\",\n\"font_file\": \"Shonar.ttf\",\n\"font_url\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar.ttf\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Fonts fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"font_id\": 80,\n\"catalog_id\": 333,\n\"font_name\": \"Shonar Bangla Bold\",\n\"font_file\": \"Shonar-Bold.ttf\",\n\"font_url\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar-Bold.ttf\",\n\"ios_font_name\": \"ShonarBangla-Bold\"\n},\n{\n\"font_id\": 79,\n\"catalog_id\": 333,\n\"font_name\": \"Shonar Bangla\",\n\"font_file\": \"Shonar.ttf\",\n\"font_url\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/fonts/Shonar.ttf\",\n\"ios_font_name\": \"ShonarBangla\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]

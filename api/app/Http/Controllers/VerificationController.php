@@ -445,7 +445,7 @@ class VerificationController extends Controller
         try {
 
             //$file_name = $file_array->getClientOriginalName();
-            $file_name = str_replace(" ","",strtolower($file_array->getClientOriginalName()));
+            $file_name = str_replace(" ", "", strtolower($file_array->getClientOriginalName()));
             $temp_directory = Config::get('constant.TEMP_FILE_DIRECTORY');
 
             $file_path = '../..' . $temp_directory . $file_name;
