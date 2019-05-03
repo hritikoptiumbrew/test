@@ -348,23 +348,26 @@ class VerificationController extends Controller
     {
         try {
             $count = 0;
-            $array_of_search_text = (explode(",", $search_category));
+            $array_of_search_text = (explode(",", strtolower($search_category)));
             $result = array();
+            $repeated_tags = array();
             foreach ($array_of_search_text as $key) {
                 if (!in_array($key, $result) == true) {
                     $result[] = $key;
                 } else {
                     $count = $count + 1;
+                    $repeated_tags[] = $key;
                 }
             }
+            ///Log::info('verifySearchCategory search_tags : ',['search_tags' => implode(',',$result)]);
 
             if ($count > 0) {
-                return $response = Response::json(array('code' => 201, 'message' => 'Please remove duplicate entry of tag from selection.', 'cause' => '', 'data' => json_decode("{}")));
+                return $response = Response::json(array('code' => 201, 'message' => 'Please remove duplicate entry of "'. implode(',',$repeated_tags) .'" from tag selection.', 'cause' => '', 'data' => ['search_tags' => implode(',',$result)]));
             } else {
                 $response = '';
             }
         } catch (Exception $e) {
-            Log::error("verifySearchCategory Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            Log::error("verifySearchCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
         }
 
