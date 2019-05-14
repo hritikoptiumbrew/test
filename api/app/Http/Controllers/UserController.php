@@ -1926,7 +1926,7 @@ class UserController extends Controller
                             "Instagram Posts",
                             "Instagram Story",
                             "Leaderboard Ad",
-                            "Skyscrapper Ad",
+                            "Skyscraper Ad",
                             "Miscellaneous"
                         );
                         $item_count_of_templates = Config::get('constant.ITEM_COUNT_OF_TEMPLATES');
