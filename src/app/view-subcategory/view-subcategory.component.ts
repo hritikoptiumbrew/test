@@ -9,6 +9,7 @@ import { DeleteSubcategoryImageByIdComponent } from '../delete-subcategory-image
 import { AddJsonImagesComponent } from '../add-json-images/add-json-images.component';
 import { AddJsonDataComponent } from '../add-json-data/add-json-data.component';
 import { UpdateJsonDataComponent } from '../update-json-data/update-json-data.component';
+import { MvToCtlgComponent } from '../mv-to-ctlg/mv-to-ctlg.component';
 
 @Component({
   selector: 'app-view-subcategory',
@@ -194,6 +195,19 @@ export class ViewSubcategoryComponent implements OnInit {
       });
   }
 
+  mvTCtlg(category) {
+    let dialogRef = this.dialog.open(MvToCtlgComponent, {
+      disableClose: true,
+      data: { catalog_data: category }
+    });
+    dialogRef.componentInstance.catalog_data = category;
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        this.getAllCategories();
+      }
+    });
+  }
+
   updateSubCategory(category) {
     if (category.is_json_data == 1 || category.is_json_data == "1") {
       let catalog_data = JSON.parse(JSON.stringify(category));
@@ -211,7 +225,7 @@ export class ViewSubcategoryComponent implements OnInit {
     else {
       let sub_category_data = JSON.parse(JSON.stringify(category));
       let dialogRef = this.dialog.open(UpdateSubcategoryImageByIdComponent, {
-        panelClass:'add-image-dialog'
+        panelClass: 'add-image-dialog'
       });
       dialogRef.componentInstance.sub_category_data = sub_category_data;
       dialogRef.afterClosed().subscribe(result => {

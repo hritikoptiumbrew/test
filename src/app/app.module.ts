@@ -70,6 +70,7 @@ import { FontListComponent } from './font-list/font-list.component';
 import { StatisticsComponent } from './statistics/statistics.component';
 import { StatisticsDetailsComponent } from './statistics-details/statistics-details.component';
 import { StatisticsDetailsByCatalogComponent } from './statistics-details-by-catalog/statistics-details-by-catalog.component';
+import { MvToCtlgComponent } from './mv-to-ctlg/mv-to-ctlg.component';
 
 @NgModule({
   declarations: [
@@ -131,6 +132,7 @@ import { StatisticsDetailsByCatalogComponent } from './statistics-details-by-cat
     StatisticsComponent,
     StatisticsDetailsComponent,
     StatisticsDetailsByCatalogComponent,
+    MvToCtlgComponent,
   ],
   imports: [
     BrowserModule,
@@ -188,6 +190,7 @@ import { StatisticsDetailsByCatalogComponent } from './statistics-details-by-cat
     ExistingImagesListComponent,
     StatisticsDetailsComponent,
     StatisticsDetailsByCatalogComponent,
+    MvToCtlgComponent,
   ],
   providers: [DataService, AuthenticationService],
   bootstrap: [AppComponent],
