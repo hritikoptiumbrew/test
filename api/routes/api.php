@@ -220,6 +220,12 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('getSearchTagsForAllSampleImages', 'AdminController@getSearchTagsForAllSampleImages');
     Route::post('getSearchTagsForAllNormalImages', 'AdminController@getSearchTagsForAllNormalImages');
 
+    //Move Template
+    Route::post('moveTemplate', 'AdminController@moveTemplate');
+    Route::post('getAllSubCategoryToMoveTemplate', 'AdminController@getAllSubCategoryToMoveTemplate');
+
+
+
 });
 
 Route::post('addQuestionAnswer','QnAController@addQuestionAnswer');

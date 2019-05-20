@@ -3240,6 +3240,184 @@ class AdminController extends Controller
         return $response;
     }
 
+    /* ======================================== Move Template ===================================== */
+
+    /**
+     * @api {post} moveTemplate moveTemplate
+     * @apiName moveTemplate
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "catalog_id":201, //compulsory
+     * "template_list":[3386] //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Template moved successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function moveTemplate(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $response = (new VerificationController())->validateRequiredArrayParameter(array('template_list'), $request);
+            if ($response != '') {
+                return $response;
+            }
+
+            $catalog_id = $request->catalog_id;
+            $template_list = $request->template_list;
+
+            foreach ($template_list as $key) {
+                DB::beginTransaction();
+                DB::insert('UPDATE images SET catalog_id = ? where id = ?', [$catalog_id, $key]);
+                DB::commit();
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Template moved successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("moveTemplate : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'move template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllSubCategoryToMoveTemplate   getAllSubCategoryToMoveTemplate
+     * @apiName getAllSubCategoryToMoveTemplate
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "img_id":3386 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Sub categories are fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "sub_category_list": [
+     * {
+     * "sub_category_id": 66,
+     * "sub_category_name": "All Templates",
+     * "catalog_list": [
+     * {
+     * "catalog_id": 508,
+     * "catalog_name": "Dhruvit",
+     * "is_linked": 0
+     * }
+     * ]
+     * },
+     * {
+     * "sub_category_id": 88,
+     * "sub_category_name": "Baby Photo Maker",
+     * "catalog_list": [
+     * {
+     * "catalog_id": 274,
+     * "catalog_name": "Baby Collage",
+     * "is_linked": 0
+     * },
+     * {
+     * "catalog_id": 249,
+     * "catalog_name": "Baby with Parents",
+     * "is_linked": 0
+     * }
+     * ]
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllSubCategoryToMoveTemplate(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('img_id'), $request)) != '')
+                return $response;
+
+            $this->img_id = $request->img_id;
+
+            if (!Cache::has("pel:getAllSubCategoryToMoveTemplate$this->img_id")) {
+                $result = Cache::rememberforever("getAllSubCategoryToMoveTemplate$this->img_id", function () {
+
+                    $sub_categories = DB::select('SELECT
+                                                        distinct sc.id AS sub_category_id,
+                                                        sc.name AS sub_category_name
+                                                      FROM sub_category sc
+                                                        LEFT JOIN sub_category_catalog AS scc ON sc.id=scc.sub_category_id AND scc.is_active=1
+                                                      WHERE
+                                                        sc.is_active = 1 AND 
+                                                        sc.is_featured = 1
+                                                      ORDER BY name');
+
+                    foreach ($sub_categories as $key) {
+                        $catalogs = DB::select('SELECT
+                                                      DISTINCT scc.catalog_id,
+                                                      cm.name AS catalog_name,
+                                                      ifnull ((SELECT 1 FROM images AS im WHERE im.id = ? AND scc.catalog_id = im.catalog_id),0) AS is_linked
+                                                    FROM sub_category_catalog AS scc
+                                                      JOIN catalog_master AS cm
+                                                        ON cm.id=scc.catalog_id AND
+                                                           cm.is_active=1 AND
+                                                           cm.is_featured = 1
+                                                    WHERE
+                                                      scc.is_active = 1 AND
+                                                      scc.sub_category_id = ?
+                                                    ORDER BY name', [$this->img_id, $key->sub_category_id]);
+
+                        $key->catalog_list = $catalogs;
+
+                    }
+
+                    return $sub_categories;
+
+                });
+
+            }
+
+            $redis_result = Cache::get("getAllSubCategoryToMoveTemplate$this->img_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Sub categories are fetched successfully.', 'cause' => '', 'data' => ['sub_category_list' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllSubCategoryToLinkTemplate : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /* ========================================= URL ============================================== */
 
     /**
@@ -9023,7 +9201,7 @@ class AdminController extends Controller
 
             }
 
-                $result_array = array('total_records_to_update' => $total_sample_images[0]->total, 'updated_images' => $updated_samples, 'remaining_images' => $remaining_samples);
+            $result_array = array('total_records_to_update' => $total_sample_images[0]->total, 'updated_images' => $updated_samples, 'remaining_images' => $remaining_samples);
             $result = json_decode(json_encode($result_array), true);
 
             $response = Response::json(array('code' => 200, 'message' => 'Search tags added successfully.', 'cause' => '', 'data' => $result));

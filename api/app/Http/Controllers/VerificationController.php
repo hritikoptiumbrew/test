@@ -62,7 +62,7 @@ class VerificationController extends Controller
 
         foreach ($required_fields as $key => $value) {
             if (isset($request_params->$value)) {
-                if (!is_array($request_params->$value)) {
+                /*if (!is_array($request_params->$value)) {
                     $error = true;
                     $error_fields .= ' ' . $value . ',';
                 } else {
@@ -70,7 +70,7 @@ class VerificationController extends Controller
                         $error = true;
                         $error_fields .= ' ' . $value . ',';
                     }
-                }
+                }*/
             } else {
                 $error = true;
                 $error_fields .= ' ' . $value . ',';

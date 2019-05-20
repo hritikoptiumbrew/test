@@ -140,7 +140,7 @@ class DeleteCacheKey
             }
 
             //Sub Category Images
-            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages') {
+            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages' or $api == '/api/moveTemplate') {
 
                 //Category Wise Images Key
                 $keys = Redis::keys('pel:getImagesByCatalogId*');
@@ -234,6 +234,12 @@ class DeleteCacheKey
 
                 //getFeaturedSamplesWithCatalogs
                 $keys = Redis::keys('pel:getFeaturedSamplesWithCatalogs*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getAllSubCategoryToMoveTemplate
+                $keys = Redis::keys('pel:getAllSubCategoryToMoveTemplate*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
@@ -416,7 +422,7 @@ class DeleteCacheKey
             //Font Module
             if ($api == '/api/addFont' or $api == '/api/editFont' or $api == '/api/deleteFont') {
 
-                //getAllFontsByCatalogIdForAdmin
+                /*//getAllFontsByCatalogIdForAdmin
                 $keys = Redis::keys('pel:getAllFontsByCatalogIdForAdmin*');
                 foreach ($keys as $key) {
                     Redis::del($key);
@@ -424,6 +430,12 @@ class DeleteCacheKey
 
                 //getAllFontsByCatalogId
                 $keys = Redis::keys('pel:getAllFontsByCatalogId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }*/
+
+                //getAllFontsByCatalogId, getAllFontsByCatalogIdForAdmin & getAllFonts
+                $keys = Redis::keys('pel:getAllFonts*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }

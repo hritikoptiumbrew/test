@@ -1509,6 +1509,35 @@
   },
   {
     "type": "post",
+    "url": "getAllSubCategoryToMoveTemplate",
+    "title": "getAllSubCategoryToMoveTemplate",
+    "name": "getAllSubCategoryToMoveTemplate",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"img_id\":3386 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub categories are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"sub_category_list\": [\n{\n\"sub_category_id\": 66,\n\"sub_category_name\": \"All Templates\",\n\"catalog_list\": [\n{\n\"catalog_id\": 508,\n\"catalog_name\": \"Dhruvit\",\n\"is_linked\": 0\n}\n]\n},\n{\n\"sub_category_id\": 88,\n\"sub_category_name\": \"Baby Photo Maker\",\n\"catalog_list\": [\n{\n\"catalog_id\": 274,\n\"catalog_name\": \"Baby Collage\",\n\"is_linked\": 0\n},\n{\n\"catalog_id\": 249,\n\"catalog_name\": \"Baby with Parents\",\n\"is_linked\": 0\n}\n]\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "getAllTags",
     "title": "getAllTags",
     "name": "getAllTags",
@@ -1799,6 +1828,35 @@
   },
   {
     "type": "post",
+    "url": "getSearchTagsForAllNormalImages",
+    "title": "getSearchTagsForAllNormalImages",
+    "name": "getSearchTagsForAllNormalImages",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "request_data:{\n\"img_id\": 356,\n\"is_free\": 1,\n\"is_featured\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 800,\n\"width\": 500\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_15.7\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_15.7\",\n\"is_featured\": 0,\n\"height\": 800,\n\"width\": 800\n}\n},\nfile:image1.jpeg\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Json data updated successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "getSearchTagsForAllSampleImages",
     "title": "getSearchTagsForAllSampleImages",
     "name": "getSearchTagsForAllSampleImages",
@@ -1964,6 +2022,35 @@
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Catalog Linked Successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "moveTemplate",
+    "title": "moveTemplate",
+    "name": "moveTemplate",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"catalog_id\":201, //compulsory\n\"template_list\":[3386] //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Template moved successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -2509,7 +2596,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"img_id\":1, //compulsory\n\"search_category\":\"test,abc\" //compulsory\n}\nfile:\"\" //compulsory",
+          "content": "{\nrequest_data:{\n\"img_id\":1, //compulsory\n\"search_category\":\"test,abc\" //optional\n}\nfile:\"\" //compulsory\n}",
           "type": "json"
         },
         {
@@ -4168,6 +4255,35 @@
       ]
     },
     "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getImagesFromPixabay",
+    "title": "getImagesFromPixabay",
+    "name": "getImagesFromPixabay",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"page\":1, //compulsory\n\"search_query\":\"nature\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Images fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"user_profile_url\": \"https://pixabay.com/users/\",\n\"is_next_page\": true,\n\"is_cache\": 0,\n\"result\": {\n\"totalHits\": 500,\n\"hits\": [\n{\n\"largeImageURL\": \"https://pixabay.com/get/e835b60d20f6023ed1584d05fb1d4797e47ee0dc1fb70c4090f5c071a1edb3bcdd_1280.jpg\",\n\"webformatHeight\": 373,\n\"webformatWidth\": 640,\n\"likes\": 1918,\n\"imageWidth\": 3160,\n\"id\": 1072823,\n\"user_id\": 1720744,\n\"views\": 546053,\n\"comments\": 218,\n\"pageURL\": \"https://pixabay.com/photos/road-forest-season-autumn-fall-1072823/\",\n\"imageHeight\": 1846,\n\"webformatURL\": \"https://pixabay.com/get/e835b60d20f6023ed1584d05fb1d4797e47ee0dc1fb70c4090f5c071a1edb3bcdd_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 87,\n\"tags\": \"road, forest, season\",\n\"downloads\": 219192,\n\"user\": \"valiunic\",\n\"favorites\": 1634,\n\"imageSize\": 3819762,\n\"previewWidth\": 150,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/12/01/20-20-44-483_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072823_150.jpg\"\n}\n],\n\"total\": 248144\n}\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/PixabayController_14_05_2019.php",
     "groupTitle": "User"
   },
   {
