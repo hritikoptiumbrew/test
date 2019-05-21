@@ -54,7 +54,7 @@ export class UpdateJsonDataComponent implements OnInit {
 
   ngOnInit() {
     this.token = localStorage.getItem('photoArtsAdminToken');
-    this.catalog_data.json_data = JSON.stringify(this.catalog_data.json_data);
+    this.catalog_data.json_data = JSON.stringify(this.catalog_data.json_data, null, 2);
     if (typeof this.catalog_data.search_category == "undefined" || this.catalog_data.search_category.trim() == "" || this.catalog_data.search_category == null) {
       this.selected_search_tags = [];
     }
