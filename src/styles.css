@@ -1,4 +1,5 @@
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+
 html,
 body {
     height: 100%;
@@ -692,6 +693,14 @@ img {
 
 .mat-expansion-indicator {
     line-height: 48px !important;
+}
+
+.mb-ctlg-acc .mat-expansion-indicator {
+    line-height: 34px !important;
+}
+
+.mb-ctlg-acc .mat-expansion-panel-header-description {
+    max-width: 145px;
 }
 
 .add-image-dialog {
