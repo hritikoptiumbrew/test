@@ -31,20 +31,20 @@ class ImageController extends Controller
         $image_type = $image_array->getMimeType();
         $image_size = $image_array->getSize();
         //Log::info("Image Size",[$image_size]);
-        //$MAXIMUM_FILESIZE = 10 * 1024 * 1024;
+        //$MAXIMUM_FILESIZE = 1 * 1024 * 1024; //1mb
 
         /*
          * check size into kb
-         * here 150 is kb & 1024 is bytes
+         * here 100 is kb & 1024 is bytes
          * 1kb = 1024 bytes
          * */
 
-        $MAXIMUM_FILESIZE = 150 * 1024;
+        $MAXIMUM_FILESIZE = 100 * 1024;
 
         if (!($image_type == 'image/png' || $image_type == 'image/jpeg'))
             $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file.', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($image_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 50KB.', 'cause' => '', 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 100KB.', 'cause' => '', 'data' => json_decode("{}")));
         else
             $response = '';
         return $response;
@@ -59,16 +59,16 @@ class ImageController extends Controller
 
         /*
          * check size into kb
-         * here 150 is kb & 1024 is bytes
+         * here 200 is kb & 1024 is bytes
          * 1kb = 1024 bytes
          * */
 
-        $MAXIMUM_FILESIZE = 150 * 1024;
+        $MAXIMUM_FILESIZE = 200 * 1024;
 
         if (!($image_type == 'image/png' || $image_type == 'image/jpeg'))
             $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($image_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => 201, 'message' => 'File size is greater then 150KB', 'cause' => '', 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'File size is greater then 200KB', 'cause' => '', 'data' => json_decode("{}")));
         else
             $response = '';
         return $response;

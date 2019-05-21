@@ -5225,7 +5225,7 @@ class AdminController extends Controller
             } else {
 
                 $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                if (($response = (new ImageController())->verifySampleImage($image_array)) != '')
                     return $response;
 
                 if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
@@ -5515,7 +5515,7 @@ class AdminController extends Controller
             DB::beginTransaction();
             if ($request_body->hasFile('file')) {
                 $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                if (($response = (new ImageController())->verifySampleImage($image_array)) != '')
                     return $response;
 
                 if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
