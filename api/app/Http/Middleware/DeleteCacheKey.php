@@ -76,6 +76,18 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getAllSubCategoryToMoveTemplate
+                $keys = Redis::keys('pel:getAllSubCategoryToMoveTemplate*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getCatalogBySubCategoryList
+                $keys = Redis::keys('pel:getCatalogBySubCategoryList*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Catalog-Category
@@ -137,10 +149,22 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getAllSubCategoryToMoveTemplate
+                $keys = Redis::keys('pel:getAllSubCategoryToMoveTemplate*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getCatalogBySubCategoryList
+                $keys = Redis::keys('pel:getCatalogBySubCategoryList*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Sub Category Images
-            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages' or $api == '/api/moveTemplate') {
+            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages' or $api == '/api/moveTemplate' or $api == '/api/addTemplateByZip') {
 
                 //Category Wise Images Key
                 $keys = Redis::keys('pel:getImagesByCatalogId*');

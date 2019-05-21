@@ -5110,7 +5110,7 @@ class AdminController extends Controller
                 $images_array = Input::file('file');
 
                 if ($is_replace == 0) {
-                    if (($response = (new ImageController())->checkIsImageExist($images_array)) != '')
+                    if (($response = (new ImageController())->checkIsImageExist($images_array,0)) != '')
                         return $response;
                 }
 

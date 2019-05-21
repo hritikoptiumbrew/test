@@ -31,12 +31,44 @@ class ImageController extends Controller
         $image_type = $image_array->getMimeType();
         $image_size = $image_array->getSize();
         //Log::info("Image Size",[$image_size]);
-        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
+        //$MAXIMUM_FILESIZE = 10 * 1024 * 1024;
+
+        /*
+         * check size into kb
+         * here 150 is kb & 1024 is bytes
+         * 1kb = 1024 bytes
+         * */
+
+        $MAXIMUM_FILESIZE = 150 * 1024;
+
+        if (!($image_type == 'image/png' || $image_type == 'image/jpeg'))
+            $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file.', 'cause' => '', 'data' => json_decode("{}")));
+        elseif ($image_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 50KB.', 'cause' => '', 'data' => json_decode("{}")));
+        else
+            $response = '';
+        return $response;
+    }
+
+    //Verify Sample Image of cards
+    public function verifySampleImage($image_array)
+    {
+
+        $image_type = $image_array->getMimeType();
+        $image_size = $image_array->getSize();
+
+        /*
+         * check size into kb
+         * here 150 is kb & 1024 is bytes
+         * 1kb = 1024 bytes
+         * */
+
+        $MAXIMUM_FILESIZE = 150 * 1024;
 
         if (!($image_type == 'image/png' || $image_type == 'image/jpeg'))
             $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($image_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 5MB', 'cause' => '', 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'File size is greater then 150KB', 'cause' => '', 'data' => json_decode("{}")));
         else
             $response = '';
         return $response;
@@ -567,7 +599,7 @@ class ImageController extends Controller
     }
 
     //Image Analysis
-    public function  saveImageDetails($image_path, $image_directory)
+    public function saveImageDetails($image_path, $image_directory)
     {
         try {
             //Log::info('file details:',pathinfo($image_path));
@@ -1267,15 +1299,19 @@ class ImageController extends Controller
 
     }
 
-    // Check Is Image Exist
-    public function checkIsImageExist($image_array)
+    //checkIsImageExist
+    public function checkIsImageExist($image_array, $is_name)
     {
         try {
 
             $exist_files_array = array();
             foreach ($image_array as $key) {
 
-                $image = $key->getClientOriginalName();
+                if ($is_name) {
+                    $image = $key;
+                } else {
+                    $image = $key->getClientOriginalName();
+                }
                 $image_url = Config::get('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $image;
 
                 if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
@@ -1301,14 +1337,10 @@ class ImageController extends Controller
             } else {
                 return $response = '';
             }
-
-
         } catch (Exception $e) {
             Log::error("checkIsImageExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return $response = '';
         }
-
-
     }
 
     // Save Thumbnail Image into webp_thumbnail_new
@@ -1482,6 +1514,56 @@ class ImageController extends Controller
             Log::debug("deleteObjectFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
+    }
+
+
+    /*-----------------------------| Function for ZIP |-----------------------------*/
+
+    //save all template resources(Image) uploaded by Zip
+    public function saveResourceImageByZip($image_array, $image)
+    {
+        $resource_path = Config::get('constant.RESOURCE_IMAGES_DIRECTORY');
+        $this->unlinkFileFromLocalStorage($image, $resource_path);
+        $original_path = '../..' . $resource_path;
+        copy($image_array, $original_path . $image);
+    }
+
+    // Save original Image
+    public function saveOriginalImageByZip($image_array, $image)
+    {
+        $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+        copy($image_array, $original_path . $image);
+        $path = $original_path . $image;
+        $this->saveImageDetails($path, 'original');
+    }
+
+    //generate image new name
+    public function generateNewFileNameByZip($image_type, $fileData)
+    {
+        $fileData = pathinfo(basename($fileData));
+        $new_file_name = uniqid() . '_' . $image_type . '_' . time() . '.' . strtolower($fileData['extension']);
+        $path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $new_file_name;
+        if (File::exists($path))
+            $new_file_name = uniqid() . '_' . $image_type . '_' . time() . '.' . $fileData['extension'];
+        return $new_file_name;
+    }
+
+    //verify zip file
+    public function verifyZipFile($image_array)
+    {
+        $file_type = $image_array->getMimeType();
+        $file_size = $image_array->getSize();
+        //Log::info('extension : ', ['extension' => $file_type]);
+        //Log::info("Image Size",[$image_size]);
+        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
+
+        if (!($file_type == 'application/zip'))
+            $response = Response::json(array('code' => 201, 'message' => 'Please select zip file.', 'cause' => '', 'data' => json_decode("{}")));
+        elseif ($file_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => 201, 'message' => 'File size is greater then 10MB.', 'cause' => '', 'data' => json_decode("{}")));
+        else
+            $response = '';
+        return $response;
     }
 
 }
