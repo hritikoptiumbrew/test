@@ -133,7 +133,7 @@ class ZipController extends Controller
                 $json_data = json_decode($json_data);
                 $is_featured = $json_data->is_featured;
                 $is_portrait = $json_data->is_portrait;
-                $is_free = 0;
+                $is_free = 1;
 
                 $response = $this->addjsonTemplateByZip($catalog_id, $json_data, $is_free, $is_featured, $is_portrait, $search_category, $file_dir_in_zip . $sample_img);
                 $data = (json_decode(json_encode($response), true));
@@ -257,18 +257,20 @@ class ZipController extends Controller
 
                     $sub_categories = DB::select('SELECT
                                                         distinct sc.id AS sub_category_id,
-                                                        sc.name AS sub_category_name
+                                                        sc.name AS sub_category_name,
+                                                        sc.updated_at
                                                       FROM sub_category sc
                                                         LEFT JOIN sub_category_catalog AS scc ON sc.id=scc.sub_category_id AND scc.is_active=1
                                                       WHERE
                                                         sc.is_active = 1 AND 
                                                         sc.is_featured = 1
-                                                      ORDER BY name');
+                                                      ORDER BY sc.updated_at DESC');
 
                     foreach ($sub_categories as $key) {
                         $catalogs = DB::select('SELECT
                                                       DISTINCT scc.catalog_id,
-                                                      cm.name AS catalog_name
+                                                      cm.name AS catalog_name,
+                                                      cm.updated_at
                                                     FROM sub_category_catalog AS scc
                                                       JOIN catalog_master AS cm
                                                         ON cm.id=scc.catalog_id AND
@@ -277,7 +279,7 @@ class ZipController extends Controller
                                                     WHERE
                                                       scc.is_active = 1 AND
                                                       scc.sub_category_id = ?
-                                                    ORDER BY name', [$key->sub_category_id]);
+                                                    ORDER BY cm.updated_at DESC', [$key->sub_category_id]);
 
                         $key->catalog_list = $catalogs;
 

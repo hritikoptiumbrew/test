@@ -3369,19 +3369,21 @@ class AdminController extends Controller
 
                     $sub_categories = DB::select('SELECT
                                                         distinct sc.id AS sub_category_id,
-                                                        sc.name AS sub_category_name
+                                                        sc.name AS sub_category_name,
+                                                        sc.updated_at
                                                       FROM sub_category sc
                                                         LEFT JOIN sub_category_catalog AS scc ON sc.id=scc.sub_category_id AND scc.is_active=1
                                                       WHERE
                                                         sc.is_active = 1 AND 
                                                         sc.is_featured = 1
-                                                      ORDER BY name');
+                                                      ORDER BY sc.updated_at DESC');
 
                     foreach ($sub_categories as $key) {
                         $catalogs = DB::select('SELECT
                                                       DISTINCT scc.catalog_id,
                                                       cm.name AS catalog_name,
-                                                      ifnull ((SELECT 1 FROM images AS im WHERE im.id = ? AND scc.catalog_id = im.catalog_id),0) AS is_linked
+                                                      ifnull ((SELECT 1 FROM images AS im WHERE im.id = ? AND scc.catalog_id = im.catalog_id),0) AS is_linked,
+                                                      cm.updated_at
                                                     FROM sub_category_catalog AS scc
                                                       JOIN catalog_master AS cm
                                                         ON cm.id=scc.catalog_id AND
@@ -3390,7 +3392,7 @@ class AdminController extends Controller
                                                     WHERE
                                                       scc.is_active = 1 AND
                                                       scc.sub_category_id = ?
-                                                    ORDER BY name', [$this->img_id, $key->sub_category_id]);
+                                                    ORDER BY cm.updated_at DESC', [$this->img_id, $key->sub_category_id]);
 
                         $key->catalog_list = $catalogs;
 
