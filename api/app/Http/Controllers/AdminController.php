@@ -5116,7 +5116,7 @@ class AdminController extends Controller
 
                 foreach ($images_array as $image_array) {
 
-                    if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                    if (($response = (new ImageController())->verifySampleImage($image_array)) != '')
                         return $response;
 
                     (new ImageController())->saveResourceImage($image_array);
