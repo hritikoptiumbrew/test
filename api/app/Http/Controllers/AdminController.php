@@ -3286,7 +3286,7 @@ class AdminController extends Controller
 
             foreach ($template_list as $key) {
                 DB::beginTransaction();
-                DB::insert('UPDATE images SET catalog_id = ? where id = ?', [$catalog_id, $key]);
+                DB::update('UPDATE images SET catalog_id = ? where id = ?', [$catalog_id, $key]);
                 DB::commit();
             }
 
