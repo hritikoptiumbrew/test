@@ -74,6 +74,45 @@ class ImageController extends Controller
         return $response;
     }
 
+    //Verify Images array
+    public function verifyImagesArray($images_array, $is_resource_images)
+    {
+        $files_array = array();
+        if($is_resource_images == 1)
+        {
+            foreach ($images_array as $key) {
+
+                if (($response = $this->verifySampleImage($key)) != '') {
+                    $file_name = $key->getClientOriginalName();
+                    $data = (json_decode(json_encode($response), true));
+                    $message = $data['original']['message'];
+                    $files_array[] = array('file_name' => $file_name, 'error_message' => $message);
+                }
+            }
+        }
+        else
+        {
+            foreach ($images_array as $key) {
+
+                if (($response = $this->verifyImage($key)) != '') {
+                    $file_name = $key->getClientOriginalName();
+                    $data = (json_decode(json_encode($response), true));
+                    $message = $data['original']['message'];
+                    $files_array[] = array('file_name' => $file_name, 'error_message' => $message);
+                }
+            }
+        }
+
+
+        if (sizeof($files_array) > 0) {
+            $array = array('error_list' => $files_array);
+            $result = json_decode(json_encode($array), true);
+            return $response = Response::json(array('code' => 432, 'message' => 'File is not verified by size or format. Please check error list.', 'cause' => '', 'data' => $result));
+        } else {
+            return $response = '';
+        }
+    }
+
     // Verify Image
     public function validateHeightWidthOfSampleImage($image_array, $json_data)
     {
@@ -238,9 +277,12 @@ class ImageController extends Controller
         $file_type = $image_array->getMimeType();
         $file_size = $image_array->getSize();
         //Log::info("Font file : ", ['type' => $file_type, 'size' => $file_size]);
-        $MAXIMUM_FILESIZE = 1 * 1024 * 1024;
+        $MAXIMUM_FILESIZE = 15 * 1024 * 1024;
 
-        if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/vnd.ms-opentype'))
+        //there is no specific mimetype for otf & ttf so here we used 2 popular type
+
+        //if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/vnd.ms-opentype'))
+        if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/font-sfnt' || $file_type == 'application/vnd.ms-opentype' || $file_type == 'application/x-font-opentype'))
             $response = Response::json(array('code' => 201, 'message' => 'Please select TTF or OTF file.', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($file_size > $MAXIMUM_FILESIZE)
             $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 1MB.', 'cause' => '', 'data' => json_decode("{}")));

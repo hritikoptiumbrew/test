@@ -2048,9 +2048,14 @@ class AdminController extends Controller
             } else {
 
                 $images_array = Input::file('file');
+
+                //To verify all normal images array
+                if (($response = (new ImageController())->verifyImagesArray($images_array,0)) != '')
+                    return $response;
+
                 foreach ($images_array as $image_array) {
-                    if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                        return $response;
+                    /*if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                        return $response;*/
 
                     $tag_list = (new TagDetectController())->getTagInImageByBytes($image_array);
                     if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
@@ -5111,6 +5116,10 @@ class AdminController extends Controller
             if ($request_body->hasFile('file')) {
                 $images_array = Input::file('file');
 
+                //To verify all resource images array
+                if (($response = (new ImageController())->verifyImagesArray($images_array,1)) != '')
+                    return $response;
+
                 if ($is_replace == 0) {
                     if (($response = (new ImageController())->checkIsImageExist($images_array,0)) != '')
                         return $response;
@@ -5118,8 +5127,8 @@ class AdminController extends Controller
 
                 foreach ($images_array as $image_array) {
 
-                    if (($response = (new ImageController())->verifySampleImage($image_array)) != '')
-                        return $response;
+                    /*if (($response = (new ImageController())->verifySampleImage($image_array)) != '')
+                        return $response;*/
 
                     (new ImageController())->saveResourceImage($image_array);
 
