@@ -277,7 +277,7 @@ class ImageController extends Controller
         $file_type = $image_array->getMimeType();
         $file_size = $image_array->getSize();
         //Log::info("Font file : ", ['type' => $file_type, 'size' => $file_size]);
-        $MAXIMUM_FILESIZE = 15 * 1024 * 1024;
+        $MAXIMUM_FILESIZE = 1 * 1024 * 1024;
 
         //there is no specific mimetype for otf & ttf so here we used 2 popular type
 
