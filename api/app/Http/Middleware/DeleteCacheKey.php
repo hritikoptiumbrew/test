@@ -444,7 +444,7 @@ class DeleteCacheKey
             }
 
             //Font Module
-            if ($api == '/api/addFont' or $api == '/api/editFont' or $api == '/api/deleteFont') {
+            if ($api == '/api/addFont' or $api == '/api/editFont' or $api == '/api/deleteFont' or $api == '/api/addInvalidFont') {
 
                 /*//getAllFontsByCatalogIdForAdmin
                 $keys = Redis::keys('pel:getAllFontsByCatalogIdForAdmin*');

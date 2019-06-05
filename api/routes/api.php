@@ -195,6 +195,7 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('deleteFont', 'AdminController@deleteFont');
     Route::post('getAllFontsByCatalogIdForAdmin', 'AdminController@getAllFontsByCatalogIdForAdmin');
     Route::post('getSamplesOfNonCommercialFont', 'AdminController@getSamplesOfNonCommercialFont');
+    Route::post('addInvalidFont', 'AdminController@addInvalidFont'); //API without font file validation
 
     //Fetch table information from database
     Route::post('getDatabaseInfo', 'AdminController@getDatabaseInfo');
@@ -224,7 +225,11 @@ Route::group(['prefix' => '', 'middleware' => ['ability:admin,admin_permission']
     Route::post('moveTemplate', 'AdminController@moveTemplate');
     Route::post('getAllSubCategoryToMoveTemplate', 'AdminController@getAllSubCategoryToMoveTemplate');
 
-
+    //File validation
+    Route::post('addValidation', 'AdminController@addValidation');
+    Route::post('editValidation', 'AdminController@editValidation');
+    Route::post('deleteValidation', 'AdminController@deleteValidation');
+    Route::post('getAllValidationsForAdmin', 'AdminController@getAllValidationsForAdmin');
 
 });
 

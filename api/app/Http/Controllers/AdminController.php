@@ -619,9 +619,6 @@ class AdminController extends Controller
                 $file = Input::file('file');
                 $file_type = $file->getMimeType();
 
-                if (($response = (new ImageController())->verifyImage($file)) != '')
-                    return $response;
-
                 $image = (new ImageController())->generateNewFileName('test_image', $file);
                 (new ImageController())->saveOriginalImage($image);
                 (new ImageController())->saveCompressedImage($image);
@@ -7955,6 +7952,103 @@ class AdminController extends Controller
         return $response;
     }
 
+    /**
+     * @api {post} addInvalidFont   addInvalidFont
+     * @apiName addInvalidFont
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * request_data:{
+     * "catalog_id":280, //compulsory
+     * "ios_font_name":"3d", //optional
+     * "is_replace":1 //compulsory 1=replace font file, 0=don't replace font file
+     * }
+     * file:3d.ttf //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Font added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addInvalidFont(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+            if (($response = (new VerificationController())->validateRequiredParameter(array(
+                    'catalog_id',
+                    'is_replace'
+                ), $request)) != ''
+            )
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            //$ios_font_name = $request->ios_font_name;
+            //$android_font_name = $request->android_font_name;
+            $is_replace = $request->is_replace;
+            $create_at = date('Y-m-d H:i:s');
+            DB::beginTransaction();
+            if (!$request_body->hasFile('file')) {
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+
+                $file_array = Input::file('file');
+
+                if ($is_replace == 0) {
+
+                    if (($response = (new ImageController())->verifyFontFile($file_array)) != '')
+                        return $response;
+
+                    if (($response = (new VerificationController())->checkIsFontExist($file_array)) != '')
+                        return $response;
+                    $file_name = str_replace(" ", "", strtolower($file_array->getClientOriginalName()));
+                } else {
+                    $file_name = $file_array->getClientOriginalName();
+                }
+
+                //$file_name = $file_array->getClientOriginalName();
+                $font_name = (new ImageController())->saveFontFile($file_name, $is_replace);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveFontInToS3($file_name);
+                }
+
+                $android_font_name = "fonts/$file_name";
+                //$ios_font_name = $file_name;
+                $ios_font_name = isset($request->ios_font_name) ? $request->ios_font_name : $file_name;
+
+                DB::insert('INSERT
+                                INTO
+                                  font_master(catalog_id, font_name, font_file, ios_font_name, android_font_name, is_active, create_time)
+                                VALUES(?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $font_name, $file_name, $ios_font_name, $android_font_name, 1, $create_at]);
+
+            }
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Font added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addInvalidFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add invalid font.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     /* =========================================| Statistics Module |=========================================*/
 
     /**
@@ -9222,6 +9316,260 @@ class AdminController extends Controller
             Log::error("getSearchTagsForAllNormalImages : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get search tags for normal images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
+        }
+        return $response;
+    }
+
+    /* =========================================| Manage Validation Module |=========================================*/
+
+    /**
+     * @api {post} addValidation   addValidation
+     * @apiName addValidation
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_name":"Nature" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addValidation(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'validation_name', 'max_value_of_validation'), $request)) != '')
+                return $response;
+
+            $category_id = $request->category_id;
+            $validation_name = $request->validation_name;
+            $max_value_of_validation = $request->max_value_of_validation;
+            $create_time = date('Y-m-d H:i:s');
+
+            $result = DB::select('SELECT * FROM settings_master WHERE validation_name = ? AND category_id = ?', [$validation_name, $category_id]);
+            if (count($result) > 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'Validation already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            DB::beginTransaction();
+
+            DB::insert('INSERT INTO settings_master (category_id, validation_name, max_value_of_validation,is_active, create_time) VALUES(?, ?, ?, ?, ?)', [$category_id, $validation_name, $max_value_of_validation, 1, $create_time]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Validation added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addValidation : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add validation.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} editValidation   editValidation
+     * @apiName editValidation
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_id":1, //compulsory
+     * "tag_name":"Featured" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function editValidation(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('setting_id', 'validation_name', 'max_value_of_validation'), $request)) != '')
+                return $response;
+
+            $setting_id = $request->setting_id;
+            $validation_name = $request->validation_name;
+            $max_value_of_validation = $request->max_value_of_validation;
+
+            $result = DB::select('SELECT * FROM settings_master WHERE validation_name = ? AND id != ?', [$validation_name, $setting_id]);
+            if (count($result) > 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'Validation already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            DB::beginTransaction();
+
+            DB::update('UPDATE
+                              settings_master
+                            SET
+                              validation_name = ?,
+                              max_value_of_validation = ?
+                            WHERE
+                              id = ? ',
+                [$validation_name, $max_value_of_validation, $setting_id]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Validation updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("editValidation : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit validation.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteValidation   deleteValidation
+     * @apiName deleteValidation
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "tag_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag deleted successfully!.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteValidation(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('setting_id'), $request)) != '')
+                return $response;
+
+            $setting_id = $request->setting_id;
+
+            DB::beginTransaction();
+
+            DB::delete('DELETE FROM settings_master where id = ? ', [$setting_id]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Validation deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteValidation : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete validation.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllValidationsForAdmin   getAllValidationsForAdmin
+     * @apiName getAllValidationsForAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All tags fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 4,
+     * "result": [
+     * {
+     * "tag_id": 1,
+     * "tag_name": "test"
+     * },
+     * {
+     * "tag_id": 2,
+     * "tag_name": "Offer & Sales"
+     * },
+     * {
+     * "tag_id": 3,
+     * "tag_name": "Mobile Apps"
+     * },
+     * {
+     * "tag_id": 4,
+     * "tag_name": "Photography"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllValidationsForAdmin()
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!Cache::has("pel:getAllValidationsForAdmin")) {
+                $result = Cache::rememberforever("getAllValidationsForAdmin", function () {
+                    return DB::select('SELECT
+                                        id AS setting_id,
+                                        category_id,
+                                        validation_name,
+                                        max_value_of_validation,
+                                        update_time
+                                        FROM
+                                        settings_master
+                                        WHERE is_active = ?', [1]);
+                });
+            }
+
+            $redis_result = Cache::get("getAllValidationsForAdmin");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'All validations fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllValidationsForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all validations.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
