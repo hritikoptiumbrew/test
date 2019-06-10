@@ -1,11 +1,32 @@
-<div class="col-12 pr-0 pl-0 width-289">
+<div class="col-12 pr-0 pl-0 width-768">
   <div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center">
     <h5 class="title-bar m-0"> Add JSON Images </h5>
   </div>
   <div class="row pb-3">
-    <div class="col-12 text-center pr-0 pl-0">
-      <input type="file" class="form-control" accept="image/*" (change)="fileChange($event)" multiple [(ngModel)]="category_img"
-        id="multipleFiles">
+    <div class="col-12 text-center pr-4 pl-4 pt-4">
+      <input type="file" class="form-control" accept="image/*" (change)="fileChange($event)" multiple
+        [(ngModel)]="category_img" id="multipleFiles">
+    </div>
+  </div>
+  <div class="row pb-3" *ngIf="error_list.length>0">
+    <div class="col-12 pr-2 pl-2 scroll" style="max-height:50vh; overflow:auto;">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr class="table-inverse bg-danger">
+            <th class="pt-1 pb-1 text-center" colspan="2">Invalid files, Please update files correct.</th>
+          </tr>
+          <tr>
+            <th class="pt-1 pb-1" style="width: 350px;">File name</th>
+            <th class="pt-1 pb-1">Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let err_details of error_list; let i = index;">
+            <td class="text-danger pb-1 pt-1">{{err_details.file_name}}</td>
+            <td class="text-danger pb-1 pt-1">{{err_details.error_message}}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
   <div class="row">
@@ -16,7 +37,8 @@
   </div>
   <div class="row pt-2 text-center text-info">
     <div class="col-sm-12 pb-2">
-      <span class="text-danger">{{errorMsg}} </span> <a class="btn" *ngIf="existing_files.length>0" (click)="viewExistingImages(existing_files)">View
+      <span class="text-danger">{{errorMsg}} </span> <a class="btn" *ngIf="existing_files.length>0"
+        (click)="viewExistingImages(existing_files)">View
         Images
       </a>
     </div>

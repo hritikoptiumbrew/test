@@ -16,6 +16,7 @@ export class AddSubcategoryImagesByIdComponent implements OnInit {
   fileList: any;
   file: any;
   formData = new FormData();
+  error_list: any = [];
   successMsg: any;
   errorMsg: any;
   loading: any;
@@ -30,6 +31,7 @@ export class AddSubcategoryImagesByIdComponent implements OnInit {
 
   fileChange(event) {
     this.fileList = event.target.files;
+    this.formData.delete('file[]');
     for (let i = 0; i < this.fileList.length; i++) {
       this.formData.append('file[]', this.fileList[i]);
     }
@@ -42,7 +44,7 @@ export class AddSubcategoryImagesByIdComponent implements OnInit {
       return false;
     }
     else {
-      this.errorMsg="";
+      this.errorMsg = "";
       this.loading = this.dialog.open(LoadingComponent);
       let request_data = {
         'catalog_id': this.catalog_id
@@ -69,6 +71,10 @@ export class AddSubcategoryImagesByIdComponent implements OnInit {
             this.loading.close();
             localStorage.setItem("photoArtsAdminToken", this.token);
             this.addImages();
+          }
+          else if (results.code == 432) {
+            this.error_list = results.data.error_list;
+            this.loading.close();
           }
           else {
             this.loading.close();

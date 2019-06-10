@@ -17,6 +17,7 @@ export class AddJsonImagesComponent implements OnInit {
   file: any;
   formData = new FormData();
   existing_files: any = [];
+  error_list: any = [];
   successMsg: any;
   errorMsg: any;
   loading: any;
@@ -92,6 +93,10 @@ export class AddJsonImagesComponent implements OnInit {
               });
             }
             /* console.log(this.existing_files); */
+          }
+          else if (results.code == 432) {
+            this.error_list = results.data.error_list;
+            this.loading.close();
           }
           else {
             this.loading.close();
