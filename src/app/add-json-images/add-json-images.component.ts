@@ -35,9 +35,15 @@ export class AddJsonImagesComponent implements OnInit {
 
   fileChange(event) {
     this.formData = new FormData();
+    this.error_list = [];
     this.fileList = event.target.files;
     if (this.fileList && this.fileList.length > 0) {
       for (let i = 0; i < this.fileList.length; i++) {
+        var reader = new FileReader();
+        reader.onload = (event: any) => {
+          this.fileList[i].compressed_img = event.target.result;
+        }
+        reader.readAsDataURL(this.fileList[i]);
         this.formData.append('file[]', this.fileList[i]);
       }
     }
@@ -50,6 +56,7 @@ export class AddJsonImagesComponent implements OnInit {
 
   addImages() {
     this.existing_files = [];
+    this.error_list = [];
     if (typeof this.fileList == 'undefined' || this.fileList == "" || this.fileList == null || this.fileList.length <= 0) {
       this.errorMsg = "Please select one or multiple images";
       return false;

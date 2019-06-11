@@ -30,15 +30,28 @@ export class AddSubcategoryImagesByIdComponent implements OnInit {
   }
 
   fileChange(event) {
+    this.formData = new FormData();
+    this.error_list = [];
     this.fileList = event.target.files;
-    this.formData.delete('file[]');
-    for (let i = 0; i < this.fileList.length; i++) {
-      this.formData.append('file[]', this.fileList[i]);
+    if (this.fileList && this.fileList.length > 0) {
+      for (let i = 0; i < this.fileList.length; i++) {
+        var reader = new FileReader();
+        reader.onload = (event: any) => {
+          this.fileList[i].compressed_img = event.target.result;
+        }
+        reader.readAsDataURL(this.fileList[i]);
+        this.formData.append('file[]', this.fileList[i]);
+      }
+    }
+    else {
+      this.fileList = [];
+      this.errorMsg = "";
     }
   }
 
 
   addImages() {
+    this.error_list = [];
     if (typeof this.fileList == 'undefined' || this.fileList == "" || this.fileList == null) {
       this.errorMsg = "Please select one or multiple images";
       return false;
