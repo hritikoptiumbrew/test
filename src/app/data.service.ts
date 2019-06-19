@@ -41,6 +41,10 @@ export class DataService {
       });
   }
 
+  trim(str) {
+    return str.replace(/ /g, '');
+  }
+
   viewImage(imageURL) {
     let dialogRef = this.dialog.open(ViewImageComponent);
     dialogRef.componentInstance.imageSRC = imageURL;

@@ -71,6 +71,8 @@ import { StatisticsComponent } from './statistics/statistics.component';
 import { StatisticsDetailsComponent } from './statistics-details/statistics-details.component';
 import { StatisticsDetailsByCatalogComponent } from './statistics-details-by-catalog/statistics-details-by-catalog.component';
 import { MvToCtlgComponent } from './mv-to-ctlg/mv-to-ctlg.component';
+import { EnterOTPComponent } from './enter-otp/enter-otp.component';
+import { EnterPasswordComponent } from './enter-password/enter-password.component';
 
 @NgModule({
   declarations: [
@@ -133,6 +135,8 @@ import { MvToCtlgComponent } from './mv-to-ctlg/mv-to-ctlg.component';
     StatisticsDetailsComponent,
     StatisticsDetailsByCatalogComponent,
     MvToCtlgComponent,
+    EnterOTPComponent,
+    EnterPasswordComponent,
   ],
   imports: [
     BrowserModule,
@@ -191,6 +195,8 @@ import { MvToCtlgComponent } from './mv-to-ctlg/mv-to-ctlg.component';
     StatisticsDetailsComponent,
     StatisticsDetailsByCatalogComponent,
     MvToCtlgComponent,
+    EnterOTPComponent,
+    EnterPasswordComponent,
   ],
   providers: [DataService, AuthenticationService],
   bootstrap: [AppComponent],

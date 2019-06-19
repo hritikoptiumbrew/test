@@ -1,0 +1,24 @@
+<!-- *****************************************************************************
+OptimumBrew Technology Pvt. Ltd.
+
+Title:            photoadking - admin
+File:             Enter OTP HTML
+Since:            19 June, 2019
+Author:           Umesh Patadiya
+Email:            umeshpatadiya1995@gmail.com
+
+****************************************************************************** -->
+
+<div class="col-12 pt-2 pb-2 pl-4 pr-4 title-bar text-center">
+  <h5 class="title-bar m-0 modal-title"> Please enter the verification code </h5>
+</div>
+<div class="col-12 pt-4 pl-4 pr-4">
+  <md-form-field class="custom-form-controls">
+    <input mdInput type="text" placeholder="Enter verification code here..." name="verify_code"
+      class="d-block form-control" (keydown.enter)="verify2faOPT(codeData)" [(ngModel)]="codeData.verify_code">
+  </md-form-field>
+</div>
+<div class="col-12 text-center pb-4 pt-1">
+  <button md-raised-button class="btn title-bar mr-3" (click)="verify2faOPT(codeData)">Submit</button>
+  <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+</div>

@@ -4,6 +4,9 @@ import { Router } from '@angular/router';
 import { DataService } from '../data.service';
 import { LoadingComponent } from '../loading/loading.component';
 import { DeleteUserGeneratedComponent } from '../delete-user-generated/delete-user-generated.component';
+import { EnterPasswordComponent } from '../enter-password/enter-password.component';
+import { EnterOTPComponent } from '../enter-otp/enter-otp.component';
+import { ViewImageComponent } from '../view-image/view-image.component';
 
 @Component({
   templateUrl: './settings.component.html'
@@ -20,14 +23,156 @@ export class SettingsComponent implements OnInit {
   tmp_server_list: any[] = [];
   total_record: any;
   new_server_url: any = "";
+  st: any = {};
+  lg_rep: any = {};
 
   constructor(private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.token = localStorage.getItem('photoArtsAdminToken');
+    this.lg_rep = JSON.parse(localStorage.getItem('admin_detail'));
     this.getStatisticsData();
   }
 
   ngOnInit() {
+    // const st: any = {};
     this.token = localStorage.getItem('photoArtsAdminToken');
+    this.st.flap = document.querySelector('#flap');
+    this.st.toggle = document.querySelector('.toggle');
+
+    this.st.choice1 = document.querySelector('#choice1');
+    this.st.choice2 = document.querySelector('#choice2');
+    if (this.lg_rep.google2fa_enable == 0) {
+      this.st.choice2.nextElementSibling.click();
+    }
+    else {
+      this.st.choice1.nextElementSibling.click();
+    }
+    if (this.st.choice1.checked) {
+      this.st.flap.style.backgroundColor = "green";
+    }
+    else {
+      this.st.flap.style.backgroundColor = "red";
+    }
+    this.st.flap.addEventListener('transitionend', () => {
+      if (this.st.choice1.checked) {
+        this.st.flap.style.backgroundColor = "green";
+        this.st.toggle.style.transform = 'rotateY(-15deg)';
+        setTimeout(() => this.st.toggle.style.transform = '', 400);
+      } else {
+        this.st.flap.style.backgroundColor = "red";
+        this.st.toggle.style.transform = 'rotateY(15deg)';
+        setTimeout(() => this.st.toggle.style.transform = '', 400);
+      }
+    })
+  }
+
+  transitionEnd(event) {
+    // console.log(event);
+  }
+
+  updateAuth(data, e) {
+    console.log(data, e);
+    this.st.flap.children[0].textContent = e.target.textContent;
+    if ((data == true && this.lg_rep.google2fa_enable == 1) || (data == false && this.lg_rep.google2fa_enable == 0)) {
+      console.log("DEFAULT");
+    }
+    else {
+      this.google2faChanged(data);
+    }
+  }
+
+  google2faChanged(google2fa_enable) {
+    if (google2fa_enable == true) {
+      this.loading = this.dialog.open(LoadingComponent);
+      this.token = localStorage.getItem('photoArtsAdminToken');
+      this.dataService.postData('enable2faByAdmin',
+        {}, {
+          headers: {
+            'Authorization': 'Bearer ' + this.token
+          }
+        }).subscribe(results => {
+          if (results.code == 200) {
+            this.loading.close();
+            if (results.data && results.data.google2fa_url) {
+              this.router.navigate(['/']);
+              localStorage.removeItem("admin_detail");
+              let imgDialogRef = this.dialog.open(ViewImageComponent);
+              imgDialogRef.componentInstance.imageSRC = results.data.google2fa_url;
+              this.lg_rep.google2fa_secret = results.data.google2fa_secret;
+              this.lg_rep.shouldNavigate = true;
+              imgDialogRef.afterClosed().subscribe(result => {
+                let dialogRef = this.dialog.open(EnterOTPComponent, {
+                  disableClose: true,
+                  panelClass: 'enter-otp-container',
+                  data: this.lg_rep
+                })
+              });
+            }
+            this.showSuccess(results.message, false);
+            this.errorMsg = "";
+            // this.showSuccess(results.message, false);
+          }
+          else if (results.code == 400) {
+            this.loading.close();
+            localStorage.removeItem("photoArtsAdminToken");
+            this.router.navigate(['/admin']);
+          }
+          else if (results.code == 401) {
+            this.token = results.data.new_token;
+            localStorage.setItem("photoArtsAdminToken", this.token);
+            this.getStatisticsData();
+          }
+          else {
+            this.loading.close();
+            this.successMsg = "";
+            // this.errorMsg = results.message;
+            this.errorMsg = "";
+            this.showError(results.message, false);
+          }
+        }, error => {
+          this.loading.close();
+          this.showError("Unable to connect with server, please reload the page.", false);
+          /* console.log(error.status); */
+          /* console.log(error); */
+        });
+    }
+    else if (google2fa_enable == false) {
+      this.openOTPDialog(this.lg_rep);
+    }
+  }
+
+  openEnterPassword() {
+    let dialogRef = this.dialog.open(EnterPasswordComponent, {
+      disableClose: true,
+      panelClass: 'enter-otp-container',
+      data: this.lg_rep
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.lg_rep.google2fa_enable = 1;
+        localStorage.setItem("admin_detail", JSON.stringify(this.lg_rep));
+      }
+      else {
+        this.lg_rep.google2fa_enable = 0;
+        localStorage.setItem("admin_detail", JSON.stringify(this.lg_rep));
+      }
+    });
+  }
+
+  openOTPDialog(admin_detail: any) {
+    admin_detail.shouldNavigate = false;
+    let dialogRef = this.dialog.open(EnterOTPComponent, {
+      disableClose: true,
+      panelClass: 'enter-otp-container',
+      data: admin_detail
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.lg_rep.google2fa_enable = true;
+      }
+      else {
+        localStorage.setItem("admin_detail", JSON.stringify(this.lg_rep));
+      }
+    });
   }
 
   changePassword(passwordData) {
