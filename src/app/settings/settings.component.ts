@@ -7,6 +7,7 @@ import { DeleteUserGeneratedComponent } from '../delete-user-generated/delete-us
 import { EnterPasswordComponent } from '../enter-password/enter-password.component';
 import { EnterOTPComponent } from '../enter-otp/enter-otp.component';
 import { ViewImageComponent } from '../view-image/view-image.component';
+import { ENV_CONFIG } from '../app.constants';
 
 @Component({
   templateUrl: './settings.component.html'
@@ -25,6 +26,7 @@ export class SettingsComponent implements OnInit {
   new_server_url: any = "";
   st: any = {};
   lg_rep: any = {};
+  env: any = ENV_CONFIG;
 
   constructor(private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.token = localStorage.getItem('photoArtsAdminToken');
@@ -35,24 +37,45 @@ export class SettingsComponent implements OnInit {
   ngOnInit() {
     // const st: any = {};
     this.token = localStorage.getItem('photoArtsAdminToken');
-    this.st.flap = document.querySelector('#flap');
-    this.st.toggle = document.querySelector('.toggle');
+    if (ENV_CONFIG.ENABLE_2FA) {
+      this.st.flap = document.querySelector('#flap');
+      this.st.toggle = document.querySelector('.toggle');
 
-    this.st.choice1 = document.querySelector('#choice1');
-    this.st.choice2 = document.querySelector('#choice2');
-    if (this.lg_rep.google2fa_enable == 0) {
-      this.st.choice2.nextElementSibling.click();
+      this.st.choice1 = document.querySelector('#choice1');
+      this.st.choice2 = document.querySelector('#choice2');
+      if (this.lg_rep.google2fa_enable == 0) {
+        this.st.choice2.nextElementSibling.click();
+      }
+      else {
+        this.st.choice1.nextElementSibling.click();
+      }
+      if (this.st.choice1.checked) {
+        this.st.flap.style.backgroundColor = "green";
+      }
+      else {
+        this.st.flap.style.backgroundColor = "red";
+      }
+      this.st.flap.addEventListener('transitionend', () => {
+        if (this.st.choice1.checked) {
+          this.st.flap.style.backgroundColor = "green";
+          this.st.toggle.style.transform = 'rotateY(-15deg)';
+          setTimeout(() => this.st.toggle.style.transform = '', 400);
+        } else {
+          this.st.flap.style.backgroundColor = "red";
+          this.st.toggle.style.transform = 'rotateY(15deg)';
+          setTimeout(() => this.st.toggle.style.transform = '', 400);
+        }
+      })
     }
-    else {
-      this.st.choice1.nextElementSibling.click();
-    }
-    if (this.st.choice1.checked) {
-      this.st.flap.style.backgroundColor = "green";
-    }
-    else {
-      this.st.flap.style.backgroundColor = "red";
-    }
-    this.st.flap.addEventListener('transitionend', () => {
+  }
+
+  transitionEnd(event) {
+    // console.log(event);
+  }
+
+  updateAuth(data, e) {
+    this.st.flap.children[0].textContent = e.target.textContent;
+    if ((data == true && this.lg_rep.google2fa_enable == 1) || (data == false && this.lg_rep.google2fa_enable == 0)) {
       if (this.st.choice1.checked) {
         this.st.flap.style.backgroundColor = "green";
         this.st.toggle.style.transform = 'rotateY(-15deg)';
@@ -62,18 +85,6 @@ export class SettingsComponent implements OnInit {
         this.st.toggle.style.transform = 'rotateY(15deg)';
         setTimeout(() => this.st.toggle.style.transform = '', 400);
       }
-    })
-  }
-
-  transitionEnd(event) {
-    // console.log(event);
-  }
-
-  updateAuth(data, e) {
-    console.log(data, e);
-    this.st.flap.children[0].textContent = e.target.textContent;
-    if ((data == true && this.lg_rep.google2fa_enable == 1) || (data == false && this.lg_rep.google2fa_enable == 0)) {
-      console.log("DEFAULT");
     }
     else {
       this.google2faChanged(data);
@@ -99,6 +110,7 @@ export class SettingsComponent implements OnInit {
               imgDialogRef.componentInstance.imageSRC = results.data.google2fa_url;
               this.lg_rep.google2fa_secret = results.data.google2fa_secret;
               this.lg_rep.shouldNavigate = true;
+              localStorage.setItem("admin_detail", JSON.stringify(this.lg_rep));
               imgDialogRef.afterClosed().subscribe(result => {
                 let dialogRef = this.dialog.open(EnterOTPComponent, {
                   disableClose: true,

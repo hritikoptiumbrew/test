@@ -44,6 +44,7 @@ export class EnterOTPComponent implements OnInit {
           /* console.log(results); */
           if (results.code == 200) {
             this.loading ? this.loading.close() : '';
+            this.admin_detail = results.data.user_detail;
             this.dialogRef.close();
             localStorage.setItem("photoArtsAdminToken", results.data.token);
             localStorage.setItem("admin_detail", JSON.stringify(this.admin_detail));
@@ -96,8 +97,10 @@ export class EnterOTPComponent implements OnInit {
               localStorage.setItem("photoArtsAdminToken", results.data.token);
               localStorage.setItem("admin_detail", JSON.stringify(this.admin_detail));
               localStorage.setItem("admin_detail", JSON.stringify(results.data.user_detail));
+              this.admin_detail = results.data.user_detail;
+              this.token = localStorage.getItem('photoArtsAdminToken');
               this.loading ? this.loading.close() : '';
-              this.dialogRef.close();
+              this.dialogRef.close(this.admin_detail);
               this.showSuccess(results.message, false);
               if (this.admin_detail.shouldNavigate == true) {
                 this.router.navigate(['/']);

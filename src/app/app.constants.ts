@@ -1,10 +1,10 @@
 export const HOST = Object.freeze({
-    BASE_URL: 'http://192.168.0.113/photo_editor_lab_backend/api/public/api/'
+    /* BASE_URL: 'http://192.168.0.113/photo_editor_lab_backend/api/public/api/' */
     /* BASE_URL: 'https://photoeditorlab.co.in/photo_editor_lab_backend/api/public/api/' */
-    /* BASE_URL: '../api/public/api/' */
+    BASE_URL: '../api/public/api/'
 });
 
-export const ENV_CONFIG = Object.freeze({ "development": true, ENABLE_2FA: true, });
+export const ENV_CONFIG = Object.freeze({ "development": true, ENABLE_2FA: false, });
 
 export const ERROR = Object.freeze({
     OFFLINE: 'Unable to connect with server, please try again.',

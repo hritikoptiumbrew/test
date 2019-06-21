@@ -50,7 +50,7 @@ export class LoginComponent {
             localStorage.setItem('photoArtsAdminToken', results.data.token);
             this.admin_detail = results.data.user_detail;
             this.loading.close();
-            this.successMsg = results.message;
+            // this.successMsg = results.message;
             if (ENV_CONFIG.ENABLE_2FA === true) {
               if (this.admin_detail.google2fa_enable == 0 || this.admin_detail.google2fa_enable == false) {
                 localStorage.setItem('photoArtsAdminToken', results.data.token);
