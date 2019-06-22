@@ -1824,218 +1824,6 @@ class UserController extends Controller
         return $response;
     }
 
-    /**
-     * @api {post} getJsonSampleDataFilterBySearchTag   getJsonSampleDataFilterBySearchTag
-     * @apiName getJsonSampleDataFilterBySearchTag
-     * @apiGroup User
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":97, //compulsory
-     * "search_category":"Leaderboard Ad", //optional for templates screen
-     * "page":1, //optional for templates screen
-     * "item_count":20 //optional for templates screen
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Templates fetched successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 11,
-     * "is_next_page": false,
-     * "templates_with_categories": [
-     * {
-     * "category_name": "Logos",
-     * "content_list": []
-     * },
-     * {
-     * "category_name": "Business Cards",
-     * "content_list": [
-     * {
-     * "json_id": 4768,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5cac6c693d405_json_image_1554803817.webp",
-     * "is_free": 1,
-     * "is_featured": 0,
-     * "is_portrait": 0,
-     * "height": 300,
-     * "width": 525,
-     * "updated_at": "2019-04-10 08:09:41"
-     * }
-     * ]
-     * },
-     * {
-     * "category_name": "Flyers",
-     * "content_list": [
-     * {
-     * "json_id": 3390,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp",
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "is_portrait": 1,
-     * "height": 400,
-     * "width": 325,
-     * "updated_at": "2019-03-30 06:01:38"
-     * }
-     * ]
-     * }
-     * ],
-     * "template_list": []
-     * }
-     * }
-     */
-    public function getJsonSampleDataFilterBySearchTag(Request $request_body)
-    {
-
-        try {
-
-            /*================| This API only used for Brand Maker |===============*/
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
-                return $response;
-
-            $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = isset($request->search_category) ? strtolower(trim($request->search_category)) : "";
-            $this->page = isset($request->page) ? $request->page : 1;
-            $this->item_count = isset($request->item_count) ? $request->item_count : 20;
-            $this->offset = ($this->page - 1) * $this->item_count;
-
-
-            if (!Cache::has("pel:getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count", function () {
-
-
-                    if ($this->search_category == "") {
-                        //$category_list = array("Flyers", "Business Card", "Brochures", "Banners", "Social Media Post");
-                        $category_list = array(
-                            "Logos",
-                            "Business Cards",
-                            "Flyers",
-                            "Brochures",
-                            "Facebook Posts",
-                            "A4 Letterhead",
-                            "Instagram Posts",
-                            "Instagram Story",
-                            "Leaderboard Ad",
-                            "Skyscraper Ad",
-                            "Miscellaneous"
-                        );
-                        $item_count_of_templates = Config::get('constant.ITEM_COUNT_OF_TEMPLATES');
-
-                        $categories_data = array();
-                        foreach ($category_list as $key) {
-
-                            $search_text = "%$key%";
-                            $content_list = DB::select('SELECT
-                                                          im.id as json_id,
-                                                          IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
-                                                          im.is_free,
-                                                          im.is_featured,
-                                                          im.is_portrait,
-                                                          coalesce(im.height,0) AS height,
-                                                          coalesce(im.width,0) AS width,
-                                                          im.updated_at
-                                                        FROM
-                                                          images as im,
-                                                          catalog_master AS cm,
-                                                          sub_category_catalog AS scc
-                                                        WHERE
-                                                          im.is_active = 1 AND
-                                                          im.catalog_id = scc.catalog_id AND
-                                                          cm.id = scc.catalog_id AND
-                                                          cm.is_featured = 1 AND
-                                                          scc.sub_category_id = ? AND
-                                                          isnull(im.original_img) AND
-                                                          isnull(im.display_img) AND
-                                                          im.search_category LIKE ?
-                                                        ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, 0, $item_count_of_templates]);
-
-                            $categories_data[] = array('category_name' => $key, 'content_list' => $content_list);
-
-                        }
-                        $total_row = count($category_list);
-                        $search_result = [];
-                    } else {
-                        $search_text = "%$this->search_category%";
-                        $total_row_result = DB::select('SELECT count(*) as total
-                                                FROM
-                                                  images as im,
-                                                  catalog_master AS cm,
-                                                  sub_category_catalog AS scc
-                                                WHERE
-                                                  im.is_active = 1 AND
-                                                  im.catalog_id = scc.catalog_id AND
-                                                  cm.id = scc.catalog_id AND
-                                                  cm.is_featured = 1 AND
-                                                  scc.sub_category_id = ? AND
-                                                  isnull(im.original_img) AND
-                                                  isnull(im.display_img) AND
-                                                  im.search_category LIKE ?
-                                                ORDER BY im.updated_at DESC', [$this->sub_category_id, $search_text]);
-
-                        $total_row = $total_row_result[0]->total;
-
-                        $search_result = DB::select('SELECT
-                                                  im.id as json_id,
-                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
-                                                  im.is_free,
-                                                  im.is_featured,
-                                                  im.is_portrait,
-                                                  coalesce(im.height,0) AS height,
-                                                  coalesce(im.width,0) AS width,
-                                                  im.updated_at
-                                                FROM
-                                                  images as im,
-                                                  catalog_master AS cm,
-                                                  sub_category_catalog AS scc
-                                                WHERE
-                                                  im.is_active = 1 AND
-                                                  im.catalog_id = scc.catalog_id AND
-                                                  cm.id = scc.catalog_id AND
-                                                  cm.is_featured = 1 AND
-                                                  scc.sub_category_id = ? AND
-                                                  isnull(im.original_img) AND
-                                                  isnull(im.display_img) AND
-                                                  im.search_category LIKE ?
-                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, $this->offset, $this->item_count]);
-                        $categories_data = [];
-
-                    }
-
-                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                    $result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'templates_with_categories' => $categories_data, 'template_list' => $search_result);
-
-                    return $result;
-
-                });
-            }
-
-            $redis_result = Cache::get("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Templates fetched successfully.', 'cause' => '', 'data' => $redis_result));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch
-        (Exception $e) {
-            Log::error("getJsonSampleDataFilterBySearchTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
     //get all samples without pagination
     /**
      * @api {post} getAllSamplesWithWebp   getAllSamplesWithWebp
@@ -4335,6 +4123,222 @@ class UserController extends Controller
         } catch (Exception $e) {
             Log::error("getAllFontsByCatalogId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /*================| This API only used for Brand Maker |===============*/
+
+    /**
+     * @api {post} getJsonSampleDataFilterBySearchTag   getJsonSampleDataFilterBySearchTag
+     * @apiName getJsonSampleDataFilterBySearchTag
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":97, //compulsory
+     * "search_category":"Leaderboard Ad", //optional for templates screen
+     * "page":1, //optional for templates screen
+     * "item_count":20 //optional for templates screen
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Templates fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 11,
+     * "is_next_page": false,
+     * "templates_with_categories": [
+     * {
+     * "category_name": "Logos",
+     * "content_list": []
+     * },
+     * {
+     * "category_name": "Business Cards",
+     * "content_list": [
+     * {
+     * "json_id": 4768,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5cac6c693d405_json_image_1554803817.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 0,
+     * "height": 300,
+     * "width": 525,
+     * "updated_at": "2019-04-10 08:09:41"
+     * }
+     * ]
+     * },
+     * {
+     * "category_name": "Flyers",
+     * "content_list": [
+     * {
+     * "json_id": 3390,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 1,
+     * "height": 400,
+     * "width": 325,
+     * "updated_at": "2019-03-30 06:01:38"
+     * }
+     * ]
+     * }
+     * ],
+     * "template_list": []
+     * }
+     * }
+     */
+    public function getJsonSampleDataFilterBySearchTag(Request $request_body)
+    {
+
+        try {
+
+            /*================| This API only used for Brand Maker |===============*/
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->search_category = isset($request->search_category) ? strtolower(trim($request->search_category)) : "";
+            $this->page = isset($request->page) ? $request->page : 1;
+            $this->item_count = isset($request->item_count) ? $request->item_count : 20;
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+
+            if (!Cache::has("pel:getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count")) {
+                $result = Cache::rememberforever("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count", function () {
+
+
+                    if ($this->search_category == "") {
+                        //$category_list = array("Flyers", "Business Card", "Brochures", "Banners", "Social Media Post");
+                        $category_list = array(
+                            "Quotes",
+                            "Logos",
+                            "Business Cards",
+                            "Flyers",
+                            "Brochures",
+                            "Facebook Posts",
+                            "A4 Letterhead",
+                            "Instagram Posts",
+                            "Instagram Story",
+                            "Leaderboard Ad",
+                            "Skyscraper Ad",
+                            "Miscellaneous"
+
+                        );
+                        $item_count_of_templates = Config::get('constant.ITEM_COUNT_OF_TEMPLATES');
+
+                        $categories_data = array();
+                        foreach ($category_list as $key) {
+
+                            $search_text = "%$key%";
+                            $content_list = DB::select('SELECT
+                                                          im.id as json_id,
+                                                          IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                          im.is_free,
+                                                          im.is_featured,
+                                                          im.is_portrait,
+                                                          coalesce(im.height,0) AS height,
+                                                          coalesce(im.width,0) AS width,
+                                                          im.updated_at
+                                                        FROM
+                                                          images as im,
+                                                          catalog_master AS cm,
+                                                          sub_category_catalog AS scc
+                                                        WHERE
+                                                          im.is_active = 1 AND
+                                                          im.catalog_id = scc.catalog_id AND
+                                                          cm.id = scc.catalog_id AND
+                                                          cm.is_featured = 1 AND
+                                                          scc.sub_category_id = ? AND
+                                                          isnull(im.original_img) AND
+                                                          isnull(im.display_img) AND
+                                                          im.search_category LIKE ?
+                                                        ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, 0, $item_count_of_templates]);
+
+                            $categories_data[] = array('category_name' => $key, 'content_list' => $content_list);
+
+                        }
+                        $total_row = count($category_list);
+                        $search_result = [];
+                    } else {
+                        $search_text = "%$this->search_category%";
+                        $total_row_result = DB::select('SELECT count(*) as total
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img) AND
+                                                  im.search_category LIKE ?
+                                                ORDER BY im.updated_at DESC', [$this->sub_category_id, $search_text]);
+
+                        $total_row = $total_row_result[0]->total;
+
+                        $search_result = DB::select('SELECT
+                                                  im.id as json_id,
+                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                  im.is_free,
+                                                  im.is_featured,
+                                                  im.is_portrait,
+                                                  coalesce(im.height,0) AS height,
+                                                  coalesce(im.width,0) AS width,
+                                                  im.updated_at
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img) AND
+                                                  im.search_category LIKE ?
+                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, $this->offset, $this->item_count]);
+                        $categories_data = [];
+
+                    }
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    $result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'templates_with_categories' => $categories_data, 'template_list' => $search_result);
+
+                    return $result;
+
+                });
+            }
+
+            $redis_result = Cache::get("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Templates fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch
+        (Exception $e) {
+            Log::error("getJsonSampleDataFilterBySearchTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
