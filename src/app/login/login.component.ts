@@ -53,10 +53,10 @@ export class LoginComponent {
             // this.successMsg = results.message;
             if (ENV_CONFIG.ENABLE_2FA === true) {
               if (this.admin_detail.google2fa_enable == 0 || this.admin_detail.google2fa_enable == false) {
-                localStorage.setItem('photoArtsAdminToken', results.data.token);
+                localStorage.setItem('at', results.data.token);
                 this.admin_detail.enable_subcategory = false;
                 localStorage.setItem("admin_detail", JSON.stringify(this.admin_detail));
-                this.router.navigate(['/categories']);
+                this.router.navigate(['/admin/categories']);
               } else if (this.admin_detail.google2fa_enable == 1 || this.admin_detail.google2fa_enable == true) {
                 this.openOTPDialog(this.admin_detail);
               }
@@ -64,9 +64,8 @@ export class LoginComponent {
             else {
               this.admin_detail.enable_subcategory = false;
               localStorage.setItem("admin_detail", JSON.stringify(this.admin_detail));
-              this.router.navigate(['/categories']);
+              this.router.navigate(['/admin/categories']);
             }
-            this.router.navigate(['/admin/categories']);
           }
           else {
             this.successMsg = "";
@@ -77,13 +76,13 @@ export class LoginComponent {
     }
   }
 
-  
+
   openOTPDialog(admin_detail) {
     admin_detail.shouldNavigate = true;
     let dialogRef = this.dialog.open(EnterOTPComponent, {
       disableClose: true,
       panelClass: 'enter-otp-container',
-      data: admin_detail
+      data: { admin_detail: admin_detail, occuredFrom: 'login' }
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

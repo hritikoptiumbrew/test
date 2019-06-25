@@ -4,7 +4,7 @@ export const HOST = Object.freeze({
     BASE_URL: '../api/public/api/'
 });
 
-export const ENV_CONFIG = Object.freeze({ "development": true, ENABLE_2FA: false, });
+export const ENV_CONFIG = Object.freeze({ "development": true, ENABLE_2FA: true, });
 
 export const ERROR = Object.freeze({
     OFFLINE: 'Unable to connect with server, please try again.',

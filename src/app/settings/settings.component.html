@@ -76,11 +76,11 @@
           <div class="col-12 p-3">
             <div class="container">
               <form class="toggle">
-                <input type="radio" id="choice1" name="choice" value="enable">
-                <label for="choice1" (click)="updateAuth(true, $event)">Enabled</label>
-                <input type="radio" id="choice2" name="choice" value="disable">
-                <label for="choice2" (click)="updateAuth(false, $event)">Disabled</label>
-                <div id="flap" (transitionend)="transitionEnd($event)"><span class="content">enable</span></div>
+                <input type="radio" id="choice1" #choice1 name="choice" value="enable">
+                <label for="choice1" (click)="updtAth($event, choice1, true, flap)">Enabled</label>
+                <input type="radio" id="choice2" #choice2 name="choice" value="disable">
+                <label for="choice2" (click)="updtAth($event, choice2, false, flap)">Disabled</label>
+                <div id="flap" #flap><span class="content">{{tfa_status}}</span></div>
               </form>
             </div>
           </div>
@@ -92,22 +92,22 @@
       <table class="table table-hover mb-0">
         <thead>
           <tr class="table-inverse">
-            <th>#</th>
-            <th>Server URL </th>
-            <th>API URL</th>
-            <th class="width-120px text-center">Action</th>
+            <th class="p-2">#</th>
+            <th class="p-2">Server URL </th>
+            <th class="p-2">API URL</th>
+            <th class="width-120px text-center p-2">Action</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let server_details of server_list; let i = index;">
-            <td>{{i+1}}</td>
-            <td *ngIf="server_details.is_editing==false">{{server_details.server_url}}</td>
-            <td *ngIf="server_details.is_editing==true">
-              <input type="text" class="form-control" placeholder="Enter server URL..."
+            <td class="p-2">{{i+1}}</td>
+            <td class="p-2" *ngIf="server_details.is_editing==false">{{server_details.server_url}}</td>
+            <td class="p-2" *ngIf="server_details.is_editing==true">
+              <input type="text" class="form-control c-inpt-md" placeholder="Enter server URL..."
                 [(ngModel)]="server_details.server_url" (keydown.enter)="saveUpdatedServerURL(server_details)">
             </td>
-            <td style="font-size:14px;">{{server_details.api_url}}</td>
-            <td class="text-center c-no-wrap" *ngIf="server_details.is_editing==false">
+            <td class="p-2" style="font-size:14px;">{{server_details.api_url}}</td>
+            <td class="text-center c-no-wrap p-2" *ngIf="server_details.is_editing==false">
               <a title="Update">
                 <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
                   (click)="updateServerURL(server_details)"></i>
@@ -117,7 +117,7 @@
                   (click)="deleteServerURL(server_details)"></i>
               </a>
             </td>
-            <td class="text-center width-140px c-no-wrap pl-1 pr-1" *ngIf="server_details.is_editing==true">
+            <td class="text-center width-140px c-no-wrap pl-1 pr-1 pt-2 pb-2" *ngIf="server_details.is_editing==true">
               <button class="btn btn-sm mr-2 btn-success" (click)="saveUpdatedServerURL(server_details)">SAVE</button>
               <button class="btn btn-sm btn-light" (click)="resetRow(server_details, i)">Cancel</button>
             </td>

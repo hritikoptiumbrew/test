@@ -14,26 +14,49 @@ export class RedisCacheComponent implements OnInit {
   successMsg: any;
   errorMsg: any;
   keys_list: any = [];
+  fl_keyList: any = [];
   delete_cache: any = [];
   total_record: any;
   is_all_checked: any;
   loading: any;
+  key_name: any = '';
 
   constructor(private dataService: DataService, private router: Router, public dialog: MdDialog) {
     this.loading = this.dialog.open(LoadingComponent);
   }
 
+  getFltrdData(keys_list: any[]) {
+    this.fl_keyList = keys_list;
+    return this.fl_keyList;
+  }
+
   selectAll(is_all_checked) {
-    if (is_all_checked == true) {
-      for (let k = 0; k < this.keys_list.length; k++) {
-        this.keys_list[k].is_checked = true;
-        this.delete_cache.push({ "key": this.keys_list[k].key });
+    if (this.fl_keyList.length > 0) {
+      if (is_all_checked == true) {
+        for (let k = 0; k < this.fl_keyList.length; k++) {
+          this.fl_keyList[k].is_checked = true;
+          this.delete_cache.push({ "key": this.fl_keyList[k].key });
+        }
+      }
+      else {
+        for (let k = 0; k < this.fl_keyList.length; k++) {
+          this.fl_keyList[k].is_checked = false;
+          this.delete_cache = [];
+        }
       }
     }
     else {
-      for (let k = 0; k < this.keys_list.length; k++) {
-        this.keys_list[k].is_checked = false;
-        this.delete_cache = [];
+      if (is_all_checked == true) {
+        for (let k = 0; k < this.keys_list.length; k++) {
+          this.keys_list[k].is_checked = true;
+          this.delete_cache.push({ "key": this.keys_list[k].key });
+        }
+      }
+      else {
+        for (let k = 0; k < this.keys_list.length; k++) {
+          this.keys_list[k].is_checked = false;
+          this.delete_cache = [];
+        }
       }
     }
   }
@@ -56,6 +79,7 @@ export class RedisCacheComponent implements OnInit {
   getAllBackgroundCatogory() {
     this.token = localStorage.getItem('photoArtsAdminToken');
     this.keys_list = [];
+    this.key_name = "";
     this.dataService.postData('getRedisKeys',
       {}, {
         headers: {
@@ -105,7 +129,6 @@ export class RedisCacheComponent implements OnInit {
         this.getAllBackgroundCatogory();
       }
     });
-
   }
 
 }

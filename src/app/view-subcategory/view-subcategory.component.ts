@@ -198,7 +198,7 @@ export class ViewSubcategoryComponent implements OnInit {
   mvTCtlg(category) {
     let dialogRef = this.dialog.open(MvToCtlgComponent, {
       disableClose: true,
-      data: { catalog_data: category }
+      data: { catalog_data: category, ctlg_dtls: JSON.parse(localStorage.getItem("selected_catalog")), sc_dtls: JSON.parse(localStorage.getItem("selected_catagory")) }
     });
     dialogRef.componentInstance.catalog_data = category;
     dialogRef.afterClosed().subscribe(result => {

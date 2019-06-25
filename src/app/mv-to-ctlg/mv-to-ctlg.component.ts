@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DataService } from '../data.service';
 import { LoadingComponent } from '../loading/loading.component';
 
+
 @Component({
   selector: 'app-mv-to-ctlg',
   templateUrl: './mv-to-ctlg.component.html',
@@ -12,9 +13,11 @@ import { LoadingComponent } from '../loading/loading.component';
 export class MvToCtlgComponent implements OnInit {
 
   token: any;
-  sub_category_list: any;
+  sub_category_list: any = [];
   catalog_data: any = {};
   sl_ctlg: any = {};
+  sc_dtls: any = {};
+  ctlg_dtls: any = {};
   total_record: any;
   successMsg: any;
   errorMsg: any;
@@ -23,6 +26,8 @@ export class MvToCtlgComponent implements OnInit {
   constructor(public dialogRef: MdDialogRef<MvToCtlgComponent>, @Inject(MD_DIALOG_DATA) public data: any, public route: ActivatedRoute, public snackBar: MdSnackBar, private dataService: DataService, private router: Router, public dialog: MdDialog) {
     this.token = localStorage.getItem("photoArtsAdminToken");
     this.catalog_data = data.catalog_data;
+    this.sc_dtls = data.sc_dtls;
+    this.ctlg_dtls = data.ctlg_dtls;
     this.gtSbCatLst(this.catalog_data);
   }
 
@@ -36,7 +41,9 @@ export class MvToCtlgComponent implements OnInit {
     this.successMsg = "";
     this.dataService.postData('getAllSubCategoryToMoveTemplate',
       {
-        "img_id": catalog_data.img_id
+        "img_id": catalog_data.img_id,
+        "category_id": this.sc_dtls.category_id,
+        "is_featured": this.ctlg_dtls.is_featured
       }, {
         headers: {
           'Authorization': 'Bearer ' + this.token

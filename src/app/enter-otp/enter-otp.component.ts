@@ -17,10 +17,12 @@ export class EnterOTPComponent implements OnInit {
   token: any;
   loading: any;
   admin_detail: any = {};
+  occFrom: any;
 
   constructor(public dialogRef: MdDialogRef<EnterOTPComponent>, @Inject(MD_DIALOG_DATA) public data: any, public dialog: MdDialog, private dataService: DataService, private router: Router, public snackBar: MdSnackBar) {
     this.token = localStorage.getItem('photoArtsAdminToken');
-    this.admin_detail = this.data;
+    this.admin_detail = this.data.admin_detail;
+    this.occFrom = this.data.occuredFrom;
   }
 
   ngOnInit() {
@@ -33,7 +35,7 @@ export class EnterOTPComponent implements OnInit {
       return false;
     }
     else {
-      if (this.admin_detail.shouldNavigate == true) {
+      if (this.admin_detail.shouldNavigate == true || this.occFrom == "change-pwd") {
         this.loading = this.dialog.open(LoadingComponent);
         this.token = localStorage.getItem('photoArtsAdminToken');
         this.dataService.postData("verify2faOPT", {
@@ -43,18 +45,19 @@ export class EnterOTPComponent implements OnInit {
         }, {}).subscribe(results => {
           /* console.log(results); */
           if (results.code == 200) {
-            this.loading ? this.loading.close() : '';
-            this.admin_detail = results.data.user_detail;
-            this.dialogRef.close();
             localStorage.setItem("photoArtsAdminToken", results.data.token);
             localStorage.setItem("admin_detail", JSON.stringify(this.admin_detail));
             localStorage.setItem("admin_detail", JSON.stringify(results.data.user_detail));
-            if (this.admin_detail.shouldNavigate == true) {
-              this.showSuccess(results.message, false);
-              this.router.navigate(['/']);
-            }
-            else {
-              this.showSuccess(ERROR.TWO_FA_DIS_SUCCESS, false);
+            this.loading ? this.loading.close() : '';
+            this.dialogRef.close(results.data.user_detail);
+            if (this.occFrom != "change-pwd") {
+              if (this.admin_detail.shouldNavigate == true) {
+                this.showSuccess(results.message, false);
+                this.router.navigate(['/admin/categories']);
+              }
+              else {
+                this.showSuccess(ERROR.TWO_FA_DIS_SUCCESS, false);
+              }
             }
           }
           else if (results.code == 201) {
@@ -95,15 +98,15 @@ export class EnterOTPComponent implements OnInit {
             /* console.log(results); */
             if (results.code == 200) {
               localStorage.setItem("photoArtsAdminToken", results.data.token);
+              this.admin_detail = results.data.user_detail;
               localStorage.setItem("admin_detail", JSON.stringify(this.admin_detail));
               localStorage.setItem("admin_detail", JSON.stringify(results.data.user_detail));
-              this.admin_detail = results.data.user_detail;
               this.token = localStorage.getItem('photoArtsAdminToken');
+              this.showSuccess(results.message, false);
               this.loading ? this.loading.close() : '';
               this.dialogRef.close(this.admin_detail);
-              this.showSuccess(results.message, false);
               if (this.admin_detail.shouldNavigate == true) {
-                this.router.navigate(['/']);
+                this.router.navigate(['/admin/categories']);
               }
             }
             else if (results.code == 201) {

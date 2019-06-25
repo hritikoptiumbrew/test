@@ -15,32 +15,39 @@
     </div>
     <div class="row pr-0 pl-0">
       <div class="col-sm-12 pr-0 pl-0">
-        <button md-raised-button class="btn pull-right m-1 title-bar align-sub" (click)="deleteFromCache(delete_cache)"><i class="fa fa-trash font-24 align-sub"></i></button>
+        <button md-raised-button class="btn pull-right m-1 title-bar align-sub"
+          (click)="deleteFromCache(delete_cache)"><i class="fa fa-trash font-24 align-sub"></i></button>
       </div>
       <div class="col-sm-12 card-1 pl-0 pr-0 table-responsive mb-3 table-style scroll">
         <table class="table table-hover mb-0">
           <thead>
             <tr class="table-inverse">
-              <th>#</th>
-              <th>Cache Key</th>
+              <th class="width-50px">#</th>
+              <th class="p-1">Cache Key
+                <input type="text" class="form-control search-input-sm" placeholder="Search key..."
+                  [(ngModel)]="key_name">
+              </th>
               <th class="text-center align-middle">
-                <input type="checkbox" class="form-control" [(ngModel)]="is_all_checked" (change)="selectAll(is_all_checked)" />
+                <input type="checkbox" class="option-input checkbox" [(ngModel)]="is_all_checked"
+                  (change)="selectAll(is_all_checked)" />
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let key_detail of keys_list; let i = index;">
+            <tr *ngFor="let key_detail of getFltrdData(keys_list | search:'key':key_name); let i = index;">
               <td>{{i+1}}</td>
               <td>{{key_detail.key}}</td>
               <td class="text-center">
-                <input type="checkbox" class="form-control" [(ngModel)]="key_detail.is_checked" (change)="valueChanged(key_detail)" />
+                <input type="checkbox" class="option-input checkbox" [(ngModel)]="key_detail.is_checked"
+                  (change)="valueChanged(key_detail)" />
               </td>
             </tr>
           </tbody>
         </table>
-        <h5 *ngIf="total_record==0" class="pb-3 pl-3">
+        <h5 *ngIf="total_record==0 || (keys_list | search:'key':key_name).length==0" class="pb-3 pl-3 pt-3">
           No Data Found
         </h5>
       </div>
     </div>
   </div>
+</div>

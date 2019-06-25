@@ -73,6 +73,7 @@ import { StatisticsDetailsByCatalogComponent } from './statistics-details-by-cat
 import { MvToCtlgComponent } from './mv-to-ctlg/mv-to-ctlg.component';
 import { EnterOTPComponent } from './enter-otp/enter-otp.component';
 import { EnterPasswordComponent } from './enter-password/enter-password.component';
+import { SearchPipe } from './search.pipe';
 
 @NgModule({
   declarations: [
@@ -137,6 +138,7 @@ import { EnterPasswordComponent } from './enter-password/enter-password.componen
     MvToCtlgComponent,
     EnterOTPComponent,
     EnterPasswordComponent,
+    SearchPipe,
   ],
   imports: [
     BrowserModule,

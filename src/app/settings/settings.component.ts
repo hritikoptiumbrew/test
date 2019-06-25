@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MdDialog, MdSnackBar, MdSnackBarConfig } from '@angular/material';
 import { Router } from '@angular/router';
 import { DataService } from '../data.service';
@@ -27,6 +27,10 @@ export class SettingsComponent implements OnInit {
   st: any = {};
   lg_rep: any = {};
   env: any = ENV_CONFIG;
+  tfa_status: any = "";
+  @ViewChild('choice1') choice1: ElementRef;
+  @ViewChild('choice2') choice2: ElementRef;
+  @ViewChild('flap') flap: ElementRef;
 
   constructor(private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.token = localStorage.getItem('photoArtsAdminToken');
@@ -34,38 +38,20 @@ export class SettingsComponent implements OnInit {
     this.getStatisticsData();
   }
 
-  ngOnInit() {
-    // const st: any = {};
+  async ngOnInit() {
+    await this.choice1;
+    // console.log(this.choice1);
     this.token = localStorage.getItem('photoArtsAdminToken');
     if (ENV_CONFIG.ENABLE_2FA) {
-      this.st.flap = document.querySelector('#flap');
-      this.st.toggle = document.querySelector('.toggle');
-
-      this.st.choice1 = document.querySelector('#choice1');
-      this.st.choice2 = document.querySelector('#choice2');
-      if (this.lg_rep.google2fa_enable == 0) {
-        this.st.choice2.nextElementSibling.click();
+      this.tfa_status = this.lg_rep.google2fa_enable == 0 ? 'Disabled' : 'Enabled';
+      if (this.lg_rep.google2fa_enable) {
+        await this.choice1.nativeElement.click();
+        this.flap.nativeElement.style.backgroundColor = "green";
       }
       else {
-        this.st.choice1.nextElementSibling.click();
+        this.choice2.nativeElement.click()
+        this.flap.nativeElement.style.backgroundColor = "red";
       }
-      if (this.st.choice1.checked) {
-        this.st.flap.style.backgroundColor = "green";
-      }
-      else {
-        this.st.flap.style.backgroundColor = "red";
-      }
-      this.st.flap.addEventListener('transitionend', () => {
-        if (this.st.choice1.checked) {
-          this.st.flap.style.backgroundColor = "green";
-          this.st.toggle.style.transform = 'rotateY(-15deg)';
-          setTimeout(() => this.st.toggle.style.transform = '', 400);
-        } else {
-          this.st.flap.style.backgroundColor = "red";
-          this.st.toggle.style.transform = 'rotateY(15deg)';
-          setTimeout(() => this.st.toggle.style.transform = '', 400);
-        }
-      })
     }
   }
 
@@ -73,26 +59,13 @@ export class SettingsComponent implements OnInit {
     // console.log(event);
   }
 
-  updateAuth(data, e) {
-    this.st.flap.children[0].textContent = e.target.textContent;
-    if ((data == true && this.lg_rep.google2fa_enable == 1) || (data == false && this.lg_rep.google2fa_enable == 0)) {
-      if (this.st.choice1.checked) {
-        this.st.flap.style.backgroundColor = "green";
-        this.st.toggle.style.transform = 'rotateY(-15deg)';
-        setTimeout(() => this.st.toggle.style.transform = '', 400);
-      } else {
-        this.st.flap.style.backgroundColor = "red";
-        this.st.toggle.style.transform = 'rotateY(15deg)';
-        setTimeout(() => this.st.toggle.style.transform = '', 400);
-      }
-    }
-    else {
-      this.google2faChanged(data);
-    }
+  updtAth(e, choice: ElementRef, enabled, flap: ElementRef) {
+    e.preventDefault();
+    this.google2faChanged(choice, enabled, flap);
   }
 
-  google2faChanged(google2fa_enable) {
-    if (google2fa_enable == true) {
+  google2faChanged(choice, enabled, flap) {
+    if (enabled == true) {
       this.loading = this.dialog.open(LoadingComponent);
       this.token = localStorage.getItem('photoArtsAdminToken');
       this.dataService.postData('enable2faByAdmin',
@@ -102,20 +75,24 @@ export class SettingsComponent implements OnInit {
           }
         }).subscribe(results => {
           if (results.code == 200) {
+            this.choice1.nativeElement.click();
+            this.flap.nativeElement.style.backgroundColor = "green";
+            this.lg_rep.google2fa_enable = 1;
+            this.tfa_status = this.lg_rep.google2fa_enable == 0 ? 'Disabled' : 'Enabled';
             this.loading.close();
             if (results.data && results.data.google2fa_url) {
               this.router.navigate(['/']);
+              localStorage.removeItem("photoArtsAdminToken");
               localStorage.removeItem("admin_detail");
               let imgDialogRef = this.dialog.open(ViewImageComponent);
               imgDialogRef.componentInstance.imageSRC = results.data.google2fa_url;
               this.lg_rep.google2fa_secret = results.data.google2fa_secret;
               this.lg_rep.shouldNavigate = true;
-              localStorage.setItem("admin_detail", JSON.stringify(this.lg_rep));
               imgDialogRef.afterClosed().subscribe(result => {
                 let dialogRef = this.dialog.open(EnterOTPComponent, {
                   disableClose: true,
                   panelClass: 'enter-otp-container',
-                  data: this.lg_rep
+                  data: { admin_detail: this.lg_rep, occuredFrom: 'enable2fa' }
                 })
               });
             }
@@ -147,8 +124,8 @@ export class SettingsComponent implements OnInit {
           /* console.log(error); */
         });
     }
-    else if (google2fa_enable == false) {
-      this.openOTPDialog(this.lg_rep);
+    else if (enabled == false) {
+      this.openOTPDialog(this.lg_rep, 'disable2fa');
     }
   }
 
@@ -162,28 +139,54 @@ export class SettingsComponent implements OnInit {
       if (result) {
         this.lg_rep.google2fa_enable = 1;
         localStorage.setItem("admin_detail", JSON.stringify(this.lg_rep));
+        if (this.lg_rep.google2fa_enable) {
+          this.choice1.nativeElement.click();
+          this.flap.nativeElement.style.backgroundColor = "green";
+        }
+        else {
+          this.choice2.nativeElement.click()
+          this.flap.nativeElement.style.backgroundColor = "red";
+        }
       }
       else {
         this.lg_rep.google2fa_enable = 0;
         localStorage.setItem("admin_detail", JSON.stringify(this.lg_rep));
+        if (this.lg_rep.google2fa_enable) {
+          this.choice1.nativeElement.click();
+          this.flap.nativeElement.style.backgroundColor = "green";
+        }
+        else {
+          this.choice2.nativeElement.click()
+          this.flap.nativeElement.style.backgroundColor = "red";
+        }
       }
     });
   }
 
-  openOTPDialog(admin_detail: any) {
-    admin_detail.shouldNavigate = false;
-    let dialogRef = this.dialog.open(EnterOTPComponent, {
-      disableClose: true,
-      panelClass: 'enter-otp-container',
-      data: admin_detail
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.lg_rep.google2fa_enable = true;
-      }
-      else {
-        localStorage.setItem("admin_detail", JSON.stringify(this.lg_rep));
-      }
+  openOTPDialog(admin_detail: any, occuredFrom): Promise<any> {
+    return new Promise(async (resolve) => {
+      admin_detail.shouldNavigate = false;
+      let dialogRef = this.dialog.open(EnterOTPComponent, {
+        disableClose: true,
+        panelClass: 'enter-otp-container',
+        data: { admin_detail: admin_detail, occuredFrom: occuredFrom }
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result && result.user_name) {
+          this.lg_rep = result;
+          this.tfa_status = this.lg_rep.google2fa_enable == 0 ? 'Disabled' : 'Enabled';
+          localStorage.setItem("admin_detail", JSON.stringify(this.lg_rep));
+          if (this.lg_rep.google2fa_enable) {
+            this.choice1.nativeElement.click();
+            this.flap.nativeElement.style.backgroundColor = "green";
+          }
+          else {
+            this.choice2.nativeElement.click();
+            this.flap.nativeElement.style.backgroundColor = "red";
+          }
+        }
+        resolve({ result: result });
+      });
     });
   }
 
@@ -224,39 +227,44 @@ export class SettingsComponent implements OnInit {
       return false;
     }
     else {
-      this.loading = this.dialog.open(LoadingComponent);
-      this.errorMsg = "";
-      this.successMsg = "";
-      this.dataService.postData("changePassword", {
-        "current_password": passwordData.current_password,
-        "new_password": passwordData.new_password
-      }, {
-          headers: {
-            'Authorization': 'Bearer' + this.token
-          }
-        }).subscribe(results => {
-          if (results.code == 200) {
-            this.passwordData = {};
-            this.cnf_password = "";
-            this.successMsg = results.message;
-            this.loading.close();
-          }
-          else if (results.code == 400) {
-            this.loading.close();
-            localStorage.removeItem("photoArtsAdminToken");
-            this.router.navigate(['/admin']);
-          }
-          else if (results.code == 401) {
-            this.token = results.data.new_token;
-            this.loading.close();
-            localStorage.setItem("photoArtsAdminToken", this.token);
-            this.changePassword(passwordData);
-          }
-          else {
-            this.errorMsg = results.message;
-            this.loading.close();
-          }
-        })
+      this.openOTPDialog(this.lg_rep, 'change-pwd').then((otpResp) => {
+        console.log(otpResp);
+        if (otpResp && otpResp.result && otpResp.result.user_name) {
+          this.loading = this.dialog.open(LoadingComponent);
+          this.errorMsg = "";
+          this.successMsg = "";
+          this.dataService.postData("changePassword", {
+            "current_password": passwordData.current_password,
+            "new_password": passwordData.new_password
+          }, {
+              headers: {
+                'Authorization': 'Bearer' + this.token
+              }
+            }).subscribe(results => {
+              if (results.code == 200) {
+                this.passwordData = {};
+                this.cnf_password = "";
+                this.successMsg = results.message;
+                this.loading.close();
+              }
+              else if (results.code == 400) {
+                this.loading.close();
+                localStorage.removeItem("photoArtsAdminToken");
+                this.router.navigate(['/admin']);
+              }
+              else if (results.code == 401) {
+                this.token = results.data.new_token;
+                this.loading.close();
+                localStorage.setItem("photoArtsAdminToken", this.token);
+                this.changePassword(passwordData);
+              }
+              else {
+                this.errorMsg = results.message;
+                this.loading.close();
+              }
+            });
+        }
+      });
     }
   }
 
