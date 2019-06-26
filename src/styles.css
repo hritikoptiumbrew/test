@@ -277,6 +277,10 @@ body {
     max-width: 75px !important;
 }
 
+.w-100px {
+    width: 100px;
+}
+
 .width-50px {
     width: 50px !important;
     max-width: 50px !important;
@@ -844,8 +848,8 @@ img {
 }
 
 .c-inpt-md {
-    height: 28px;
-    line-height: 28px;
+    height: 30px;
+    line-height: 30px;
     font-size: 15px;
     box-shadow: none !important;
     outline: none !important;

@@ -9,8 +9,9 @@
   </div>
   <div class="col-lg-10 pt-3 pb-3 div-scroll">
     <div class="row pb-2 pt-2 title-bar">
-      <div class="col pl-2 pr-2 text-center">
-        <p class="m-0 font-18">Keys : {{total_record}}</p>
+      <div class="col pl-2 pr-2 text-center d-flex">
+        <input type="text" class="form-control c-inpt-md" placeholder="Search key..." [(ngModel)]="key_name">
+        <p class="m-0 font-18 d-inline-block pull-right pl-5 pr-3 c-no-wrap">Keys : {{total_record}}</p>
       </div>
     </div>
     <div class="row pr-0 pl-0">
@@ -22,12 +23,10 @@
         <table class="table table-hover mb-0">
           <thead>
             <tr class="table-inverse">
-              <th class="width-50px">#</th>
-              <th class="p-1">Cache Key
-                <input type="text" class="form-control search-input-sm" placeholder="Search key..."
-                  [(ngModel)]="key_name">
+              <th class="width-50px p-2">#</th>
+              <th class="p-2">Cache Key
               </th>
-              <th class="text-center align-middle">
+              <th class="text-center align-middle p-1 w-100px">
                 <input type="checkbox" class="option-input checkbox" [(ngModel)]="is_all_checked"
                   (change)="selectAll(is_all_checked)" />
               </th>
