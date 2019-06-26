@@ -227,46 +227,55 @@ export class SettingsComponent implements OnInit {
       return false;
     }
     else {
-      this.openOTPDialog(this.lg_rep, 'change-pwd').then((otpResp) => {
-        console.log(otpResp);
-        if (otpResp && otpResp.result && otpResp.result.user_name) {
-          this.loading = this.dialog.open(LoadingComponent);
-          this.errorMsg = "";
-          this.successMsg = "";
-          this.dataService.postData("changePassword", {
-            "current_password": passwordData.current_password,
-            "new_password": passwordData.new_password
-          }, {
-              headers: {
-                'Authorization': 'Bearer' + this.token
-              }
-            }).subscribe(results => {
-              if (results.code == 200) {
-                this.passwordData = {};
-                this.cnf_password = "";
-                this.successMsg = results.message;
-                this.loading.close();
-              }
-              else if (results.code == 400) {
-                this.loading.close();
-                localStorage.removeItem("photoArtsAdminToken");
-                this.router.navigate(['/admin']);
-              }
-              else if (results.code == 401) {
-                this.token = results.data.new_token;
-                this.loading.close();
-                localStorage.setItem("photoArtsAdminToken", this.token);
-                this.changePassword(passwordData);
-              }
-              else {
-                this.errorMsg = results.message;
-                this.loading.close();
-              }
-            });
-        }
-      });
+      if (!this.lg_rep.google2fa_enable || this.lg_rep.google2fa_enable == 0 || this.lg_rep.google2fa_enable == false) {
+        this.updatePwd(passwordData);
+      }
+      else {
+        this.openOTPDialog(this.lg_rep, 'change-pwd').then((otpResp) => {
+          if (otpResp && otpResp.result && otpResp.result.user_name) {
+            this.updatePwd(passwordData);
+          }
+        });
+      }
     }
   }
+
+  updatePwd(passwordData) {
+    this.loading = this.dialog.open(LoadingComponent);
+    this.errorMsg = "";
+    this.successMsg = "";
+    this.dataService.postData("changePassword", {
+      "current_password": passwordData.current_password,
+      "new_password": passwordData.new_password
+    }, {
+        headers: {
+          'Authorization': 'Bearer' + this.token
+        }
+      }).subscribe(results => {
+        if (results.code == 200) {
+          this.passwordData = {};
+          this.cnf_password = "";
+          this.successMsg = results.message;
+          this.loading.close();
+        }
+        else if (results.code == 400) {
+          this.loading.close();
+          localStorage.removeItem("photoArtsAdminToken");
+          this.router.navigate(['/admin']);
+        }
+        else if (results.code == 401) {
+          this.token = results.data.new_token;
+          this.loading.close();
+          localStorage.setItem("photoArtsAdminToken", this.token);
+          this.updatePwd(passwordData);
+        }
+        else {
+          this.errorMsg = results.message;
+          this.loading.close();
+        }
+      });
+  }
+
 
   getStatisticsData() {
     this.loading = this.dialog.open(LoadingComponent);

@@ -14,31 +14,27 @@
           <div class="col-12 p-2 title-bar text-center">
             <label class="m-0 font-weight-bold"> Change Password </label>
           </div>
-          <div class="col-12 pt-3 pb-3">
-            <div class="col-12 pr-0 pl-0">
-              <label>Current Password<span class="text-danger">*</span></label>
-            </div>
-            <div class="col-12 pr-0 pl-0">
+          <div class="col-12 pt-4">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text font-weight-bold" id="basic-addon1">Current : </span>
+              </div>
               <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
-                [(ngModel)]="passwordData.current_password">
+                [(ngModel)]="passwordData.current_password" aria-describedby="basic-addon1">
             </div>
-          </div>
-          <div class="col-12">
-            <div class="col-12 pr-0 pl-0">
-              <label>New Password<span class="text-danger">*</span></label>
-            </div>
-            <div class="col-12 pr-0 pl-0">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text font-weight-bold" id="basic-addon2">New : </span>
+              </div>
               <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
-                [(ngModel)]="passwordData.new_password">
+                [(ngModel)]="passwordData.new_password" aria-describedby="basic-addon2">
             </div>
-          </div>
-          <div class="col-12 pt-3">
-            <div class="col-12 pr-0 pl-0">
-              <label>Repeat New Password<span class="text-danger">*</span></label>
-            </div>
-            <div class="col-12 pr-0 pl-0">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text font-weight-bold" id="basic-addon3">Repeat : </span>
+              </div>
               <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
-                [(ngModel)]="cnf_password">
+                [(ngModel)]="cnf_password" aria-describedby="basic-addon3">
             </div>
           </div>
           <div class="col-12 text-center">
