@@ -3,12 +3,12 @@
 //////////////////////////////////////////////////////////////////////////////
 //                   OptimumBrew Technology Pvt. Ltd.                       //
 //                                                                          //
-// Title:            suitescene                                             //
+// Title:            Photo Editor Lab                                       //
 // File:             VerificationController.php                             //
-// Since:            11-August-2016                                         //
+// Modified:         17-June-2019                                           //
 //                                                                          //
-// Author:           Dipali Dhanani                                         //
-// Email:            dipali.dhanani@optimumbrew.com                         //
+// Author:           Pinal Patel                                            //
+// Email:            pinal.optimumbrew@gmail.com                            //
 //                                                                          //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,9 @@ use FontLib\Font;
 
 class VerificationController extends Controller
 {
-    // validate required and empty field
+    /* ==================================| Common verifications for all projects |====================================*/
+
+    //validate required and empty field
     public function validateRequiredParameter($required_fields, $request_params)
     {
         $error = false;
@@ -55,6 +57,7 @@ class VerificationController extends Controller
         return $response;
     }
 
+    //validate required array field
     public function validateRequiredArrayParameter($required_fields, $request_params)
     {
         $error = false;
@@ -62,7 +65,7 @@ class VerificationController extends Controller
 
         foreach ($required_fields as $key => $value) {
             if (isset($request_params->$value)) {
-                /*if (!is_array($request_params->$value)) {
+                if (!is_array($request_params->$value)) {
                     $error = true;
                     $error_fields .= ' ' . $value . ',';
                 } else {
@@ -70,7 +73,7 @@ class VerificationController extends Controller
                         $error = true;
                         $error_fields .= ' ' . $value . ',';
                     }
-                }*/
+                }
             } else {
                 $error = true;
                 $error_fields .= ' ' . $value . ',';
@@ -88,7 +91,7 @@ class VerificationController extends Controller
         return $response;
     }
 
-    // validate required field
+    //validate required field
     public function validateRequiredParam($required_fields, $request_params)
     {
         $error = false;
@@ -111,269 +114,7 @@ class VerificationController extends Controller
         return $response;
     }
 
-    // verify otp
-    public function verifyOTP($registration_id, $otp_token)
-    {
-        try {
-            $result = DB::select('SELECT otp_token_expire
-                                  FROM otp_codes
-                                  WHERE user_registration_temp_id = ? AND
-                                        otp_token = ?', [$registration_id, $otp_token]);
-            if (count($result) == 0) {
-                $response = Response::json(array('code' => 201, 'message' => 'OTP is invalid.', 'cause' => '', 'data' => json_decode("{}")));
-            } elseif (strtotime(date(Config::get('constant.DATE_FORMAT'))) > strtotime($result[0]->otp_token_expire)) {
-                $response = Response::json(array('code' => 201, 'message' => 'OTP token expired.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $response = '';
-            }
-        } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-            Log::error('verifyOTP', ['Exception' => $e->getMessage()]);
-        }
-        return $response;
-    }
-
-    // check if user is active
-    public function checkIfUserIsActive($user_id)
-    {
-        try {
-
-            $result = DB::select('SELECT
-                                        um.is_active
-                                        FROM user_master um
-                                        WHERE um.email_id = ?', [$user_id]);
-            $response = ($result[0]->is_active == '1') ? '' : Response::json(array('code' => 201, 'message' => 'You are inactive user. Please contact administrator.', 'cause' => '', 'data' => json_decode("{}")));
-
-        } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    // check if user is Subscribed
-    public function checkIfUserIsSubscribed($user_id)
-    {
-        try {
-            $current_time = date("Y-m-d H:i:s");
-            $result = DB::select('SELECT sub.user_id
-                                        FROM subscriptions sub,
-                                             user_master um
-                                        WHERE sub.user_id=um.user_id AND
-                                              sub.expiration_time > ? AND
-                                              um.user_id = ?', [$current_time, $user_id]);
-
-
-            if (count($result) == 0) {
-                $reActivationURL = (new Utils())->getBaseUrl() . "/join/#/resubscribe/" . $user_id;
-                $response = Response::json(array('code' => 402, 'message' => 'Your subscription has been expired.', 'cause' => $reActivationURL, 'data' => json_decode("{}")));
-            } else {
-                $response = '';
-            }
-
-        } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => 'Your subscription has been expired.', 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    // check if  user is active
-    public function checkIfUserExist($user_id)
-    {
-        try {
-            $result = DB::select('SELECT 1 FROM user_master WHERE email_id = ?', [$user_id]);
-            $response = (sizeof($result) != 0) ? 1 : 0;
-
-        } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-            Log::error('checkIfUserExist', ['Exception' => $e->getMessage()]);
-        }
-        return $response;
-    }
-
-    // verify user
-    public function verifyUser($user_id, $role_name)
-    {
-        try {
-            $result = DB::select('SELECT r.name
-                                  FROM role_user ru, roles r, user_master um
-                                  WHERE r.id = ru.role_id AND
-                                        um.id = ru.user_id AND
-                                        um.email_id = ?', [$user_id]);
-            $response = (sizeof($result) > 0 && $result[0]->name == $role_name) ? '' : Response::json(array('code' => 201, 'message' => 'Unauthorized user.', 'cause' => '', 'data' => json_decode("{}")));
-
-        } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-            Log::error('verifyUser', ['Exception' => $e->getMessage()]);
-        }
-        return $response;
-    }
-
-    // get user role
-    public function getUserRole($user_id)
-    {
-        try {
-            $result = DB::select('SELECT
-                                        r.name
-                                        FROM role_user ru, user_master um, roles r
-                                        WHERE
-                                          um.id = ru.user_id AND
-                                          ru.role_id = r.id AND
-                                          um.user_id = ?', [$user_id]);
-
-            $response = (count($result) > 0) ? $result[0]->name : '';
-
-        } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    // verify setup
-    public function verifySetup($column, $user_id)
-    {
-        try {
-            $result = DB::select('SELECT
-                                    ' . $column . '
-                                    FROM user_master um
-                                    WHERE
-                                      user_id = ?', [$user_id]);
-
-            $response = $result[0]->$column;
-
-        } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    // checkIfSubCategoryExist
-    public function checkIfSubCategoryExist($sub_category_name, $id)
-    {
-        try {
-            if ($id != 0) {
-                $result = DB::select('SELECT *
-                                  FROM sub_category
-                                  WHERE name = ? AND id != ?', [$sub_category_name, $id]);
-            } else {
-                $result = DB::select('SELECT *
-                                  FROM sub_category
-                                  WHERE name = ?', [$sub_category_name]);
-            }
-
-            if (count($result) > 0) {
-                $response = Response::json(array('code' => 201, 'message' => 'Sub category already exist.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $response = '';
-            }
-        } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-            Log::error("checkIfSubCategoryExist Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
-        }
-        return $response;
-    }
-
-    public function checkIfAdvertisementExist($url)
-    {
-        try {
-            $result = DB::select('SELECT * from advertise_links WHERE url = ?', [$url]);
-            if (count($result) >= 1) {
-                $response = Response::json(array('code' => 201, 'message' => 'Advertisement already exist.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $response = '';
-            }
-        } catch (Exception $e) {
-            Log::error(["Exception :", $e->getMessage(), "TraceAsString :", $e->getTraceAsString()]);
-            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-        }
-
-        return $response;
-    }
-
-    public function checkIfPromoCodeExist($promo_code, $package_name)
-    {
-        try {
-            $result = DB::select('SELECT * from promocode_master WHERE promo_code = ?', [$promo_code, $package_name]);
-            if (count($result) >= 1) {
-                $response = Response::json(array('code' => 201, 'message' => 'Promo code already exists.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $response = '';
-            }
-        } catch (Exception $e) {
-            Log::error("checkIfPromoCodeExist Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
-            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-        }
-
-        return $response;
-    }
-
-    //validateItemCount
-    public function validateItemCount($item_count)
-    {
-        try {
-
-            if ($item_count < 3 or $item_count > 200) {
-                $response = Response::json(array('code' => 201, 'message' => 'Item count must be >= 3 and <= 200.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $response = '';
-            }
-        } catch (Exception $e) {
-            Log::error("validateItemCount Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
-            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-        }
-
-        return $response;
-    }
-
-    //validateItemCount
-    public function validateAdvertiseServerId($server_id)
-    {
-        try {
-
-            $result = DB::select('SELECT * from sub_category_advertise_server_id_master WHERE server_id = ?', [$server_id]);
-            if (count($result) >= 1) {
-                $response = Response::json(array('code' => 201, 'message' => 'Server id already exists.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $response = '';
-            }
-        } catch (Exception $e) {
-            Log::error("validateAdvertiseServerId Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
-            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-        }
-
-        return $response;
-    }
-
-    //verifySearchCategory
-    public function verifySearchCategory($search_category)
-    {
-        try {
-            $count = 0;
-            $array_of_search_text = (explode(",", strtolower($search_category)));
-            $result = array();
-            $repeated_tags = array();
-            foreach ($array_of_search_text as $key) {
-                if (!in_array($key, $result) == true) {
-                    $result[] = $key;
-                } else {
-                    $count = $count + 1;
-                    $repeated_tags[] = $key;
-                }
-            }
-            ///Log::info('verifySearchCategory search_tags : ',['search_tags' => implode(',',$result)]);
-
-            if ($count > 0) {
-                return $response = Response::json(array('code' => 201, 'message' => 'Please remove duplicate entry of "'. implode(',',$repeated_tags) .'" from tag selection.', 'cause' => '', 'data' => ['search_tags' => implode(',',$result)]));
-            } else {
-                $response = '';
-            }
-        } catch (Exception $e) {
-            Log::error("verifySearchCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            return Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-        }
-
-        return $response;
-    }
-
+    //validate required parameter by isset(), it will returns error when parameter is set but value is empty
     public function validateIssetRequiredParameter($required_fields, $request_params)
     {
         $error = false;
@@ -401,8 +142,208 @@ class VerificationController extends Controller
         return $response;
     }
 
-    // checkIfCatalogExist
-    public function checkIfCatalogExist($sub_category_id, $catalog_name, $catalog_id)
+    //check if user is active
+    public function checkIfUserIsActive($email_id)
+    {
+        try {
+
+            $result = DB::select('SELECT
+                                        um.is_active
+                                        FROM user_master um
+                                        WHERE um.email_id = ?', [$email_id]);
+            $response = ($result[0]->is_active == '1') ? '' : Response::json(array('code' => 201, 'message' => 'You are inactive user. Please contact to administrator.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("checkIfUserIsActive : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'validate active user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //check if user is exist
+    public function checkIfUserExist($user_id)
+    {
+        try {
+            $result = DB::select('SELECT 1 FROM user_master WHERE email_id = ?', [$user_id]);
+            $response = (sizeof($result) != 0) ? 1 : 0;
+
+        } catch (Exception $e) {
+            Log::error("checkIfUserExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'validate user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //verify user by email & role
+    public function verifyUser($email_id, $role_name)
+    {
+        try {
+            $result = DB::select('SELECT r.name
+                                  FROM role_user ru, roles r, user_master um
+                                  WHERE r.id = ru.role_id AND
+                                        um.id = ru.user_id AND
+                                        um.email_id = ?', [$email_id]);
+            $response = (sizeof($result) > 0 && $result[0]->name == $role_name) ? '' : Response::json(array('code' => 201, 'message' => 'Unauthorized user.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("verifyUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'verify user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //get user role
+    public function getUserRole($user_id)
+    {
+        try {
+            $result = DB::select('SELECT
+                                        r.name
+                                        FROM role_user ru, user_master um, roles r
+                                        WHERE
+                                          um.id = ru.user_id AND
+                                          ru.role_id = r.id AND
+                                          um.id = ?', [$user_id]);
+
+            $response = (count($result) > 0) ? $result[0]->name : '';
+
+        } catch (Exception $e) {
+            Log::error("getUserRole : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get user role.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* ==========================================| Customize verifications |==========================================*/
+
+    //check sub_category is exist or not
+    public function checkIsSubCategoryExist($sub_category_name, $id)
+    {
+        try {
+            if ($id != 0) {
+                $result = DB::select('SELECT *
+                                  FROM sub_category
+                                  WHERE name = ? AND id != ?', [$sub_category_name, $id]);
+            } else {
+                $result = DB::select('SELECT *
+                                  FROM sub_category
+                                  WHERE name = ?', [$sub_category_name]);
+            }
+
+            if (count($result) > 0) {
+                $response = Response::json(array('code' => 201, 'message' => 'Sub category already exist.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+                $response = '';
+            }
+        } catch (Exception $e) {
+            Log::error("checkIsSubCategoryExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'validate sub_category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //check advertise url/link is exist or not
+    public function checkIsAdvertiseLinkExist($url)
+    {
+        try {
+            $result = DB::select('SELECT * from advertise_links WHERE url = ?', [$url]);
+            if (count($result) >= 1) {
+                $response = Response::json(array('code' => 201, 'message' => 'Advertisement already exist.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+                $response = '';
+            }
+        } catch (Exception $e) {
+            Log::error("checkIsAdvertiseLinkExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'validate advertise link.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //check promo code is exist or not
+    public function checkIsPromoCodeExist($promo_code, $package_name)
+    {
+        try {
+            $result = DB::select('SELECT * from promocode_master WHERE promo_code = ?', [$promo_code, $package_name]);
+            if (count($result) >= 1) {
+                $response = Response::json(array('code' => 201, 'message' => 'Promo code already exists.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+                $response = '';
+            }
+        } catch (Exception $e) {
+            Log::error("checkIsPromoCodeExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'validate promo code.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+
+        }
+
+        return $response;
+    }
+
+    //validate item count
+    public function validateItemCount($item_count)
+    {
+        try {
+
+            if ($item_count < 3 or $item_count > 200) {
+                $response = Response::json(array('code' => 201, 'message' => 'Item count must be >= 3 and <= 200.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+                $response = '';
+            }
+        } catch (Exception $e) {
+            Log::error("validateItemCount : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'validate item count.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //check advertise server_id is exist or not
+    public function checkIsAdvertiseServerIdExist($server_id)
+    {
+        try {
+
+            $result = DB::select('SELECT * from sub_category_advertise_server_id_master WHERE server_id = ?', [$server_id]);
+            if (count($result) >= 1) {
+                $response = Response::json(array('code' => 201, 'message' => 'Server id already exists.', 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+                $response = '';
+            }
+        } catch (Exception $e) {
+            Log::error("checkIsAdvertiseServerIdExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'validate server id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //verify search category
+    public function verifySearchCategory($search_category)
+    {
+        try {
+            $count = 0;
+            $array_of_search_text = (explode(",", strtolower($search_category)));
+            $result = array();
+            $repeated_tags = array();
+            foreach ($array_of_search_text as $key) {
+                if (!in_array($key, $result) == true) {
+                    $result[] = $key;
+                } else {
+                    $count = $count + 1;
+                    $repeated_tags[] = $key;
+                }
+            }
+            //Log::info('verifySearchCategory search_tags : ',['search_tags' => implode(',',$result)]);
+
+            if ($count > 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'Please remove duplicate entry of "'. implode(',',$repeated_tags) .'" from tag selection.', 'cause' => '', 'data' => ['search_tags' => implode(',',$result)]));
+            } else {
+                $response = '';
+            }
+        } catch (Exception $e) {
+            Log::error("verifySearchCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'verify search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //validate catalog is exist or not
+    public function checkIsCatalogExist($sub_category_id, $catalog_name, $catalog_id)
     {
         try {
             if ($catalog_id) {
@@ -416,7 +357,7 @@ class VerificationController extends Controller
                                       sct.catalog_id = ct.id AND
                                       ct.name = ? AND
                                       ct.id != ? AND
-                                      sct.is_active = 1', [$sub_category_id, trim($catalog_name), $catalog_id]);
+                                      sct.is_active = ?', [$sub_category_id, trim($catalog_name), $catalog_id, 1]);
             } else {
                 $result = DB::select('SELECT
                                       ct.id
@@ -427,7 +368,7 @@ class VerificationController extends Controller
                                       sct.sub_category_id = ? AND
                                       sct.catalog_id = ct.id AND
                                       ct.name = ? AND
-                                      sct.is_active = 1', [$sub_category_id, trim($catalog_name)]);
+                                      sct.is_active = ?', [$sub_category_id, trim($catalog_name), 1]);
             }
 
             if (count($result) > 0) {
@@ -436,13 +377,13 @@ class VerificationController extends Controller
                 $response = '';
             }
         } catch (Exception $e) {
-            $response = Response::json(array('code' => 201, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
-            Log::error("checkIfCatalogExist Exception :", ['Exception' => $e->getMessage(), "\nTraceAsString :" => $e->getTraceAsString()]);
+            Log::error("checkIsCatalogExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'validate catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
 
-    //checkIsFontExist
+    //check font is exist or not
     public function checkIsFontExist($file_array)
     {
         try {
@@ -478,13 +419,13 @@ class VerificationController extends Controller
             }
 
         } catch (Exception $e) {
-            Log::error("checkIsFontExist Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("checkIsFontExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'check font is exist or not.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
 
-    //getFontName
+    //get font name
     public function getFontName($file_name)
     {
         try {
@@ -495,7 +436,7 @@ class VerificationController extends Controller
             //$font->parse();  // for getFontWeight() to work this call must be done first!
             $FontFullName = $font->getFontFullName();
             $font->close(); //This is must be compulsory to close font object
-            return $FontFullName;
+            $response = $FontFullName;
             /*$FontName = $font->getFontName();
             $FontSubfamily = $font->getFontSubfamily();
             $FontSubfamilyID = $font->getFontSubfamilyID();
@@ -512,10 +453,11 @@ class VerificationController extends Controller
                 'FontPostscriptName' => $FontPostscriptName,
             );*/
 
-
         } catch (Exception $e) {
-            Log::error("getFontName Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("getFontName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get font name.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
+        return $response;
     }
 
 }

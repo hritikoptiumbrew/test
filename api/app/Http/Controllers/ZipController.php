@@ -103,7 +103,7 @@ class ZipController extends Controller
                     $MAXIMUM_FILESIZE = $resource_size * 1024;
 
                     //Log::info(['name'=>$name,'size'=>$size,'statIndex'=> $zip->statIndex($i), 'MAXIMUM_FILESIZE'=>$MAXIMUM_FILESIZE]);
-                    if ($file_extension == 'jpg' OR $file_extension == 'png') {
+                    if ($file_extension == 'jpg' OR $file_extension == 'png' OR $file_extension == 'jpeg') {
                         if ($size > $MAXIMUM_FILESIZE) {
                             $error = Response::json(array('code' => 201, 'message' => 'Resource file Size is greater then ' . $resource_size . ' KB', 'cause' => '', 'data' => json_decode("{}")));
                             break;

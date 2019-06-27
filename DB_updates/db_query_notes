@@ -24,3 +24,8 @@ CREATE TABLE server_url_master (
 	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
 	PRIMARY KEY(id)
 ) ENGINE = INNODB
+
+
+4) PhotoEditorLab : perform following query on database (15 June, 2019)
+----------------------------------------------------------------------------
+ALTER TABLE `user_master` ADD `google2fa_enable` TINYINT(1) NOT NULL DEFAULT '0' AFTER `password`, ADD `google2fa_secret` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `google2fa_enable`;

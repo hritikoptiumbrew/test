@@ -187,6 +187,10 @@ return [
         /* Image Service Provider*/
         Intervention\Image\ImageServiceProvider::class,
 
+        /* Two factor authentication */
+        PragmaRX\Google2FALaravel\ServiceProvider::class
+
+
     ],
 
     /*
@@ -243,6 +247,9 @@ return [
 
         /*Image Service */
         'Image' => Intervention\Image\Facades\Image::class,
+
+        /* Two factor authentication */
+        'Google2FA' => PragmaRX\Google2FALaravel\Facade::class
 
     ],
 

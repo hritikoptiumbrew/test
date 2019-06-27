@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by Optimumbrew.
- * User: admin-2
+ * User: admin & user
  * Date: 05/07/2017
  * Time: 10:00 AM
  */
@@ -171,5 +171,8 @@ return [
 
     /* api key to detect tag from image */
     'CLARIFAI_API_KEY' => env('CLARIFAI_API_KEY'),
+
+    /* host name to identify server for 2FA */
+    'APP_HOST_NAME' => env('APP_HOST_NAME')
 
 ];

@@ -62,7 +62,7 @@ return [
             'region' => env('AWS_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'options' => [
-                'CacheControl' => 'max_age=31536000'
+                'CacheControl' => 'max_age=31536000' //One year: max-age=31536000 (in seconds)
             ],
 
         ],

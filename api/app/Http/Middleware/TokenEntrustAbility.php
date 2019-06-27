@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 
 use Log;
-
+use DB;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
@@ -28,17 +28,48 @@ class TokenEntrustAbility extends BaseMiddleware
         try {
             $user = $this->auth->authenticate($token);
             //Log::info("Token", ["token :" => $token, "time" => date('H:m:s')]);
+
+            if(!$user){
+                return Response::json(array('code' => 404, 'message' => 'User not found.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+            else
+            {
+                if($user->id == 1){
+                    $is_exist = DB::table('user_session')->where('token', $token)->exists();
+                    if (!$is_exist) {
+                        return Response::json(array('code' => 400, 'message' => 'Your session is expired. Please login.', 'cause' => '', 'data' => json_decode("{}")));
+                    }
+                }
+            }
+
         } catch (TokenInvalidException $e) {
             return Response::json(array('code' => $e->getStatusCode(), 'message' => 'Invalid token.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (TokenExpiredException $e) {
             try {
                 $new_token = JWTAuth::refresh($token);
                 //Log::info("Refreshed Token", ["token :" => $new_token, "time" => date('H:m:s')]);
+
+                DB::beginTransaction();
+                DB::update('UPDATE user_session
+                                SET token = ?
+                                WHERE token = ?', [$new_token, $token]);
+                DB::commit();
+
             } catch (TokenExpiredException $e) {
                 //Log::debug('TokenExpiredException Can not be Refresh', ['status_code' => $e->getStatusCode()]);
+
+                DB::beginTransaction();
+                DB::delete('DELETE FROM user_session WHERE token = ?', [$token]);
+                DB::commit();
+
                 return Response::json(array('code' => $e->getStatusCode(), 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode('{}')));
             } catch (TokenBlacklistedException $e) {
                 //Log::debug('The token has been blacklisted.', ['status_code' => $e->getStatusCode()]);
+
+                DB::beginTransaction();
+                DB::delete('DELETE FROM user_session WHERE token = ?', [$token]);
+                DB::commit();
+
                 return Response::json(array('code' => 400, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
             } catch (JWTException $e) {
                 return Response::json(array('code' => $e->getStatusCode(), 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
