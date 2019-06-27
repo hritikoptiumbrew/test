@@ -7,7 +7,7 @@
     "require": {
         "php": ">=5.6.4",
         "abraham/twitteroauth": "^0.9.2",
-        "bacon/bacon-qr-code": "^2.0",
+        "bacon/bacon-qr-code": "^1.0.3",
         "clarifai/clarifai-php": "^0.6.0",
         "dompdf/dompdf": "^0.8.3",
         "illuminate/cache": "5.4.*",
