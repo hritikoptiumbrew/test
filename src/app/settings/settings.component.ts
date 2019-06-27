@@ -249,10 +249,14 @@ export class SettingsComponent implements OnInit {
       "new_password": passwordData.new_password
     }, {
         headers: {
-          'Authorization': 'Bearer' + this.token
+          'Authorization': 'Bearer ' + this.token
         }
       }).subscribe(results => {
         if (results.code == 200) {
+          if (results.data && results.data.token) {
+            this.token = results.data.token;
+            localStorage.setItem('photoArtsAdminToken', results.data.token);
+          }
           this.passwordData = {};
           this.cnf_password = "";
           this.successMsg = results.message;
