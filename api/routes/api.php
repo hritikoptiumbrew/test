@@ -287,7 +287,8 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getJsonSampleDataFilterBySearchTag', 'UserController@getJsonSampleDataFilterBySearchTag'); //To get templates divide by categories
 
     //Get templates for Brochure Maker with catalogs
-    Route::post('getFeaturedSamplesWithCatalogs', 'UserController@getFeaturedSamplesWithCatalogs'); //To get templates with catalogs
+    Route::post('getFeaturedSamplesWithCatalogs', 'UserController@getFeaturedSamplesWithCatalogs'); //To get featured templates with catalogs
+    Route::post('getTemplateWithCatalogs', 'UserController@getTemplateWithCatalogs'); //To get all templates with catalogs
 
     //Fetch images from Pixabay
     Route::post('getImagesFromPixabay', 'PixabayController@getImagesFromPixabay');

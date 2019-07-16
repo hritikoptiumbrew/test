@@ -2038,6 +2038,7 @@ class UserController extends Controller
     }
 
     //get all samples without pagination
+
     /**
      * @api {post} getAllSamplesWithWebp   getAllSamplesWithWebp
      * @apiName getAllSamplesWithWebp
@@ -2177,6 +2178,7 @@ class UserController extends Controller
     }
 
     //get catalogs by sub _category_id with pagination
+
     /**
      * @api {post} getCatalogBySubCategoryIdWithWebp   getCatalogBySubCategoryIdWithWebp
      * @apiName getCatalogBySubCategoryIdWithWebp
@@ -2320,6 +2322,7 @@ class UserController extends Controller
     }
 
     //This API is used for Brochure Maker (iOS)
+
     /**
      * @api {post} getFeaturedSamplesWithCatalogs   getFeaturedSamplesWithCatalogs
      * @apiName getFeaturedSamplesWithCatalogs
@@ -4662,6 +4665,210 @@ class UserController extends Controller
         } catch
         (Exception $e) {
             Log::error("getJsonSampleDataFilterBySearchTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /*=============================| Other API For New screens |=============================*/
+    
+    //This API is used to get all cards when developer has not contain catalog_id or samples by catalog_id
+    /**
+     * @api {post} getTemplateWithCatalogs   getTemplateWithCatalogs
+     * @apiName getTemplateWithCatalogs
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":66, //compulsory
+     * "catalog_id":519, //compulsory, pass 0 if you don't have catalog_id(in this case you get all featured cards) otherwise you have to pass specific catalog_id
+     * "page":1, //compulsory
+     * "item_count":2 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All templates are fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 44,
+     * "is_next_page": true,
+     * "category_list": [
+     * {
+     * "catalog_id": 642,
+     * "name": "Isha",
+     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5d1353b58134f_catalog_img_1561547701.png",
+     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5d1353b58134f_catalog_img_1561547701.png",
+     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5d1353b58134f_catalog_img_1561547701.png",
+     * "webp_original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5d1353b58134f_catalog_img_1561547701.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "updated_at": "2019-06-26 11:15:01"
+     * }
+     * ],
+     * "sample_cards": [
+     * {
+     * "json_id": 10543,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5d0cba07255ec_json_image_1561115143.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 1,
+     * "height": 240,
+     * "width": 128,
+     * "original_img_height": 467,
+     * "original_img_width": 249,
+     * "updated_at": "2019-06-21 11:05:43"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getTemplateWithCatalogs(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'catalog_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->catalog_id = $request->catalog_id;
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            if (!Cache::has("pel:getTemplateWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count")) {
+                $result = Cache::rememberforever("getTemplateWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count", function () {
+
+                    if ($this->catalog_id == 0) {
+
+                        if($this->page == 1){
+                            $category_list = DB::select('SELECT
+                                          ct.id AS catalog_id,
+                                          ct.name,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS thumbnail_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS compressed_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS original_img,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                          ct.is_free,
+                                          ct.is_featured,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master AS ct,
+                                          sub_category_catalog AS sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 AND
+                                          ct.is_featured = 1
+                                        ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+                        }
+                        else{
+                            $category_list = [];
+                        }
+
+
+
+                        $total_cards = DB::select('SELECT COUNT(*) AS total
+                                                        FROM images
+                                                        WHERE catalog_id IN (SELECT catalog_id
+                                                                             FROM sub_category_catalog
+                                                                             WHERE sub_category_id = ?) AND is_featured = 1', [$this->sub_category_id]);
+
+
+                        $total_row = $total_cards[0]->total;
+
+                        $sample_cards = DB::select('SELECT
+                                                        i.id as json_id,
+                                                        IF(i.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",i.attribute1),"") as sample_image,
+                                                        i.is_free,
+                                                        i.is_featured,
+                                                        i.is_portrait,
+                                                        coalesce(i.height,0) AS height,
+                                                        coalesce(i.width,0) AS width,
+                                                        i.original_img_height,
+                                                        i.original_img_width,
+                                                        i.updated_at
+                                                        FROM
+                                                        images as i,
+                                                        sub_category_catalog as sct,
+                                                        catalog_master as ct
+                                                        WHERE
+                                                        sct.sub_category_id = ? AND
+                                                        sct.catalog_id = i.catalog_id AND
+                                                        sct.catalog_id = ct.id AND
+                                                        sct.is_active = 1 AND
+                                                        ct.is_featured = 1 AND
+                                                        i.is_featured = 1
+                                                        ORDER BY i.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                        $result_array = array(
+                            'total_record' => $total_row,
+                            'is_next_page' => $is_next_page,
+                            'category_list' => $category_list,
+                            'sample_cards' => $sample_cards
+                        );
+
+
+                    } else {
+                        $total_cards = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ?', [$this->catalog_id]);
+                        $total_row = $total_cards[0]->total;
+
+                        $sample_cards = DB::select('SELECT
+                                                    id as json_id,
+                                                    IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                                    is_free,
+                                                    is_featured,
+                                                    is_portrait,
+                                                    coalesce(height,0) AS height,
+                                                    coalesce(width,0) AS width,
+                                                    original_img_height,
+                                                    original_img_width,
+                                                    updated_at
+                                                  FROM
+                                                    images
+                                                  WHERE
+                                                    catalog_id = ?
+                                                  ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->offset, $this->item_count]);
+
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                        $result_array = array(
+                            'total_record' => $total_row,
+                            'is_next_page' => $is_next_page,
+                            'category_list' => [],
+                            'sample_cards' => $sample_cards
+                        );
+                    }
+
+                    return $result_array;
+                });
+            }
+
+            $redis_result = Cache::get("getTemplateWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'All templates are fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+
+        } catch
+        (Exception $e) {
+            Log::error("getTemplateWithCatalogs : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;

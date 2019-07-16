@@ -161,6 +161,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getTemplateWithCatalogs
+                $keys = Redis::keys('pel:getTemplateWithCatalogs*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Sub Category Images
@@ -267,6 +273,13 @@ class DeleteCacheKey
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
+
+                //getTemplateWithCatalogs
+                $keys = Redis::keys('pel:getTemplateWithCatalogs*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Other

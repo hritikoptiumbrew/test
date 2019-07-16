@@ -4752,6 +4752,64 @@
   },
   {
     "type": "post",
+    "url": "getSamplesWithCategoryTags",
+    "title": "getSamplesWithCategoryTags",
+    "name": "getSamplesWithCategoryTags",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":97, //compulsory\n\"catalog_id\":0, //compulsory, pass 0 if you don't have catalog_id(for 1st API call)\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All featured cards are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 34,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"catalog_id\": 398,\n\"name\": \"Misc\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-03-22 09:02:02\"\n},\n{\n\"catalog_id\": 500,\n\"name\": \"Services\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-03-22 09:02:00\"\n}\n],\n\"sample_cards\": [\n{\n\"json_id\": 3390,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2019-03-27 11:07:33\"\n},\n{\n\"json_id\": 3387,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7d03b31ef_json_image_1550810371.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 100,\n\"width\": 320,\n\"updated_at\": \"2019-03-22 10:36:44\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getTemplateWithCatalogs",
+    "title": "getTemplateWithCatalogs",
+    "name": "getTemplateWithCatalogs",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":66, //compulsory\n\"catalog_id\":519, //compulsory, pass 0 if you don't have catalog_id(in this case you get all featured cards) otherwise you have to pass specific catalog_id\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All templates are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 44,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"catalog_id\": 642,\n\"name\": \"Isha\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5d1353b58134f_catalog_img_1561547701.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5d1353b58134f_catalog_img_1561547701.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5d1353b58134f_catalog_img_1561547701.png\",\n\"webp_original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5d1353b58134f_catalog_img_1561547701.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2019-06-26 11:15:01\"\n}\n],\n\"sample_cards\": [\n{\n\"json_id\": 10543,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5d0cba07255ec_json_image_1561115143.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 240,\n\"width\": 128,\n\"original_img_height\": 467,\n\"original_img_width\": 249,\n\"updated_at\": \"2019-06-21 11:05:43\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "registerUserDeviceByDeviceUdid",
     "title": "registerUserDeviceByDeviceUdid",
     "name": "registerUserDeviceByDeviceUdid",
