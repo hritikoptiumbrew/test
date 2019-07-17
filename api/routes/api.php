@@ -153,7 +153,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     //Update all sample images using libwebp (to generate webp of all templates)
     Route::post('updateAllSampleImages', 'AdminController@updateAllSampleImages');
 
-    //Search Tag
+    //Search tag
     Route::post('addTag', 'AdminController@addTag');
     Route::post('updateTag', 'AdminController@updateTag');
     Route::post('deleteTag', 'AdminController@deleteTag');
@@ -185,7 +185,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('getSearchTagsForAllSampleImages', 'AdminController@getSearchTagsForAllSampleImages');
     Route::post('getSearchTagsForAllNormalImages', 'AdminController@getSearchTagsForAllNormalImages');
 
-    //File validation
+    //File size validation
     Route::post('addValidation', 'AdminController@addValidation');
     Route::post('editValidation', 'AdminController@editValidation');
     Route::post('deleteValidation', 'AdminController@deleteValidation');

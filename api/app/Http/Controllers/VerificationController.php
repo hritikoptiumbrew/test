@@ -460,4 +460,28 @@ class VerificationController extends Controller
         return $response;
     }
 
+    //Validate string to restrict some special characters
+    public function verifySearchText($text)
+    {
+
+        /*
+         * Here following special characters are restricted
+         * @%*()-+\'"<>/
+         * also only allow some special characters & alphanumeric values
+         * */
+
+        $string_array = str_split($text);
+        foreach ($string_array as $key)
+        {
+            $is_valid = preg_match ('/[[:alnum:] `!#$₹^&_={}[]|:;,.?]+/', $key);
+            if($is_valid == 0)
+            {
+                return $is_valid;
+            }
+        }
+
+        //return 1 if search text is valid 0 otherwise
+        return $is_valid;
+    }
+
 }

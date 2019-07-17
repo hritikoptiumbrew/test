@@ -1904,22 +1904,28 @@ class UserController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            //Log::info("getFeaturedCatalogBySubCategoryId Request:", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            //$this->search_category = "%" . $request->search_category . "%";
             $this->search_category = strtolower(trim($request->search_category));
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
+            //validate search text
+            $this->is_verified = (new VerificationController())->verifySearchText($this->search_category);
+
             if (!Cache::has("pel:searchCardsBySubCategoryId$this->sub_category_id:$this->search_category:$this->offset:$this->item_count")) {
                 $result = Cache::rememberforever("searchCardsBySubCategoryId$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", function () {
 
+                    $search_category = $this->search_category;
+                    $code = 200;
+                    $message = "Templates fetched successfully.";
 
-                    $total_row_result = DB::select('SELECT count(*) as total
+                    if ($this->is_verified == 1) {
+
+                        $total_row_result = DB::select('SELECT count(*) as total
                                                 FROM
                                                   images as im,
                                                   catalog_master AS cm,
@@ -1932,12 +1938,12 @@ class UserController extends Controller
                                                   scc.sub_category_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '")
+                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) 
                                                 ORDER BY im.search_category DESC', [$this->sub_category_id]);
 
-                    $total_row = $total_row_result[0]->total;
+                        $total_row = $total_row_result[0]->total;
 
-                    $search_result = DB::select('SELECT
+                        $search_result = DB::select('SELECT
                                                   im.id as json_id,
                                                   IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                   im.is_free,
@@ -1946,7 +1952,7 @@ class UserController extends Controller
                                                   coalesce(im.height,0) AS height,
                                                   coalesce(im.width,0) AS width,
                                                   im.updated_at,
-                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '") AS search_text
+                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
                                                 FROM
                                                   images as im,
                                                   catalog_master AS cm,
@@ -1959,10 +1965,14 @@ class UserController extends Controller
                                                   scc.sub_category_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  MATCH(im.search_category) AGAINST("' . $this->search_category . '")
+                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) 
                                                 ORDER BY search_text DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
-                    $code = 200;
-                    $message = "Templates fetched successfully.";
+                    }
+                    else
+                    {
+                        $search_result = [];
+                    }
+
                     if (count($search_result) <= 0) {
 
 
@@ -2006,18 +2016,15 @@ class UserController extends Controller
                                                   isnull(im.display_img)
                                                 ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                         $code = 427;
-                        $search_text = trim($this->search_category, "%");
-                        $message = "Sorry, we couldn't find any templates for '$search_text', but we found some other templates you might like:";
+                        $message = "Sorry, we couldn't find any templates for '$search_category', but we found some other templates you might like:";
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
 
                     $result = array('result' => $search_result, 'code' => $code, 'message' => $message);
-
                     return $result;
                 });
-
 
             }
 
@@ -2032,7 +2039,7 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             Log::error("searchCardsBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search cards.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
