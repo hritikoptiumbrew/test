@@ -330,7 +330,6 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
 });
 
-
 //APIs of debug purpose
 Route::post('getDatabaseInfo', 'AdminController@getDatabaseInfo');
 Route::post('getConstants', 'AdminController@getConstants');
