@@ -2412,8 +2412,11 @@ class UserController extends Controller
                     $item_count = $this->item_count;
 
 
-                    if ($catalog_id == 0 && $page == 1) {
-                        $category_list = DB::select('SELECT
+                    if ($catalog_id == 0) {
+
+                        if($page == 1)
+                        {
+                            $category_list = DB::select('SELECT
                                           ct.id as catalog_id,
                                           ct.name,
                                           ct.is_featured,
@@ -2427,6 +2430,10 @@ class UserController extends Controller
                                           sct.is_active = 1 AND
                                           ct.is_featured = 1
                                         ORDER BY ct.updated_at DESC', [$sub_category_id]);
+                        }
+                        else{
+                            $category_list = [];
+                        }
 
                         $total_cards = DB::select('SELECT
                                                       COUNT(*) AS total
@@ -2441,7 +2448,6 @@ class UserController extends Controller
                                                       sct.is_active = ? AND
                                                       ct.is_featured = ? AND
                                                       i.is_featured = ?', [$sub_category_id, 1, 1, 1]);
-
 
                         $total_row = $total_cards[0]->total;
 
@@ -2469,9 +2475,9 @@ class UserController extends Controller
                                                         i.is_featured = 1
                                                         ORDER BY i.updated_at DESC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
 
-                    } else {
+                    }
+                    else {
                         $category_list = [];
-
                         $total_cards = DB::select('SELECT
                                                         COUNT(*) AS total
                                                       FROM
