@@ -44,7 +44,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"request_data\":{\n\"category_id\":1, //compulsory\n\"name\":\"Nature\", //compulsory\n\"is_featured\":1 //compulsory 1=featured (for templates), 0=normal (shapes, textArt,etc...)\n},\n\"file\":image.jpeg //compulsory\n}",
+          "content": "request_data:{\n\"category_id\":1, //compulsory\n\"name\":\"Nature\", //compulsory\n\"is_featured\":1 //compulsory 1=featured (for templates), 0=normal (shapes, textArt,etc...)\n}\nfile:image.jpeg //compulsory",
           "type": "json"
         },
         {
@@ -189,12 +189,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\nrequest_data:{\n\"sub_category_id\":1,\n\"is_free\":1,//optional\n\"name\":\"Nature-2017\",\n\"is_featured\":1 //compulsory\n},\nfile:image.jpeg //compulsory\n}",
+          "content": "request_data:{//all parameters are compulsory\n\"category_id\":1,\n\"sub_category_id\":1,\n\"is_free\":1,\n\"name\":\"Nature-2017\",\n\"is_featured\":1 //0=normal 1=featured\n}\nfile:image.jpeg //compulsory",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"sub category added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Catalog added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -218,7 +218,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\"catalog_id\":1}\nfile[]:image.jpeg\nfile[]:image12.jpeg\nfile[]:image.png",
+          "content": "request_data:{//all parameters are compulsory\n\"category_id\":1,\n\"catalog_id\":1,\n\"is_featured\":1, //1=featured catalog, 0=normal catalog\n}\nfile[]:image.jpeg\nfile[]:image12.jpeg\nfile[]:image.png",
           "type": "json"
         },
         {
@@ -247,12 +247,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\nrequest_data:{\n\"is_replace\":0 //compulsory 0=do not replace the existing file, 2=replace the existing file\n},\nfile[]:1.jpg,\nfile[]:2.jpg,\nfile[]:3.jpg,\nfile[]:4.jpg\n}",
+          "content": "request_data:{//all parameters are compulsory\n\"category_id\":0,\n\"is_replace\":0 //0=do not replace the existing file, 2=replace the existing file\n}\nfile[]:1.jpg\nfile[]:2.jpg\nfile[]:3.jpg\nfile[]:4.jpg",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Json images added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Resource images added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -276,12 +276,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\"catalog_id\":1,\n\"image_type\":1},\noriginal_img:image1.jpeg,\ndisplay_img:image12.jpeg\n}",
+          "content": "request_data:{//all parameters are compulsory\n\"category_id\":1,\n\"catalog_id\":1,\n\"image_type\":1,\n\"is_featured\":1 //1=featured catalog, 0=normal catalog\n}\noriginal_img:image1.jpeg\ndisplay_img:image12.jpeg",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Featured Background Images added successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Featured background images added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -305,7 +305,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\nrequest_data:{\n\"catalog_id\":280, //compulsory\n\"ios_font_name\":\"3d\", //optional\n\"is_replace\":1 //compulsory 1=replace font file, 0=don't replace font file\n}\nfile:3d.ttf //compulsory\n}",
+          "content": "request_data:{\n\"category_id\":4,\n\"catalog_id\":280,\n\"ios_font_name\":\"3d\", //optional\n\"is_replace\":1 //1=replace font file, 0=don't replace font file\n\"is_featured\":1 //1=featured catalog, 0=normal catalog\n}\nfile:3d.ttf",
           "type": "json"
         },
         {
@@ -334,7 +334,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\nrequest_data:{\n\"catalog_id\":280, //compulsory\n\"ios_font_name\":\"3d\", //optional\n\"is_replace\":1 //compulsory 1=replace font file, 0=don't replace font file\n}\nfile:3d.ttf //compulsory\n}",
+          "content": "request_data:{\n\"$category_id\":1, //optional\n\"catalog_id\":280, //compulsory\n\"ios_font_name\":\"3d\", //optional\n\"is_replace\":1 //compulsory 1=replace font file, 0=don't replace font file\n\"is_featured\":1 //optional 1=featured catalog, 0=normal catalog\n}\nfile:3d.ttf //compulsory",
           "type": "json"
         },
         {
@@ -363,7 +363,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"catalog_id\": 155,\n\"is_free\": 1,\n\"is_featured\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 800,\n\"width\": 500\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_15.7\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_15.7\",\n\"is_featured\": 0,\n\"height\": 800,\n\"width\": 800\n}\n},\nfile:image1.jpeg\n}",
+          "content": "request_data:\n{\n\"category_id\": 2,\n\"catalog_id\": 646,\n\"is_featured_catalog\": 1, //1=featured catalog, 0=normal catalog\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1, //optional 1=portrait, 0=landscape\n\"search_category\": \"\", //optional\n\"json_data\": {\n\"text_json\": [\n{\n\"xPos\": 46,\n\"yPos\": 204,\n\"color\": \"#ff5d5b\",\n\"text\": \"GYM\\nNAME\",\n\"size\": 80,\n\"fontName\": \"AgencyFB-Bold\",\n\"fontPath\": \"fonts/AGENCYB.ttf\",\n\"alignment\": 1,\n\"bg_image\": \"\",\n\"texture_image\": \"\",\n\"opacity\": 100,\n\"angle\": 0,\n\"shadowColor\": \"#000000\",\n\"shadowRadius\": 0,\n\"shadowDistance\": 0\n}\n],\n\"sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"width\": 650,\n\"height\": 800,\n\"sticker_image\": \"fitness_effect_rbg3_93.png\",\n\"angle\": 0,\n\"is_round\": 0\n}\n],\n\"image_sticker_json\": [],\n\"frame_json\": {\n\"frame_image\": \"\",\n\"frame_color\": \"\"\n},\n\"background_json\": {\n\"background_image\": \"fitness_bg_rbg3_93.jpg\",\n\"background_color\": \"\"\n},\n\"sample_image\": \"fitness_sample_rbg3_93.jpg\",\n\"height\": 800,\n\"width\": 650,\n\"is_portrait\": 1,\n\"is_featured\": 0\n}\n}\nfile:image1.jpeg\n}",
           "type": "json"
         },
         {
@@ -397,7 +397,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Link Added Successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Link added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -427,6 +427,35 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Promo code added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "addSearchCategoryTag",
+    "title": "addSearchCategoryTag",
+    "name": "addSearchCategoryTag",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":2, //compulsory\n\"tag_name\":\"Nature\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Tag added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -508,12 +537,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"tag_name\":\"Nature\" //compulsory\n}",
+          "content": "{\n\"category_id\": 2, //compulsory\n\"validation_name\": \"sticker_image_size\", //compulsory\n\"max_value_of_validation\": 100, //compulsory\n\"is_featured\":1, //compulsory\n\"is_catalog\":1, //compulsory\n\"description\":\"test\" //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Tag added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Validation added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -572,35 +601,6 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Redis Keys Deleted Successfully.\",\n\"cause\": \"\",\n\"data\": \"{}\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
-    "url": "createInvalidation",
-    "title": "createInvalidation",
-    "name": "createInvalidation",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "request_data:{\n\"img_id\": 356,\n\"is_free\": 1,\n\"is_featured\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 800,\n\"width\": 500\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_15.7\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_15.7\",\n\"is_featured\": 0,\n\"height\": 800,\n\"width\": 800\n}\n},\nfile:image1.jpeg\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Json data updated successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -929,6 +929,35 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "deleteSearchCategoryTag",
+    "title": "deleteSearchCategoryTag",
+    "name": "deleteSearchCategoryTag",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_tag_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Search category deleted successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "deleteSubCategory",
     "title": "deleteSubCategory",
     "name": "deleteSubCategory",
@@ -1030,12 +1059,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"tag_id\":1 //compulsory\n}",
+          "content": "{\n\"setting_id\":7 //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Tag deleted successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Validation deleted successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -1175,7 +1204,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"img_id\": 356,\n\"is_free\": 1,\n\"is_featured\": 1,\n\"json_data\": {\n\"text_json\": [],\n\"sticker_json\": [],\n\"image_sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"image_sticker_image\": \"\",\n\"angle\": 0,\n\"is_round\": 0,\n\"height\": 800,\n\"width\": 500\n}\n],\n\"frame_json\": {\n\"frame_image\": \"frame_15.7\"\n},\n\"background_json\": {},\n\"sample_image\": \"sample_15.7\",\n\"is_featured\": 0,\n\"height\": 800,\n\"width\": 800\n}\n},\nfile:image1.jpeg\n}",
+          "content": "request_data:{\n\"category_id\": 2,\n\"is_featured_catalog\": 1, //1=featured catalog, 0=normal catalog\n\"img_id\": 356,\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1, //optional 1=portrait, 0=landscape\n\"json_data\": {//optional\n\"text_json\": [\n{\n\"xPos\": 46,\n\"yPos\": 204,\n\"color\": \"#ff5d5b\",\n\"text\": \"GYM\\nNAME\",\n\"size\": 80,\n\"fontName\": \"AgencyFB-Bold\",\n\"fontPath\": \"fonts/AGENCYB.ttf\",\n\"alignment\": 1,\n\"bg_image\": \"\",\n\"texture_image\": \"\",\n\"opacity\": 100,\n\"angle\": 0,\n\"shadowColor\": \"#000000\",\n\"shadowRadius\": 0,\n\"shadowDistance\": 0\n}\n],\n\"sticker_json\": [\n{\n\"xPos\": 0,\n\"yPos\": 0,\n\"width\": 650,\n\"height\": 800,\n\"sticker_image\": \"fitness_effect_rbg3_93.png\",\n\"angle\": 0,\n\"is_round\": 0\n}\n],\n\"image_sticker_json\": [],\n\"frame_json\": {\n\"frame_image\": \"\",\n\"frame_color\": \"\"\n},\n\"background_json\": {\n\"background_image\": \"fitness_bg_rbg3_93.jpg\",\n\"background_color\": \"\"\n},\n\"sample_image\": \"fitness_sample_rbg3_93.jpg\",\n\"height\": 800,\n\"width\": 650,\n\"is_portrait\": 1,\n\"is_featured\": 0\n}\n}\nfile:image1.jpeg //optional",
           "type": "json"
         },
         {
@@ -1204,12 +1233,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"tag_id\":1, //compulsory\n\"tag_name\":\"Featured\" //compulsory\n}",
+          "content": "{\n\"setting_id\":1, //compulsory\n\"category_id\":0, //compulsory\n\"validation_name\":\"common_image_size\", //compulsory\n\"max_value_of_validation\":200, //compulsory\n\"is_featured\":0, //compulsory\n\"is_catalog\":0, //compulsory\n\"description\":\"Maximum size for all common images.\" //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Tag updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Validation updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -1417,7 +1446,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1760,7 +1789,36 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All tags fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 4,\n\"result\": [\n{\n\"tag_id\": 1,\n\"tag_name\": \"test\"\n},\n{\n\"tag_id\": 2,\n\"tag_name\": \"Offer & Sales\"\n},\n{\n\"tag_id\": 3,\n\"tag_name\": \"Mobile Apps\"\n},\n{\n\"tag_id\": 4,\n\"tag_name\": \"Photography\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"All validations fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n{\n\"setting_id\": 1,\n\"category_id\": 0,\n\"validation_name\": \"common_image_size\",\n\"max_value_of_validation\": \"100\",\n\"is_featured\": 0,\n\"is_catalog\": 0,\n\"description\": \"Maximum size for all common images. asasda dasd asd\",\n\"update_time\": \"2019-07-17 06:08:01\"\n}\n],\n\"category_list\": [\n{\n\"category_id\": 1,\n\"name\": \"Frame\"\n},\n{\n\"category_id\": 2,\n\"name\": \"Sticker\"\n},\n{\n\"category_id\": 3,\n\"name\": \"Background\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "getCategoryTagBySubCategoryId",
+    "title": "getCategoryTagBySubCategoryId",
+    "name": "getCategoryTagBySubCategoryId",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":1, //compulsory\n\"order_by\":\"tag_name\", //optional\n\"order_type\":\"ASC\" //optional\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Category tags fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 10,\n\"result\": [\n{\n\"sub_category_tag_id\": 18,\n\"tag_name\": \"dats\",\n\"total_template\": 0\n},\n{\n\"sub_category_tag_id\": 12,\n\"tag_name\": \"Birthday\",\n\"total_template\": 24\n},\n{\n\"sub_category_tag_id\": 16,\n\"tag_name\": \"Flag\",\n\"total_template\": 20\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2437,6 +2495,35 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "setCategoryTagRankOnTheTopByAdmin",
+    "title": "setCategoryTagRankOnTheTopByAdmin",
+    "name": "setCategoryTagRankOnTheTopByAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_tag_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Rank set successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "setContentRankOnTheTopByAdmin",
     "title": "setContentRankOnTheTopByAdmin",
     "name": "setContentRankOnTheTopByAdmin",
@@ -2567,7 +2654,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\nrequest_data:{\n\"catalog_id\":1,\n\"name\":\"bg-catalog\",\n\"is_free\":1,\n\"is_featured\":1\n},\nfile:image.png //optional\n}",
+          "content": "request_data:{//all parameters are compulsory\n\"category_id\":1,\n\"sub_category_id\":66,\n\"catalog_id\":1,\n\"name\":\"bg-catalog\",\n\"is_free\":1,\n\"is_featured\":1 //0=normal 1=featured\n}\nfile:image.png //optional",
           "type": "json"
         },
         {
@@ -2625,12 +2712,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\"img_id\":1,\n\"image_type\":1},\noriginal_img:image1.jpeg,\ndisplay_img:image12.jpeg\n}",
+          "content": "request_data:{//all parameters are compulsory\n\"category_id\":1,\n\"img_id\":1,\n\"image_type\":1,\n\"is_featured\":1 //1=featured catalog, 0=normal catalog\n},\noriginal_img:image1.jpeg\ndisplay_img:image12.jpeg",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Featured Background Images updated successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Featured background images updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -2659,7 +2746,36 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Link Updated Successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Link updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "updateSearchCategoryTag",
+    "title": "updateSearchCategoryTag",
+    "name": "updateSearchCategoryTag",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":2, //compulsory\n\"sub_category_tag_id\":1, //compulsory\n\"tag_name\":\"Featured\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Search category updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
           "type": "json"
         }
       ]
@@ -2683,7 +2799,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"request_data\":{\n\"sub_category_id\":2, //compulsory\n\"name\":\"Love-Category\", //optional\n\"is_featured\":1 //compulsory 1=featured (for templates), 0=normal (shapes, textArt,etc...)\n}\n\"file\":image.png //optional\n}",
+          "content": "request_data:{\n\"sub_category_id\":2, //compulsory\n\"name\":\"Love-Category\", //optional\n\"is_featured\":1 //compulsory 1=featured (for templates), 0=normal (shapes, textArt,etc...)\n}\nfile:image.png //optional",
           "type": "json"
         },
         {
@@ -2712,7 +2828,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\nrequest_data:{\n\"img_id\":1, //compulsory\n\"search_category\":\"test,abc\" //optional\n}\nfile:\"\" //compulsory\n}",
+          "content": "request_data:{\n\"category_id\":1,\n\"img_id\":1,\n\"is_featured\":1, //1=featured catalog, 0=normal catalog\n\"search_category\":\"test,abc\" //optional\n}\nfile:1.jpg //optional",
           "type": "json"
         },
         {
@@ -4394,7 +4510,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All featured cards are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 34,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"catalog_id\": 398,\n\"name\": \"Misc\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-03-22 09:02:02\"\n},\n{\n\"catalog_id\": 500,\n\"name\": \"Services\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-03-22 09:02:00\"\n}\n],\n\"sample_cards\": [\n{\n\"json_id\": 3390,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2019-03-27 11:07:33\"\n},\n{\n\"json_id\": 3387,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7d03b31ef_json_image_1550810371.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 100,\n\"width\": 320,\n\"updated_at\": \"2019-03-22 10:36:44\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"All featured cards are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 50,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"catalog_id\": 646,\n\"name\": \"Pinal\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-07-17 08:17:49\"\n},\n{\n\"catalog_id\": 642,\n\"name\": \"Isha\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-06-26 11:15:01\"\n}\n],\n\"sample_cards\": [\n{\n\"json_id\": 12057,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5d2edd42ddb44_json_image_1563352386.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-07-17 08:34:04\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -4752,9 +4868,9 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "getSamplesWithCategoryTags",
-    "title": "getSamplesWithCategoryTags",
-    "name": "getSamplesWithCategoryTags",
+    "url": "getTemplatesBySubCategoryTags",
+    "title": "getTemplatesBySubCategoryTags",
+    "name": "getTemplatesBySubCategoryTags",
     "group": "User",
     "version": "1.0.0",
     "success": {
@@ -4766,41 +4882,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":97, //compulsory\n\"catalog_id\":0, //compulsory, pass 0 if you don't have catalog_id(for 1st API call)\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n}",
+          "content": "{\n\"sub_category_id\":66, //compulsory\n\"category_name\":\"Business\", //optional on 1st API call for home screen\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All featured cards are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 34,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"catalog_id\": 398,\n\"name\": \"Misc\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-03-22 09:02:02\"\n},\n{\n\"catalog_id\": 500,\n\"name\": \"Services\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-03-22 09:02:00\"\n}\n],\n\"sample_cards\": [\n{\n\"json_id\": 3390,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2019-03-27 11:07:33\"\n},\n{\n\"json_id\": 3387,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7d03b31ef_json_image_1550810371.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 100,\n\"width\": 320,\n\"updated_at\": \"2019-03-22 10:36:44\"\n}\n]\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/UserController.php",
-    "groupTitle": "User"
-  },
-  {
-    "type": "post",
-    "url": "getTemplateWithCatalogs",
-    "title": "getTemplateWithCatalogs",
-    "name": "getTemplateWithCatalogs",
-    "group": "User",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":66, //compulsory\n\"catalog_id\":519, //compulsory, pass 0 if you don't have catalog_id(in this case you get all featured cards) otherwise you have to pass specific catalog_id\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All templates are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 44,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"catalog_id\": 642,\n\"name\": \"Isha\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5d1353b58134f_catalog_img_1561547701.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5d1353b58134f_catalog_img_1561547701.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5d1353b58134f_catalog_img_1561547701.png\",\n\"webp_original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5d1353b58134f_catalog_img_1561547701.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2019-06-26 11:15:01\"\n}\n],\n\"sample_cards\": [\n{\n\"json_id\": 10543,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5d0cba07255ec_json_image_1561115143.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 240,\n\"width\": 128,\n\"original_img_height\": 467,\n\"original_img_width\": 249,\n\"updated_at\": \"2019-06-21 11:05:43\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 23,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"sub_category_tag_id\": 1,\n\"tag_name\": \"Business Banner\"\n}\n],\n\"template_list\": [\n{\n\"json_id\": 10669,\n\"sample_image\": \"http:\\/\\/192.168.0.113\\/photo_editor_lab_backend\\/image_bucket\\/webp_original\\/5d11bf76d377d_json_image_1561444214.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"search_category\": \"flyers,symbol,vector,illustration,label,design,desktop,discount,image,card,wholesale,vectors,christmas,sale,celebration,price,sign,decoration,banner,business,stock\",\n\"original_img_height\": 800,\n\"original_img_width\": 650,\n\"updated_at\": \"2019-06-25 06:40:08\",\n\"search_text\": 5.565430641174316\n},\n{\n\"json_id\": 10663,\n\"sample_image\": \"http:\\/\\/192.168.0.113\\/photo_editor_lab_backend\\/image_bucket\\/webp_original\\/5d11bebf04cca_json_image_1561444031.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 0,\n\"height\": 400,\n\"width\": 325,\n\"search_category\": \"flyers,no person,karaoke,retro,graphic design,music,isolated,classic,microphone,conceptual,bright,business,equipment,creativity,electronics,invention,achievement,illuminated,contemporary,glazed,rock\",\n\"original_img_height\": 800,\n\"original_img_width\": 650,\n\"updated_at\": \"2019-06-25 06:36:12\",\n\"search_text\": 1.8949640989303589\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -4948,8 +5035,8 @@ define({ "api": [
     "url": "",
     "version": "0.0.0",
     "filename": "./documentation/main.js",
-    "group": "c__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
-    "groupTitle": "c__wamp64_www_photo_editor_lab_backend_api_documentation_main_js",
+    "group": "c__wamp64_www_photo_editor_lab_backend_dev_api_documentation_main_js",
+    "groupTitle": "c__wamp64_www_photo_editor_lab_backend_dev_api_documentation_main_js",
     "name": ""
   }
 ] });

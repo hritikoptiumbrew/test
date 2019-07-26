@@ -619,14 +619,12 @@ class AdminController extends Controller
      *  Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
-     * "request_data":{
+     * request_data:{
      * "category_id":1, //compulsory
      * "name":"Nature", //compulsory
      * "is_featured":1 //compulsory 1=featured (for templates), 0=normal (shapes, textArt,etc...)
-     * },
-     * "file":image.jpeg //compulsory
      * }
+     * file:image.jpeg //compulsory
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -645,12 +643,12 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
             if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'name', 'is_featured'), $request)) != '')
                 return $response;
             $category_id = $request->category_id;
             $name = trim($request->name);
             $is_featured = $request->is_featured;
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog
             $create_at = date('Y-m-d H:i:s');
 
             if (($response = (new VerificationController())->checkIsSubCategoryExist($name, 0)) != '')
@@ -660,7 +658,9 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+
+                /* Here we passes category_id=0 bcz we want to use common image validation for the sub_category_image */
+                if (($response = (new ImageController())->verifyImage($image_array, 0, $is_featured, $is_catalog)) != '')
                     return $response;
 
                 $category_img = (new ImageController())->generateNewFileName('sub_category_img', $image_array);
@@ -671,16 +671,12 @@ class AdminController extends Controller
                 if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                     (new ImageController())->saveImageInToS3($category_img);
                 }
-
             }
 
-
             DB::beginTransaction();
-
             DB::insert('insert into sub_category
                         (name,category_id,image,is_featured,created_at) VALUES(?,?,?,?,?)',
                 [$name, $category_id, $category_img, $is_featured, $create_at]);
-
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Sub category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -703,14 +699,12 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
-     * "request_data":{
+     * request_data:{
      * "sub_category_id":2, //compulsory
      * "name":"Love-Category", //optional
      * "is_featured":1 //compulsory 1=featured (for templates), 0=normal (shapes, textArt,etc...)
      * }
-     * "file":image.png //optional
-     * }
+     * file:image.png //optional
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -730,14 +724,13 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'name', 'is_featured'), $request)) != '')
                 return $response;
 
             $sub_category_id = $request->sub_category_id;
             $name = trim($request->name);
             $is_featured = $request->is_featured;
-            $image_name = '';
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog
 
             if (($response = (new VerificationController())->checkIsSubCategoryExist($name, $sub_category_id)) != '')
                 return $response;
@@ -745,11 +738,11 @@ class AdminController extends Controller
             if ($request_body->hasFile('file')) {
                 $image_array = Input::file('file');
 
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                /* Here we passes category_id=0 bcz we want to use common image validation for the sub_category_image */
+                if (($response = (new ImageController())->verifyImage($image_array, 0, $is_featured, $is_catalog)) != '')
                     return $response;
 
                 $sub_category_img = (new ImageController())->generateNewFileName('sub_category_img', $image_array);
-                //Log::info("file size :",[filesize($profile_img)]);
                 (new ImageController())->saveOriginalImage($sub_category_img);
                 (new ImageController())->saveCompressedImage($sub_category_img);
                 (new ImageController())->saveThumbnailImage($sub_category_img);
@@ -761,35 +754,23 @@ class AdminController extends Controller
 
                 $result = DB::select('SELECT image FROM sub_category WHERE id = ?', [$sub_category_id]);
                 $image_name = $result[0]->image;
-                DB::beginTransaction();
-                DB::update('UPDATE
-                              sub_category
-                            SET
-                              name = ?,
-                              image = ?,
-                              is_featured = ?
-                            WHERE
-                              id = ? ',
-                    [$name, $sub_category_img, $is_featured, $sub_category_id]);
 
+                if ($image_name) {
+                    //Image Delete in image_bucket
+                    (new ImageController())->deleteImage($image_name);
+                }
             } else {
-                DB::update('UPDATE
-                              sub_category
-                            SET
-                              name = ?,
-                              is_featured = ?
-                            WHERE
-                              id = ? ',
-                    [$name, $is_featured, $sub_category_id]);
+                $sub_category_img = '';
             }
 
-
+            DB::beginTransaction();
+            DB::update('UPDATE sub_category SET
+                                name = IF(? != "",?,name),
+                                image = IF(? != "",?,image),
+                                is_featured = IF(? != is_featured,?,is_featured)
+                              WHERE id = ?', [$name, $name, $sub_category_img, $sub_category_img, $is_featured, $is_featured, $sub_category_id]);
             DB::commit();
 
-            if ($image_name) {
-                //Image Delete in image_bucket
-                (new ImageController())->deleteImage($image_name);
-            }
             $response = Response::json(array('code' => 200, 'message' => 'Sub category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
@@ -1152,19 +1133,18 @@ class AdminController extends Controller
      *  Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
-     * request_data:{
+     * request_data:{//all parameters are compulsory
+     * "category_id":1,
      * "sub_category_id":1,
-     * "is_free":1,//optional
+     * "is_free":1,
      * "name":"Nature-2017",
-     * "is_featured":1 //compulsory
-     * },
-     * file:image.jpeg //compulsory
+     * "is_featured":1 //0=normal 1=featured
      * }
+     * file:image.jpeg //compulsory
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "sub category added successfully.",
+     * "message": "Catalog added successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -1180,13 +1160,13 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'name', 'is_featured'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'name', 'is_featured', 'is_free'), $request)) != '')
                 return $response;
 
+            $category_id = $request->category_id;
             $sub_category_id = $request->sub_category_id;
             $name = $request->name;
-            $is_free = isset($request->is_free) ? $request->is_free : 1;
+            $is_free = $request->is_free;
             $is_featured = $request->is_featured;
             $create_at = date('Y-m-d H:i:s');
 
@@ -1197,7 +1177,9 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $file_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($file_array)) != '')
+
+                /* Here we passes is_catalog=1 bcz this is a catalog image */
+                if (($response = (new ImageController())->verifyImage($file_array, $category_id, $is_featured, 1)) != '')
                     return $response;
 
                 $file_name = (new ImageController())->generateNewFileName('catalog_img', $file_array);
@@ -1247,15 +1229,15 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
-     * request_data:{
+     * request_data:{//all parameters are compulsory
+     * "category_id":1,
+     * "sub_category_id":66,
      * "catalog_id":1,
      * "name":"bg-catalog",
      * "is_free":1,
-     * "is_featured":1
-     * },
-     * file:image.png //optional
+     * "is_featured":1 //0=normal 1=featured
      * }
+     * file:image.png //optional
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -1275,24 +1257,24 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'name', 'is_free', 'is_featured'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'catalog_id', 'name', 'is_free', 'is_featured'), $request)) != '')
                 return $response;
 
+            $category_id = $request->category_id;
+            $sub_category_id = $request->sub_category_id;
             $catalog_id = $request->catalog_id;
             $name = trim($request->name);
-            $is_free = isset($request->is_free) ? $request->is_free : '';
-            $is_featured = isset($request->is_featured) ? $request->is_featured : '';
+            $is_free = $request->is_free;
+            $is_featured = $request->is_featured;
 
-            $sub_category_id = DB::select('SELECT id from sub_category_catalog WHERE catalog_id = ?', [$catalog_id]);
-
-            if (($response = (new VerificationController())->checkIsCatalogExist($sub_category_id[0]->id, $name, $catalog_id)) != '')
+            if (($response = (new VerificationController())->checkIsCatalogExist($sub_category_id, $name, $catalog_id)) != '')
                 return $response;
 
             if ($request_body->hasFile('file')) {
                 $file_array = Input::file('file');
 
-                if (($response = (new ImageController())->verifyImage($file_array)) != '')
+                /* Here we passes is_catalog=1 bcz this is a catalog image */
+                if (($response = (new ImageController())->verifyImage($file_array, $category_id, $is_featured, 1)) != '')
                     return $response;
 
                 $catalog_img_name = (new ImageController())->generateNewFileName('catalog_img', $file_array);
@@ -1308,12 +1290,14 @@ class AdminController extends Controller
                 }
 
                 $result = DB::select('SELECT image FROM catalog_master WHERE id = ?', [$catalog_id]);
-
                 $image_name = $result[0]->image;
+                if ($image_name) {
+                    //Delete from image_bucket
+                    (new ImageController())->deleteImage($image_name);
+                }
 
             } else {
                 $catalog_img_name = '';
-                $image_name = '';
                 $file_name = NULL;
             }
 
@@ -1325,13 +1309,8 @@ class AdminController extends Controller
                                 is_featured = IF(? != is_featured,?,is_featured),
                                 attribute1 = IF(? != "",?,attribute1)
                               WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $is_free, $is_free, $is_featured, $is_featured, $file_name, $file_name, $catalog_id]);
-
             DB::commit();
 
-            if ($image_name) {
-                //Image Delete in image_bucket
-                (new ImageController())->deleteImage($image_name);
-            }
             $response = Response::json(array('code' => 200, 'message' => 'Catalog updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
@@ -1628,7 +1607,11 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * request_data:{"catalog_id":1}
+     * request_data:{//all parameters are compulsory
+     * "category_id":1,
+     * "catalog_id":1,
+     * "is_featured":1, //1=featured catalog, 0=normal catalog
+     * }
      * file[]:image.jpeg
      * file[]:image12.jpeg
      * file[]:image.png
@@ -1652,12 +1635,15 @@ class AdminController extends Controller
 
             $request = json_decode($request_body->input('request_data'));
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'catalog_id', 'is_featured'), $request)) != '')
                 return $response;
 
+            $category_id = $request->category_id;
             $catalog_id = $request->catalog_id;
+            $is_featured = $request->is_featured;
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is normal images
             $create_at = date('Y-m-d H:i:s');
-            DB::beginTransaction();
+
             if (!$request_body->hasFile('file')) {
                 return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
@@ -1665,12 +1651,10 @@ class AdminController extends Controller
                 $images_array = Input::file('file');
 
                 //To verify all normal images array
-                if (($response = (new ImageController())->verifyImagesArray($images_array, 0)) != '')
+                if (($response = (new ImageController())->verifyImagesArray($images_array, 0, $category_id, $is_featured, $is_catalog)) != '')
                     return $response;
 
                 foreach ($images_array as $image_array) {
-                    /*if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                        return $response;*/
 
                     $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
                     if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
@@ -1686,13 +1670,13 @@ class AdminController extends Controller
                         (new ImageController())->saveImageInToS3($normal_image);
                     }
 
+                    DB::beginTransaction();
                     DB::insert('INSERT
                                 INTO
                                   images(catalog_id, image, search_category, created_at)
                                 VALUES(?, ?, ?, ?) ', [$catalog_id, $normal_image, $tag_list, $create_at]);
+                    DB::commit();
                 }
-
-                DB::commit();
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Normal images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -1715,13 +1699,13 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
      * request_data:{
-     * "img_id":1, //compulsory
+     * "category_id":1,
+     * "img_id":1,
+     * "is_featured":1, //1=featured catalog, 0=normal catalog
      * "search_category":"test,abc" //optional
      * }
-     * file:"" //compulsory
-     * }
+     * file:1.jpg //optional
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -1742,11 +1726,13 @@ class AdminController extends Controller
 
             $request = json_decode($request_body->input('request_data'));
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('img_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'img_id', 'is_featured'), $request)) != '')
                 return $response;
 
+            $category_id = $request->category_id;
             $img_id = $request->img_id;
-            //$search_category = isset($request->search_category) ? $request->search_category : '';
+            $is_featured = $request->is_featured;
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is normal images
             $search_category = isset($request->search_category) ? strtolower($request->search_category) : NULL;
 
             if ($search_category != NULL or $search_category != "") {
@@ -1755,11 +1741,10 @@ class AdminController extends Controller
             }
 
             if ($request_body->hasFile('file')) {
-                /*return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {*/
+
                 $image_array = Input::file('file');
 
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                if (($response = (new ImageController())->verifyImage($image_array, $category_id, $is_featured, $is_catalog)) != '')
                     return $response;
 
                 $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
@@ -1800,7 +1785,6 @@ class AdminController extends Controller
                 [$catalog_img, $catalog_img, $tag_list, $img_id]);
             DB::commit();
 
-
             $response = Response::json(array('code' => 200, 'message' => 'Normal image updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
@@ -1810,6 +1794,8 @@ class AdminController extends Controller
         }
         return $response;
     }
+
+    /* ==============================| Featured images for background |================================*/
 
     /**
      * @api {post} addFeaturedBackgroundCatalogImage   addFeaturedBackgroundCatalogImage
@@ -1822,15 +1808,18 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * request_data:{"catalog_id":1,
-     * "image_type":1},
-     * original_img:image1.jpeg,
-     * display_img:image12.jpeg
+     * request_data:{//all parameters are compulsory
+     * "category_id":1,
+     * "catalog_id":1,
+     * "image_type":1,
+     * "is_featured":1 //1=featured catalog, 0=normal catalog
      * }
+     * original_img:image1.jpeg
+     * display_img:image12.jpeg
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Featured Background Images added successfully!.",
+     * "message": "Featured background images added successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -1843,12 +1832,15 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'image_type'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'catalog_id', 'image_type', 'is_featured'), $request)) != '')
                 return $response;
 
-            $created_at = date('Y-m-d H:i:s');
+            $category_id = $request->category_id;
             $catalog_id = $request->catalog_id;
             $image_type = $request->image_type;
+            $is_featured = $request->is_featured;
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is normal images
+            $created_at = date('Y-m-d H:i:s');
 
             if (!$request_body->hasFile('original_img') and !$request_body->hasFile('display_img')) {
                 return Response::json(array('code' => 201, 'message' => 'Required field original_img or display_img is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
@@ -1862,7 +1854,8 @@ class AdminController extends Controller
             } else {
                 if ($request_body->hasFile('original_img')) {
                     $image_array = Input::file('original_img');
-                    if (($response = (new ImageController())->verifyImage($image_array)) != '')
+
+                    if (($response = (new ImageController())->verifyImage($image_array, $category_id, $is_featured, $is_catalog)) != '')
                         return $response;
 
                     $original_img = (new ImageController())->generateNewFileName('original_img', $image_array);
@@ -1879,7 +1872,8 @@ class AdminController extends Controller
                 if ($request_body->hasFile('display_img')) {
 
                     $image_array = Input::file('display_img');
-                    if (($response = (new ImageController())->verifyImage($image_array)) != '')
+
+                    if (($response = (new ImageController())->verifyImage($image_array, $category_id, $is_featured, $is_catalog)) != '')
                         return $response;
 
                     $display_img = (new ImageController())->generateNewFileName('display_img', $image_array);
@@ -1935,15 +1929,18 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * request_data:{"img_id":1,
-     * "image_type":1},
-     * original_img:image1.jpeg,
+     * request_data:{//all parameters are compulsory
+     * "category_id":1,
+     * "img_id":1,
+     * "image_type":1,
+     * "is_featured":1 //1=featured catalog, 0=normal catalog
+     * },
+     * original_img:image1.jpeg
      * display_img:image12.jpeg
-     * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Featured Background Images updated successfully!.",
+     * "message": "Featured background images updated successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -1956,15 +1953,21 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('img_id', 'image_type'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'img_id', 'image_type', 'is_featured'), $request)) != '')
                 return $response;
 
-            $created_at = date('Y-m-d H:i:s');
+            $category_id = $request->category_id;
             $img_id = $request->img_id;
             $image_type = $request->image_type;
+            $is_featured = $request->is_featured;
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is featured background images
+            $created_at = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
             if ($request_body->hasFile('original_img')) {
                 $image_array = Input::file('original_img');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+
+                if (($response = (new ImageController())->verifyImage($image_array, $category_id, $is_featured, $is_catalog)) != '')
                     return $response;
 
                 $original_img = (new ImageController())->generateNewFileName('original_img', $image_array);
@@ -1977,7 +1980,6 @@ class AdminController extends Controller
                     (new ImageController())->saveImageInToS3($original_img);
                 }
 
-                DB::beginTransaction();
                 DB::update('UPDATE images SET original_img = ?,image_type = ?,created_at = ? WHERE id = ?', [$original_img, $image_type, $created_at, $img_id]);
 
 
@@ -1987,7 +1989,7 @@ class AdminController extends Controller
             if ($request_body->hasFile('display_img')) {
 
                 $image_array = Input::file('display_img');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                if (($response = (new ImageController())->verifyImage($image_array, $category_id, $is_featured, $is_catalog)) != '')
                     return $response;
 
                 $display_img = (new ImageController())->generateNewFileName('display_img', $image_array);
@@ -2013,70 +2015,10 @@ class AdminController extends Controller
 
             DB::commit();
 
-            $response = Response::json(array('code' => 200, 'message' => 'Image updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Featured background images updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
             Log::error("updateFeaturedBackgroundCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    /**
-     * @api {post} deleteCatalogImage   deleteCatalogImage
-     * @apiName deleteCatalogImage
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "img_id":1 //compulsory
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Normal image deleted successfully.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function deleteCatalogImage(Request $request_body)
-    {
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('img_id'), $request)) != '')
-                return $response;
-
-            $img_id = $request->img_id;
-
-            $result = DB::select('SELECT image FROM images WHERE id = ?', [$img_id]);
-
-
-            DB::beginTransaction();
-
-            DB::delete('DELETE FROM images WHERE id = ? ', [$img_id]);
-
-            DB::commit();
-
-            if (count($result) > 0) {
-                $image_name = $result[0]->image;
-                //Image Delete in image_bucket
-                (new ImageController())->deleteImage($image_name);
-
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Normal image deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("deleteCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete normal image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update featured background images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -2191,6 +2133,68 @@ class AdminController extends Controller
         return $response;
     }
 
+    /* ==========================| Common for all content within a catalog |===========================*/
+
+    /**
+     * @api {post} deleteCatalogImage   deleteCatalogImage
+     * @apiName deleteCatalogImage
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "img_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Normal image deleted successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteCatalogImage(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('img_id'), $request)) != '')
+                return $response;
+
+            $img_id = $request->img_id;
+
+            $result = DB::select('SELECT image FROM images WHERE id = ?', [$img_id]);
+
+
+            DB::beginTransaction();
+
+            DB::delete('DELETE FROM images WHERE id = ? ', [$img_id]);
+
+            DB::commit();
+
+            if (count($result) > 0) {
+                $image_name = $result[0]->image;
+                //Image Delete in image_bucket
+                (new ImageController())->deleteImage($image_name);
+
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Normal image deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteCatalogImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete normal image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     /**
      * @api {post} getDataByCatalogIdForAdmin   getDataByCatalogIdForAdmin
      * @apiName getDataByCatalogIdForAdmin
@@ -2292,99 +2296,6 @@ class AdminController extends Controller
     }
 
     /* ======================================| Link Catalog |==========================================*/
-
-    /*This API is unused bcz no need to get list of catalog to link catalog functionality*/
-    /**
-     * @api {post} getAllCatalog   getAllCatalog
-     * @apiName getAllCatalog
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Catalog Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 2,
-     * "catalog_list": [
-     * {
-     * "catalog_id": 17,
-     * "sub_category_id": 4,
-     * "name": "Dragon Tattoo",
-     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59895317393b0_catalog_img_1502171927.png",
-     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59895317393b0_catalog_img_1502171927.png",
-     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59895317393b0_catalog_img_1502171927.png",
-     * "is_free": 1
-     * },
-     * {
-     * "catalog_id": 17,
-     * "sub_category_id": 10,
-     * "name": "Dragon Tattoo",
-     * "thumbnail_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/thumbnail/59895317393b0_catalog_img_1502171927.png",
-     * "compressed_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/compressed/59895317393b0_catalog_img_1502171927.png",
-     * "original_img": "http://192.168.0.102/ob_photolab_backend/image_bucket/original/59895317393b0_catalog_img_1502171927.png",
-     * "is_free": 1
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getAllCatalog()
-    {
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            if (!Cache::has("pel:getAllCatalog")) {
-                $result = Cache::rememberforever("getAllCatalog", function () {
-
-                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE is_active = ?', [1]);
-                    $total_row = $total_row_result[0]->total;
-
-                    $result = DB::select('SELECT
-                                        ct.id as catalog_id,
-                                        sct.sub_category_id,
-                                        ct.name,
-                                        IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                        IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
-                                        ct.is_free
-                                      FROM
-                                        catalog_master as ct,
-                                        sub_category_catalog as sct
-                                      WHERE
-                                        sct.catalog_id=ct.id AND
-                                        sct.is_active=1
-                                      order by ct.updated_at DESC');
-
-                    return array('total_record' => $total_row, 'catalog_list' => $result);
-                });
-            }
-
-            $redis_result = Cache::get("getAllCatalog");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getAllCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
 
     /**
      * @api {post} getAllSubCategoryForLinkCatalog   getAllSubCategoryForLinkCatalog
@@ -2767,8 +2678,7 @@ class AdminController extends Controller
             if (!Cache::has("pel:getAllSubCategoryToMoveTemplate$this->img_id:$this->category_id:$this->is_featured")) {
                 $result = Cache::rememberforever("getAllSubCategoryToMoveTemplate$this->img_id:$this->category_id:$this->is_featured", function () {
 
-                    if($this->category_id !=0 )
-                    {
+                    if ($this->category_id != 0) {
                         $sub_categories = DB::select('SELECT
                                                         distinct sc.id AS sub_category_id,
                                                         sc.name AS sub_category_name,
@@ -2779,7 +2689,7 @@ class AdminController extends Controller
                                                         sc.is_active = 1 AND 
                                                         sc.is_featured = 1 AND 
                                                         sc.category_id = ?
-                                                      ORDER BY sc.updated_at DESC',[$this->category_id]);
+                                                      ORDER BY sc.updated_at DESC', [$this->category_id]);
 
                         foreach ($sub_categories as $key) {
                             $catalogs = DB::select('SELECT
@@ -2800,9 +2710,7 @@ class AdminController extends Controller
                             $key->catalog_list = $catalogs;
 
                         }
-                    }
-                    else
-                    {
+                    } else {
                         $sub_categories = DB::select('SELECT
                                                         distinct sc.id AS sub_category_id,
                                                         sc.name AS sub_category_name,
@@ -2834,7 +2742,6 @@ class AdminController extends Controller
 
                         }
                     }
-
 
 
                     return $sub_categories;
@@ -2884,7 +2791,7 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Link Added Successfully.",
+     * "message": "Link added successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -2916,7 +2823,13 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+
+                /* Here we passed value following parameters as 0 bcs we use common validation for advertise images
+                 * category = 0
+                 * is_featured = 0
+                 * is_catalog = 0
+                 * */
+                if (($response = (new ImageController())->verifyImage($image_array, 0, 0, 0)) != '')
                     return $response;
 
                 $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
@@ -2932,10 +2845,16 @@ class AdminController extends Controller
 
             //Logo Image
             if (!$request_body->hasFile('logo_file')) {
-                return Response::json(array('code' => 201, 'message' => 'required field logo_file is missing or empty', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Required field logo_file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
                 $logo_image_array = Input::file('logo_file');
-                if (($response = (new ImageController())->verifyImage($logo_image_array)) != '')
+
+                /* Here we passed value following parameters as 0 bcs we use common validation for advertise images
+                 * category = 0
+                 * is_featured = 0
+                 * is_catalog = 0
+                 * */
+                if (($response = (new ImageController())->verifyImage($logo_image_array, 0, 0, 0)) != '')
                     return $response;
 
                 $app_logo = (new ImageController())->generateNewFileName('app_logo_image', $logo_image_array);
@@ -2995,7 +2914,7 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Link Updated Successfully.",
+     * "message": "Link updated successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -3007,77 +2926,10 @@ class AdminController extends Controller
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-//            if (!$request_body->has('request_data'))
-//                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
-//
-//            $request = json_decode($request_body->input('request_data'));
-//
-//            Log::info("request data :", [$request]);
-//            if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'name', 'platform', 'url'), $request)) != '')
-//                return $response;
-//
-//            $token = JWTAuth::getToken();
-//            JWTAuth::toUser($token);
-//
-//            $advertise_link_id = $request->advertise_link_id;
-//            $name = $request->name;
-//            $url = $request->url;
-//            $platform = $request->platform;
-//            $create_at = date('Y-m-d H:i:s');
-//            $image_name = '';
-//            $logo_image_name = '';
-//            DB::beginTransaction();
-//
-//            if ((!$request_body->hasFile('file'))) {
-//                //Log::info("Without Both file.");
-//                DB::update('update advertise_links
-//                            SET name = ?,
-//                                url = ?,
-//                                platform = ?,
-//                                created_at = ?
-//                            WHERE
-//                                id = ?', [$name, $url, $platform, $create_at, $advertise_link_id]);
-//            } else {
-//                Log::info("Only File");
-//                $image_array = Input::file('file');
-//                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-//                    return $response;
-//
-//                $app_image = (new ImageController())->generateNewFileName('app_image', $image_array);
-//                //Log::info("file size :",[filesize($profile_img)]);
-//                (new ImageController())->saveMultipleOriginalImage($app_image, 'file');
-//                (new ImageController())->saveCompressedImage($app_image);
-//                (new ImageController())->saveThumbnailImage($app_image);
-//
-//                $result = DB::select('select image from advertise_links where id = ?', [$advertise_link_id]);
-//                $image_name = $result[0]->image;
-//
-//                DB::update('update advertise_links
-//                            SET name = ?,
-//                                image = ?,
-//                                url = ?,
-//                                platform = ?,
-//                                created_at = ?
-//                            WHERE
-//                                id = ?', [$name, $app_image, $url, $platform, $create_at, $advertise_link_id]);
-//
-//            }
-//            DB::commit();
-//
-//            //Image Delete in image_bucket
-//            if ($image_name) {
-//                (new ImageController())->deleteImage($image_name);
-//            }
-//            if ($logo_image_name) {
-//                (new ImageController())->deleteImage($logo_image_name);
-//            }
-
             if (!$request_body->has('request_data'))
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
-            //Log::info("request data :", [$request]);
             if (($response = (new VerificationController())->validateRequiredParameter(array('advertise_link_id', 'name', 'platform', 'url', 'app_description'), $request)) != '')
                 return $response;
 
@@ -3104,7 +2956,13 @@ class AdminController extends Controller
             } elseif ((!$request_body->hasFile('logo_file')) && $request_body->hasFile('file')) {
                 //Log::info("Only File");
                 $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+
+                /* Here we passed value following parameters as 0 bcs we use common validation for advertise images
+                 * category = 0
+                 * is_featured = 0
+                 * is_catalog = 0
+                 * */
+                if (($response = (new ImageController())->verifyImage($image_array, 0, 0, 0)) != '')
                     return $response;
 
                 $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
@@ -3133,7 +2991,13 @@ class AdminController extends Controller
             } elseif ($request_body->hasFile('logo_file') && (!$request_body->hasFile('file'))) {
                 //Log::info("Only Logo-File");
                 $image_array = Input::file('logo_file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+
+                /* Here we passed value following parameters as 0 bcs we use common validation for advertise images
+                 * category = 0
+                 * is_featured = 0
+                 * is_catalog = 0
+                 * */
+                if (($response = (new ImageController())->verifyImage($image_array, 0, 0, 0)) != '')
                     return $response;
 
                 $logo_image = (new ImageController())->generateNewFileName('app_logo_image', $image_array);
@@ -3164,10 +3028,15 @@ class AdminController extends Controller
                 $image_array = Input::file('file');
                 $logo_image_array = Input::file('logo_file');
 
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                /* Here we passed value following parameters as 0 bcs we use common validation for advertise images
+                 * category = 0
+                 * is_featured = 0
+                 * is_catalog = 0
+                 * */
+                if (($response = (new ImageController())->verifyImage($image_array, 0, 0, 0)) != '')
                     return $response;
 
-                if (($response = (new ImageController())->verifyImage($logo_image_array)) != '')
+                if (($response = (new ImageController())->verifyImage($logo_image_array, 0, 0, 0)) != '')
                     return $response;
 
                 $app_image = (new ImageController())->generateNewFileName('banner_image', $image_array);
@@ -3181,7 +3050,6 @@ class AdminController extends Controller
                     (new ImageController())->saveImageInToS3($app_image);
                 }
 
-
                 (new ImageController())->saveMultipleOriginalImage($logo_image, 'logo_file');
                 (new ImageController())->saveCompressedImage($logo_image);
                 (new ImageController())->saveThumbnailImage($logo_image);
@@ -3189,7 +3057,6 @@ class AdminController extends Controller
                 if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                     (new ImageController())->saveImageInToS3($logo_image);
                 }
-
 
                 $result = DB::select('SELECT image,app_logo_img FROM advertise_links WHERE id = ?', [$advertise_link_id]);
                 $image_name = $result[0]->image;
@@ -3205,9 +3072,7 @@ class AdminController extends Controller
                                 created_at = ?
                             WHERE
                                 id = ?', [$name, $app_image, $logo_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
-
             }
-
 
             DB::commit();
 
@@ -4442,7 +4307,12 @@ class AdminController extends Controller
             if ($request_body->hasFile('file')) {
                 $image_array = Input::file('file');
 
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+                /* Here we passed value following parameters as 0 bcs we use common validation for user profile
+                 * category = 0
+                 * is_featured = 0
+                 * is_catalog = 0
+                 * */
+                if (($response = (new ImageController())->verifyImage($image_array, 0, 0, 0)) != '')
                     return $response;
 
                 $profile_img = (new ImageController())->generateNewFileName('profile_img', $image_array);
@@ -4632,19 +4502,18 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
-     * request_data:{
-     * "is_replace":0 //compulsory 0=do not replace the existing file, 2=replace the existing file
-     * },
-     * file[]:1.jpg,
-     * file[]:2.jpg,
-     * file[]:3.jpg,
-     * file[]:4.jpg
+     * request_data:{//all parameters are compulsory
+     * "category_id":0,
+     * "is_replace":0 //0=do not replace the existing file, 2=replace the existing file
      * }
+     * file[]:1.jpg
+     * file[]:2.jpg
+     * file[]:3.jpg
+     * file[]:4.jpg
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Json images added successfully.",
+     * "message": "Resource images added successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -4661,17 +4530,19 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('is_replace'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'is_replace'), $request)) != '')
                 return $response;
 
+            $category_id = $request->category_id;
+            $is_featured = 1; //Here we are passed 1 bcz resource images always uploaded from featured catalogs
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is resource images
             $is_replace = $request->is_replace;
 
             if ($request_body->hasFile('file')) {
                 $images_array = Input::file('file');
 
                 //To verify all resource images array
-                if (($response = (new ImageController())->verifyImagesArray($images_array, 1)) != '')
+                if (($response = (new ImageController())->verifyImagesArray($images_array, 1, $category_id, $is_featured, $is_catalog)) != '')
                     return $response;
 
                 if ($is_replace == 0) {
@@ -4680,9 +4551,6 @@ class AdminController extends Controller
                 }
 
                 foreach ($images_array as $image_array) {
-
-                    /*if (($response = (new ImageController())->verifySampleImage($image_array)) != '')
-                        return $response;*/
 
                     (new ImageController())->saveResourceImage($image_array);
 
@@ -4695,12 +4563,12 @@ class AdminController extends Controller
                 }
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Json images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            $response = Response::json(array('code' => 200, 'message' => 'Resource images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
             Log::error("addCatalogImagesForJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add resource images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -4717,34 +4585,62 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "catalog_id": 155,
+     * request_data:
+     * {
+     * "category_id": 2,
+     * "catalog_id": 646,
+     * "is_featured_catalog": 1, //1=featured catalog, 0=normal catalog
      * "is_free": 1,
      * "is_featured": 1,
+     * "is_portrait": 1, //optional 1=portrait, 0=landscape
+     * "search_category": "", //optional
      * "json_data": {
-     * "text_json": [],
-     * "sticker_json": [],
-     * "image_sticker_json": [
+     * "text_json": [
+     * {
+     * "xPos": 46,
+     * "yPos": 204,
+     * "color": "#ff5d5b",
+     * "text": "GYM\nNAME",
+     * "size": 80,
+     * "fontName": "AgencyFB-Bold",
+     * "fontPath": "fonts/AGENCYB.ttf",
+     * "alignment": 1,
+     * "bg_image": "",
+     * "texture_image": "",
+     * "opacity": 100,
+     * "angle": 0,
+     * "shadowColor": "#000000",
+     * "shadowRadius": 0,
+     * "shadowDistance": 0
+     * }
+     * ],
+     * "sticker_json": [
      * {
      * "xPos": 0,
      * "yPos": 0,
-     * "image_sticker_image": "",
-     * "angle": 0,
-     * "is_round": 0,
+     * "width": 650,
      * "height": 800,
-     * "width": 500
+     * "sticker_image": "fitness_effect_rbg3_93.png",
+     * "angle": 0,
+     * "is_round": 0
      * }
      * ],
+     * "image_sticker_json": [],
      * "frame_json": {
-     * "frame_image": "frame_15.7"
+     * "frame_image": "",
+     * "frame_color": ""
      * },
-     * "background_json": {},
-     * "sample_image": "sample_15.7",
-     * "is_featured": 0,
+     * "background_json": {
+     * "background_image": "fitness_bg_rbg3_93.jpg",
+     * "background_color": ""
+     * },
+     * "sample_image": "fitness_sample_rbg3_93.jpg",
      * "height": 800,
-     * "width": 800
+     * "width": 650,
+     * "is_portrait": 1,
+     * "is_featured": 0
      * }
-     * },
+     * }
      * file:image1.jpeg
      * }
      * @apiSuccessExample Success-Response:
@@ -4763,17 +4659,22 @@ class AdminController extends Controller
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-            $request = json_decode($request_body->input('request_data'));
+            //Required parameter
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free'), $request)) != '')
+            $request = json_decode($request_body->input('request_data'));
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free'), $request)) != '')
                 return $response;
 
+            $category_id = $request->category_id;
             $catalog_id = $request->catalog_id;
             $json_data = $request->json_data;
             $is_free = $request->is_free;
             $is_featured = $request->is_featured;
+            $is_featured_catalog = $request->is_featured_catalog;
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is template images
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
-            //$search_category = $request->search_category;
             $search_category = isset($request->search_category) ? strtolower($request->search_category) : NULL;
             $created_at = date('Y-m-d H:i:s');
 
@@ -4784,13 +4685,13 @@ class AdminController extends Controller
             if (($response = (new ImageController())->validateFonts($json_data)) != '')
                 return $response;
 
-            DB::beginTransaction();
+
             if (!$request_body->hasFile('file')) {
                 return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             } else {
 
                 $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifySampleImage($image_array)) != '')
+                if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
                     return $response;
 
                 if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
@@ -4828,32 +4729,25 @@ class AdminController extends Controller
                     (new ImageController())->saveWebpImageInToS3($file_name);
                 }
 
-
+                DB::beginTransaction();
                 /*DB::insert('INSERT
                                 INTO
                                   images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at, attribute1)
                                 VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at, $file_name]);*/
-
 
                 DB::insert('INSERT
                                 INTO
                                   images(catalog_id, image, json_data, is_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, created_at, attribute1)
                                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $tag_list, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
 
-
                 DB::commit();
             }
 
             if (strstr($file_name, '.webp')) {
-
                 $response = Response::json(array('code' => 200, 'message' => 'Json added successfully.', 'cause' => '', 'data' => json_decode('{}')));
-
-
             } else {
                 $response = Response::json(array('code' => 200, 'message' => 'Json added successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' => json_decode('{}')));
-
             }
-
 
         } catch
         (Exception $e) {
@@ -4876,35 +4770,60 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * request_data:{
+     * "category_id": 2,
+     * "is_featured_catalog": 1, //1=featured catalog, 0=normal catalog
      * "img_id": 356,
      * "is_free": 1,
      * "is_featured": 1,
-     * "json_data": {
-     * "text_json": [],
-     * "sticker_json": [],
-     * "image_sticker_json": [
+     * "is_portrait": 1, //optional 1=portrait, 0=landscape
+     * "json_data": {//optional
+     * "text_json": [
+     * {
+     * "xPos": 46,
+     * "yPos": 204,
+     * "color": "#ff5d5b",
+     * "text": "GYM\nNAME",
+     * "size": 80,
+     * "fontName": "AgencyFB-Bold",
+     * "fontPath": "fonts/AGENCYB.ttf",
+     * "alignment": 1,
+     * "bg_image": "",
+     * "texture_image": "",
+     * "opacity": 100,
+     * "angle": 0,
+     * "shadowColor": "#000000",
+     * "shadowRadius": 0,
+     * "shadowDistance": 0
+     * }
+     * ],
+     * "sticker_json": [
      * {
      * "xPos": 0,
      * "yPos": 0,
-     * "image_sticker_image": "",
-     * "angle": 0,
-     * "is_round": 0,
+     * "width": 650,
      * "height": 800,
-     * "width": 500
+     * "sticker_image": "fitness_effect_rbg3_93.png",
+     * "angle": 0,
+     * "is_round": 0
      * }
      * ],
+     * "image_sticker_json": [],
      * "frame_json": {
-     * "frame_image": "frame_15.7"
+     * "frame_image": "",
+     * "frame_color": ""
      * },
-     * "background_json": {},
-     * "sample_image": "sample_15.7",
-     * "is_featured": 0,
+     * "background_json": {
+     * "background_image": "fitness_bg_rbg3_93.jpg",
+     * "background_color": ""
+     * },
+     * "sample_image": "fitness_sample_rbg3_93.jpg",
      * "height": 800,
-     * "width": 800
+     * "width": 650,
+     * "is_portrait": 1,
+     * "is_featured": 0
      * }
-     * },
-     * file:image1.jpeg
      * }
+     * file:image1.jpeg //optional
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -4921,30 +4840,33 @@ class AdminController extends Controller
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
+            //Required parameter
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('is_featured', 'is_free', 'img_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free'), $request)) != '')
                 return $response;
 
+            $category_id = $request->category_id;
+            $is_featured_catalog = $request->is_featured_catalog;
+            $is_catalog = 0;//Here we are passed 0 bcz this is not image of catalog, this is normal images
             $img_id = $request->img_id;
-            $json_data = isset($request->json_data) ? $request->json_data : '';
             $is_free = $request->is_free;
             $is_featured = $request->is_featured;
+            $json_data = isset($request->json_data) ? $request->json_data : '';
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
-            //$search_category = isset($request->search_category) ? $request->search_category : NULL;
             $search_category = isset($request->search_category) ? strtolower($request->search_category) : NULL;
 
-            //Log::info('request_data', ['request_data' => $request]);
             if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
                 return $response;
 
             if (($response = (new ImageController())->validateFonts($json_data)) != '')
                 return $response;
 
-
-            DB::beginTransaction();
             if ($request_body->hasFile('file')) {
                 $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifySampleImage($image_array)) != '')
+                if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
                     return $response;
 
                 if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
@@ -4967,7 +4889,7 @@ class AdminController extends Controller
                     (new ImageController())->saveWebpImageInToS3($file_name);
                 }
 
-
+                DB::beginTransaction();
                 /*DB::update('UPDATE
                                 images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, attribute1 = ?
                                 WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
@@ -4990,7 +4912,7 @@ class AdminController extends Controller
 
                 /* generate webp original & thumbnail from original image (genearte webp for uploaded jpg/png samples) */
                 $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND attribute1 IS NULL', [$img_id]);
-                DB::beginTransaction();
+
                 if (count($is_exist) > 0) {
 
                     //Log::info('webp original');
@@ -5000,12 +4922,13 @@ class AdminController extends Controller
                         (new ImageController())->saveWebpImageInToS3($file_data['filename']);
                     }
 
+                    DB::beginTransaction();
                     DB::update('UPDATE
                                 images SET height = ?, width = ?, attribute1 = ?
                                 WHERE id = ?', [$file_data['height'], $file_data['width'], $file_data['filename'], $img_id]);
                     DB::commit();
-
                 }
+
 
                 /* generate webp thumbnail from original image when webp thumbnail is not exist */
                 $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND width IS NULL AND height IS NULL AND attribute1 IS NOT NULL', [$img_id]);
@@ -5017,161 +4940,22 @@ class AdminController extends Controller
                     if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                         (new ImageController())->saveWebpThumbnailImageInToS3($is_exist[0]->attribute1);
                     }
-
+                    DB::beginTransaction();
                     DB::update('UPDATE
                                 images SET height = ?, width =?
                                 WHERE id = ?', [$dimension['height'], $dimension['width'], $img_id]);
                     DB::commit();
                 }
 
-
+                DB::beginTransaction();
                 DB::update('UPDATE
                                 images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?
                                 WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $img_id]);
-
                 DB::commit();
 
-                $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
+                $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
             }
-            DB::commit();
-
-
-        } catch
-        (Exception $e) {
-            Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    public function addJsonOld(Request $request_body)
-    {
-
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'is_featured', 'is_free'), $request)) != '')
-                return $response;
-
-            $catalog_id = $request->catalog_id;
-            //dd($json_list);
-
-            $json_data = $request->json_data;
-            $is_free = $request->is_free;
-            $is_featured = $request->is_featured;
-            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
-            $created_at = date('Y-m-d H:i:s');
-
-            //Log::info('request_data', ['request_data' => $request]);
-
-
-            DB::beginTransaction();
-            if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-
-                $image_array = Input::file('file');
-                //return $images_array;
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
-                //(new ImageController())->saveOriginalImage($background_img);
-
-                $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-                $image_array->move($original_path, $catalog_image);
-
-                (new ImageController())->saveCompressedImage($catalog_image);
-                (new ImageController())->saveThumbnailImage($catalog_image);
-                //(new ImageController())->saveImageInToS3($catalog_image);
-
-
-                DB::insert('INSERT
-                                INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at)
-                                VALUES(?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at]);
-
-
-                DB::commit();
-            }
-
-
-            $response = Response::json(array('code' => 200, 'message' => 'Json added successfully!.', 'cause' => '', 'data' => json_decode('{}')));
-
-        } catch
-        (Exception $e) {
-            Log::error("addJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
-    public function editJsonDataOld(Request $request_body)
-    {
-
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('is_featured', 'is_free', 'img_id'), $request)) != '')
-                return $response;
-
-            //$catalog_id = $request->catalog_id;
-            //dd($json_list);
-            $img_id = $request->img_id;
-            $json_data = isset($request->json_data) ? $request->json_data : '';
-            $is_free = $request->is_free;
-            $is_featured = $request->is_featured;
-            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
-            $created_at = date('Y-m-d H:i:s');
-
-            //Log::info('request_data', ['request_data' => $request]);
-
-
-            DB::beginTransaction();
-            if ($request_body->hasFile('file')) {
-                $image_array = Input::file('file');
-                //return $images_array;
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
-                    return $response;
-
-                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
-                (new ImageController())->saveOriginalImage($catalog_image);
-
-                /*$original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
-                $image_array->move($original_path, $catalog_image);*/
-
-                (new ImageController())->saveCompressedImage($catalog_image);
-                (new ImageController())->saveThumbnailImage($catalog_image);
-                //(new ImageController())->saveImageInToS3($catalog_image);
-
-                //Log::info('Encoded json_data', ['json_data' => json_encode($json_data)]);
-
-                DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
-
-            } else {
-
-                DB::update('UPDATE
-                                images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?
-                                WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $img_id]);
-
-
-            }
-            DB::commit();
-
-            $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully!.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch
         (Exception $e) {
@@ -6282,128 +6066,6 @@ class AdminController extends Controller
         return $response;
     }
 
-    //This API is used to delete CDN cache (unused api)
-
-    /**
-     * @api {post} createInvalidation   createInvalidation
-     * @apiName createInvalidation
-     * @apiGroup Admin
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * request_data:{
-     * "img_id": 356,
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "json_data": {
-     * "text_json": [],
-     * "sticker_json": [],
-     * "image_sticker_json": [
-     * {
-     * "xPos": 0,
-     * "yPos": 0,
-     * "image_sticker_image": "",
-     * "angle": 0,
-     * "is_round": 0,
-     * "height": 800,
-     * "width": 500
-     * }
-     * ],
-     * "frame_json": {
-     * "frame_image": "frame_15.7"
-     * },
-     * "background_json": {},
-     * "sample_image": "sample_15.7",
-     * "is_featured": 0,
-     * "height": 800,
-     * "width": 800
-     * }
-     * },
-     * file:image1.jpeg
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Json data updated successfully!.",
-     * "cause": "",
-     * "data": {}
-     * }
-     */
-    public function createInvalidation(Request $request)
-    {
-
-        try {
-
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-
-            /* This api used to create Invalidation for S3 to delete CDN caching of s3_bucket */
-            if ($request->hasFile('file')) {
-                $file = Input::file('file');
-                //$file_type = $file->getMimeType();
-
-                if (($response = (new ImageController())->verifyImage($file)) != '')
-                    return $response;
-
-                $image = $file->getClientOriginalName();//(new ImageController())->generateNewFileName('test_webp_image', $file);
-
-                (new ImageController())->saveOriginalImage($image);
-
-                $original_sourceFile = $this->base_url . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $image;
-
-                //return array($original_sourceFile);
-                $disk = Storage::disk('s3');
-                $original_targetFile = "imageflyer/webp_original_new/" . $image;
-
-                $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
-                return $response = Response::json(array('code' => 200, 'message' => 'File uploaded successfully.', 'cause' => '', 'data' => "http://d2738jkpoo0kon.cloudfront.net/imageflyer/webp_original_new/" . $image));
-
-            } else {
-                return $response = Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode('{}')));
-            }
-
-
-            /*//$request = json_decode($request->getContent());
-            $client = CloudFrontClient::factory(array(
-                'credentials' => array(
-                    'key' => 'AKIAIATYIJ5MPKANS7QA',
-                    'secret' => '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',
-                ),
-                'region' => 'us-east-2',
-                'version' => 'latest',
-            ));
-
-            $caller_reference = time();
-
-
-            $result = $client->createInvalidation([
-                'DistributionId' => 'E1CURG7RSP7L0C', // REQUIRED
-                'InvalidationBatch' => [ // REQUIRED
-                    'CallerReference' => $caller_reference, // REQUIRED
-                    'Paths' => [ // REQUIRED
-                        'Items' => ['http://d2738jkpoo0kon.cloudfront.net/imageflyer/webp_original_new/best_wallpapers_for_girl.jpg'],
-                        'Quantity' => 1, // REQUIRED
-                    ],
-                ],
-            ]);
-
-            dd($result);*/
-
-
-        } catch
-        (Exception $e) {
-            Log::error("createInvalidation : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'create invalidation.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
     /* ==========================================| Tags |==============================================*/
 
     /**
@@ -6878,14 +6540,14 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
      * request_data:{
-     * "catalog_id":280, //compulsory
+     * "category_id":4,
+     * "catalog_id":280,
      * "ios_font_name":"3d", //optional
-     * "is_replace":1 //compulsory 1=replace font file, 0=don't replace font file
+     * "is_replace":1 //1=replace font file, 0=don't replace font file
+     * "is_featured":1 //1=featured catalog, 0=normal catalog
      * }
-     * file:3d.ttf //compulsory
-     * }
+     * file:3d.ttf
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -6906,16 +6568,19 @@ class AdminController extends Controller
 
             $request = json_decode($request_body->input('request_data'));
             if (($response = (new VerificationController())->validateRequiredParameter(array(
+                    'category_id',
                     'catalog_id',
-                    'is_replace'
+                    'is_replace',
+                    'is_featured'
                 ), $request)) != ''
             )
                 return $response;
 
+            $category_id = $request->category_id;
             $catalog_id = $request->catalog_id;
-            //$ios_font_name = $request->ios_font_name;
-            //$android_font_name = $request->android_font_name;
             $is_replace = $request->is_replace;
+            $is_featured = $request->is_featured;
+            $is_catalog = 0;//Here we are passed 1 bcz this is not image of catalog, this is font file
             $create_at = date('Y-m-d H:i:s');
             DB::beginTransaction();
             if (!$request_body->hasFile('file')) {
@@ -6924,7 +6589,7 @@ class AdminController extends Controller
 
                 $file_array = Input::file('file');
 
-                if (($response = (new ImageController())->verifyFontFile($file_array)) != '')
+                if (($response = (new ImageController())->verifyFontFile($file_array, $category_id, $is_featured, $is_catalog)) != '')
                     return $response;
 
                 if ($is_replace == 0) {
@@ -7297,14 +6962,14 @@ class AdminController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
      * request_data:{
+     * "$category_id":1, //optional
      * "catalog_id":280, //compulsory
      * "ios_font_name":"3d", //optional
      * "is_replace":1 //compulsory 1=replace font file, 0=don't replace font file
+     * "is_featured":1 //optional 1=featured catalog, 0=normal catalog
      * }
      * file:3d.ttf //compulsory
-     * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -7332,9 +6997,10 @@ class AdminController extends Controller
                 return $response;
 
             $catalog_id = $request->catalog_id;
-            //$ios_font_name = $request->ios_font_name;
-            //$android_font_name = $request->android_font_name;
             $is_replace = $request->is_replace;
+            $category_id = isset($request->category_id) ? $request->category_id : 0;
+            $is_featured = isset($request->is_featured) ? $request->is_featured : 0;
+            $is_catalog = 0;//Here we are passed 1 bcz this is not image of catalog, this is font file
             $create_at = date('Y-m-d H:i:s');
             DB::beginTransaction();
             if (!$request_body->hasFile('file')) {
@@ -7345,7 +7011,7 @@ class AdminController extends Controller
 
                 if ($is_replace == 0) {
 
-                    if (($response = (new ImageController())->verifyFontFile($file_array)) != '')
+                    if (($response = (new ImageController())->verifyFontFile($file_array, $category_id, $is_featured, $is_catalog)) != '')
                         return $response;
 
                     if (($response = (new VerificationController())->checkIsFontExist($file_array)) != '')
@@ -7363,7 +7029,6 @@ class AdminController extends Controller
                 }
 
                 $android_font_name = "fonts/$file_name";
-                //$ios_font_name = $file_name;
                 $ios_font_name = isset($request->ios_font_name) ? $request->ios_font_name : $file_name;
 
                 DB::insert('INSERT
@@ -8654,6 +8319,396 @@ class AdminController extends Controller
         return $response;
     }
 
+    /* ===================================| Search Category (Tags) |===================================*/
+
+    /**
+     * @api {post} addSearchCategoryTag   addSearchCategoryTag
+     * @apiName addSearchCategoryTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":2, //compulsory
+     * "tag_name":"Nature" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addSearchCategoryTag(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('tag_name', 'sub_category_id'), $request)) != '')
+                return $response;
+
+            $tag_name = trim($request->tag_name);
+            $sub_category_id = $request->sub_category_id;
+            $create_time = date('Y-m-d H:i:s');
+
+            $result = DB::select('SELECT * FROM sub_category_tag_master 
+                                      WHERE 
+                                        tag_name = ? AND 
+                                        sub_category_id = ?', [$tag_name, $sub_category_id]);
+
+            if (count($result) > 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'Search category already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+
+            //validate search text
+            if (($response = (new VerificationController())->verifySearchText($tag_name)) != 1)
+                return $response = Response::json(array('code' => 201, 'message' => 'Invalid tag name. Please enter valid tag name.', 'cause' => '', 'data' => json_decode('{}')));
+
+            $total_row_result = DB::select('SELECT
+                                                              count(*) as total
+                                                            FROM
+                                                              images as im
+                                                              JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1
+                                                            WHERE
+                                                              im.is_active = 1 AND
+                                                              isnull(im.original_img) AND
+                                                              isnull(im.display_img) AND
+                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)',[$sub_category_id]);
+
+            $total_row = $total_row_result[0]->total;
+
+            if ($total_row == 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'Templates do not exist having this tag.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            DB::beginTransaction();
+            DB::insert('INSERT INTO sub_category_tag_master (
+                            sub_category_id, 
+                            tag_name, 
+                            is_active, 
+                            create_time) VALUES(?, ?, ?, ?)', [$sub_category_id, $tag_name, 1, $create_time]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Search category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("addSearchCategoryTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateSearchCategoryTag   updateSearchCategoryTag
+     * @apiName updateSearchCategoryTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":2, //compulsory
+     * "sub_category_tag_id":1, //compulsory
+     * "tag_name":"Featured" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Search category updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateSearchCategoryTag(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'sub_category_tag_id', 'tag_name'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $sub_category_tag_id = $request->sub_category_tag_id;
+            $tag_name = trim($request->tag_name);
+
+            //validate search text
+            if (($response = (new VerificationController())->verifySearchText($tag_name)) != 1)
+                return $response = Response::json(array('code' => 201, 'message' => 'Invalid tag name. Please enter valid tag name.', 'cause' => '', 'data' => json_decode('{}')));
+
+
+            $result = DB::select('SELECT * FROM sub_category_tag_master 
+                                      WHERE 
+                                        tag_name = ? AND 
+                                        sub_category_id = ? AND 
+                                        id != ?', [$tag_name, $sub_category_id, $sub_category_tag_id]);
+            if (count($result) > 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'Search category already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+            $total_row_result = DB::select('SELECT
+                                                count(*) as total
+                                              FROM
+                                                images as im
+                                                JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                                JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1
+                                              WHERE
+                                                im.is_active = 1 AND
+                                                isnull(im.original_img) AND
+                                                isnull(im.display_img) AND
+                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)',[$sub_category_id]);
+
+            $total_row = $total_row_result[0]->total;
+
+            if ($total_row == 0) {
+                return $response = Response::json(array('code' => 201, 'message' => 'Templates do not exist having this tag.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+
+            DB::beginTransaction();
+
+            DB::update('UPDATE
+                              sub_category_tag_master
+                            SET
+                              tag_name = ?
+                            WHERE
+                              id = ? ',
+                [$tag_name, $sub_category_tag_id]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Search category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("updateSearchCategoryTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteSearchCategoryTag   deleteSearchCategoryTag
+     * @apiName deleteSearchCategoryTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_tag_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Search category deleted successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteSearchCategoryTag(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_tag_id'), $request)) != '')
+                return $response;
+
+            $sub_category_tag_id = $request->sub_category_tag_id;
+
+            DB::beginTransaction();
+
+            DB::delete('DELETE FROM sub_category_tag_master where id = ? ', [$sub_category_tag_id]);
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Search category deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteSearchCategoryTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete search category tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getCategoryTagBySubCategoryId   getCategoryTagBySubCategoryId
+     * @apiName getCategoryTagBySubCategoryId
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "sub_category_id":1, //compulsory
+     * "order_by":"tag_name", //optional
+     * "order_type":"ASC" //optional
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Category tags fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 10,
+     * "result": [
+     * {
+     * "sub_category_tag_id": 18,
+     * "tag_name": "dats",
+     * "total_template": 0
+     * },
+     * {
+     * "sub_category_tag_id": 12,
+     * "tag_name": "Birthday",
+     * "total_template": 24
+     * },
+     * {
+     * "sub_category_tag_id": 16,
+     * "tag_name": "Flag",
+     * "total_template": 20
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getCategoryTagBySubCategoryId(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->order_by = isset($request->order_by) ? $request->order_by : 'update_time'; //field name
+            $this->order_type = strtolower(isset($request->order_type) ? $request->order_type : 'DESC'); //asc or desc
+
+            if (!Cache::has("pel:getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type")) {
+                $result = Cache::rememberforever("getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type", function () {
+
+                    $tag_list = DB::select('SELECT
+                                        id AS sub_category_tag_id,
+                                        tag_name
+                                        FROM
+                                        sub_category_tag_master
+                                         WHERE sub_category_id = ? AND is_active = ? ORDER BY ' . $this->order_by . ' ' . $this->order_type, [$this->sub_category_id, 1]);
+
+                    foreach ($tag_list as $key) {
+                        $total_row_result = DB::select('SELECT
+                                                              count(*) as total
+                                                            FROM
+                                                              images as im
+                                                              JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1
+                                                            WHERE
+                                                              im.is_active = 1 AND
+                                                              isnull(im.original_img) AND
+                                                              isnull(im.display_img) AND
+                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)',[$this->sub_category_id]);
+
+                        $key->total_template = $total_row_result[0]->total;
+                    }
+
+                    return $tag_list;
+                });
+            }
+
+            $redis_result = Cache::get("getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Category tags fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'result' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getCategoryTagBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get category tags.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} setCategoryTagRankOnTheTopByAdmin setCategoryTagRankOnTheTopByAdmin
+     * @apiName setCategoryTagRankOnTheTopByAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_tag_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Rank set successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function setCategoryTagRankOnTheTopByAdmin(Request $request)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_tag_id'), $request)) != '')
+                return $response;
+
+            $sub_category_tag_id = $request->sub_category_tag_id;
+            $current_time = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
+            DB::update('UPDATE
+                            sub_category_tag_master
+                            SET update_time = ?
+                            WHERE
+                            id = ?', [$current_time, $sub_category_tag_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("setCategoryTagRankOnTheTopByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'set rank.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /* ===========================| Manage Validation Module |=========================================*/
 
     /**
@@ -8668,12 +8723,17 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "tag_name":"Nature" //compulsory
+     * "category_id": 2, //compulsory
+     * "validation_name": "sticker_image_size", //compulsory
+     * "max_value_of_validation": 100, //compulsory
+     * "is_featured":1, //compulsory
+     * "is_catalog":1, //compulsory
+     * "description":"test" //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Tag added successfully.",
+     * "message": "Validation added successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -8685,23 +8745,52 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'validation_name', 'max_value_of_validation'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array(
+                    'category_id',
+                    'validation_name',
+                    'max_value_of_validation',
+                    'is_featured',
+                    'is_catalog',
+                    'description'
+                ), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
-            $validation_name = $request->validation_name;
+            $validation_name = trim($request->validation_name);
             $max_value_of_validation = $request->max_value_of_validation;
+            $is_featured = $request->is_featured;
+            $is_catalog = $request->is_catalog;
+            $description = $request->description;
             $create_time = date('Y-m-d H:i:s');
 
-            $result = DB::select('SELECT * FROM settings_master WHERE validation_name = ? AND category_id = ?', [$validation_name, $category_id]);
+            $result = DB::select('SELECT * FROM settings_master 
+                                      WHERE 
+                                        category_id = ? AND 
+                                        is_featured = ? AND 
+                                        is_catalog = ?', [$category_id, $is_featured, $is_catalog]);
             if (count($result) > 0) {
                 return $response = Response::json(array('code' => 201, 'message' => 'Validation already exist.', 'cause' => '', 'data' => json_decode('{}')));
             }
 
             DB::beginTransaction();
-
-            DB::insert('INSERT INTO settings_master (category_id, validation_name, max_value_of_validation,is_active, create_time) VALUES(?, ?, ?, ?, ?)', [$category_id, $validation_name, $max_value_of_validation, 1, $create_time]);
-
+            DB::insert('INSERT INTO settings_master (
+                            category_id, 
+                            validation_name, 
+                            max_value_of_validation, 
+                            is_featured, 
+                            is_catalog, 
+                            description, 
+                            is_active, 
+                            create_time
+                            ) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
+                [$category_id,
+                    $validation_name,
+                    $max_value_of_validation,
+                    $is_featured,
+                    $is_catalog,
+                    $description,
+                    1,
+                    $create_time]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Validation added successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -8725,13 +8814,18 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "tag_id":1, //compulsory
-     * "tag_name":"Featured" //compulsory
+     * "setting_id":1, //compulsory
+     * "category_id":0, //compulsory
+     * "validation_name":"common_image_size", //compulsory
+     * "max_value_of_validation":200, //compulsory
+     * "is_featured":0, //compulsory
+     * "is_catalog":0, //compulsory
+     * "description":"Maximum size for all common images." //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Tag updated successfully.",
+     * "message": "Validation updated successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -8744,29 +8838,49 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('setting_id', 'validation_name', 'max_value_of_validation'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array(
+                    'setting_id',
+                    'category_id',
+                    'validation_name',
+                    'max_value_of_validation',
+                    'is_featured',
+                    'is_catalog',
+                    'description'
+                ), $request)) != '')
                 return $response;
 
+            $category_id = $request->category_id;
             $setting_id = $request->setting_id;
-            $validation_name = $request->validation_name;
+            $validation_name = trim($request->validation_name);
             $max_value_of_validation = $request->max_value_of_validation;
+            $is_featured = $request->is_featured;
+            $is_catalog = $request->is_catalog;
+            $description = $request->description;
 
-            $result = DB::select('SELECT * FROM settings_master WHERE validation_name = ? AND id != ?', [$validation_name, $setting_id]);
+            $result = DB::select('SELECT * FROM settings_master 
+                                      WHERE 
+                                        category_id = ? AND 
+                                        is_featured = ? AND 
+                                        is_catalog = ? AND 
+                                        id != ?', [$category_id, $is_featured, $is_catalog, $setting_id]);
+
             if (count($result) > 0) {
                 return $response = Response::json(array('code' => 201, 'message' => 'Validation already exist.', 'cause' => '', 'data' => json_decode('{}')));
             }
 
             DB::beginTransaction();
-
             DB::update('UPDATE
                               settings_master
                             SET
+                              category_id = ?,
                               validation_name = ?,
-                              max_value_of_validation = ?
+                              max_value_of_validation = ?,
+                              is_featured = ?,
+                              is_catalog = ?,
+                              description = ?
                             WHERE
                               id = ? ',
-                [$validation_name, $max_value_of_validation, $setting_id]);
-
+                [$category_id, $validation_name, $max_value_of_validation, $is_featured, $is_catalog, $description, $setting_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Validation updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -8792,12 +8906,12 @@ class AdminController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
-     * "tag_id":1 //compulsory
+     * "setting_id":7 //compulsory
      * }
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "Tag deleted successfully!.",
+     * "message": "Validation deleted successfully.",
      * "cause": "",
      * "data": {}
      * }
@@ -8846,26 +8960,33 @@ class AdminController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "All tags fetched successfully.",
+     * "message": "All validations fetched successfully.",
      * "cause": "",
      * "data": {
-     * "total_record": 4,
      * "result": [
      * {
-     * "tag_id": 1,
-     * "tag_name": "test"
+     * "setting_id": 1,
+     * "category_id": 0,
+     * "validation_name": "common_image_size",
+     * "max_value_of_validation": "100",
+     * "is_featured": 0,
+     * "is_catalog": 0,
+     * "description": "Maximum size for all common images. asasda dasd asd",
+     * "update_time": "2019-07-17 06:08:01"
+     * }
+     * ],
+     * "category_list": [
+     * {
+     * "category_id": 1,
+     * "name": "Frame"
      * },
      * {
-     * "tag_id": 2,
-     * "tag_name": "Offer & Sales"
+     * "category_id": 2,
+     * "name": "Sticker"
      * },
      * {
-     * "tag_id": 3,
-     * "tag_name": "Mobile Apps"
-     * },
-     * {
-     * "tag_id": 4,
-     * "tag_name": "Photography"
+     * "category_id": 3,
+     * "name": "Background"
      * }
      * ]
      * }
@@ -8880,15 +9001,29 @@ class AdminController extends Controller
 
             if (!Cache::has("pel:getAllValidationsForAdmin")) {
                 $result = Cache::rememberforever("getAllValidationsForAdmin", function () {
-                    return DB::select('SELECT
+
+                    $category_list = DB::select('SELECT
+                                    ct.id as category_id,
+                                    ct.name
+                                  FROM
+                                  category as ct
+                                  where is_active=?', [1]);
+
+                    $list_of_validations = DB::select('SELECT
                                         id AS setting_id,
                                         category_id,
                                         validation_name,
                                         max_value_of_validation,
+                                        is_featured,
+                                        is_catalog,
+                                        description,
                                         update_time
                                         FROM
                                         settings_master
-                                        WHERE is_active = ?', [1]);
+                                        WHERE is_active = ? 
+                                        ORDER BY update_time DESC', [1]);
+
+                    return array('result' => $list_of_validations, 'category_list' => $category_list);
                 });
             }
 
@@ -8898,7 +9033,7 @@ class AdminController extends Controller
                 $redis_result = [];
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'All validations fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'result' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'All validations fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
@@ -9132,7 +9267,7 @@ class AdminController extends Controller
         return $response;
     }
 
-    /* ======================================| Others |================================================*/
+    /* ======================================| APIs for debugging |====================================*/
 
     public function storeFileIntoS3Bucket(Request $request_body)
     {
@@ -9140,7 +9275,7 @@ class AdminController extends Controller
 
             if ($request_body->hasFile('file')) {
                 $file = Input::file('file');
-                $file_type = $file->getMimeType();
+                //$file_type = $file->getMimeType();
 
                 $image = (new ImageController())->generateNewFileName('test_image', $file);
                 (new ImageController())->saveOriginalImage($image);

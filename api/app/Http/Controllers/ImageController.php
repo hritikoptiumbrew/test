@@ -10,20 +10,20 @@ use Exception;
 use Response;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Cache;
 use File;
 use Log;
 use DB;
 
 class ImageController extends Controller
 {
-    // Verify Image
-    public function verifyImage($image_array)
+    //verify image
+    public function verifyImage($image_array, $category_id, $is_featured, $is_catalog)
     {
 
         $image_type = $image_array->getMimeType();
         $image_size = $image_array->getSize();
         //Log::info("Image Size",[$image_size]);
-        //$MAXIMUM_FILESIZE = 1 * 1024 * 1024; //1mb
 
         /*
          * check size into kb
@@ -31,19 +31,23 @@ class ImageController extends Controller
          * 1kb = 1024 bytes
          * */
 
-        $MAXIMUM_FILESIZE = 100 * 1024;
+        $validations = $this->getValidationFromCache($category_id, $is_featured, $is_catalog);
+        //Log::info('verifyImage : ', ['validations' => $validations]);
+
+        $MAXIMUM_FILESIZE = $validations * 1024;
+        //$MAXIMUM_FILESIZE = 100 * 1024;
 
         if (!($image_type == 'image/png' || $image_type == 'image/jpeg'))
             $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file.', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($image_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 100KB.', 'cause' => '', 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then '.$validations.'KB.', 'cause' => '', 'data' => json_decode("{}")));
         else
             $response = '';
         return $response;
     }
 
-    //Verify Sample Image of cards
-    public function verifySampleImage($image_array)
+    //verify sample image of cards
+    public function verifySampleImage($image_array, $category_id, $is_featured, $is_catalog)
     {
 
         $image_type = $image_array->getMimeType();
@@ -55,7 +59,11 @@ class ImageController extends Controller
          * 1kb = 1024 bytes
          * */
 
-        $MAXIMUM_FILESIZE = 200 * 1024;
+        $validations = $this->getValidationFromCache($category_id, $is_featured, $is_catalog);
+        //Log::info('verifyImage : ', ['validations' => $validations]);
+
+        $MAXIMUM_FILESIZE = $validations * 1024;
+        //$MAXIMUM_FILESIZE = 200 * 1024;
 
         if (!($image_type == 'image/png' || $image_type == 'image/jpeg'))
             $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file', 'cause' => '', 'data' => json_decode("{}")));
@@ -66,15 +74,15 @@ class ImageController extends Controller
         return $response;
     }
 
-    //Verify Images array
-    public function verifyImagesArray($images_array, $is_resource_images)
+    //verify images array
+    public function verifyImagesArray($images_array, $is_resource_images, $category_id, $is_featured, $is_catalog)
     {
         $files_array = array();
         if($is_resource_images == 1)
         {
             foreach ($images_array as $key) {
 
-                if (($response = $this->verifySampleImage($key)) != '') {
+                if (($response = $this->verifySampleImage($key, $category_id, $is_featured, $is_catalog)) != '') {
                     $file_name = $key->getClientOriginalName();
                     $data = (json_decode(json_encode($response), true));
                     $message = $data['original']['message'];
@@ -86,7 +94,7 @@ class ImageController extends Controller
         {
             foreach ($images_array as $key) {
 
-                if (($response = $this->verifyImage($key)) != '') {
+                if (($response = $this->verifyImage($key, $category_id, $is_featured, $is_catalog)) != '') {
                     $file_name = $key->getClientOriginalName();
                     $data = (json_decode(json_encode($response), true));
                     $message = $data['original']['message'];
@@ -105,7 +113,78 @@ class ImageController extends Controller
         }
     }
 
-    // Verify Image
+    //verify video
+    public function verifyVideo($video_array)
+    {
+
+        $video_type = $video_array->getMimeType();
+        $video_size = $video_array->getSize();
+
+        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
+
+        //x-ms-asf ==>.asf or .asx
+        //ap4 ==>.mp4
+        //webm ==>.webm (upload mkv file)
+        //quicktime ==>.mov
+
+        if (!($video_type == 'video/x-ms-asf' || $video_type == 'video/mp4' || $video_type == 'video/webm' || $video_type == 'video/quicktime')) {
+            return $response = Response::json(array('code' => 201, 'message' => 'Please select asf or mp4 or webm(mkv) or mov file', 'cause' => '', 'data' => json_decode("{}")));
+
+        } elseif ($video_size > $MAXIMUM_FILESIZE) {
+            return $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 10MB', 'cause' => '', 'data' => json_decode("{}")));
+        } else
+            $response = '';
+        return $response;
+    }
+
+    //verify audio
+    public function verifyAudio($audio_array)
+    {
+
+        $audio_type = $audio_array->getMimeType();
+        $audio_size = $audio_array->getSize();
+
+        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
+
+        //octet-stream ==>.3gp
+        //quicktime ==>.mov
+
+        if (!($audio_type == 'audio/mpeg' || $audio_type == 'application/octet-stream')) {
+            return $response = Response::json(array('code' => 201, 'message' => 'Please select 3gp or mp4 audio file', 'cause' => '', 'data' => json_decode("{}")));
+        } elseif ($audio_size > $MAXIMUM_FILESIZE) {
+            return $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 10MB', 'cause' => '', 'data' => json_decode("{}")));
+        } else
+            $response = '';
+        return $response;
+    }
+
+    //verify font file
+    public function verifyFontFile($image_array, $category_id, $is_featured, $is_catalog)
+    {
+
+        $file_type = $image_array->getMimeType();
+        $file_size = $image_array->getSize();
+        //Log::info("Font file : ", ['type' => $file_type, 'size' => $file_size]);
+
+        $validations = $this->getValidationFromCache($category_id, $is_featured, $is_catalog);
+        //Log::info('verifyFontFile : ', ['validations' => $validations]);
+
+        $MAXIMUM_FILESIZE = $validations * 1024;
+        //$MAXIMUM_FILESIZE = 1 * 1024 * 1024;
+
+        /* there is no specific mimetype for otf & ttf so here we used 2 popular type */
+
+        //if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/vnd.ms-opentype'))
+        if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/font-sfnt' || $file_type == 'application/vnd.ms-opentype' || $file_type == 'application/x-font-opentype'))
+            $response = Response::json(array('code' => 201, 'message' => 'Please select TTF or OTF file.', 'cause' => '', 'data' => json_decode("{}")));
+        elseif ($file_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => 201, 'message' => 'File size is greater then '.$validations.'KB.', 'cause' => '', 'data' => json_decode("{}")));
+        else
+            $response = '';
+        return $response;
+    }
+
+    //verify image
     public function validateHeightWidthOfSampleImage($image_array, $json_data)
     {
         // Open image as a string
@@ -129,7 +208,7 @@ class ImageController extends Controller
         return $response;
     }
 
-    // Validate Fonts
+    //validate fonts
     public function validateFonts($json_data)
     {
         $text_json = $json_data->text_json;
@@ -217,73 +296,7 @@ class ImageController extends Controller
         return $response;
     }
 
-    // Verify Video
-    public function verifyVideo($video_array)
-    {
-
-        $video_type = $video_array->getMimeType();
-        $video_size = $video_array->getSize();
-
-        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
-
-        //x-ms-asf ==>.asf or .asx
-        //ap4 ==>.mp4
-        //webm ==>.webm (upload mkv file)
-        //quicktime ==>.mov
-
-        if (!($video_type == 'video/x-ms-asf' || $video_type == 'video/mp4' || $video_type == 'video/webm' || $video_type == 'video/quicktime')) {
-            return $response = Response::json(array('code' => 201, 'message' => 'Please select asf or mp4 or webm(mkv) or mov file', 'cause' => '', 'data' => json_decode("{}")));
-
-        } elseif ($video_size > $MAXIMUM_FILESIZE) {
-            return $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 10MB', 'cause' => '', 'data' => json_decode("{}")));
-        } else
-            $response = '';
-        return $response;
-    }
-
-    // Verify Audio
-    public function verifyAudio($audio_array)
-    {
-
-        $audio_type = $audio_array->getMimeType();
-        $audio_size = $audio_array->getSize();
-
-        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
-
-        //octet-stream ==>.3gp
-        //quicktime ==>.mov
-
-        if (!($audio_type == 'audio/mpeg' || $audio_type == 'application/octet-stream')) {
-            return $response = Response::json(array('code' => 201, 'message' => 'Please select 3gp or mp4 audio file', 'cause' => '', 'data' => json_decode("{}")));
-        } elseif ($audio_size > $MAXIMUM_FILESIZE) {
-            return $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 10MB', 'cause' => '', 'data' => json_decode("{}")));
-        } else
-            $response = '';
-        return $response;
-    }
-
-    // Verify Font File
-    public function verifyFontFile($image_array)
-    {
-
-        $file_type = $image_array->getMimeType();
-        $file_size = $image_array->getSize();
-        //Log::info("Font file : ", ['type' => $file_type, 'size' => $file_size]);
-        $MAXIMUM_FILESIZE = 1 * 1024 * 1024;
-
-        //there is no specific mimetype for otf & ttf so here we used 2 popular type
-
-        //if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/vnd.ms-opentype'))
-        if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/font-sfnt' || $file_type == 'application/vnd.ms-opentype' || $file_type == 'application/x-font-opentype'))
-            $response = Response::json(array('code' => 201, 'message' => 'Please select TTF or OTF file.', 'cause' => '', 'data' => json_decode("{}")));
-        elseif ($file_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 1MB.', 'cause' => '', 'data' => json_decode("{}")));
-        else
-            $response = '';
-        return $response;
-    }
-
-    // Generate Image New Name
+    //generate new name of image
     public function generateNewFileName($image_type, $image_array)
     {
 
@@ -295,7 +308,7 @@ class ImageController extends Controller
         return $new_file_name;
     }
 
-    // Save Original Image
+    //save original image
     public function saveOriginalImage($img)
     {
         try {
@@ -308,7 +321,7 @@ class ImageController extends Controller
         }
     }
 
-    // Save Webp Original Image
+    //save original webp image
     public function saveWebpOriginalImage($img)
     {
         try {
@@ -343,7 +356,7 @@ class ImageController extends Controller
         }
     }
 
-    // Save Original Image From Array
+    //save original image from array
     public function saveOriginalImageFromArray($image_array, $img)
     {
         $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
@@ -352,14 +365,14 @@ class ImageController extends Controller
         $this->saveImageDetails($path, 'original');
     }
 
-    // Save encoded Image
+    //save encoded image (not in use)
     public function saveEncodedImage($image_array, $professional_img)
     {
         $path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
         file_put_contents($path, $image_array);
     }
 
-    // Save Compressed Image
+    //save compressed image
     public function saveCompressedImage($cover_img)
     {
         try {
@@ -398,11 +411,51 @@ class ImageController extends Controller
         }
     }
 
-    // Get Thumbnail Width Height
-    public function getThumbnailWidthHeight($professional_img)
+    //save template resources
+    public function saveResourceImage($image_array)
+    {
+        $image = $image_array->getClientOriginalName();
+        $resource_path = Config::get('constant.RESOURCE_IMAGES_DIRECTORY');
+        $this->unlinkFileFromLocalStorage($image, $resource_path);
+        $original_path = '../..' . $resource_path;
+        $image_array->move($original_path, $image);
+
+    }
+
+    //save font file
+    public function saveFontFile($file_name, $is_replace)
+    {
+        try {
+
+            if ($is_replace == 0) {
+
+                $source_file_path = '../..' . Config::get('constant.TEMP_FILE_DIRECTORY') . $file_name;
+                $destination_file_path = '../..' . Config::get('constant.FONT_FILE_DIRECTORY') . $file_name;
+
+                //move file from temp to fonts directory
+                rename($source_file_path, $destination_file_path);
+            } else {
+
+                $destination_path = '../..' . Config::get('constant.FONT_FILE_DIRECTORY');
+                Input::file('file')->move($destination_path, $file_name);
+
+            }
+
+            $font_name = (new VerificationController())->getFontName($file_name);
+            return $font_name;
+
+        } catch (Exception $e) {
+            Log::error("saveFontFile : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+
+        }
+
+    }
+
+    //get height-width of thumbnail image
+    public function getThumbnailWidthHeight($file_name)
     {
 
-        $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
+        $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $file_name;
         $image_size = getimagesize($original_path);
         $width_orig = $image_size[0];
         $height_orig = $image_size[1];
@@ -420,15 +473,37 @@ class ImageController extends Controller
         return $array;
     }
 
-    // Save Thumbnail Image
-    public function saveThumbnailImage($professional_img)
+    //get thumbnail height-width from s3
+    public function getThumbnailWidthHeightForWebp($img)
+    {
+
+        $original_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $img;
+        $image_size = getimagesize($original_path);
+        $width_orig = $image_size[0];
+        $height_orig = $image_size[1];
+        $ratio_orig = $width_orig / $height_orig;
+
+        $width = $width_orig < Config::get('constant.THUMBNAIL_WIDTH') ? $width_orig : Config::get('constant.THUMBNAIL_WIDTH');
+        $height = $height_orig < Config::get('constant.THUMBNAIL_HEIGHT') ? $height_orig : Config::get('constant.THUMBNAIL_HEIGHT');
+
+        if ($width / $height > $ratio_orig)
+            $width = $height * $ratio_orig;
+        else
+            $height = $width / $ratio_orig;
+
+        $array = array('width' => $width, 'height' => $height);
+        return $array;
+    }
+
+    //save thumbnail image
+    public function saveThumbnailImage($file_name)
     {
         try {
-            $array = $this->getThumbnailWidthHeight($professional_img);
+            $array = $this->getThumbnailWidthHeight($file_name);
             $width = $array['width'];
             $height = $array['height'];
-            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
-            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
+            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $file_name;
+            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $file_name;
             $img = Image::make($original_path)->resize($width, $height);
             $img->save($thumbnail_path);
 
@@ -437,8 +512,8 @@ class ImageController extends Controller
 
         } catch (Exception $e) {
             Log::error("saveThumbnailImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
-            $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
+            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $file_name;
+            $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $file_name;
             foreach ($_FILES['file'] as $check) {
                 chmod($dest1, 0777);
                 copy($dest1, $dest2);
@@ -447,15 +522,15 @@ class ImageController extends Controller
         }
     }
 
-    // Save Thumbnail Image
-    public function saveWebpThumbnailImage($professional_img)
+    //save webp thumbnail image
+    public function saveWebpThumbnailImage($file_name)
     {
         try {
-            $array = $this->getThumbnailWidthHeight($professional_img);
+            $array = $this->getThumbnailWidthHeight($file_name);
             $width = $array['width'];
             $height = $array['height'];
-            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
-            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
+            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $file_name;
+            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $file_name;
 
             $file_data = pathinfo(basename($thumbnail_path));
             //convert image into .webp format
@@ -474,7 +549,7 @@ class ImageController extends Controller
              */
 
             $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_THUMBNAIL_IMG_PATH') . $webp_name . '.webp';
-            $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $professional_img;
+            $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $file_name;
             $quality = Config::get('constant.QUALITY');
             $libwebp = Config::get('constant.PATH_OF_CWEBP');
 
@@ -504,9 +579,9 @@ class ImageController extends Controller
             }
 
         } catch (Exception $e) {
-            Log::error("saveThumbnailImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
-            $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
+            Log::error("saveWebpThumbnailImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $file_name;
+            $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $file_name;
             foreach ($_FILES['file'] as $check) {
                 chmod($dest1, 0777);
                 copy($dest1, $dest2);
@@ -515,7 +590,7 @@ class ImageController extends Controller
         }
     }
 
-    // Save Compressed and Thumbnail Image
+    //save compressed and thumbnail image (not in use)
     public function saveCompressedThumbnailImage($source_url, $destination_url, $thumbnail_path)
     {
 
@@ -558,7 +633,7 @@ class ImageController extends Controller
         }
     }
 
-    //Check Compress image >= original image ? save original image : compress
+    //check compress image >= original image ? save original image : compress (not in use)
     public function CompressImageCheck($img_type, $image_array)
     {
         try {
@@ -596,8 +671,7 @@ class ImageController extends Controller
 
     }
 
-
-    //Delete Images In Directory
+    //delete images from directory
     public function deleteImage($image_name)
     {
         try {
@@ -632,7 +706,7 @@ class ImageController extends Controller
         }
     }
 
-    //Image Analysis
+    //image analysis
     public function saveImageDetails($image_path, $image_directory)
     {
         try {
@@ -662,7 +736,7 @@ class ImageController extends Controller
         }
     }
 
-    // Save Original Image
+    //to save original image using dynamic request parameter
     public function saveMultipleOriginalImage($img, $file_name)
     {
 
@@ -674,13 +748,14 @@ class ImageController extends Controller
         $this->saveImageDetails($path, 'original');
     }
 
-    public function saveMultipleCompressedImage($cover_img, $file_name)
+    //to save compressed image using dynamic request parameter
+    public function saveMultipleCompressedImage($img, $file_name)
     {
         try {
-            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $cover_img;
-            $compressed_path = '../..' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $cover_img;
-            $img = Image::make($original_path);
-            $img->save($compressed_path, 75);
+            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $img;
+            $compressed_path = '../..' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $img;
+            $image = Image::make($original_path);
+            $image->save($compressed_path, 75);
 
             $original_img_size = filesize($original_path);
             $compress_img_size = filesize($compressed_path);
@@ -695,8 +770,8 @@ class ImageController extends Controller
             $this->saveImageDetails($compressed_path, 'compress');
 
         } catch (Exception $e) {
-            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $cover_img;
-            $dest2 = '../..' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $cover_img;
+            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $img;
+            $dest2 = '../..' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY') . $img;
             foreach ($_FILES[$file_name] as $check) {
                 chmod($dest1, 0777);
                 copy($dest1, $dest2);
@@ -706,23 +781,24 @@ class ImageController extends Controller
 
     }
 
-    public function saveMultipleThumbnailImage($professional_img, $file_name)
+    //to save thumbnail image using dynamic request parameter
+    public function saveMultipleThumbnailImage($img, $file_name)
     {
         try {
-            $array = $this->getThumbnailWidthHeight($professional_img);
+            $array = $this->getThumbnailWidthHeight($img);
             $width = $array['width'];
             $height = $array['height'];
-            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
-            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
-            $img = Image::make($original_path)->resize($width, $height);
-            $img->save($thumbnail_path);
+            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $img;
+            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $img;
+            $image = Image::make($original_path)->resize($width, $height);
+            $image->save($thumbnail_path);
 
             //use for Image Details
             $this->saveImageDetails($thumbnail_path, 'thumbnail');
 
         } catch (Exception $e) {
-            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
-            $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
+            $dest1 = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $img;
+            $dest2 = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $img;
             foreach ($_FILES[$file_name] as $check) {
                 chmod($dest1, 0777);
                 copy($dest1, $dest2);
@@ -730,45 +806,7 @@ class ImageController extends Controller
         }
     }
 
-    public function saveResourceImage($image_array)
-    {
-        $image = $image_array->getClientOriginalName();
-        $resource_path = Config::get('constant.RESOURCE_IMAGES_DIRECTORY');
-        $this->unlinkFileFromLocalStorage($image, $resource_path);
-        $original_path = '../..' . $resource_path;
-        $image_array->move($original_path, $image);
-
-    }
-
-    public function saveFontFile($file_name, $is_replace)
-    {
-        try {
-
-            if ($is_replace == 0) {
-
-                $source_file_path = '../..' . Config::get('constant.TEMP_FILE_DIRECTORY') . $file_name;
-                $destination_file_path = '../..' . Config::get('constant.FONT_FILE_DIRECTORY') . $file_name;
-
-                //move file from temp to fonts directory
-                rename($source_file_path, $destination_file_path);
-            } else {
-
-                $destination_path = '../..' . Config::get('constant.FONT_FILE_DIRECTORY');
-                Input::file('file')->move($destination_path, $file_name);
-
-            }
-
-            $font_name = (new VerificationController())->getFontName($file_name);
-            return $font_name;
-
-        } catch (Exception $e) {
-            Log::error("saveFontFile : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-
-        }
-
-    }
-
-    // Unlink Image From image_bucket
+    //unlink images from local server(image_bucket)
     public function unlinkFile($image)
     {
         try {
@@ -800,7 +838,7 @@ class ImageController extends Controller
 
     }
 
-    // Save Image InTo S3
+    //save image into S3
     public function saveImageInToS3($image)
     {
         try {
@@ -847,7 +885,7 @@ class ImageController extends Controller
 
     }
 
-    // Save Font InTo S3
+    //save font into S3
     public function saveFontInToS3($file)
     {
         try {
@@ -872,7 +910,7 @@ class ImageController extends Controller
 
     }
 
-    // Save Resource Image InTo S3
+    //save resource image into S3
     public function saveResourceImageInToS3($image)
     {
         try {
@@ -896,7 +934,7 @@ class ImageController extends Controller
         }
     }
 
-    //unlinkImage from image_bucket
+    //save image into S3 for migration
     public function saveImageInToS3ForMigration($image)
     {
         try {
@@ -942,7 +980,7 @@ class ImageController extends Controller
 
     }
 
-    // Save webp Image
+    //save webp image to generate webp on call of update API
     public function saveWebpImage($img)
     {
 
@@ -1046,7 +1084,7 @@ class ImageController extends Controller
         }
     }
 
-    // Save webp_thumbnail Image From S3
+    //save webp_thumbnail image from S3
     public function saveWebpThumbnailImageFromS3($img)
     {
         try {
@@ -1160,7 +1198,7 @@ class ImageController extends Controller
         }
     }
 
-    // Save Webp Image InTo S3
+    //save webp image into S3
     public function saveWebpImageInToS3($image)
     {
         try {
@@ -1198,29 +1236,7 @@ class ImageController extends Controller
         }
     }
 
-    // Get Thumbnail Width Height
-    public function getThumbnailWidthHeightForWebp($img)
-    {
-
-        $original_path = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $img;
-        $image_size = getimagesize($original_path);
-        $width_orig = $image_size[0];
-        $height_orig = $image_size[1];
-        $ratio_orig = $width_orig / $height_orig;
-
-        $width = $width_orig < Config::get('constant.THUMBNAIL_WIDTH') ? $width_orig : Config::get('constant.THUMBNAIL_WIDTH');
-        $height = $height_orig < Config::get('constant.THUMBNAIL_HEIGHT') ? $height_orig : Config::get('constant.THUMBNAIL_HEIGHT');
-
-        if ($width / $height > $ratio_orig)
-            $width = $height * $ratio_orig;
-        else
-            $height = $width / $ratio_orig;
-
-        $array = array('width' => $width, 'height' => $height);
-        return $array;
-    }
-
-    // Save Webp Thumbnail Image InTo S3
+    //save webp_thumbnail image into S3
     public function saveWebpThumbnailImageInToS3($image)
     {
         try {
@@ -1247,7 +1263,7 @@ class ImageController extends Controller
         }
     }
 
-    // Save Original Image From To S3
+    //save original image from S3
     public function saveOriginalImageFromToS3($image)
     {
         try {
@@ -1333,7 +1349,7 @@ class ImageController extends Controller
 
     }
 
-    //checkIsImageExist
+    //check image is exist into resource directory
     public function checkIsImageExist($image_array, $is_name)
     {
         try {
@@ -1377,15 +1393,15 @@ class ImageController extends Controller
         }
     }
 
-    // Save Thumbnail Image into webp_thumbnail_new
-    public function saveThumbnailImageFromS3($professional_img)
+    //save thumbnail image into webp_thumbnail_new
+    public function saveThumbnailImageFromS3($file_name)
     {
         try {
-            $array = $this->getThumbnailWidthHeight($professional_img);
+            $array = $this->getThumbnailWidthHeight($file_name);
             $width = $array['width'];
             $height = $array['height'];
-            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $professional_img;
-            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $professional_img;
+            $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $file_name;
+            $thumbnail_path = '../..' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY') . $file_name;
 
             if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                 $img = Image::make($original_path)->resize($width, $height);
@@ -1410,7 +1426,7 @@ class ImageController extends Controller
              */
 
             $webp_path = Config::get('constant.IMAGE_BUCKET_WEBP_THUMBNAIL_NEW_IMG_PATH') . $webp_name . '.webp';
-            $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $professional_img;
+            $org_path = Config::get('constant.IMAGE_BUCKET_ORIGINAL_IMG_PATH') . $file_name;
             $quality = Config::get('constant.QUALITY');
             $libwebp = Config::get('constant.PATH_OF_CWEBP');
 
@@ -1450,7 +1466,7 @@ class ImageController extends Controller
         }
     }
 
-    // Save New Webp Image InTo S3
+    //save new_webp image into S3
     public function saveNewWebpImageInToS3($image)
     {
         try {
@@ -1499,7 +1515,7 @@ class ImageController extends Controller
         }
     }
 
-    // unlinkFileFromLocalStorage
+    //unlink file from local storage
     public function unlinkFileFromLocalStorage($file, $path)
     {
         try {
@@ -1516,7 +1532,7 @@ class ImageController extends Controller
         }
     }
 
-    //checkFileExist
+    //check file is exist
     public function checkFileExist($file_path)
     {
         try {
@@ -1536,6 +1552,7 @@ class ImageController extends Controller
         return $response;
     }
 
+    //delete object from S3
     public function deleteObjectFromS3($file, $directory)
     {
         try {
@@ -1550,10 +1567,71 @@ class ImageController extends Controller
         }
     }
 
+    //get validations from settings_master (from database)
+    public function getValidationFromCache($category_id, $is_featured, $is_catalog)
+    {
+        try {
+            $this->category_id = $category_id;
+            $this->is_featured = $is_featured;
+            $this->is_catalog = $is_catalog;
 
-    /*-----------------------------| Function for ZIP |-----------------------------*/
+            if (!Cache::has("pel:getValidationFromCache$this->category_id:$this->is_featured:$this->is_catalog" && Cache::get("getValidationFromCache") == [])) {
+                $result = Cache::rememberforever("getValidationFromCache$this->category_id:$this->is_featured:$this->is_catalog", function () {
 
-    //save all template resources(Image) uploaded by Zip
+                    $validation_info = DB::select('SELECT
+                                          id AS setting_id,
+                                          category_id,
+                                          validation_name,
+                                          max_value_of_validation,
+                                          is_featured,
+                                          is_catalog,
+                                          update_time
+                                        FROM
+                                          settings_master
+                                        WHERE 
+                                          is_active = ? AND 
+                                          category_id = ? AND 
+                                          is_featured = ? AND 
+                                          is_catalog = ?', [1, $this->category_id, $this->is_featured, $this->is_catalog]);
+
+                    if (count($validation_info) == 0) {
+                        $validation_info = DB::select('SELECT
+                                          id AS setting_id,
+                                          category_id,
+                                          validation_name,
+                                          max_value_of_validation,
+                                          is_featured,
+                                          is_catalog,
+                                          update_time
+                                        FROM
+                                          settings_master
+                                        WHERE 
+                                          category_id = ? AND 
+                                          is_active = ?', [0, 1]);
+                    }
+
+                    return $validation_info[0]->max_value_of_validation;
+
+                });
+            }
+
+            $redis_result = Cache::get("getValidationFromCache$this->category_id:$this->is_featured:$this->is_catalog");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            return $redis_result;
+
+        } catch (Exception $e) {
+            Log::error("getValidationFromCache : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get validations from cache.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+    }
+
+    /*-----------------------------| Functions for ZIP |-----------------------------*/
+
+    //save all template resources(image) uploaded by Zip
     public function saveResourceImageByZip($image_array, $image)
     {
         $resource_path = Config::get('constant.RESOURCE_IMAGES_DIRECTORY');
@@ -1571,7 +1649,7 @@ class ImageController extends Controller
         $this->saveImageDetails($path, 'original');
     }
 
-    //generate image new name
+    //generate file name for zip
     public function generateNewFileNameByZip($image_type, $fileData)
     {
         $fileData = pathinfo(basename($fileData));

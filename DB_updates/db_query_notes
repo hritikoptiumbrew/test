@@ -29,3 +29,36 @@ CREATE TABLE server_url_master (
 4) PhotoEditorLab : perform following query on database (15 June, 2019)
 ----------------------------------------------------------------------------
 ALTER TABLE `user_master` ADD `google2fa_enable` TINYINT(1) NOT NULL DEFAULT '0' AFTER `password`, ADD `google2fa_secret` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `google2fa_enable`;
+
+5) PhotoEditorLab : perform following query on database (04 July, 2019) category tag module
+---------------------------------------------------------------------------------------------------
+CREATE TABLE sub_category_tag_master (
+	id int(11) AUTO_INCREMENT NOT NULL,
+	sub_category_id INT(11) NOT NULL,
+	tag_name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	is_active TINYINT(1) DEFAULT 0,
+	create_time timestamp DEFAULT NULL,
+	update_time TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	attribute1 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute2 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	PRIMARY KEY(id),
+	FOREIGN KEY (sub_category_id) REFERENCES sub_category(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = INNODB
+
+CREATE TABLE settings_master (
+	id int(11) AUTO_INCREMENT NOT NULL,
+	category_id INT(11) NOT NULL,
+	validation_name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	max_value_of_validation TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'In KB',
+	is_featured TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'This column is used to identify validation for sticker or template bcz we can\'t identify two diff validation from the same category. This column is used to identify catalog is featured or not.',
+	is_catalog TINYINT(0) NOT NULL DEFAULT '0' COMMENT '1=catalog, 0=not catalog',
+	description TEXT NULL DEFAULT NULL COMMENT 'purpose of validation',
+	is_active TINYINT(1) DEFAULT 0,
+	create_time timestamp DEFAULT NULL,
+	update_time TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	attribute1 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute2 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	PRIMARY KEY(id)
+) ENGINE = INNODB

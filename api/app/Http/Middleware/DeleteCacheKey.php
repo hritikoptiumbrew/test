@@ -280,6 +280,18 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getTemplatesBySubCategoryTags
+                $keys = Redis::keys('pel:getTemplatesBySubCategoryTags*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getCategoryTagBySubCategoryId
+                $keys = Redis::keys('pel:getCategoryTagBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Other
@@ -483,6 +495,38 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+            }
+
+            //Search Category Tags
+            if ($api == '/api/addSearchCategoryTag' or $api == '/api/updateSearchCategoryTag' or $api == '/api/deleteSearchCategoryTag' or $api == '/api/setCategoryTagRankOnTheTopByAdmin') {
+
+                //getCategoryTagBySubCategoryId
+                $keys = Redis::keys('pel:getCategoryTagBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getTemplatesBySubCategoryTags
+                $keys = Redis::keys('pel:getTemplatesBySubCategoryTags*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            //Validations for file size
+            if ($api == '/api/addValidation' or $api == '/api/editValidation' or $api == '/api/deleteValidation') {
+
+                //getAllValidationsForAdmin
+                $keys = Redis::keys('pel:getAllValidationsForAdmin*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getValidationFromCache
+                $keys = Redis::keys('pel:getValidationFromCache*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
             }
 
         } catch (Exception $e) {

@@ -191,7 +191,7 @@ class LoginController extends Controller
             $user_id = $user_data->id;
 
             DB::beginTransaction();
-            DB::delete('DELETE FROM user_session WHERE user_id = ?', [$user_id]);
+            DB::delete('DELETE FROM user_session WHERE token = ? AND user_id = ?', [$token, $user_id]);
             DB::commit();
             $response = Response::json(array('code' => 200, 'message' => 'User have successfully logged out.', 'cause' => '', 'data' => json_decode("{}")));
 
