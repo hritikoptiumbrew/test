@@ -4,5 +4,9 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  apiUrls: {
+    BASE_URL: 'http://192.168.0.113/photo_editor_lab_backend_dev/api/public/api/',
+    FONT_CATEGORY_ID: 5
+  }
 };

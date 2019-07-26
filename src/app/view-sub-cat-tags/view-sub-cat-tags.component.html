@@ -1,0 +1,68 @@
+<div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center">
+  <h6 class="title-bar m-0 pt-1 pb-1"> Search tags of {{category_data.name}} </h6>
+  <a class="cursor-pointer close-btn" (click)="dialogRef.close(true);"><i
+      class="fa fa-close text-white font-18"></i></a>
+</div>
+<div class="col-sm-12 pr-0 pl-0 mdl-cntnt-ttl-scrll scroll">
+  <table class="table mb-0">
+    <thead>
+      <tr>
+        <td colspan="4">
+          <div class="input-group">
+            <input type="text" class="form-control editing-textbox" placeholder="Enter new tag name here..."
+              [(ngModel)]="new_tag_name" (keydown.enter)="addSearchTag(new_tag_name)">
+            <div class="input-group-append">
+              <button class="btn btn-sm btn-success" (click)="addSearchTag(new_tag_name)">Add Tag</button>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="total_record>0">
+        <th class="sr-only-focusable width-50px sticky-th">#</th>
+        <!-- <th class="cursor-pointer sticky-th" (click)="sortBy('tag_name', order_type == true ? 'ASC' : 'DESC')">Tag name
+            <i class="fa fa-long-arrow-up sorting-icons" aria-hidden="true"></i><i
+              class="fa fa-long-arrow-down sorting-icons" aria-hidden="true"></i>
+          </th> -->
+        <th class="sticky-th">Tag name</th>
+        <th class="sticky-th text-center">Templates</th>
+        <th class="text-center sticky-th" style="width: 150px;">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let search_tag of searchTag_list; let i = index;"
+        [ngStyle]="{color : search_tag.total_template==0 ? 'red' : 'black'}">
+        <td class="width-50px">{{i+1}}</td>
+        <td *ngIf="search_tag.is_update==false">{{search_tag.tag_name}}</td>
+        <td *ngIf="search_tag.is_update==true">
+          <input type="text" class="form-control editing-textbox" placeholder="Update tag name..."
+            (keydown.enter)="updateSearchTag(search_tag)" [(ngModel)]="search_tag.tag_name">
+        </td>
+        <td class="text-center">{{search_tag.total_template}}</td>
+        <td class="text-center" *ngIf="search_tag.is_update==false">
+          <a class="cursor-pointer mr-2" (click)="showUpdate(search_tag)"><i
+              class="fa fa-edit font-18 text-warning"></i></a>
+          <a class="cursor-pointer mr-2" (click)="deleteTag(search_tag, 'deleteSearchCategoryTag')"><i
+              class="fa fa-trash font-18 text-danger"></i></a>
+          <a title="Move to first" class="cursor-pointer" (click)="moveToFirst(search_tag)">
+            <svg class="action-btn" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M24 32h336c13.3 0 24 10.7 24 24v24c0 13.3-10.7 24-24 24H24C10.7 104 0 93.3 0 80V56c0-13.3 10.7-24 24-24zm66.4 280.5l65.6-65.6V456c0 13.3 10.7 24 24 24h24c13.3 0 24-10.7 24-24V246.9l65.6 65.6c9.4 9.4 24.6 9.4 33.9 0l17-17c9.4-9.4 9.4-24.6 0-33.9L209 126.1c-9.4-9.4-24.6-9.4-33.9 0L39.5 261.6c-9.4 9.4-9.4 24.6 0 33.9l17 17c9.4 9.4 24.6 9.4 33.9 0z"
+                fill="#099407"></path>
+            </svg>
+          </a>
+        </td>
+        <td class="text-center table-act-2btn" *ngIf="search_tag.is_update==true">
+          <button class="btn btn-sm mr-1 btn-success" (click)="updateSearchTag(search_tag)">SAVE</button>
+          <button class="btn btn-sm btn-light" (click)="resetRow(search_tag, i)">Cancel</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h6 *ngIf="total_record==0" class="pb-3 pt-0 pl-3 m-0 text-center font-weight-bold">
+    No Data Found
+  </h6>
+</div>
+<div class="col-12 pr-0 pl-0 text-center">
+  <h6 *ngIf="errorMsg" class="pt-3 pb-3 m-0 text-center text-danger">{{errorMsg}}</h6>
+  <h6 *ngIf="successMsg" class="pt-3 pb-3 m-0 text-center text-primary">{{successMsg}}</h6>
+</div>

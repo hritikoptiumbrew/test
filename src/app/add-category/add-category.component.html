@@ -1,14 +1,15 @@
 <div class="col-sm-12 pl-0 pr-0">
-  <label class="text-center col-12 m-0 title-bar pt-2 pb-2">
+  <label class="text-center font-weight-bold col-12 m-0 title-bar pt-2 pb-2">
     Add Category
   </label>
   <div class="row pt-4 pl-4 pr-4 pb-2">
     <div class="col-sm-12 pl-0 pr-0 pb-3">
-      <input type="text" class="form-control" [(ngModel)]="category_name" (keydown.enter)="addCategory(category_name)" placeholder="Category name">
+      <input type="text" class="form-control" [(ngModel)]="category_name" (keydown.enter)="addCategory(category_name)"
+        placeholder="Category name">
     </div>
     <div class="col-sm-12 pl-0 pr-0 text-center">
-      <a md-raised-button class="btn title-bar" (click)="addCategory(category_name)">Add</a>
-      <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+      <button md-raised-button class="btn btn-action-1" (click)="addCategory(category_name)">Add</button>
+      <button md-raised-button class="btn btn-action-cancel" [md-dialog-close]="true">Cancel</button>
       <p class="m-0 pt-3 text-center text-danger">
         {{errorMsg}}
       </p>

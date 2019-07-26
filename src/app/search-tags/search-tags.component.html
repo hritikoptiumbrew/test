@@ -4,10 +4,10 @@
   </div>
 </div>
 <div class="row height-100">
-  <div class="col-lg-2 pl-0 pr-0">
+  <div class="pl-0 pr-0 left-nav-style h-100">
     <app-navigation></app-navigation>
   </div>
-  <div class="col-lg-10 pt-3 pb-3 div-scroll">
+  <div class="p-3 div-scroll main-container-style">
     <div class="row pb-2 pt-2 title-bar">
       <div class="col pl-2 pr-2">
         <!-- <md-select placeholder=" " [(ngModel)]="searchTag" class="search-query-dropdown mr-2 hidden-md-down">
@@ -35,7 +35,8 @@
     </div>
     <div class="row pr-0 pl-0">
       <div class="col-12 p-0">
-        <input type="text" class="form-control mr-3" placeholder="Enter new tag name here..." (keydown.enter)="addTag(tag_name)"
+        <input type="text" class="form-control mr-3" placeholder="Enter new tag name here..."
+          (keydown.enter)="addTag(tag_name)"
           style="width: calc(100% - 115px); display: inline-block; vertical-align: middle;" [(ngModel)]="tag_name">
         <a class="title-bar btn mt-2 mb-2" (click)="addTag(tag_name)">Add Tag</a>
       </div>
@@ -53,12 +54,14 @@
               <td>{{i+1+(itemsPerPage * (currentPage-1))}}</td>
               <td *ngIf="search_tag.is_update==false">{{search_tag.tag_name}}</td>
               <td *ngIf="search_tag.is_update==true">
-                <input type="text" class="form-control" placeholder="Update tag name..." (keydown.enter)="updateSeatchTag(search_tag)"
-                  [(ngModel)]="search_tag.tag_name">
+                <input type="text" class="form-control" placeholder="Update tag name..."
+                  (keydown.enter)="updateSeatchTag(search_tag)" [(ngModel)]="search_tag.tag_name">
               </td>
               <td class="text-center" *ngIf="search_tag.is_update==false">
-                <a class="cursor-pointer font-18 mr-2" (click)="showUpdate(search_tag)"><i class="fa fa-edit text-warning"></i></a>
-                <a class="cursor-pointer font-18" (click)="deleteTag(search_tag)"><i class="fa fa-trash text-danger"></i></a>
+                <a class="cursor-pointer font-18 mr-2" (click)="showUpdate(search_tag)"><i
+                    class="fa fa-edit text-warning"></i></a>
+                <a class="cursor-pointer font-18" (click)="deleteTag(search_tag)"><i
+                    class="fa fa-trash text-danger"></i></a>
               </td>
               <td class="text-center" *ngIf="search_tag.is_update==true">
                 <a class="btn btn-success text-white pt-1 pb-1" (click)="updateSeatchTag(search_tag)">Update</a>

@@ -4,73 +4,73 @@
   </div>
 </div>
 <div class="row height-100">
-  <div class="col-lg-2 pl-0 pr-0">
+  <div class="pl-0 pr-0 left-nav-style h-100">
     <app-navigation></app-navigation>
   </div>
-  <div class="col-lg-10 pt-3 pb-3 div-scroll">
-    <div class="row pb-2 pt-2 title-bar">
-      <div class="col pl-2 pr-2">
-        <h5 class="m-0 pt-1 pb-1">No. of servers : {{total_record}}</h5>
+  <div class="p-3 div-scroll main-container-style">
+    <div class="cst-panel mb-3">
+      <div class="cst-panel-title">
+        <p class="m-0 font-18">No. of servers : {{total_record}}</p>
       </div>
-    </div>
-    <div class="row pr-0 pl-0" style="height: calc(100% - 50px);">
-      <div class="col-sm-12 pl-0 pr-0 table-responsive mb-3 scroll" style="max-height: 100%;">
-        <md-accordion class="headers-align" multi="true">
-          <md-expansion-panel class="m-0" *ngFor="let server_details of server_list; let i = index;"
-            style="border-bottom: 1px solid #d2d2d2;" (opened)="viewServerDetails(server_details)">
-            <md-expansion-panel-header
-              style="background: #ffe8c7; max-height: 48px !important; height: 48px; line-height: 48px; font-weight: bold; border-bottom: 1px solid #d2d2d2;">
-              <md-panel-title style="line-height: 48px; font-size: 17px;">
-                {{i+1}}. {{server_details.server_url}}
-              </md-panel-title>
-              <md-panel-description style="line-height: 48px;">
-                Total content count: {{server_details.total_record}}
-              </md-panel-description>
-            </md-expansion-panel-header>
-            <table class="table table-hover mb-0">
-              <thead>
-                <tr>
-                  <th style="width: 40px;">#</th>
-                  <th>App Icon</th>
-                  <th>Name</th>
-                  <th class="text-center">Total Catalogs</th>
-                  <th class="text-center">Total Templates</th>
-                  <th class="text-center">Free Templates</th>
-                  <th class="text-center">Paid Templates</th>
-                  <th class="text-center">Last Uploaded Count</th>
-                  <th class="text-center">Last Uploaded On</th>
-                  <th class="text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let content_details of server_details.result; let j = index;">
-                  <td>{{j+1}}</td>
-                  <td><img *ngIf="content_details.compressed_img" src="{{content_details.compressed_img}}"
-                      (click)="dataService.viewImage(content_details.original_img)" alt="" style="height:50px;"
-                      class="cursor-pointer"></td>
-                  <td>{{content_details.name}}</td>
-                  <td class="text-center">{{content_details.no_of_catalogs}}</td>
-                  <td class="text-center">{{content_details.content_count}}</td>
-                  <td class="text-center">{{content_details.free_content}}</td>
-                  <td class="text-center">{{content_details.paid_content}}</td>
-                  <td class="text-center">{{content_details.last_uploaded_count}}</td>
-                  <td class="text-center">{{content_details.last_uploaded_date}}</td>
-                  <td class="text-center">
-                    <a class="btn btn-sm btn-info text-white"
-                      (click)="openDateRangePicker(content_details, server_details)"><i class="fa fa-eye"></i> By
-                      Date</a>
-                    <a class="btn btn-sm btn-info text-white"
-                      (click)="getDetailsByCatalogs(content_details, server_details)"><i class="fa fa-eye"></i> By
-                      Catalogs</a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </md-expansion-panel>
-        </md-accordion>
-        <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
-          No Data Found
-        </h5>
+      <div class="cst-panel-body">
+        <div class="row tbl-style-subcategory scroll" style="height: calc(100% - 50px);">
+          <md-accordion class="headers-align col-md-12 p-0" multi="true">
+            <md-expansion-panel class="m-0" *ngFor="let server_details of server_list; let i = index;"
+              style="border-bottom: 1px solid #d2d2d2;" (opened)="viewServerDetails(server_details)">
+              <md-expansion-panel-header
+                style="background: #c2c8ce; max-height: 48px !important; height: 48px; line-height: 48px; font-weight: bold; border-bottom: 1px solid #d2d2d2;">
+                <md-panel-title style="line-height: 48px; font-size: 17px;">
+                  {{i+1}}. {{server_details.server_url}}
+                </md-panel-title>
+                <md-panel-description style="line-height: 48px; max-width: 150px;">
+                  Total content count: {{server_details.total_record}}
+                </md-panel-description>
+              </md-expansion-panel-header>
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th style="width: 40px;">#</th>
+                    <th>App Icon</th>
+                    <th>Name</th>
+                    <th class="text-center">Total Catalogs</th>
+                    <th class="text-center">Total Templates</th>
+                    <th class="text-center">Free Templates</th>
+                    <th class="text-center">Paid Templates</th>
+                    <th class="text-center">Last Uploaded Count</th>
+                    <th class="text-center">Last Uploaded On</th>
+                    <th class="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let content_details of server_details.result; let j = index;">
+                    <td>{{j+1}}</td>
+                    <td><img *ngIf="content_details.compressed_img" src="{{content_details.compressed_img}}"
+                        (click)="dataService.viewImage(content_details.original_img)" alt="" style="height:50px;"
+                        class="cursor-pointer"></td>
+                    <td>{{content_details.name}}</td>
+                    <td class="text-center">{{content_details.no_of_catalogs}}</td>
+                    <td class="text-center">{{content_details.content_count}}</td>
+                    <td class="text-center">{{content_details.free_content}}</td>
+                    <td class="text-center">{{content_details.paid_content}}</td>
+                    <td class="text-center">{{content_details.last_uploaded_count}}</td>
+                    <td class="text-center">{{content_details.last_uploaded_date}}</td>
+                    <td class="text-center">
+                      <a class="btn btn-sm btn-info text-white"
+                        (click)="openDateRangePicker(content_details, server_details)"><i class="fa fa-eye"></i> By
+                        Date</a>
+                      <a class="btn btn-sm btn-info text-white"
+                        (click)="getDetailsByCatalogs(content_details, server_details)"><i class="fa fa-eye"></i> By
+                        Catalogs</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </md-expansion-panel>
+          </md-accordion>
+          <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+            No Data Found
+          </h5>
+        </div>
       </div>
     </div>
   </div>

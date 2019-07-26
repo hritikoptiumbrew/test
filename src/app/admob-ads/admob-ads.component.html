@@ -4,62 +4,61 @@
   </div>
 </div>
 <div class="row height-100">
-  <div class="col-lg-2 pl-0 pr-0">
+  <div class="pl-0 pr-0 left-nav-style h-100">
     <app-navigation></app-navigation>
   </div>
-  <div class="col-lg-10 pt-3 pb-3 pl-0 pr-0 div-scroll">
+  <div class="p-3 div-scroll main-container-style">
     <div class="row">
-      <div class="col-12">
+      <div class="col-12 p-0">
         <p class="pull-left m-0 pt-1 pb-1">{{current_path}}</p>
       </div>
     </div>
-    <div class="row mr-3 ml-3 pb-1 pt-1 title-bar">
-      <div class="col pl-2 pr-2 text-center">
-        <p class="m-0 font-18 pt-1 pb-1">Ad Categories : {{total_record}}</p>
-        <!-- <md-select placeholder=" " *ngIf="showPagination" [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-3 pull-right"
-          (change)="itemPerPageChanged(itemsPerPage)">
-          <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
-            {{items.itemPerPageName}}
-          </md-option>
-        </md-select> -->
+    <div class="cst-panel mb-3">
+      <div class="cst-panel-title">
+        <p class="m-0 font-18">Ad Categories : {{total_record}}</p>
       </div>
-    </div>
-    <div class="row pr-0 pl-0 mr-3 ml-3">
-      <div class="col-sm-12 card-1 pl-0 pr-0 table-responsive mb-3 table-style scroll">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr class="table-inverse">
-              <th>#</th>
-              <th>Category Name</th>
-              <th class="text-center">Create Time</th>
-              <th class="text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let category of ga_admob_list; let i = index;">
-              <td>{{i+1}}</td>
-              <td>{{category.advertise_category}}</td>
-              <td class="text-center">{{category.create_time}}</td>
-              <td class="text-center">
-                <a title="View">
-                  <i class="fa fa-folder-open-o font-24 text-success cursor-pointer" (click)="viewCategory(category)"></i>
-                </a>
-                <!-- <a title="Update">
-                  <i class="fa fa-edit font-24 pr-2 pl-2 text-warning align-text-bottom cursor-pointer" (click)="updateCategory(category)"></i>
-                </a> -->
-                <!--<a title="Delete"><i class="fa fa-trash-o font-24 text-danger cursor-pointer" (click)="deleteCategory(category)"></i></a>-->
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
-          No Data Found
-        </h5>
+      <div class="cst-panel-body">
+        <div class="row pr-0 pl-0">
+          <div class="col-sm-12 pl-0 pr-0 table-responsive scroll"
+            style="max-height: calc(100vh - 180px); overflow: auto;">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr class="table-inverse">
+                  <th>#</th>
+                  <th>Category Name</th>
+                  <th class="text-center">Create Time</th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let category of ga_admob_list; let i = index;">
+                  <td>{{i+1}}</td>
+                  <td>{{category.advertise_category}}</td>
+                  <td class="text-center">{{category.create_time}}</td>
+                  <td class="text-center">
+                    <a title="View">
+                      <i class="fa fa-folder-open-o font-24 text-success cursor-pointer"
+                        (click)="viewCategory(category)"></i>
+                    </a>
+                    <!-- <a title="Update">
+                          <i class="fa fa-edit font-24 pr-2 pl-2 text-warning align-text-bottom cursor-pointer" (click)="updateCategory(category)"></i>
+                        </a> -->
+                    <!--<a title="Delete"><i class="fa fa-trash-o font-24 text-danger cursor-pointer" (click)="deleteCategory(category)"></i></a>-->
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+              No Data Found
+            </h5>
+          </div>
+        </div>
+        <div class="col-12 text-center">
+          <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true"
+            *ngIf="total_record>itemsPerPage" [directionLinks]="false" [boundaryLinks]="true"
+            (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="inline-block mt-3"></ngb-pagination>
+        </div>
       </div>
-    </div>
-    <div class="col-12 text-center">
-      <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage"
-        [directionLinks]="false" [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="inline-block mt-3"></ngb-pagination>
     </div>
   </div>
 </div>

@@ -4,137 +4,140 @@
   </div>
 </div>
 <div class="row height-100">
-  <div class="col-lg-2 pl-0 pr-0">
+  <div class="pl-0 pr-0 left-nav-style h-100">
     <app-navigation></app-navigation>
   </div>
-  <div class="col-lg-10 pt-3 pb-3 div-scroll">
-    <div class="row col p-0">
-      <!-- <p class="pull-right m-0 pt-1 pb-1">{{current_path}}</p> -->
-    </div>
-    <div class="row pb-2 pt-2 title-bar">
-      <div class="col pl-2 pr-2 text-center">
-        <!-- <p class="m-0 font-18 pt-1 pull-left">{{current_path}}</p> -->
-        <p class="m-0 font-18 pt-1 pr-3 text-center">Advertisements : {{total_record}}</p>
-        <!-- <md-select placeholder=" " [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-2 pull-right" (change)="itemPerPageChanged(itemsPerPage)">
-          <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
-            {{items.itemPerPageName}}
-          </md-option>
-        </md-select> -->
+  <div class="p-3 div-scroll main-container-style">
+    <div class="cst-panel mb-3">
+      <div class="cst-panel-title">
+        <p class="m-0 font-18">Advertisements : {{total_record}}</p>
+      </div>
+      <div class="cst-panel-body">
+        <md-tab-group>
+          <md-tab label="Android">
+            <div class="col-sm-12 pr-0 pl-0">
+              <button md-raised-button class="btn pull-right m-1 title-bar" (click)="addAdvertisement('Android')">
+                <i class="fa fa-plus font-18"></i>
+              </button>
+            </div>
+            <div class="col-sm-12 pr-0 pl-0 card-1 table-responsive advertisement-table-style scroll">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr class="table-inverse">
+                    <th class="sr-only-focusable">#</th>
+                    <th>Thumbnail</th>
+                    <th class="c-no-wrap text-center">App Logo</th>
+                    <th class="c-no-wrap text-center">App Name</th>
+                    <th class="text-center">Platform</th>
+                    <th class="c-no-wrap">App URL</th>
+                    <!-- <th>App Description</th> -->
+                    <th class="text-center cursor-pointer" style="min-width: 125px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="let advertisement of advertisement_list | platformFilter:searchTag:'android'; let i = index;">
+                    <td>{{i+1}}</td>
+                    <td class="text-center">
+                      <img [src]="advertisement.thumbnail_img" class="cursor-pointer"
+                        (click)="imagePreview(advertisement.original_img)" style="width:50px;height:50px;">
+                    </td>
+                    <td class="text-center">
+                      <img [src]="advertisement.app_logo_compressed_img" class="cursor-pointer"
+                        (click)="imagePreview(advertisement.app_logo_original_img)" style="width:50px;height:50px;">
+                    </td>
+                    <td class="text-center">{{advertisement.name}}</td>
+                    <td class="text-center">{{advertisement.platform}}</td>
+                    <td>{{advertisement.url}}</td>
+                    <!-- <td style="max-width: 250px;">
+                          <p class="m-0" style="max-height: 70px; overflow: auto;">{{advertisement.app_description}}</p>
+                        </td> -->
+                    <td class="text-center" style="min-width: 125px;">
+                      <!-- <a title="Link Advertisement">
+                            <i class="fa fa-link font-20 text-dark cursor-pointer" (click)="linkAdvertisement(advertisement)"></i>
+                          </a> -->
+                      <a title="Update">
+                        <i class="fa fa-edit font-24 pr-2 pl-2 text-warning align-text-bottom cursor-pointer"
+                          (click)="updateAdvertisement(advertisement)"></i>
+                      </a>
+                      <a title="Delete">
+                        <i class="fa fa-trash-o font-24 text-danger cursor-pointer"
+                          (click)="deleteAdvertiement(advertisement)"></i>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 *ngIf="total_record==0 || (advertisement_list | platformFilter:searchTag:'android').length==0"
+                class="pb-3 pt-3 pl-3 m-0">
+                No Data Found
+              </h5>
+            </div>
+          </md-tab>
+          <md-tab label="iOS">
+            <div class="col-sm-12 pr-0 pl-0">
+              <button md-raised-button class="btn pull-right m-1 title-bar" (click)="addAdvertisement('iOS')">
+                <i class="fa fa-plus font-18"></i>
+              </button>
+            </div>
+            <div class="col-sm-12 pr-0 pl-0 card-1 table-responsive advertisement-table-style scroll">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr class="table-inverse">
+                    <th class="sr-only-focusable">#</th>
+                    <th class="text-center">Thumbnail</th>
+                    <th class="c-no-wrap text-center">App Logo</th>
+                    <th class="c-no-wrap text-center">App Name</th>
+                    <th class="text-center">Platform</th>
+                    <th class="c-no-wrap">App URL</th>
+                    <!-- <th>App Description</th> -->
+                    <th class="text-center cursor-pointer">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let advertisement of advertisement_list | platformFilter:searchTag:'ios'; let i = index;">
+                    <td>{{i+1}}</td>
+                    <td class="text-center">
+                      <img [src]="advertisement.thumbnail_img" class="cursor-pointer"
+                        (click)="imagePreview(advertisement.original_img)" style="width:50px;height:50px;">
+                    </td>
+                    <td class="text-center">
+                      <img [src]="advertisement.app_logo_compressed_img" class="cursor-pointer"
+                        (click)="imagePreview(advertisement.app_logo_original_img)" style="width:50px;height:50px;">
+                    </td>
+                    <td class="text-center">{{advertisement.name}}</td>
+                    <td class="text-center">{{advertisement.platform}}</td>
+                    <td>{{advertisement.url}}</td>
+                    <!-- <td style="max-width: 250px;">
+                          <p class="m-0" style="max-height: 70px; overflow: auto;">{{advertisement.app_description}}</p>
+                        </td> -->
+                    <td class="text-center" style="min-width: 125px;">
+                      <!-- <a title="Link Advertisement">
+                            <i class="fa fa-link font-20 text-dark cursor-pointer" (click)="linkAdvertisement(advertisement)"></i>
+                          </a> -->
+                      <a title="Update">
+                        <i class="fa fa-edit font-24 pr-2 pl-2 text-warning align-text-bottom cursor-pointer"
+                          (click)="updateAdvertisement(advertisement)"></i>
+                      </a>
+                      <a title="Delete">
+                        <i class="fa fa-trash-o font-24 text-danger cursor-pointer"
+                          (click)="deleteAdvertiement(advertisement)"></i>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 *ngIf="total_record==0 || (advertisement_list | platformFilter:searchTag:'ios').length==0"
+                class="pb-3 pt-3 pl-3 m-0">
+                No Data Found
+              </h5>
+            </div>
+          </md-tab>
+        </md-tab-group>
+        <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true"
+          *ngIf="total_record>itemsPerPage" [directionLinks]="false" [boundaryLinks]="true"
+          (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="pull-right"></ngb-pagination>
       </div>
     </div>
-    <md-tab-group>
-      <md-tab label="Android">
-        <div class="col-sm-12 pr-0 pl-0">
-          <button md-raised-button class="btn pull-right m-1 title-bar" (click)="addAdvertisement('Android')">
-            <i class="fa fa-plus font-18"></i>
-          </button>
-        </div>
-        <div class="col-sm-12 pr-0 pl-0 card-1 table-responsive mb-3 advertisement-table-style scroll">
-          <table class="table table-hover mb-0">
-            <thead>
-              <tr class="table-inverse">
-                <th class="sr-only-focusable">#</th>
-                <th>Thumbnail</th>
-                <th class="c-no-wrap text-center">App Logo</th>
-                <th class="c-no-wrap text-center">App Name</th>
-                <th class="text-center">Platform</th>
-                <th class="c-no-wrap">App URL</th>
-                <!-- <th>App Description</th> -->
-                <th class="text-center cursor-pointer" style="min-width: 125px;">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let advertisement of advertisement_list | platformFilter:searchTag:'android'; let i = index;">
-                <td>{{i+1}}</td>
-                <td class="text-center">
-                  <img [src]="advertisement.thumbnail_img" class="cursor-pointer" (click)="imagePreview(advertisement.original_img)" style="width:50px;height:50px;">
-                </td>
-                <td class="text-center">
-                  <img [src]="advertisement.app_logo_compressed_img" class="cursor-pointer" (click)="imagePreview(advertisement.app_logo_original_img)"
-                    style="width:50px;height:50px;">
-                </td>
-                <td class="text-center">{{advertisement.name}}</td>
-                <td class="text-center">{{advertisement.platform}}</td>
-                <td>{{advertisement.url}}</td>
-                <!-- <td style="max-width: 250px;">
-                  <p class="m-0" style="max-height: 70px; overflow: auto;">{{advertisement.app_description}}</p>
-                </td> -->
-                <td class="text-center" style="min-width: 125px;">
-                  <!-- <a title="Link Advertisement">
-                    <i class="fa fa-link font-20 text-dark cursor-pointer" (click)="linkAdvertisement(advertisement)"></i>
-                  </a> -->
-                  <a title="Update">
-                    <i class="fa fa-edit font-24 pr-2 pl-2 text-warning align-text-bottom cursor-pointer" (click)="updateAdvertisement(advertisement)"></i>
-                  </a>
-                  <a title="Delete">
-                    <i class="fa fa-trash-o font-24 text-danger cursor-pointer" (click)="deleteAdvertiement(advertisement)"></i>
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <h5 *ngIf="total_record==0 || (advertisement_list | platformFilter:searchTag:'android').length==0" class="pb-3 pt-3 pl-3 m-0">
-            No Data Found
-          </h5>
-        </div>
-      </md-tab>
-      <md-tab label="iOS">
-        <div class="col-sm-12 pr-0 pl-0">
-          <button md-raised-button class="btn pull-right m-1 title-bar" (click)="addAdvertisement('iOS')">
-            <i class="fa fa-plus font-18"></i>
-          </button>
-        </div>
-        <div class="col-sm-12 pr-0 pl-0 card-1 table-responsive mb-3 advertisement-table-style scroll">
-          <table class="table table-hover mb-0">
-            <thead>
-              <tr class="table-inverse">
-                <th class="sr-only-focusable">#</th>
-                <th class="text-center">Thumbnail</th>
-                <th class="c-no-wrap text-center">App Logo</th>
-                <th class="c-no-wrap text-center">App Name</th>
-                <th class="text-center">Platform</th>
-                <th class="c-no-wrap">App URL</th>
-                <!-- <th>App Description</th> -->
-                <th class="text-center cursor-pointer">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let advertisement of advertisement_list | platformFilter:searchTag:'ios'; let i = index;">
-                <td>{{i+1}}</td>
-                <td class="text-center">
-                  <img [src]="advertisement.thumbnail_img" class="cursor-pointer" (click)="imagePreview(advertisement.original_img)" style="width:50px;height:50px;">
-                </td>
-                <td class="text-center">
-                  <img [src]="advertisement.app_logo_compressed_img" class="cursor-pointer" (click)="imagePreview(advertisement.app_logo_original_img)"
-                    style="width:50px;height:50px;">
-                </td>
-                <td class="text-center">{{advertisement.name}}</td>
-                <td class="text-center">{{advertisement.platform}}</td>
-                <td>{{advertisement.url}}</td>
-                <!-- <td style="max-width: 250px;">
-                  <p class="m-0" style="max-height: 70px; overflow: auto;">{{advertisement.app_description}}</p>
-                </td> -->
-                <td class="text-center" style="min-width: 125px;">
-                  <!-- <a title="Link Advertisement">
-                    <i class="fa fa-link font-20 text-dark cursor-pointer" (click)="linkAdvertisement(advertisement)"></i>
-                  </a> -->
-                  <a title="Update">
-                    <i class="fa fa-edit font-24 pr-2 pl-2 text-warning align-text-bottom cursor-pointer" (click)="updateAdvertisement(advertisement)"></i>
-                  </a>
-                  <a title="Delete">
-                    <i class="fa fa-trash-o font-24 text-danger cursor-pointer" (click)="deleteAdvertiement(advertisement)"></i>
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <h5 *ngIf="total_record==0 || (advertisement_list | platformFilter:searchTag:'ios').length==0" class="pb-3 pt-3 pl-3 m-0">
-            No Data Found
-          </h5>
-        </div>
-      </md-tab>
-    </md-tab-group>
-    <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage"
-      [directionLinks]="false" [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="pull-right"></ngb-pagination>
   </div>
 </div>

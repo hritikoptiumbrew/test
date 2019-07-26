@@ -1,75 +1,85 @@
 <div class="row header-style">
-    <div class="col-sm-12 pr-0 pl-0">
-        <app-header></app-header>
-    </div>
+  <div class="col-sm-12 pr-0 pl-0">
+    <app-header></app-header>
+  </div>
 </div>
 <div class="row height-100">
-    <div class="col-lg-2 pl-0 pr-0">
-        <app-navigation></app-navigation>
+  <div class="pl-0 pr-0 left-nav-style h-100">
+    <app-navigation></app-navigation>
+  </div>
+  <div class="p-3 div-scroll main-container-style">
+    <div class="row col p-0">
+      <p class="pull-right m-0 pt-1 pb-1">{{current_path}}</p>
     </div>
-    <div class="col-lg-10 pt-3 pb-3 div-scroll">
-        <div class="row col p-0">
-            <p class="pull-right m-0 pt-1 pb-1">{{current_path}}</p>
-        </div>
-        <div class="row pb-2 pt-2 title-bar">
-            <div class="col pl-2 pr-2">
-                <md-select placeholder=" " [(ngModel)]="searchTag" class="search-query-dropdown mr-2 hidden-md-down">
-                    <md-option *ngFor="let searchItem of searchArray" [value]="searchItem.searchTagValue">
-                        {{searchItem.searchTagName}}
-                    </md-option>
-                </md-select>
-                <input [(ngModel)]="searchQuery" class="form-control search-query-input hidden-md-down" (keydown.enter)="searchData(searchQuery, searchTag)"
-                    placeholder="Search Query...">
-                <button class="form-control btn search-query-call hidden-md-down" (click)="searchData(searchQuery, searchTag)">
-                    <i class="fa fa-search"></i>
-                </button>
-                <button class="form-control btn search-query-reset hidden-md-down" (click)="do_reset()">
-                    <i class="fa fa-refresh"></i>
-                </button>
-                <p class="ml-2 pt-1 mb-0 float-left hidden-md-down">{{searchErr}}</p>
-                <h5 class="pull-right m-0 pt-1">Users : {{total_record}}</h5>
-                <md-select placeholder=" " [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-2 pull-right" (change)="itemPerPageChanged(itemsPerPage)">
-                    <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
-                        {{items.itemPerPageName}}
-                    </md-option>
-                </md-select>
-            </div>
-        </div>
-        <div class="col-sm-12 pr-0 pl-0 card-1 table-responsive mb-3 table-style scroll">
-            <table class="table table-hover mb-0">
-                <thead>
-                    <tr class="table-inverse">
-                        <th class="sr-only-focusable">#</th>
-                        <th class="cursor-pointer" (click)="sortBy('device_platform', order_type == true ? 'ASC' : 'DESC')">Platform </th>
-                        <th class="cursor-pointer" (click)="sortBy('device_model_name', order_type == true ? 'ASC' : 'DESC')">Model</th>
-                        <th class="text-center cursor-pointer" (click)="sortBy('device_resolution', order_type == true ? 'ASC' : 'DESC')">Resolution</th>
-                        <th class="text-center cursor-pointer" (click)="sortBy('device_os_version', order_type == true ? 'ASC' : 'DESC')">OS Version</th>
-                        <th class="text-center cursor-pointer" (click)="sortBy('device_country_code', order_type == true ? 'ASC' : 'DESC')">Country Code</th>
-                        <th class="text-center cursor-pointer" (click)="sortBy('create_time', order_type == true ? 'ASC' : 'DESC')">Registration Time</th>
-                        <th class="text-center cursor-pointer" (click)="sortBy('is_count', order_type == true ? 'ASC' : 'DESC')">Restore Count</th>
-                        <th class="text-center cursor-pointer" (click)="sortBy('is_active', order_type == true ? 'ASC' : 'DESC')">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let user of user_list; let i = index;">
-                        <td>{{i+1+(itemsPerPage * (currentPage-1))}}</td>
-                        <td>{{user.device_platform}}</td>
-                        <td>{{user.device_model_name}}</td>
-                        <td class="text-center">{{user.device_resolution}}</td>
-                        <td class="text-center">{{user.device_os_version}}</td>
-                        <td class="text-center">{{user.device_country_code}}</td>
-                        <td class="text-center">{{user.create_time}}</td>
-                        <td class="text-center">{{user.is_count}}</td>
-                        <td class="text-center" *ngIf="user.is_active">Active</td>
-                        <td class="text-center" *ngIf="!user.is_active">Inactive</td>
-                    </tr>
-                </tbody>
-            </table>
-            <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
-                No Data Found
-            </h5>
-        </div>
-        <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage"
-            [directionLinks]="false" [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="pull-right"></ngb-pagination>
+    <div class="row pb-2 pt-2 title-bar">
+      <div class="col pl-2 pr-2">
+        <md-select placeholder=" " [(ngModel)]="searchTag" class="search-query-dropdown mr-2 hidden-md-down">
+          <md-option *ngFor="let searchItem of searchArray" [value]="searchItem.searchTagValue">
+            {{searchItem.searchTagName}}
+          </md-option>
+        </md-select>
+        <input [(ngModel)]="searchQuery" class="form-control search-query-input hidden-md-down"
+          (keydown.enter)="searchData(searchQuery, searchTag)" placeholder="Search Query...">
+        <button class="form-control btn search-query-call hidden-md-down" (click)="searchData(searchQuery, searchTag)">
+          <i class="fa fa-search"></i>
+        </button>
+        <button class="form-control btn search-query-reset hidden-md-down" (click)="do_reset()">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <p class="ml-2 pt-1 mb-0 float-left hidden-md-down">{{searchErr}}</p>
+        <h5 class="pull-right m-0 pt-1">Users : {{total_record}}</h5>
+        <md-select placeholder=" " [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-2 pull-right"
+          (change)="itemPerPageChanged(itemsPerPage)">
+          <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
+            {{items.itemPerPageName}}
+          </md-option>
+        </md-select>
+      </div>
     </div>
+    <div class="col-sm-12 pr-0 pl-0 card-1 table-responsive mb-3 table-style scroll">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr class="table-inverse">
+            <th class="sr-only-focusable">#</th>
+            <th class="cursor-pointer" (click)="sortBy('device_platform', order_type == true ? 'ASC' : 'DESC')">Platform
+            </th>
+            <th class="cursor-pointer" (click)="sortBy('device_model_name', order_type == true ? 'ASC' : 'DESC')">Model
+            </th>
+            <th class="text-center cursor-pointer"
+              (click)="sortBy('device_resolution', order_type == true ? 'ASC' : 'DESC')">Resolution</th>
+            <th class="text-center cursor-pointer"
+              (click)="sortBy('device_os_version', order_type == true ? 'ASC' : 'DESC')">OS Version</th>
+            <th class="text-center cursor-pointer"
+              (click)="sortBy('device_country_code', order_type == true ? 'ASC' : 'DESC')">Country Code</th>
+            <th class="text-center cursor-pointer" (click)="sortBy('create_time', order_type == true ? 'ASC' : 'DESC')">
+              Registration Time</th>
+            <th class="text-center cursor-pointer" (click)="sortBy('is_count', order_type == true ? 'ASC' : 'DESC')">
+              Restore Count</th>
+            <th class="text-center cursor-pointer" (click)="sortBy('is_active', order_type == true ? 'ASC' : 'DESC')">
+              Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of user_list; let i = index;">
+            <td>{{i+1+(itemsPerPage * (currentPage-1))}}</td>
+            <td>{{user.device_platform}}</td>
+            <td>{{user.device_model_name}}</td>
+            <td class="text-center">{{user.device_resolution}}</td>
+            <td class="text-center">{{user.device_os_version}}</td>
+            <td class="text-center">{{user.device_country_code}}</td>
+            <td class="text-center">{{user.create_time}}</td>
+            <td class="text-center">{{user.is_count}}</td>
+            <td class="text-center" *ngIf="user.is_active">Active</td>
+            <td class="text-center" *ngIf="!user.is_active">Inactive</td>
+          </tr>
+        </tbody>
+      </table>
+      <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+        No Data Found
+      </h5>
+    </div>
+    <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true"
+      *ngIf="total_record>itemsPerPage" [directionLinks]="false" [boundaryLinks]="true"
+      (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="pull-right"></ngb-pagination>
+  </div>
 </div>
