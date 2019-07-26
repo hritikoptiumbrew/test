@@ -7,6 +7,7 @@
     "require": {
         "php": ">=5.6.4",
         "abraham/twitteroauth": "^0.9.2",
+        "bacon/bacon-qr-code": "^1.0.3",
         "clarifai/clarifai-php": "^0.6.0",
         "dompdf/dompdf": "^0.8.3",
         "illuminate/cache": "5.4.*",
@@ -16,6 +17,7 @@
         "laravel/framework": "5.4.*",
         "laravel/tinker": "~1.0",
         "league/flysystem-aws-s3-v3": "~1.0",
+        "pragmarx/google2fa-laravel": "^0.2.0",
         "predis/predis": "^1.1",
         "rap2hpoutre/laravel-epilog": "^0.0.6",
         "rap2hpoutre/laravel-log-viewer": "^0.6.1",

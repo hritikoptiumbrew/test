@@ -16,14 +16,6 @@ use DB;
 
 class ImageController extends Controller
 {
-    // get base url
-    public function getBaseUrl()
-    {
-        // get base url in local/live server
-        return Config::get('constant.ACTIVATION_LINK_PATH');
-    }
-
-
     // Verify Image
     public function verifyImage($image_array)
     {
@@ -1233,7 +1225,7 @@ class ImageController extends Controller
     {
         try {
 
-            $base_url = (new ImageController())->getBaseUrl();
+            $base_url = (new Utils())->getBaseUrl();
             $webp_thumbnail_dir = Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY');
 
             $thumbnail_sourceFile = $base_url . $webp_thumbnail_dir . $image;
@@ -1462,7 +1454,7 @@ class ImageController extends Controller
     public function saveNewWebpImageInToS3($image)
     {
         try {
-            $base_url = (new ImageController())->getBaseUrl();
+            $base_url = (new Utils())->getBaseUrl();
 
             $original_sourceFile = $base_url . Config::get('constant.WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY') . $image;
             $thumbnail_sourceFile = $base_url . Config::get('constant.WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY') . $image;

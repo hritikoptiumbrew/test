@@ -3,12 +3,12 @@
 //////////////////////////////////////////////////////////////////////////////
 //                   OptimumBrew Technology Pvt. Ltd.                       //
 //                                                                          //
-// Title:            suitescene                                             //
+// Title:            Photo Editor Lab                                       //
 // File:             Utils.php                                              //
-// Since:            11-August-2016                                         //
+// Modified:         17-June-2019                                           //
 //                                                                          //
-// Author:           Dipali Dhanani                                         //
-// Email:            dipali.dhanani@optimumbrew.com                         //
+// Author:           Pinal Patel                                            //
+// Email:            pinal.optimumbrew@gmail.com                            //
 //                                                                          //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -22,12 +22,12 @@ use Config;
 
 class Utils extends Controller
 {
-    // get base url
+    //get base url
     public function getBaseUrl(){
         return Config::get('constant.ACTIVATION_LINK_PATH');
     }
 
-    // generate otp
+    //generate otp
     public  function generateOTP()
     {
         $string = '0123456789';
@@ -36,7 +36,7 @@ class Utils extends Controller
         return $otp;
     }
 
-    // generate order number
+    //generate order number
     public function generateOrderNumber()
     {
         $date = date('Ymd');
@@ -51,7 +51,7 @@ class Utils extends Controller
         return $date.$counter;
     }
 
-    // generate service number
+    //generate service number
     public function generateServiceNumber()
     {
         $date = date('Ymd');
@@ -66,7 +66,7 @@ class Utils extends Controller
         return $date.$counter;
     }
 
-    // get interval in minutes from time stamp
+    //get interval in minutes from time stamp
     public function getInterval($end_at,$start_at)
     {
         return round(abs(strtotime($end_at) - strtotime($start_at)) / 60,2);

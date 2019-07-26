@@ -131,7 +131,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"category_id\":1,\n\"name\":\"Nature\"\n}\nfile:image.jpeg",
+          "content": "request_data:{\n\"category_id\":1,\n\"name\":\"Banner\"\n}\nfile:image.jpeg",
           "type": "json"
         },
         {
@@ -320,6 +320,35 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "addInvalidFont",
+    "title": "addInvalidFont",
+    "name": "addInvalidFont",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\nrequest_data:{\n\"catalog_id\":280, //compulsory\n\"ios_font_name\":\"3d\", //optional\n\"is_replace\":1 //compulsory 1=replace font file, 0=don't replace font file\n}\nfile:3d.ttf //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Font added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "addJson",
     "title": "addJson",
     "name": "addJson",
@@ -436,6 +465,64 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "addTemplateByZip",
+    "title": "addTemplateByZip",
+    "name": "addTemplateByZip",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"request_data\":{\n\"catalog_id\":1,\n\"search_category\":1 //optional\n},\n\"file\":1.zip",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Template added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/ZipController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "addValidation",
+    "title": "addValidation",
+    "name": "addValidation",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"tag_name\":\"Nature\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Tag added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "changePassword",
     "title": "changePassword",
     "name": "changePassword",
@@ -450,7 +537,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n \"current_password\":\"**********\",\n\"new_password\":\"***********\"\n\n}",
+          "content": "{\n\"current_password\":\"**********\",\n\"new_password\":\"***********\"\n}",
           "type": "json"
         },
         {
@@ -929,6 +1016,64 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "deleteValidation",
+    "title": "deleteValidation",
+    "name": "deleteValidation",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"tag_id\":1 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Tag deleted successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "disable2faByAdmin",
+    "title": "disable2faByAdmin",
+    "name": "disable2faByAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"verify_code\": 123456,\n\"google2fa_secret\":\"ABCDEF\"\n\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"2FA has been disabled successfully\",\n\"cause\": \"\",\n\"data\": {\n\"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlzcyI6Imh0dHA6Ly8xOTIuMTY4LjAuMTEzL3Bob3RvYWRraW5nX3Rlc3RpbmcvYXBpL3B1YmxpYy9hcGkvZG9Mb2dpbkZvckFkbWluIiwiaWF0IjoxNTQ3MzQ5NDY2LCJleHAiOjE1NDc5NTQyNjYsIm5iZiI6MTU0NzM0OTQ2NiwianRpIjoieDA5WUNoWUtudHlwYklWdiJ9.SifYqWURQBhpTG3jocKV1ng-zLx2KSeiCebwUKbl-E0\",\n\"user_detail\": {\n\"id\": 1,\n\"user_name\": \"admin@gmail.com\",\n\"email_id\": \"admin@gmail.com\",\n\"google2fa_enable\": 0,\n\"google2fa_secret\": \"7A7RMQ33CHLQQU5E\",\n\"social_uid\": null,\n\"signup_type\": null,\n\"profile_setup\": 1,\n\"mailchimp_subscr_id\": null,\n\"is_active\": 1,\n\"is_verify\": 1,\n\"create_time\": \"2018-09-21 06:37:46\",\n\"update_time\": \"2019-01-13 07:40:51\",\n\"attribute1\": null,\n\"attribute2\": null,\n\"attribute3\": null,\n\"attribute4\": null\n}\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/Google2faController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "doLogin",
     "title": "doLogin",
     "name": "doLogin",
@@ -943,41 +1088,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"email_id\":\"jitendra.uttamvastra@gmail.com\",\n\"password\":\"123456\"\n}",
+          "content": "{\n\"email_id\":\"demo@gmail.com\",\n\"password\":\"123456\"\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Login Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"token\": \"\",\n\"user_detail\": {\n\"id\": 1,\n\"user_name\": \"admin\",\n\"email_id\": \"admin@gmail.com\",\n\"social_uid\": null,\n\"signup_type\": null,\n\"profile_setup\": 0,\n\"is_active\": 1,\n\"create_time\": \"2017-05-05 09:57:26\",\n\"update_time\": \"2017-07-06 13:19:13\",\n\"attribute1\": null,\n\"attribute2\": null,\n\"attribute3\": null,\n\"attribute4\": null\n}\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/LoginController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
-    "url": "doLogout",
-    "title": "doLogout",
-    "name": "doLogout",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"User have successfully logged out.\",\n\"cause\": \"\",\n\"data\": {\n\n}\n}",
           "type": "json"
         }
       ]
@@ -1074,6 +1190,64 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "editValidation",
+    "title": "editValidation",
+    "name": "editValidation",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"tag_id\":1, //compulsory\n\"tag_name\":\"Featured\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Tag updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "enable2faByAdmin",
+    "title": "enable2faByAdmin",
+    "name": "enable2faByAdmin",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"2FA has been enabled successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"google2fa_url\": \"https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth%3A%2F%2Ftotp%2FOB%2520ADS%3Aadmin%2540gmail.com%3Fsecret%3D3WJMFHPL2XBLWNT3%26issuer%3DOB%2520ADS\",\n\"google2fa_secret\": \"JMFHPL2XBLWNT3\"\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/Google2faController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "getAdvertiseLink",
     "title": "getAdvertiseLink",
     "name": "getAdvertiseLink",
@@ -1152,35 +1326,6 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Advertise categories fetched successfully.\",\n\"cause\": \"\",\n\"data\": [\n{\n\"advertise_category_id\": 3,\n\"advertise_category\": \"Rewarded Video\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:07:07\",\n\"update_time\": \"2018-07-16 09:07:07\"\n},\n{\n\"advertise_category_id\": 1,\n\"advertise_category\": \"Banner\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\"\n},\n{\n\"advertise_category_id\": 2,\n\"advertise_category\": \"Intertial\",\n\"is_active\": 1,\n\"create_time\": \"2018-07-16 09:06:47\",\n\"update_time\": \"2018-07-16 09:06:47\"\n}\n]\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
-    "url": "getAllAdvertisementForLinkAdvertisement",
-    "title": "getAllAdvertisementForLinkAdvertisement",
-    "name": "getAllAdvertisementForLinkAdvertisement",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"advertise_link_id\":57,\n\"category_id\":2\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"SubCategory Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"category_list\": [\n{\n\"sub_category_id\": 33,\n\"name\": \"All Sticker Catalogs\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 47,\n\"name\": \"Collage maker Stickers\",\n\"linked\": 1\n},\n{\n\"sub_category_id\": 31,\n\"name\": \"Fancy QR Generator\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 36,\n\"name\": \"GreetingsCard Stickers\",\n\"linked\": 0\n},\n{\n\"sub_category_id\": 49,\n\"name\": \"Quotes Creator Stickers\",\n\"linked\": 1\n},\n{\n\"sub_category_id\": 28,\n\"name\": \"Selfie With Ganesha Stickers\",\n\"linked\": 0\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1523,7 +1668,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"img_id\":3386 //compulsory\n}",
+          "content": "{\n\"img_id\":3386, //compulsory\n\"category_id\":2, //optional (If this arg is not pass then it will return sub_categories from all categories)\n\"is_featured\":1 //1=featured catalog, 0=normal catalog\n}",
           "type": "json"
         },
         {
@@ -1596,9 +1741,9 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "getCatalogBySubCategoryId",
-    "title": "getCatalogBySubCategoryId",
-    "name": "getCatalogBySubCategoryId",
+    "url": "getAllValidationsForAdmin",
+    "title": "getAllValidationsForAdmin",
+    "name": "getAllValidationsForAdmin",
     "group": "Admin",
     "version": "1.0.0",
     "success": {
@@ -1610,12 +1755,12 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":1\n}",
+          "content": "{\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 5,\n\"category_name\": \"Independence Day Stickers\",\n\"category_list\": [\n{\n\"catalog_id\": 84,\n\"name\": \"Misc\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d551036b09_catalog_img_1502434576.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d551036b09_catalog_img_1502434576.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d551036b09_catalog_img_1502434576.png\",\n\"is_free\": 0,\n\"is_featured\": 1\n},\n{\n\"catalog_id\": 80,\n\"name\": \"Circle\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64d7c306f_catalog_img_1502438615.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d64d7c306f_catalog_img_1502438615.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d64d7c306f_catalog_img_1502438615.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n},\n{\n\"catalog_id\": 81,\n\"name\": \"Flag\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64c7af06f_catalog_img_1502438599.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d64c7af06f_catalog_img_1502438599.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d64c7af06f_catalog_img_1502438599.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n},\n{\n\"catalog_id\": 82,\n\"name\": \"Map\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64afc90f8_catalog_img_1502438575.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d64afc90f8_catalog_img_1502438575.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d64afc90f8_catalog_img_1502438575.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n},\n{\n\"catalog_id\": 83,\n\"name\": \"Text\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d649f4442e_catalog_img_1502438559.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d649f4442e_catalog_img_1502438559.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d649f4442e_catalog_img_1502438559.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"All tags fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 4,\n\"result\": [\n{\n\"tag_id\": 1,\n\"tag_name\": \"test\"\n},\n{\n\"tag_id\": 2,\n\"tag_name\": \"Offer & Sales\"\n},\n{\n\"tag_id\": 3,\n\"tag_name\": \"Mobile Apps\"\n},\n{\n\"tag_id\": 4,\n\"tag_name\": \"Photography\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -1877,35 +2022,6 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Json data updated successfully!.\",\n\"cause\": \"\",\n\"data\": {}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "Admin"
-  },
-  {
-    "type": "post",
-    "url": "getSubCategoryByCategoryId",
-    "title": "getSubCategoryByCategoryId",
-    "name": "getSubCategoryByCategoryId",
-    "group": "Admin",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n \"category_id\":1, //compulsory\n \"page\":1, //compulsory\n \"item_count\":100 //compulsory\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Sub categories fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 33,\n\"is_next_page\": true,\n\"category_name\": \"Sticker\",\n\"category_list\": [\n{\n\"sub_category_id\": 66,\n\"category_id\": 2,\n\"name\": \"All Templates\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"is_featured\": 0\n},\n{\n\"sub_category_id\": 97,\n\"category_id\": 2,\n\"name\": \"Brand Maker\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6d33c860e1e_sub_category_img_1550660552.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6d33c860e1e_sub_category_img_1550660552.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6d33c860e1e_sub_category_img_1550660552.jpg\",\n\"is_featured\": 0\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2666,6 +2782,122 @@ define({ "api": [
     },
     "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "verify2faOPT",
+    "title": "verify2faOPT",
+    "name": "verify2faOPT",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"verify_code\": \"557537\", //compulsory\n\"user_id\": \"557537\", //compulsory\n\"google2fa_secret\": \"557537\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"OTP verified successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"user_detail\": {\n\"id\": 1,\n\"user_name\": \"admin\",\n\"email_id\": \"admin@gmail.com\",\n\"google2fa_enable\": 1,\n\"google2fa_secret\": \"CY3VRNFBMJBA75EA\",\n\"social_uid\": null,\n\"signup_type\": null,\n\"profile_setup\": 0,\n\"is_active\": 1,\n\"create_time\": \"2017-08-02 12:08:30\",\n\"update_time\": \"2018-10-20 06:11:38\",\n\"attribute1\": null,\n\"attribute2\": null,\n\"attribute3\": null,\n\"attribute4\": null\n}\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/Google2faController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "doLogout",
+    "title": "doLogout",
+    "name": "doLogout",
+    "group": "Common_For_All",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"User have successfully logged out.\",\n\"cause\": \"\",\n\"data\": {\n\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/LoginController.php",
+    "groupTitle": "Common_For_All"
+  },
+  {
+    "type": "post",
+    "url": "getCatalogBySubCategoryId",
+    "title": "getCatalogBySubCategoryId",
+    "name": "getCatalogBySubCategoryId",
+    "group": "Common_For_All",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":1\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 5,\n\"category_name\": \"Independence Day Stickers\",\n\"category_list\": [\n{\n\"catalog_id\": 84,\n\"name\": \"Misc\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d551036b09_catalog_img_1502434576.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d551036b09_catalog_img_1502434576.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d551036b09_catalog_img_1502434576.png\",\n\"is_free\": 0,\n\"is_featured\": 1\n},\n{\n\"catalog_id\": 80,\n\"name\": \"Circle\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64d7c306f_catalog_img_1502438615.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d64d7c306f_catalog_img_1502438615.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d64d7c306f_catalog_img_1502438615.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n},\n{\n\"catalog_id\": 81,\n\"name\": \"Flag\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64c7af06f_catalog_img_1502438599.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d64c7af06f_catalog_img_1502438599.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d64c7af06f_catalog_img_1502438599.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n},\n{\n\"catalog_id\": 82,\n\"name\": \"Map\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64afc90f8_catalog_img_1502438575.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d64afc90f8_catalog_img_1502438575.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d64afc90f8_catalog_img_1502438575.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n},\n{\n\"catalog_id\": 83,\n\"name\": \"Text\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d649f4442e_catalog_img_1502438559.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d649f4442e_catalog_img_1502438559.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d649f4442e_catalog_img_1502438559.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Common_For_All"
+  },
+  {
+    "type": "post",
+    "url": "getSubCategoryByCategoryId",
+    "title": "getSubCategoryByCategoryId",
+    "name": "getSubCategoryByCategoryId",
+    "group": "Common_For_All",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n \"category_id\":1, //compulsory\n \"page\":1, //compulsory\n \"item_count\":100 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Sub categories fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 33,\n\"is_next_page\": true,\n\"category_name\": \"Sticker\",\n\"category_list\": [\n{\n\"sub_category_id\": 66,\n\"category_id\": 2,\n\"name\": \"All Templates\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c85fb452c3d4_sub_category_img_1552284485.jpg\",\n\"is_featured\": 0\n},\n{\n\"sub_category_id\": 97,\n\"category_id\": 2,\n\"name\": \"Brand Maker\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6d33c860e1e_sub_category_img_1550660552.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6d33c860e1e_sub_category_img_1550660552.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6d33c860e1e_sub_category_img_1550660552.jpg\",\n\"is_featured\": 0\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/AdminController.php",
+    "groupTitle": "Common_For_All"
   },
   {
     "type": "post",
@@ -3877,36 +4109,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "User"
-  },
-  {
-    "type": "post",
-    "url": "getCatalogBySubCategoryId",
-    "title": "getCatalogBySubCategoryId",
-    "name": "getCatalogBySubCategoryId",
-    "group": "User",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":1\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Catalog Fetched Successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 5,\n\"category_name\": \"Independence Day Stickers\",\n\"category_list\": [\n{\n\"catalog_id\": 84,\n\"name\": \"Misc\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d551036b09_catalog_img_1502434576.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d551036b09_catalog_img_1502434576.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d551036b09_catalog_img_1502434576.png\",\n\"is_free\": 0,\n\"is_featured\": 1\n},\n{\n\"catalog_id\": 80,\n\"name\": \"Circle\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64d7c306f_catalog_img_1502438615.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d64d7c306f_catalog_img_1502438615.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d64d7c306f_catalog_img_1502438615.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n},\n{\n\"catalog_id\": 81,\n\"name\": \"Flag\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64c7af06f_catalog_img_1502438599.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d64c7af06f_catalog_img_1502438599.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d64c7af06f_catalog_img_1502438599.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n},\n{\n\"catalog_id\": 82,\n\"name\": \"Map\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64afc90f8_catalog_img_1502438575.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d64afc90f8_catalog_img_1502438575.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d64afc90f8_catalog_img_1502438575.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n},\n{\n\"catalog_id\": 83,\n\"name\": \"Text\",\n\"thumbnail_img\": \"http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d649f4442e_catalog_img_1502438559.png\",\n\"compressed_img\": \"http://localhost/ob_photolab_backend/image_bucket/compressed/598d649f4442e_catalog_img_1502438559.png\",\n\"original_img\": \"http://localhost/ob_photolab_backend/image_bucket/original/598d649f4442e_catalog_img_1502438559.png\",\n\"is_free\": 0,\n\"is_featured\": 0\n}\n]\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4138,7 +4341,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4191,7 +4394,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"All featured cards are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 34,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"catalog_id\": 398,\n\"name\": \"Misc\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-03-22 09:02:02\"\n},\n{\n\"catalog_id\": 500,\n\"name\": \"Services\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-03-22 09:02:00\"\n}\n],\n\"sample_cards\": [\n{\n\"json_id\": 3390,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7f3e037d9_json_image_1550810942.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 1,\n\"height\": 400,\n\"width\": 325,\n\"updated_at\": \"2019-03-27 11:07:33\"\n},\n{\n\"json_id\": 3387,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6f7d03b31ef_json_image_1550810371.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 100,\n\"width\": 320,\n\"updated_at\": \"2019-03-22 10:36:44\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"All featured cards are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 50,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"catalog_id\": 646,\n\"name\": \"Pinal\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-07-17 08:17:49\"\n},\n{\n\"catalog_id\": 642,\n\"name\": \"Isha\",\n\"is_featured\": 1,\n\"updated_at\": \"2019-06-26 11:15:01\"\n}\n],\n\"sample_cards\": [\n{\n\"json_id\": 12057,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5d2edd42ddb44_json_image_1563352386.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-07-17 08:34:04\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -4254,36 +4457,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
-    "groupTitle": "User"
-  },
-  {
-    "type": "post",
-    "url": "getImagesFromPixabay",
-    "title": "getImagesFromPixabay",
-    "name": "getImagesFromPixabay",
-    "group": "User",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"page\":1, //compulsory\n\"search_query\":\"nature\"\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Images fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"user_profile_url\": \"https://pixabay.com/users/\",\n\"is_next_page\": true,\n\"is_cache\": 0,\n\"result\": {\n\"totalHits\": 500,\n\"hits\": [\n{\n\"largeImageURL\": \"https://pixabay.com/get/e835b60d20f6023ed1584d05fb1d4797e47ee0dc1fb70c4090f5c071a1edb3bcdd_1280.jpg\",\n\"webformatHeight\": 373,\n\"webformatWidth\": 640,\n\"likes\": 1918,\n\"imageWidth\": 3160,\n\"id\": 1072823,\n\"user_id\": 1720744,\n\"views\": 546053,\n\"comments\": 218,\n\"pageURL\": \"https://pixabay.com/photos/road-forest-season-autumn-fall-1072823/\",\n\"imageHeight\": 1846,\n\"webformatURL\": \"https://pixabay.com/get/e835b60d20f6023ed1584d05fb1d4797e47ee0dc1fb70c4090f5c071a1edb3bcdd_640.jpg\",\n\"type\": \"photo\",\n\"previewHeight\": 87,\n\"tags\": \"road, forest, season\",\n\"downloads\": 219192,\n\"user\": \"valiunic\",\n\"favorites\": 1634,\n\"imageSize\": 3819762,\n\"previewWidth\": 150,\n\"userImageURL\": \"https://cdn.pixabay.com/user/2015/12/01/20-20-44-483_250x250.jpg\",\n\"previewURL\": \"https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072823_150.jpg\"\n}\n],\n\"total\": 248144\n}\n}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "./app/Http/Controllers/PixabayController_14_05_2019.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4573,7 +4747,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {

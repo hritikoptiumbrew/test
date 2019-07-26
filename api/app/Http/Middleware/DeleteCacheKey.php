@@ -20,10 +20,10 @@ class DeleteCacheKey
      */
     public function handle($request, Closure $next)
     {
-        $api = $request->getPathInfo();
-        IF ($api != "/api/logs/admin@gmail.com/demo@123") {
-            //Log::info("apicall :",[$api]);
-        }
+        /*$api = $request->getPathInfo();
+        if ($api != "/api/logs/admin@gmail.com/demo@123") {
+            Log::info("apicall :",[$api]);
+        }*/
         return $next($request);
     }
 
@@ -161,6 +161,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getTemplateWithCatalogs
+                $keys = Redis::keys('pel:getTemplateWithCatalogs*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Sub Category Images
@@ -267,6 +273,13 @@ class DeleteCacheKey
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
+
+                //getTemplateWithCatalogs
+                $keys = Redis::keys('pel:getTemplateWithCatalogs*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Other
@@ -473,7 +486,7 @@ class DeleteCacheKey
             }
 
         } catch (Exception $e) {
-            Log::error("DeleteCacheKey Middleware Error :", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
+            Log::error("DeleteCacheKey Middleware : ", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Delete Cache Key.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
     }
