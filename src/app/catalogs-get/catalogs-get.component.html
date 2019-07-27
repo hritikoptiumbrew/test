@@ -101,8 +101,9 @@
                   Total count: {{normal_catalog_list.length}}
                 </md-panel-description>
               </md-expansion-panel-header>
-              <div class="row">
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of normal_catalog_list">
+              <div class="row pr-3">
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12 pr-0"
+                  *ngFor="let category of normal_catalog_list">
                   <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
                     <div class="card-img-wrap">
                       <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img"

@@ -19,25 +19,27 @@
     <md-tab label="Android">
       <div class="col-sm-12 pr-0 pl-0 table-responsive mb-3 mt-3 advertisement-table-style scroll">
         <div class="col-sm-12 pl-0 pr-0" *ngFor="let ad_id of ad_category_data.android; let i = index;">
-          <input type="text" [(ngModel)]="ad_id.server_id" placeholder="Enter {{ad_category_data.advertise_category}} Ad ID" (keydown.enter)="addAdvertisement(ad_id)"
+          <input type="text" [(ngModel)]="ad_id.server_id"
+            placeholder="Enter {{ad_category_data.advertise_category}} Ad ID" (keydown.enter)="addAdvertisement(ad_id)"
             class="form-control ad-inputs mb-2">
-          <a class="btn title-bar text-white pl-2 pr-2" (click)="addAdvertisement(ad_id)">
+          <button class="btn btn-action-1 text-white pl-2 pr-2" (click)="addAdvertisement(ad_id)">
             Save
-          </a>
-          <a class="btn btn-danger text-white" (click)="removeAdvertisementField(ad_id, i)">
+          </button>
+          <button class="btn btn-danger text-white" (click)="removeAdvertisementField(ad_id, i)">
             <i class="fa fa-trash-o"></i>
-          </a>
+          </button>
         </div>
       </div>
     </md-tab>
     <md-tab label="iOS">
       <div class="col-sm-12 pr-0 pl-0 table-responsive mb-3 mt-3 advertisement-table-style scroll">
         <div class="col-sm-12 pl-0 pr-0" *ngFor="let ad_id of ad_category_data.ios; let i = index;">
-          <input type="text" [(ngModel)]="ad_id.server_id" placeholder="Enter {{ad_category_data.advertise_category}} Ad ID" (keydown.enter)="addAdvertisement(ad_id)"
+          <input type="text" [(ngModel)]="ad_id.server_id"
+            placeholder="Enter {{ad_category_data.advertise_category}} Ad ID" (keydown.enter)="addAdvertisement(ad_id)"
             class="form-control ad-inputs mb-2">
-          <a class="btn title-bar text-white pl-2 pr-2" (click)="addAdvertisement(ad_id)">
+          <button class="btn btn-action-1 text-white pl-2 pr-2" (click)="addAdvertisement(ad_id)">
             Save
-          </a>
+          </button>
           <a class="btn btn-danger text-white" (click)="removeAdvertisementField(ad_id, i)">
             <i class="fa fa-trash-o"></i>
           </a>
@@ -48,9 +50,9 @@
 
   <div class="row">
     <div class="col-sm-12 pl-0 pr-0 text-center">
-      <a md-raised-button class="btn title-bar" (click)="addAdvertisementField(platform)">
+      <button md-raised-button class="btn btn-action-1" (click)="addAdvertisementField(platform)">
         <i class="fa fa-plus"></i>
-      </a>
+      </button>
       <button md-raised-button class="btn" [md-dialog-close]="true">Close</button>
     </div>
   </div>

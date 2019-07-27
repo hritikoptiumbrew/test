@@ -53,6 +53,26 @@
         </div>
       </div>
       <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 pr-0">
+        <div class="cst-panel mb-3" *ngIf="env.ENABLE_2FA==true">
+          <div class="cst-panel-title">
+            <p class="m-0 font-18">Two-Factor Authentication</p>
+          </div>
+          <div class="cst-panel-body">
+            <div class="row" style="background-color: white;">
+              <div class="col-12 p-3">
+                <div class="container">
+                  <form class="toggle">
+                    <input type="radio" id="choice1" #choice1 name="choice" value="enable">
+                    <label for="choice1" (click)="updtAth($event, choice1, true, flap)">Enabled</label>
+                    <input type="radio" id="choice2" #choice2 name="choice" value="disable">
+                    <label for="choice2" (click)="updtAth($event, choice2, false, flap)">Disabled</label>
+                    <div id="flap" #flap><span class="content">{{tfa_status}}</span></div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="cst-panel">
           <div class="cst-panel-title">
             <p class="m-0 font-18">Add New Server URL</p>
@@ -69,26 +89,6 @@
                 <div class="text-center pb-3">
                   <button md-raised-button class="btn btn-action-1"
                     (click)="saveNewServerURL(new_server_url)">Save</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cst-panel mt-3" *ngIf="env.ENABLE_2FA==true">
-          <div class="cst-panel-title">
-            <p class="m-0 font-18">Two-Factor Authentication</p>
-          </div>
-          <div class="cst-panel-body">
-            <div class="row" style="background-color: white;">
-              <div class="col-12 p-3">
-                <div class="container">
-                  <form class="toggle">
-                    <input type="radio" id="choice1" #choice1 name="choice" value="enable">
-                    <label for="choice1" (click)="updtAth($event, choice1, true, flap)">Enabled</label>
-                    <input type="radio" id="choice2" #choice2 name="choice" value="disable">
-                    <label for="choice2" (click)="updtAth($event, choice2, false, flap)">Disabled</label>
-                    <div id="flap" #flap><span class="content">{{tfa_status}}</span></div>
-                  </form>
                 </div>
               </div>
             </div>

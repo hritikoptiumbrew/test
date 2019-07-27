@@ -27,35 +27,32 @@
           </button>
           <p class="ml-2 pt-1 mb-0 float-left hidden-md-down">{{searchErr}}</p>
           <h5 class="pull-right m-0 pt-1">Promocodes : {{total_record}}</h5>
-          <!-- <md-select placeholder=" " [(ngModel)]="itemsPerPage" class="itemsPerPage-query-dropdown mr-2 pull-right"
-            (change)="itemPerPageChanged(itemsPerPage)">
-            <md-option *ngFor="let items of itemsPerPageArray" [value]="items.itemPerPageValue">
-              {{items.itemPerPageName}}
-            </md-option>
-          </md-select> -->
         </div>
       </div>
       <div class="cst-panel-body">
-        <div class="row promocode-scroll scroll">
-          <div class="col-sm-12 pl-0 pr-0 table-responsive scroll" style="background-color: #fff;">
+        <div class="row">
+          <div class="col-sm-12 px-0 promocode-scroll scroll" style="background-color: #fff;">
             <table class="table table-hover mb-0">
               <thead>
-                <tr class="table-inverse">
-                  <th>#</th>
-                  <th class="cursor-pointer" (click)="sortBy('promo_code', order_type == true ? 'ASC' : 'DESC')">Promo
+                <tr class="table-inverse sticky-th">
+                  <th class="sticky-th">#</th>
+                  <th class="cursor-pointer sticky-th"
+                    (click)="sortBy('promo_code', order_type == true ? 'ASC' : 'DESC')">Promo
                     code
                   </th>
-                  <th class="cursor-pointer" (click)="sortBy('package_name', order_type == true ? 'ASC' : 'DESC')">
+                  <th class="cursor-pointer sticky-th"
+                    (click)="sortBy('package_name', order_type == true ? 'ASC' : 'DESC')">
                     Package
                     name</th>
-                  <th class="cursor-pointer" (click)="sortBy('device_udid', order_type == true ? 'ASC' : 'DESC')">Device
+                  <th class="cursor-pointer sticky-th"
+                    (click)="sortBy('device_udid', order_type == true ? 'ASC' : 'DESC')">Device
                     UDID</th>
-                  <th class="text-center cursor-pointer"
+                  <th class="text-center cursor-pointer sticky-th"
                     (click)="sortBy('device_platform', order_type == true ? 'ASC' : 'DESC')">Platform</th>
-                  <th class="text-center cursor-pointer"
+                  <th class="text-center cursor-pointer sticky-th"
                     (click)="sortBy('status', order_type == true ? 'ASC' : 'DESC')">
                     Status</th>
-                  <th class="text-center cursor-pointer"
+                  <th class="text-center cursor-pointer sticky-th"
                     (click)="sortBy('create_time', order_type == true ? 'ASC' : 'DESC')">Create time</th>
                 </tr>
               </thead>

@@ -214,7 +214,9 @@ export class CatalogsGetComponent implements OnInit {
     let dialogRef = this.dialog.open(CatalogsAddComponent);
     dialogRef.componentInstance.sub_category_id = this.subCategoryId;
     dialogRef.afterClosed().subscribe(result => {
-      this.getAllCatalogs(this.categoryId);
+      if (!result) {
+        this.getAllCatalogs(this.categoryId);
+      }
     });
   }
 
@@ -223,7 +225,9 @@ export class CatalogsGetComponent implements OnInit {
     let dialogRef = this.dialog.open(CatalogsUpdateComponent);
     dialogRef.componentInstance.catalog_data = catalog_data;
     dialogRef.afterClosed().subscribe(result => {
-      this.getAllCatalogs(this.categoryId);
+      if (!result) {
+        this.getAllCatalogs(this.categoryId);
+      }
     });
   }
 
@@ -231,7 +235,9 @@ export class CatalogsGetComponent implements OnInit {
     let dialogRef = this.dialog.open(CatalogsDeleteComponent);
     dialogRef.componentInstance.catalog_id = category.catalog_id;
     dialogRef.afterClosed().subscribe(result => {
-      this.getAllCatalogs(this.categoryId);
+      if (!result) {
+        this.getAllCatalogs(this.categoryId);
+      }
     });
   }
 
