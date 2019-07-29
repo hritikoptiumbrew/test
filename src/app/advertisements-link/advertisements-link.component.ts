@@ -14,7 +14,7 @@ export class AdvertisementsLinkComponent implements OnInit {
   sub_category_id: any;
   advertisement_list: any = [];
   advertisement_data: any = {};
-  selected_sub_catagory: any = {};
+  selected_sub_category: any = {};
   total_record: any;
   selected_platform: any;
   successMsg: any;
@@ -27,16 +27,16 @@ export class AdvertisementsLinkComponent implements OnInit {
 
   ngOnInit() {
     this.token = localStorage.getItem('photoArtsAdminToken');
-    this.getAllSubCategoryWithLinkDetails(this.advertisement_data, this.selected_sub_catagory);
+    this.getAllSubCategoryWithLinkDetails(this.advertisement_data, this.selected_sub_category);
   }
 
-  getAllSubCategoryWithLinkDetails(advertisement_data, selected_sub_catagory) {
-    /* console.log(advertisement_data, selected_sub_catagory); */
+  getAllSubCategoryWithLinkDetails(advertisement_data, selected_sub_category) {
+    /* console.log(advertisement_data, selected_sub_category); */
     this.errorMsg = "";
     this.successMsg = "";
     this.dataService.postData('getAllAdvertisementToLinkAdvertisement',
       {
-        "sub_category_id": selected_sub_catagory.sub_category_id
+        "sub_category_id": selected_sub_category.sub_category_id
       }, {
         headers: {
           'Authorization': 'Bearer ' + this.token
@@ -67,7 +67,7 @@ export class AdvertisementsLinkComponent implements OnInit {
           this.token = results.data.new_token;
           this.loading.close();
           localStorage.setItem("photoArtsAdminToken", this.token);
-          this.getAllSubCategoryWithLinkDetails(advertisement_data, selected_sub_catagory);
+          this.getAllSubCategoryWithLinkDetails(advertisement_data, selected_sub_category);
         }
         else {
           this.loading.close();
@@ -77,15 +77,15 @@ export class AdvertisementsLinkComponent implements OnInit {
       });
   }
 
-  linkCatalogWithSubCategory(selected_sub_catagory, API_NAME, advertisement_details) {
-    /* console.log(selected_sub_catagory, API_NAME, advertisement_details); */
+  linkCatalogWithSubCategory(selected_sub_category, API_NAME, advertisement_details) {
+    /* console.log(selected_sub_category, API_NAME, advertisement_details); */
     this.errorMsg = "";
     this.successMsg = "";
     this.loading = this.dialog.open(LoadingComponent);
     this.dataService.postData(API_NAME,
       {
         "advertise_link_id": advertisement_details.advertise_link_id,
-        "sub_category_id": selected_sub_catagory.sub_category_id
+        "sub_category_id": selected_sub_category.sub_category_id
       }, {
         headers: {
           'Authorization': 'Bearer ' + this.token
@@ -93,7 +93,7 @@ export class AdvertisementsLinkComponent implements OnInit {
       }).subscribe(results => {
         if (results.code == 200) {
           this.successMsg = results.message;
-          this.getAllSubCategoryWithLinkDetails(this.advertisement_data, this.selected_sub_catagory);
+          this.getAllSubCategoryWithLinkDetails(this.advertisement_data, this.selected_sub_category);
           this.errorMsg = "";
           this.loading.close();
         }
@@ -108,7 +108,7 @@ export class AdvertisementsLinkComponent implements OnInit {
           this.successMsg = "";
           this.loading.close();
           localStorage.setItem("photoArtsAdminToken", this.token);
-          this.linkCatalogWithSubCategory(selected_sub_catagory, API_NAME, advertisement_details);
+          this.linkCatalogWithSubCategory(selected_sub_category, API_NAME, advertisement_details);
         }
         else {
           this.loading.close();

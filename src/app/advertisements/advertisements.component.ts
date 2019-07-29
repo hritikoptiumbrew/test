@@ -100,9 +100,9 @@ export class AdvertisementsComponent implements OnInit {
 
   linkAdvertisement(advertisement: any) {
     let dialogRef = this.dialog.open(AdvertisementsLinkComponent);
-    let selected_sub_catagory = JSON.parse(localStorage.getItem("selected_sub_catagory"));
+    let selected_sub_category = JSON.parse(localStorage.getItem("selected_sub_category"));
     dialogRef.componentInstance.advertisement_data = advertisement;
-    dialogRef.componentInstance.selected_sub_catagory = selected_sub_catagory;
+    dialogRef.componentInstance.selected_sub_category = selected_sub_category;
     dialogRef.componentInstance.advertisement_data.sub_category_id = this.sub_category_id;
     dialogRef.afterClosed().subscribe(result => {
       this.getAllAdvertisements(this.sub_category_id, this.currentPage);
@@ -113,8 +113,8 @@ export class AdvertisementsComponent implements OnInit {
     /* console.log(sub_category_id); */
     /* console.log(platform); */
     let dialogRef = this.dialog.open(AdvertisementsLinkComponent);
-    let selected_sub_catagory = JSON.parse(localStorage.getItem("selected_sub_catagory"));
-    dialogRef.componentInstance.selected_sub_catagory = selected_sub_catagory;
+    let selected_sub_category = JSON.parse(localStorage.getItem("selected_sub_category"));
+    dialogRef.componentInstance.selected_sub_category = selected_sub_category;
     dialogRef.componentInstance.advertisement_data.sub_category_id = this.sub_category_id;
     dialogRef.componentInstance.selected_platform = platform;
     dialogRef.afterClosed().subscribe(result => {
@@ -154,9 +154,9 @@ export class AdvertisementsComponent implements OnInit {
   }
 
   getLocalStorageData() {
-    let tmp_selected_catagory = JSON.parse(localStorage.getItem("selected_catagory"));
-    let tmp_selected_sub_catagory = JSON.parse(localStorage.getItem("selected_sub_catagory"));
-    let tmp_current_path = tmp_selected_catagory.name + " / " + tmp_selected_sub_catagory.name;
+    let tmp_selected_category = JSON.parse(localStorage.getItem("selected_category"));
+    let tmp_selected_sub_category = JSON.parse(localStorage.getItem("selected_sub_category"));
+    let tmp_current_path = tmp_selected_category.name + " / " + tmp_selected_sub_category.name;
     return tmp_current_path;
   }
 

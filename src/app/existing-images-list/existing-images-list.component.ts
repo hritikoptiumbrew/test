@@ -14,11 +14,13 @@ export class ExistingImagesListComponent implements OnInit {
 
   token: any;
   existing_files: any;
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
   is_all_checked: any;
   loading: any;
   formData = new FormData();
   request_data = {
-    "is_replace": 1
+    "is_replace": 1,
+    "category_id": this.selected_category.category_id
   };
 
   constructor(public dataservice: DataService, public dialogRef: MdDialogRef<ExistingImagesListComponent>, private router: Router, public dataService: DataService, public sanitizer: DomSanitizer, public snackBar: MdSnackBar, public dialog: MdDialog) { }

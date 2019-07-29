@@ -21,7 +21,7 @@ export class AdmobAdsComponent implements OnInit {
   itemsPerPage: number = 15;
   currentPage: number = 1;
   showPagination: boolean = true;
-  selected_sub_category: any = JSON.parse(localStorage.getItem("selected_sub_catagory"));
+  selected_sub_category: any = JSON.parse(localStorage.getItem("selected_sub_category"));
   catalogName: any;
   errorMsg: any;
   successMsg: any;
@@ -103,14 +103,14 @@ export class AdmobAdsComponent implements OnInit {
   }
 
   getLocalStorageData() {
-    let tmp_selected_catagory = JSON.parse(localStorage.getItem("selected_catagory"));
-    let tmp_selected_sub_catagory = JSON.parse(localStorage.getItem("selected_sub_catagory"));
-    let tmp_current_path = tmp_selected_catagory.name + " / " + tmp_selected_sub_catagory.name + " / admob-ads";
+    let tmp_selected_category = JSON.parse(localStorage.getItem("selected_category"));
+    let tmp_selected_sub_category = JSON.parse(localStorage.getItem("selected_sub_category"));
+    let tmp_current_path = tmp_selected_category.name + " / " + tmp_selected_sub_category.name + " / admob-ads";
     return tmp_current_path;
   }
   viewCategory(category) {
     /* console.log(category); */
-    localStorage.setItem("selected_admob_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_admob_category", JSON.stringify(category));
     /* this.router.navigate(['/admin/admob-ads/', tmp_url_data]); */
     let dialogRef = this.dialog.open(GaAdsByCategoryComponent);
     dialogRef.componentInstance.ad_category_data = JSON.parse(JSON.stringify(category));

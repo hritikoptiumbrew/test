@@ -13,6 +13,7 @@ export class CatalogsUpdateComponent implements OnInit {
   token: any;
   sub_category_id: any;
   catalog_data: any = {};
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
   fileList: any;
   file: any;
   formData = new FormData();
@@ -57,6 +58,7 @@ export class CatalogsUpdateComponent implements OnInit {
     else {
       this.loading = this.dialog.open(LoadingComponent);
       let category_data = {
+        'category_id': this.selected_category.category_id,
         'catalog_id': catalog_data.catalog_id,
         'name': catalog_data.name,
         "is_featured": catalog_data.is_featured,

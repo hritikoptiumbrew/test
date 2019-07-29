@@ -21,12 +21,12 @@
         <td class="text-center">
           <button md-raised-button class="btn btn-action-1" title="Unlink from {{advertisement_details.name}}"
             *ngIf="advertisement_details.linked==1"
-            (click)="linkCatalogWithSubCategory(selected_sub_catagory,'deleteLinkedAdvertisement', advertisement_details)">
+            (click)="linkCatalogWithSubCategory(selected_sub_category,'deleteLinkedAdvertisement', advertisement_details)">
             <i class="fa fa-chain-broken text-danger font-18"></i>
           </button>
           <button md-raised-button class="btn btn-action-1" title="Link with {{advertisement_details.name}}"
             *ngIf="advertisement_details.linked==0"
-            (click)="linkCatalogWithSubCategory(selected_sub_catagory,'linkAdvertisementWithSubCategory', advertisement_details)">
+            (click)="linkCatalogWithSubCategory(selected_sub_category,'linkAdvertisementWithSubCategory', advertisement_details)">
             <i class="fa fa-link text-white font-18"></i>
           </button>
         </td>

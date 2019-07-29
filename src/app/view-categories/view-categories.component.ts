@@ -122,43 +122,43 @@ export class ViewCategoriesComponent implements OnInit {
   }
 
   viewSubCategory(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     category.name = category.name.replace(/ /g, '');
     this.router.navigate(['/admin/categories/', this.categoryId, category.name, category.sub_category_id]);
   }
 
   viewAllUsers(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/users/', category.sub_category_id]);
   }
 
   viewPremiumUsers(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/purchases/', category.sub_category_id]);
   }
 
   viewRestoredDevices(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/restores/', category.sub_category_id]);
   }
 
   sendANotification(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/notification/', category.sub_category_id]);
   }
 
   viewAdvertisements(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/advertisements/', category.sub_category_id]);
   }
 
   viewDesignByUsers(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/categories/', this.categoryId, 'user-designs']);
   }
 
   viewAdmobAds(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/admob-ads/']);
   }
 

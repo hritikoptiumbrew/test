@@ -16,6 +16,8 @@ export class UpdateJsonDataComponent implements OnInit {
   token: any;
   sub_category_id: any;
   catalog_data: any = {};
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
+  selected_catalog: any = JSON.parse(localStorage.getItem("selected_catalog"));
   search_tag_list: any = [];
   catalog_id: any;
   fileList: any;
@@ -174,6 +176,8 @@ export class UpdateJsonDataComponent implements OnInit {
       let tmp_selected_tags = this.selected_search_tags.join();
       /* console.log(tmp_selected_tags); */
       let request_data = {
+        "category_id": this.selected_category.category_id,
+        "is_featured_catalog": this.selected_catalog.is_featured,
         "img_id": catalog_data_tmp.img_id,
         "is_free": catalog_data_tmp.is_free,
         "is_featured": catalog_data_tmp.is_featured,

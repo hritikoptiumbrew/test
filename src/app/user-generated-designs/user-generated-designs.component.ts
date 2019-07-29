@@ -23,7 +23,7 @@ export class UserGeneratedDesignsComponent implements OnInit {
   itemsPerPage: number = 15;
   currentPage: number = 1;
   showPagination: boolean = true;
-  selected_sub_category: any = JSON.parse(localStorage.getItem("selected_sub_catagory"));
+  selected_sub_category: any = JSON.parse(localStorage.getItem("selected_sub_category"));
   catalogName: any;
   errorMsg: any;
   successMsg: any;
@@ -111,10 +111,10 @@ export class UserGeneratedDesignsComponent implements OnInit {
   }
 
   getLocalStorageData() {
-    let tmp_selected_catagory = JSON.parse(localStorage.getItem("selected_catagory"));
-    let tmp_selected_sub_catagory = JSON.parse(localStorage.getItem("selected_sub_catagory"));
+    let tmp_selected_category = JSON.parse(localStorage.getItem("selected_category"));
+    let tmp_selected_sub_category = JSON.parse(localStorage.getItem("selected_sub_category"));
     let tmp_selected_catalog = JSON.parse(localStorage.getItem("selected_catalog"));
-    let tmp_current_path = tmp_selected_catagory.name + " / " + tmp_selected_sub_catagory.name + " / User Generated Designs";
+    let tmp_current_path = tmp_selected_category.name + " / " + tmp_selected_sub_category.name + " / User Generated Designs";
     return tmp_current_path;
   }
 

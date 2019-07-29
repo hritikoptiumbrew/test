@@ -72,7 +72,7 @@ export class CategoriesComponent implements OnInit {
   }
 
   viewCategory(category) {
-    localStorage.setItem("selected_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_category", JSON.stringify(category));
     this.router.navigate(['/admin/categories/', category.category_id]);
   }
 

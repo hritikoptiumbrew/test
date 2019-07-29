@@ -18,6 +18,8 @@ export class AddJsonDataComponent implements OnInit {
   token: any;
   sub_category_id: any;
   catalog_data: any = {};
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
+  selected_catalog: any = JSON.parse(localStorage.getItem("selected_catalog"));
   search_tag_list: any = [];
   fileList: any;
   file: any;
@@ -168,12 +170,14 @@ export class AddJsonDataComponent implements OnInit {
       let tmp_selected_tags = this.selected_search_tags.join();
       /* console.log(tmp_selected_tags); */
       let request_data = {
+        "category_id": this.selected_category.category_id,
+        "is_featured_catalog": this.selected_catalog.is_featured,
         "is_free": catalog_data_tmp.is_free,
         "is_featured": catalog_data_tmp.is_featured,
         "is_portrait": catalog_data_tmp.is_portrait,
         "catalog_id": catalog_data_tmp.catalog_id,
         "json_data": catalog_data_tmp.json_data,
-        "search_category": tmp_selected_tags == "" ? tmp_selected_tags : tmp_selected_tags
+        "search_category": tmp_selected_tags
       };
       this.formData.append('request_data', JSON.stringify(request_data));
       this.dataService.postData('addJson', this.formData,
