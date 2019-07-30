@@ -185,6 +185,13 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('getSearchTagsForAllSampleImages', 'AdminController@getSearchTagsForAllSampleImages');
     Route::post('getSearchTagsForAllNormalImages', 'AdminController@getSearchTagsForAllNormalImages');
 
+    //Category tags of home screen
+    Route::post('addSearchCategoryTag', 'AdminController@addSearchCategoryTag');
+    Route::post('updateSearchCategoryTag', 'AdminController@updateSearchCategoryTag');
+    Route::post('deleteSearchCategoryTag', 'AdminController@deleteSearchCategoryTag');
+    Route::post('getCategoryTagBySubCategoryId', 'AdminController@getCategoryTagBySubCategoryId');
+    Route::post('setCategoryTagRankOnTheTopByAdmin', 'AdminController@setCategoryTagRankOnTheTopByAdmin');
+
     //File size validation
     Route::post('addValidation', 'AdminController@addValidation');
     Route::post('editValidation', 'AdminController@editValidation');
@@ -289,6 +296,9 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     //Get templates for Brochure Maker with catalogs
     Route::post('getFeaturedSamplesWithCatalogs', 'UserController@getFeaturedSamplesWithCatalogs'); //To get featured templates with catalogs
 
+    //Get templates by category tags
+    Route::post('getTemplatesBySubCategoryTags', 'UserController@getTemplatesBySubCategoryTags');
+
     //Fetch images from Pixabay
     Route::post('getImagesFromPixabay', 'PixabayController@getImagesFromPixabay');
     Route::post('getImageByUnsplash', 'UnsplashController@getImageByUnsplash');
@@ -328,7 +338,6 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
 
 });
-
 
 //APIs of debug purpose
 Route::post('getDatabaseInfo', 'AdminController@getDatabaseInfo');

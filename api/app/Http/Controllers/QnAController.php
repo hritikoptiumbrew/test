@@ -75,7 +75,12 @@ class QnAController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Question type already exist.', 'cause' => '', 'data' => json_decode("{}")));
             }
 
-            if (($response = (new ImageController())->verifyImage($image_array)) != '')
+            /* Here we passed value following parameters as 0 bcs we use common validation for images
+                 * category = 0
+                 * is_featured = 0
+                 * is_catalog = 0
+                 * */
+            if (($response = (new ImageController())->verifyImage($image_array, 0, 0, 0)) != '')
                 return $response;
 
             $image = (new ImageController())->generateNewFileName('question_type', $image_array);
@@ -158,7 +163,13 @@ class QnAController extends Controller
 
             if ($request_body->hasFile('file')) {
                 $image_array = Input::file('file');
-                if (($response = (new ImageController())->verifyImage($image_array)) != '')
+
+                /* Here we passed value following parameters as 0 bcs we use common validation for images
+                 * category = 0
+                 * is_featured = 0
+                 * is_catalog = 0
+                 * */
+                if (($response = (new ImageController())->verifyImage($image_array, 0, 0, 0)) != '')
                     return $response;
 
                 $image = (new ImageController())->generateNewFileName('question_type', $image_array);
