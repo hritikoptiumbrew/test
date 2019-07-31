@@ -1951,7 +1951,8 @@ class UserController extends Controller
                                                   im.is_portrait,
                                                   coalesce(im.height,0) AS height,
                                                   coalesce(im.width,0) AS width,
-                                                  im.updated_at
+                                                  im.updated_at,
+                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text 
                                                 FROM
                                                   images as im,
                                                   catalog_master AS cm,
