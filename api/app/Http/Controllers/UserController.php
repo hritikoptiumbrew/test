@@ -1938,7 +1938,8 @@ class UserController extends Controller
                                                   scc.sub_category_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) 
+                                                  (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
+                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE))
                                                 ', [$this->sub_category_id]);
 
                         $total_row = $total_row_result[0]->total;
@@ -1952,6 +1953,7 @@ class UserController extends Controller
                                                   coalesce(im.height,0) AS height,
                                                   coalesce(im.width,0) AS width,
                                                   im.updated_at,
+                                                  MATCH(im.search_category) AGAINST("' . $search_category . '") +
                                                   MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text 
                                                 FROM
                                                   images as im,
@@ -1965,7 +1967,8 @@ class UserController extends Controller
                                                   scc.sub_category_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) 
+                                                  (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
+                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE)) 
                                                 ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                     } else {
                         $search_result = [];
@@ -2625,7 +2628,8 @@ class UserController extends Controller
                                                               im.is_active = 1 AND
                                                               isnull(im.original_img) AND
                                                               isnull(im.display_img) AND
-                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$this->sub_category_id]);
+                                                              (MATCH(im.search_category) AGAINST("' . $key->tag_name . '") OR
+                                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE))', [$this->sub_category_id]);
 
                         $total_row = $total_row_result[0]->total;
 
@@ -2646,7 +2650,8 @@ class UserController extends Controller
                                                         im.is_active = 1 AND
                                                         isnull(im.original_img) AND
                                                         isnull(im.display_img) AND
-                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)
+                                                        (MATCH(im.search_category) AGAINST("' . $tag_name . '") OR
+                                                          MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE))
                                                         ', [$this->sub_category_id]);
 
                     $total_row = $total_row_result[0]->total;
@@ -2663,6 +2668,7 @@ class UserController extends Controller
                                                   coalesce(im.original_img_height) AS original_img_height,
                                                   coalesce(im.original_img_width) AS original_img_width,
                                                   im.updated_at,
+                                                  MATCH(im.search_category) AGAINST("' . $tag_name . '") +
                                                   MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
                                                 FROM
                                                   images as im
@@ -2672,7 +2678,8 @@ class UserController extends Controller
                                                   im.is_active = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)
+                                                  (MATCH(im.search_category) AGAINST("' . $tag_name . '") OR
+                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)) 
                                                 ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, 1, 1, $this->offset, $this->item_count]);
 
                     $code = 200;
