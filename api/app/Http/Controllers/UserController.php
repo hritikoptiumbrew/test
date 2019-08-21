@@ -1945,7 +1945,7 @@ class UserController extends Controller
                         $total_row = $total_row_result[0]->total;
 
                         $search_result = DB::select('SELECT
-                                                  im.id as json_id,
+                                                  DISTINCT im.id as json_id,
                                                   IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                   im.is_free,
                                                   im.is_featured,
@@ -1994,7 +1994,7 @@ class UserController extends Controller
                         $total_row = $total_row_result[0]->total;
 
                         $search_result = DB::select('SELECT
-                                                  im.id as json_id,
+                                                  DISTINCT im.id as json_id,
                                                   IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                   im.is_free,
                                                   im.is_featured,
@@ -2614,7 +2614,6 @@ class UserController extends Controller
                     } else {
                         $category_list = [];
                     }
-
                     $final_tag_list = array();
                     foreach ($category_list as $key) {
 
@@ -2635,9 +2634,9 @@ class UserController extends Controller
 
                         if ($total_row > 0) {
                             $final_tag_list[] = $key;
+                            $tag_name = $final_tag_list[0]->tag_name;
                         }
 
-                        $tag_name = $final_tag_list[0]->tag_name;
                     }
 
                     $total_row_result = DB::select('SELECT
@@ -2699,7 +2698,7 @@ class UserController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getTemplatesBySubCategoryTags$this->sub_category_id:$this->category_name:$this->page:$this->item_count");
+            return $redis_result = Cache::get("getTemplatesBySubCategoryTags$this->sub_category_id:$this->category_name:$this->page:$this->item_count");
 
             if (!$redis_result) {
                 $redis_result = [];
