@@ -2698,7 +2698,7 @@ class UserController extends Controller
                 });
             }
 
-            return $redis_result = Cache::get("getTemplatesBySubCategoryTags$this->sub_category_id:$this->category_name:$this->page:$this->item_count");
+            $redis_result = Cache::get("getTemplatesBySubCategoryTags$this->sub_category_id:$this->category_name:$this->page:$this->item_count");
 
             if (!$redis_result) {
                 $redis_result = [];
