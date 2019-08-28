@@ -4759,7 +4759,6 @@ class UserController extends Controller
                             "Medium Rectangle",
                             "Leaderboard Ad",
                             "Skyscraper Ad",
-                            "T-shirt",
                             "Miscellaneous"
 
                         );
