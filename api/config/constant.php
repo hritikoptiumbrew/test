@@ -11,8 +11,8 @@ return [
 
     'ACTIVATION_LINK_PATH' => env('ACTIVATION_LINK_PATH'),     //live & local
 
-    //'XMPP_HOST' => 'photoeditorlab.co.in', //live
-    'XMPP_HOST' => '192.168.0.115', //local
+    'XMPP_HOST' => 'photoeditorlab.co.in', //live
+    //'XMPP_HOST' => '192.168.0.113', //local
 
 
     'EXCEPTION_ERROR' => 'PhotoEditorLab is unable to ',
@@ -22,9 +22,9 @@ return [
     //'ADMIN_EMAIL_ID' => 'pinal.optimumbrew@gmail.com',
 
     /* For live server */
-    //'ADMIN_EMAIL_ID' => 'alagiyanirav@gmail.com',
+    'ADMIN_EMAIL_ID' => 'alagiyanirav@gmail.com',
 
-    //'SYSADMIN_EMAIL_ID' => 'alagiyanirav@gmail.com',
+    'SYSADMIN_EMAIL_ID' => 'alagiyanirav@gmail.com',
 
 
     'RESPONSE_HEADER_CACHE' => 'max-age=2592000',
