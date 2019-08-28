@@ -13,6 +13,8 @@ export class PopularSamplesAddComponent implements OnInit {
   token: any;
   advertisement_data: any = {};
   sample_data: any = {};
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
+  selected_catalog: any = JSON.parse(localStorage.getItem("selected_catalog"));
   //catalog_id:any;
   fileList1: any;
   fileList2: any;
@@ -90,6 +92,8 @@ export class PopularSamplesAddComponent implements OnInit {
     else {
       this.loading = this.dialog.open(LoadingComponent);
       let request_data = {
+        "category_id": this.selected_category.category_id,
+        "is_featured": this.selected_catalog.is_featured,
         "image_type": sample_data.image_type,
         "catalog_id": sample_data.catalog_id
       };

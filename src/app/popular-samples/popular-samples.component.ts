@@ -147,10 +147,10 @@ export class PopularSamplesComponent implements OnInit {
   }
 
   getLocalStorageData() {
-    let tmp_selected_catagory = JSON.parse(localStorage.getItem("selected_catagory"));
-    let tmp_selected_sub_catagory = JSON.parse(localStorage.getItem("selected_sub_catagory"));
+    let tmp_selected_category = JSON.parse(localStorage.getItem("selected_category"));
+    let tmp_selected_sub_category = JSON.parse(localStorage.getItem("selected_sub_category"));
     let tmp_selected_catalog = JSON.parse(localStorage.getItem("selected_catalog"));
-    let tmp_current_path = tmp_selected_catagory.name + " / " + tmp_selected_sub_catagory.name + " / " + tmp_selected_catalog.name;
+    let tmp_current_path = tmp_selected_category.name + " / " + tmp_selected_sub_category.name + " / " + tmp_selected_catalog.name;
     return tmp_current_path;
   }
 

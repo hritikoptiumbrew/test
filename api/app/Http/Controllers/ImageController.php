@@ -159,11 +159,11 @@ class ImageController extends Controller
     }
 
     //verify font file
-    public function verifyFontFile($image_array, $category_id, $is_featured, $is_catalog)
+    public function verifyFontFile($file_array, $category_id, $is_featured, $is_catalog)
     {
 
-        $file_type = $image_array->getMimeType();
-        $file_size = $image_array->getSize();
+        $file_type = $file_array->getMimeType();
+        $file_size = $file_array->getSize();
         //Log::info("Font file : ", ['type' => $file_type, 'size' => $file_size]);
 
         $validations = $this->getValidationFromCache($category_id, $is_featured, $is_catalog);
@@ -171,6 +171,19 @@ class ImageController extends Controller
 
         $MAXIMUM_FILESIZE = $validations * 1024;
         //$MAXIMUM_FILESIZE = 1 * 1024 * 1024;
+
+        /*Here special characters are restricted & only allow underscore & alphabetic values*/
+        $fileData = pathinfo(basename($file_array->getClientOriginalName()));
+        $file_name = str_replace(" ", "", strtolower($fileData['filename']));
+        $string_array = str_split($file_name);
+        foreach ($string_array as $key)
+        {
+            $is_valid = preg_match ('/[[:alpha:]_]+/', $key);
+            if($is_valid == 0)
+            {
+                return $response = Response::json(array('code' => 201, 'message' => 'Special characters (except underscore) & numeric value are not allowed into the file name.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+        }
 
         /* there is no specific mimetype for otf & ttf so here we used 2 popular type */
 

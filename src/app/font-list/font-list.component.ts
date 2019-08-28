@@ -15,6 +15,8 @@ export class FontListComponent implements OnInit {
   token: any;
   private sub: any; //route subscriber
   private categoryId: any;
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
+  selected_catalog: any = JSON.parse(localStorage.getItem("selected_catalog"));
   subCategoryName: any;
   private catalogId: any;
   fonts_list: any[];
@@ -157,6 +159,8 @@ export class FontListComponent implements OnInit {
     else {
       this.loading = this.dialog.open(LoadingComponent);
       let request_data: any = {
+        "category_id": this.selected_category.category_id,
+        "is_featured": this.selected_catalog.is_featured,
         "catalog_id": this.catalogId,
         "ios_font_name": font_details.ios_font_name,
         "android_font_name": font_details.android_font_name,
@@ -273,10 +277,10 @@ export class FontListComponent implements OnInit {
   }
 
   getLocalStorageData() {
-    let tmp_selected_catagory = JSON.parse(localStorage.getItem("selected_catagory"));
-    let tmp_selected_sub_catagory = JSON.parse(localStorage.getItem("selected_sub_catagory"));
+    let tmp_selected_category = JSON.parse(localStorage.getItem("selected_category"));
+    let tmp_selected_sub_category = JSON.parse(localStorage.getItem("selected_sub_category"));
     let tmp_selected_catalog = JSON.parse(localStorage.getItem("selected_catalog"));
-    let tmp_current_path = tmp_selected_catagory.name + " / " + tmp_selected_sub_catagory.name + " / " + tmp_selected_catalog.name;
+    let tmp_current_path = tmp_selected_category.name + " / " + tmp_selected_sub_category.name + " / " + tmp_selected_catalog.name;
     return tmp_current_path;
   }
 

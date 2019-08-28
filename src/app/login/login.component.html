@@ -1,41 +1,46 @@
 <div class="auth-main gradient-bg">
-    <div class="auth-block">
-        <div class="form-group">
-            <div class="row">
-                <div class="col-sm-12 padding-none text-center">
-                    <img src="./assets/img/logo.png" class="img-fluid" style="width: 150px;" alt="">
-                </div>
-            </div>
+  <div class="auth-block">
+    <div class="form-group">
+      <div class="row">
+        <div class="col-sm-12 padding-none text-center">
+          <img src="./assets/img/logo.png" class="img-fluid"
+            style="width: 130px; margin-bottom: 30px; filter: drop-shadow(5px 6px 5px #222); -webkit-filter: drop-shadow(5px 6px 5px #222);"
+            alt="">
         </div>
-        <div class="form-group">
-            <div class="row">
-                <div class="col-sm-12 padding-none input-group">
-                    <span class="input-group-addon pr-3 border-0" id="username"><i class="fa fa-user-circle-o"></i></span>
-                    <input type="email" class="form-control border-0" [(ngModel)]="user_detail.user_id" (keydown.enter)="do_login(user_detail)" placeholder="Username" aria-describedby="username" required>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="row">
-                <div class="col-sm-12 padding-none input-group">
-                    <span class="input-group-addon pr-3 pl-3 border-0" id="pwd"> <i class="fa fa-lock"></i></span>
-                    <input type="password" class="form-control border-0" id="inputPassword3" [(ngModel)]="user_detail.password" minlength="6" maxlength="20" (keydown.enter)="do_login(user_detail)" placeholder="Password" aria-describedby="pwd">
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="row">
-                <div class="col-sm-12 padding-none text-center">
-                    <button md-raised-button class="btn login-btn" (click)="do_login(user_detail)">Login</button>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="text-center">
-                <p class="success">{{successMsg}}</p>
-
-                <p class="error">{{errorMsg}}</p>
-            </div>
-        </div>
+      </div>
     </div>
+    <div class="form-group">
+      <div class="row">
+        <div class="col-sm-12 padding-none input-group">
+          <span class="input-group-addon pr-3" id="username"><i class="fa fa-user-circle-o"></i></span>
+          <input type="email" class="form-control border-0" [(ngModel)]="user_detail.user_id"
+            (keydown.enter)="do_login(user_detail)" placeholder="Username" aria-describedby="username" required>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <div class="col-sm-12 padding-none input-group">
+          <span class="input-group-addon pr-3 pl-3 border-0" id="pwd"> <i class="fa fa-lock"></i></span>
+          <input type="password" class="form-control border-0" id="inputPassword3" [(ngModel)]="user_detail.password"
+            minlength="6" maxlength="20" (keydown.enter)="do_login(user_detail)" placeholder="Password"
+            aria-describedby="pwd">
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <div class="col-sm-12 padding-none text-center">
+          <button md-raised-button class="btn login-btn" (click)="do_login(user_detail)">Login</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="text-center">
+        <p class="success">{{successMsg}}</p>
+
+        <p class="error">{{errorMsg}}</p>
+      </div>
+    </div>
+  </div>
 </div>

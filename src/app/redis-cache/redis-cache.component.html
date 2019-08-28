@@ -1,52 +1,54 @@
 <div class="row header-style">
-  <div class="col-sm-12 pr-0 pl-0">
+  <div class="col-sm-12 px-0">
     <app-header></app-header>
   </div>
 </div>
 <div class="row height-100">
-  <div class="col-lg-2 pl-0 pr-0">
+  <div class="px-0 left-nav-style h-100">
     <app-navigation></app-navigation>
   </div>
-  <div class="col-lg-10 pt-3 pb-3 div-scroll">
-    <div class="row pb-2 pt-2 title-bar">
-      <div class="col pl-2 pr-2 text-center d-flex">
-        <input type="text" class="form-control c-inpt-md" placeholder="Search key..." [(ngModel)]="key_name">
-        <p class="m-0 font-18 d-inline-block pull-right pl-5 pr-3 c-no-wrap">Keys : {{total_record}}</p>
+  <div class="p-3 div-scroll main-container-style">
+    <div class="cst-panel">
+      <div class="cst-panel-title">
+        <div class="col pl-2 pr-2 text-center d-flex">
+          <input type="text" class="form-control c-inpt-md" placeholder="Search key..." [(ngModel)]="key_name">
+          <p class="m-0 font-18 d-inline-block pull-right pl-5 pr-3 c-no-wrap">Keys : {{total_record}}</p>
+        </div>
       </div>
-    </div>
-    <div class="row pr-0 pl-0">
-      <div class="col-sm-12 pr-0 pl-0">
-        <button md-raised-button class="btn pull-right m-1 title-bar align-sub"
-          (click)="deleteFromCache(delete_cache)"><i class="fa fa-trash font-24 align-sub"></i></button>
-      </div>
-      <div class="col-sm-12 card-1 pl-0 pr-0 table-responsive mb-3 table-style scroll">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr class="table-inverse">
-              <th class="width-50px p-2">#</th>
-              <th class="p-2">Cache Key
-              </th>
-              <th class="text-center align-middle p-1 w-100px">
-                <input type="checkbox" class="option-input checkbox" [(ngModel)]="is_all_checked"
-                  (change)="selectAll(is_all_checked)" />
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let key_detail of getFltrdData(keys_list | search:'key':key_name); let i = index;">
-              <td>{{i+1}}</td>
-              <td>{{key_detail.key}}</td>
-              <td class="text-center">
-                <input type="checkbox" class="option-input checkbox" [(ngModel)]="key_detail.is_checked"
-                  (change)="valueChanged(key_detail)" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <h5 *ngIf="total_record==0 || (keys_list | search:'key':key_name).length==0" class="pb-3 pl-3 pt-3">
-          No Data Found
-        </h5>
+      <div class="cst-panel-body">
+        <div class="row px-0">
+          <div class="col-sm-12 px-0 table-responsive redis-keys-scroll scroll">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr class="table-inverse">
+                  <th class="width-50px p-2 sticky-th">#</th>
+                  <th class="p-2 sticky-th">Cache Key
+                  </th>
+                  <th class="text-center align-middle p-1 w-100px sticky-th">
+                    <input type="checkbox" class="option-input checkbox" [(ngModel)]="is_all_checked"
+                      (change)="selectAll(is_all_checked)" />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let key_detail of getFltrdData(keys_list | search:'key':key_name); let i = index;">
+                  <td>{{i+1}}</td>
+                  <td>{{key_detail.key}}</td>
+                  <td class="text-center">
+                    <input type="checkbox" class="option-input checkbox" [(ngModel)]="key_detail.is_checked"
+                      (change)="valueChanged(key_detail)" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <h5 *ngIf="total_record==0 || (keys_list | search:'key':key_name).length==0" class="pb-3 pl-3 pt-3">
+              No Data Found
+            </h5>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+<button md-fab class="btn btn-fab-del" (click)="deleteFromCache(delete_cache)"><i
+    class="fa fa-trash font-24 align-sub"></i></button>

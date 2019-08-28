@@ -214,7 +214,9 @@ export class CatalogsGetComponent implements OnInit {
     let dialogRef = this.dialog.open(CatalogsAddComponent);
     dialogRef.componentInstance.sub_category_id = this.subCategoryId;
     dialogRef.afterClosed().subscribe(result => {
-      this.getAllCatalogs(this.categoryId);
+      if (!result) {
+        this.getAllCatalogs(this.categoryId);
+      }
     });
   }
 
@@ -223,7 +225,9 @@ export class CatalogsGetComponent implements OnInit {
     let dialogRef = this.dialog.open(CatalogsUpdateComponent);
     dialogRef.componentInstance.catalog_data = catalog_data;
     dialogRef.afterClosed().subscribe(result => {
-      this.getAllCatalogs(this.categoryId);
+      if (!result) {
+        this.getAllCatalogs(this.categoryId);
+      }
     });
   }
 
@@ -231,7 +235,9 @@ export class CatalogsGetComponent implements OnInit {
     let dialogRef = this.dialog.open(CatalogsDeleteComponent);
     dialogRef.componentInstance.catalog_id = category.catalog_id;
     dialogRef.afterClosed().subscribe(result => {
-      this.getAllCatalogs(this.categoryId);
+      if (!result) {
+        this.getAllCatalogs(this.categoryId);
+      }
     });
   }
 
@@ -315,9 +321,9 @@ export class CatalogsGetComponent implements OnInit {
   }
 
   getLocalStorageData() {
-    let tmp_selected_catagory = JSON.parse(localStorage.getItem("selected_catagory"));
-    let tmp_selected_sub_catagory = JSON.parse(localStorage.getItem("selected_sub_catagory"));
-    let tmp_current_path = tmp_selected_catagory.name + " / " + tmp_selected_sub_catagory.name;
+    let tmp_selected_category = JSON.parse(localStorage.getItem("selected_category"));
+    let tmp_selected_sub_category = JSON.parse(localStorage.getItem("selected_sub_category"));
+    let tmp_current_path = tmp_selected_category.name + " / " + tmp_selected_sub_category.name;
     return tmp_current_path;
   }
 

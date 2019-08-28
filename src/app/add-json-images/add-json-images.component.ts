@@ -13,6 +13,7 @@ export class AddJsonImagesComponent implements OnInit {
 
   token: any;
   category_img: any;
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
   fileList: any;
   file: any;
   formData = new FormData();
@@ -22,7 +23,8 @@ export class AddJsonImagesComponent implements OnInit {
   errorMsg: any;
   loading: any;
   request_data = {
-    "is_replace": 0
+    "is_replace": 0,
+    "category_id": this.selected_category.category_id
   };
 
   constructor(public dialogRef: MdDialogRef<AddJsonImagesComponent>, private dataService: DataService, private router: Router, public dialog: MdDialog) {

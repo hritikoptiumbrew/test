@@ -1938,20 +1938,23 @@ class UserController extends Controller
                                                   scc.sub_category_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) 
-                                                ORDER BY im.updated_at DESC', [$this->sub_category_id]);
+                                                  (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
+                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE))
+                                                ', [$this->sub_category_id]);
 
                         $total_row = $total_row_result[0]->total;
 
                         $search_result = DB::select('SELECT
-                                                  im.id as json_id,
+                                                  DISTINCT im.id as json_id,
                                                   IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                   im.is_free,
                                                   im.is_featured,
                                                   im.is_portrait,
                                                   coalesce(im.height,0) AS height,
                                                   coalesce(im.width,0) AS width,
-                                                  im.updated_at
+                                                  im.updated_at,
+                                                  MATCH(im.search_category) AGAINST("' . $search_category . '") +
+                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text 
                                                 FROM
                                                   images as im,
                                                   catalog_master AS cm,
@@ -1964,8 +1967,9 @@ class UserController extends Controller
                                                   scc.sub_category_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) 
-                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+                                                  (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
+                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE)) 
+                                                ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                     } else {
                         $search_result = [];
                     }
@@ -1985,13 +1989,12 @@ class UserController extends Controller
                                                               cm.is_featured = 1 AND
                                                               scc.sub_category_id = ? AND
                                                               isnull(im.original_img) AND
-                                                              isnull(im.display_img)
-                                                            ORDER BY im.updated_at DESC', [$this->sub_category_id]);
+                                                              isnull(im.display_img)', [$this->sub_category_id]);
 
                         $total_row = $total_row_result[0]->total;
 
                         $search_result = DB::select('SELECT
-                                                  im.id as json_id,
+                                                  DISTINCT im.id as json_id,
                                                   IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                   im.is_free,
                                                   im.is_featured,
@@ -2263,25 +2266,6 @@ class UserController extends Controller
                                                     ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
 
                     $total_row = $total_row_result[0]->total;
-
-
-                    /*DB::select('SELECT
-                                      ct.id as catalog_id,
-                                      ct.name,
-                                      IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                      IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                      IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
-                                      ct.is_free,
-                                      ct.is_featured,
-                                      ct.updated_at
-                                    FROM
-                                      catalog_master as ct,
-                                      sub_category_catalog as sct
-                                    WHERE
-                                      sct.sub_category_id = ? AND
-                                      sct.catalog_id=ct.id AND
-                                      sct.is_active=1
-                                    order by ct.updated_at DESC', [$this->sub_category_id]);*/
 
                     $catalog_list = DB::select('SELECT
                                           ct.id as catalog_id,
@@ -2630,7 +2614,6 @@ class UserController extends Controller
                     } else {
                         $category_list = [];
                     }
-
                     $final_tag_list = array();
                     foreach ($category_list as $key) {
 
@@ -2644,15 +2627,16 @@ class UserController extends Controller
                                                               im.is_active = 1 AND
                                                               isnull(im.original_img) AND
                                                               isnull(im.display_img) AND
-                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$this->sub_category_id]);
+                                                              (MATCH(im.search_category) AGAINST("' . $key->tag_name . '") OR
+                                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE))', [$this->sub_category_id]);
 
                         $total_row = $total_row_result[0]->total;
 
                         if ($total_row > 0) {
                             $final_tag_list[] = $key;
+                            $tag_name = $final_tag_list[0]->tag_name;
                         }
 
-                        $tag_name = $final_tag_list[0]->tag_name;
                     }
 
                     $total_row_result = DB::select('SELECT
@@ -2665,7 +2649,8 @@ class UserController extends Controller
                                                         im.is_active = 1 AND
                                                         isnull(im.original_img) AND
                                                         isnull(im.display_img) AND
-                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)
+                                                        (MATCH(im.search_category) AGAINST("' . $tag_name . '") OR
+                                                          MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE))
                                                         ', [$this->sub_category_id]);
 
                     $total_row = $total_row_result[0]->total;
@@ -2682,6 +2667,7 @@ class UserController extends Controller
                                                   coalesce(im.original_img_height) AS original_img_height,
                                                   coalesce(im.original_img_width) AS original_img_width,
                                                   im.updated_at,
+                                                  MATCH(im.search_category) AGAINST("' . $tag_name . '") +
                                                   MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
                                                 FROM
                                                   images as im
@@ -2691,7 +2677,8 @@ class UserController extends Controller
                                                   im.is_active = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img) AND
-                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)
+                                                  (MATCH(im.search_category) AGAINST("' . $tag_name . '") OR
+                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)) 
                                                 ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, 1, 1, $this->offset, $this->item_count]);
 
                     $code = 200;
@@ -4743,13 +4730,33 @@ class UserController extends Controller
                         $category_list = array(
                             "Quotes",
                             "Logos",
-                            "Business Cards",
-                            "Flyers",
-                            "Brochures",
-                            "Facebook Posts",
-                            "A4 Letterhead",
                             "Instagram Posts",
                             "Instagram Story",
+                            "Facebook Posts",
+                            "Flyers",
+                            "Brochures",
+                            "Infographic",
+                            "Gift Cards",
+                            "Hiring",
+                            "Business Cards",
+                            "Posters",
+                            "A4 Letterhead",
+                            "Invitation",
+                            "Youtube Thumbnails",
+                            "Menu",
+                            "Presentation",
+                            "Storyboard",
+                            "Photo Book",
+                            "Photo Collage",
+                            "Proposal",
+                            "Page Cover",
+                            "Email Header",
+                            "Coupon",
+                            "Invoice",
+                            "Interstitial",
+                            "Large Rectangle",
+                            "Watercolor Logo",
+                            "Medium Rectangle",
                             "Leaderboard Ad",
                             "Skyscraper Ad",
                             "Miscellaneous"

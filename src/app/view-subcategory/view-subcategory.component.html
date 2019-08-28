@@ -4,75 +4,79 @@
   </div>
 </div>
 <div class="row height-100">
-  <div class="col-lg-2 pl-0 pr-0">
+  <div class="pl-0 pr-0 left-nav-style h-100">
     <app-navigation></app-navigation>
   </div>
-  <div class="col-lg-10 pt-3 pb-3 pl-0 pr-0 div-scroll">
-    <div class="row col">
+  <div class="p-3 div-scroll main-container-style">
+    <div class="row col p-0">
       <p class="pull-right m-0 pt-1 pb-1">{{current_path}}</p>
     </div>
-    <div class="row mr-3 ml-3 pb-2 pt-2 title-bar">
-      <div class="col pl-2 pr-2 text-center">
-        <p class="m-0 font-18">Images : {{total_record}}</p>
+    <div class="cst-panel mb-3">
+      <div class="cst-panel-title">
+        <p class="m-0 font-18">Total Records : {{total_record}}</p>
       </div>
-    </div>
-    <div class="row pr-0 pl-0">
-      <div class="col-sm-12 text-right">
-        <a md-raised-button class="btn mt-1 mb-1 title-bar" title="Add JSON Images" (click)="openAddJSONImages()">
-          <i class="fa fa-plus font-18"></i> JSON Images
-        </a>
-        <a md-raised-button class="btn mt-1 mb-1 title-bar" title="Add JSON Data" (click)="openAddJSONData()">
-          <i class="fa fa-plus font-18"></i> JSON Data
-        </a>
-        <a md-raised-button class="btn mt-1 mb-1 title-bar" title="Add Normal Images" (click)="addSubCategory()">
-          <i class="fa fa-plus font-18"></i> Normal Images
-        </a>
-      </div>
-    </div>
-    <div class="row pr-0 pl-0 scroll" style="height: calc(100% - 100px);overflow: auto;">
-      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12" *ngFor="let category of sub_category_list">
-        <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
-          <div class="card-img-wrap">
-            <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img"
-              (click)="dataService.viewImage(category.original_img)" alt="thumbnail image">
-            <div *ngIf="category.is_free==0 && category.is_json_data==1" class="ribbon-wrapper-yellow">
-              <div class="ribbon-yellow">PRO</div>
-            </div>
-            <img alt="" *ngIf="category.is_featured==1" class="feature-img-templt" src="./assets/img/featured_img.png">
+      <div class="cst-panel-body">
+        <div class="row pr-0 pl-0">
+          <div class="col-sm-12 text-right">
+            <a md-raised-button class="btn mt-1 mb-1 btn-action-1" title="Add JSON Images"
+              (click)="openAddJSONImages()">
+              <i class="fa fa-plus font-18"></i> JSON Images
+            </a>
+            <a md-raised-button class="btn mt-1 mb-1 btn-action-1" title="Add JSON Data" (click)="openAddJSONData()">
+              <i class="fa fa-plus font-18"></i> JSON Data
+            </a>
+            <a md-raised-button class="btn mt-1 mb-1 btn-action-1" title="Add Normal Images" (click)="addSubCategory()">
+              <i class="fa fa-plus font-18"></i> Normal Images
+            </a>
           </div>
-          <div class="row title-bar pt-2 pb-2 font-18 align-middle">
-            <div class="col-12">
-              <a title="Update">
-                <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
-                  (click)="updateSubCategory(category)"></i>
-              </a>
-              <a title="Delete">
-                <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer"
-                  (click)="deleteSubCategory(category)"></i>
-              </a>
-              <a title="Move to first" class="cursor-pointer mr-2" (click)="moveToFirst(category)">
-                <svg class="action-btn" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M24 32h336c13.3 0 24 10.7 24 24v24c0 13.3-10.7 24-24 24H24C10.7 104 0 93.3 0 80V56c0-13.3 10.7-24 24-24zm66.4 280.5l65.6-65.6V456c0 13.3 10.7 24 24 24h24c13.3 0 24-10.7 24-24V246.9l65.6 65.6c9.4 9.4 24.6 9.4 33.9 0l17-17c9.4-9.4 9.4-24.6 0-33.9L209 126.1c-9.4-9.4-24.6-9.4-33.9 0L39.5 261.6c-9.4 9.4-9.4 24.6 0 33.9l17 17c9.4 9.4 24.6 9.4 33.9 0z"
-                    fill="#099407"></path>
-                </svg>
-              </a>
-              <a title="Move to another catalog" class="cursor-pointer" (click)="mvTCtlg(category)">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="action-btn">
-                  <path fill="deepskyblue"
-                    d="M331.1 360.5c2.3 8.5 11.1 13.6 19.6 11.3l117-31.3c8.5-2.3 13.6-11.1 11.3-19.6L447.6 204c-2.3-8.5-11.1-13.6-19.6-11.3L311 224c-8.5 2.3-13.6 11.1-11.3 19.6l31.4 116.9zM0 479.9c0 17.7 14.3 32 32 32s32-14.3 32-32v-74.5C48 391.7.5 350.8 0 350.3v129.6zm503.4-106.1c-1.1-4.3-5.5-6.8-9.8-5.7l-154.1 41.3c-9.8-12.9-24.2-21.9-40.9-24.5l-59.4-221.6c-1.1-4.3-5.5-6.8-9.8-5.7l-30.9 8.3c-4.3 1.1-6.8 5.5-5.7 9.8l12.9 48.2h-39l-33.3-61.8c-11.1-21.1-32.8-34.2-56.7-34.2H48c-26.5 0-48 21.5-48 48v103c0 18.7 8.2 36.4 22.4 48.6l76 65.1 14.1 92.5c1 5.7 10.1 30.7 36.8 26.3 17.4-2.9 29.2-19.4 26.3-36.8l-14.1-92.5c-2.5-14.8-10.1-28.3-21.5-38.1l-44-37.7V228l32 59.9h94.8l28.9 107.8c-16.4 11.6-27.2 30.6-27.2 52.2 0 35.3 28.7 64 64 64 32.7 0 59.3-24.5 63.2-56.1l154.2-41.3c4.3-1.1 6.8-5.5 5.7-9.8l-8.2-30.9zm-214.8 90.1c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.1 16-16 16zM80 96c26.5 0 48-21.5 48-48S106.6 0 80 0 32 21.5 32 48s21.5 48 48 48z">
-                  </path>
-                </svg>
-              </a>
-            </div>
-          </div>
-          <i class="fa fa-code font-26 code-icon ab-top-right-5" *ngIf="category.is_json_data"></i>
         </div>
+        <div class="row pr-3 pl-0 scroll" style="max-height: calc(100vh - 220px); overflow: auto;">
+          <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12 pr-0" *ngFor="let category of sub_category_list">
+            <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
+              <div class="card-img-wrap">
+                <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img"
+                  (click)="dataService.viewImage(category.original_img)" alt="thumbnail image">
+                <div *ngIf="category.is_free==0 && category.is_json_data==1" class="ribbon-wrapper-yellow">
+                  <div class="ribbon-yellow">PRO</div>
+                </div>
+                <img alt="" *ngIf="category.is_featured==1" class="feature-img-templt"
+                  src="./assets/img/featured_img.png">
+              </div>
+              <div class="row title-bar pt-2 pb-2 font-18 align-middle">
+                <div class="col-12">
+                  <a title="Update">
+                    <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
+                      (click)="updateSubCategory(category)"></i>
+                  </a>
+                  <a title="Delete">
+                    <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer"
+                      (click)="deleteSubCategory(category)"></i>
+                  </a>
+                  <a title="Move to first" class="cursor-pointer mr-2" (click)="moveToFirst(category)">
+                    <svg class="action-btn" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M24 32h336c13.3 0 24 10.7 24 24v24c0 13.3-10.7 24-24 24H24C10.7 104 0 93.3 0 80V56c0-13.3 10.7-24 24-24zm66.4 280.5l65.6-65.6V456c0 13.3 10.7 24 24 24h24c13.3 0 24-10.7 24-24V246.9l65.6 65.6c9.4 9.4 24.6 9.4 33.9 0l17-17c9.4-9.4 9.4-24.6 0-33.9L209 126.1c-9.4-9.4-24.6-9.4-33.9 0L39.5 261.6c-9.4 9.4-9.4 24.6 0 33.9l17 17c9.4 9.4 24.6 9.4 33.9 0z"
+                        fill="#099407"></path>
+                    </svg>
+                  </a>
+                  <a title="Move to another catalog" class="cursor-pointer" (click)="mvTCtlg(category)">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="action-btn">
+                      <path fill="deepskyblue"
+                        d="M331.1 360.5c2.3 8.5 11.1 13.6 19.6 11.3l117-31.3c8.5-2.3 13.6-11.1 11.3-19.6L447.6 204c-2.3-8.5-11.1-13.6-19.6-11.3L311 224c-8.5 2.3-13.6 11.1-11.3 19.6l31.4 116.9zM0 479.9c0 17.7 14.3 32 32 32s32-14.3 32-32v-74.5C48 391.7.5 350.8 0 350.3v129.6zm503.4-106.1c-1.1-4.3-5.5-6.8-9.8-5.7l-154.1 41.3c-9.8-12.9-24.2-21.9-40.9-24.5l-59.4-221.6c-1.1-4.3-5.5-6.8-9.8-5.7l-30.9 8.3c-4.3 1.1-6.8 5.5-5.7 9.8l12.9 48.2h-39l-33.3-61.8c-11.1-21.1-32.8-34.2-56.7-34.2H48c-26.5 0-48 21.5-48 48v103c0 18.7 8.2 36.4 22.4 48.6l76 65.1 14.1 92.5c1 5.7 10.1 30.7 36.8 26.3 17.4-2.9 29.2-19.4 26.3-36.8l-14.1-92.5c-2.5-14.8-10.1-28.3-21.5-38.1l-44-37.7V228l32 59.9h94.8l28.9 107.8c-16.4 11.6-27.2 30.6-27.2 52.2 0 35.3 28.7 64 64 64 32.7 0 59.3-24.5 63.2-56.1l154.2-41.3c4.3-1.1 6.8-5.5 5.7-9.8l-8.2-30.9zm-214.8 90.1c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.1 16-16 16zM80 96c26.5 0 48-21.5 48-48S106.6 0 80 0 32 21.5 32 48s21.5 48 48 48z">
+                      </path>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <i class="fa fa-code font-26 code-icon ab-top-right-5" *ngIf="category.is_json_data"></i>
+            </div>
+          </div>
+        </div>
+        <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+          No Data Found
+        </h5>
       </div>
     </div>
-    <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
-      No Data Found
-    </h5>
     <!--<div class="col-12 text-center">
       <ngb-pagination [collectionSize]="total_record" [(page)]="currentPage" [maxSize]="5" [rotate]="true" *ngIf="total_record>itemsPerPage" [directionLinks]="false"
         [boundaryLinks]="true" (pageChange)="pageChanged($event)" [pageSize]="itemsPerPage" class="inline-block mt-3"></ngb-pagination>

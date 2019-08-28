@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MdDialog } from '@angular/material';
+import { MdDialog, MdSnackBar, MdSnackBarConfig } from '@angular/material';
 import { DataService } from '../data.service';
 import { LoadingComponent } from '../loading/loading.component';
 import { AddSubCategoryByCategoryIdComponent } from '../add-sub-category-by-category-id/add-sub-category-by-category-id.component';
 import { UpdateSubCategoryByCategoryIdComponent } from '../update-sub-category-by-category-id/update-sub-category-by-category-id.component';
 import { DeleteSubCategoryByCategoryIdComponent } from '../delete-sub-category-by-category-id/delete-sub-category-by-category-id.component';
+import { ViewSubCatTagsComponent } from '../view-sub-cat-tags/view-sub-cat-tags.component';
 
 @Component({
   templateUrl: './view-categories.component.html'
@@ -30,7 +31,7 @@ export class ViewCategoriesComponent implements OnInit {
   searchQuery: any;
   loading: any;
 
-  constructor(public route: ActivatedRoute, private dataService: DataService, private router: Router, public dialog: MdDialog) {
+  constructor(public route: ActivatedRoute, private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.loading = this.dialog.open(LoadingComponent);
     this.itemsPerPageArray = [
       { 'itemPerPageValue': '25', 'itemPerPageName': '25' },
@@ -104,44 +105,60 @@ export class ViewCategoriesComponent implements OnInit {
       });
   }
 
+  ivkSbCatTagDialog(category: any) {
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
+    let dialogRef = this.dialog.open(ViewSubCatTagsComponent, {
+      disableClose: true,
+      panelClass: 'modal-ttl-sroll',
+      data: {
+        category_data: category
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        this.getAllCategories(this.categoryId, this.currentPage, this.itemsPerPage);
+      }
+    });
+  }
+
   viewSubCategory(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     category.name = category.name.replace(/ /g, '');
     this.router.navigate(['/admin/categories/', this.categoryId, category.name, category.sub_category_id]);
   }
 
   viewAllUsers(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/users/', category.sub_category_id]);
   }
 
   viewPremiumUsers(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/purchases/', category.sub_category_id]);
   }
 
   viewRestoredDevices(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/restores/', category.sub_category_id]);
   }
 
   sendANotification(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/notification/', category.sub_category_id]);
   }
 
   viewAdvertisements(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/advertisements/', category.sub_category_id]);
   }
 
   viewDesignByUsers(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/categories/', this.categoryId, 'user-designs']);
   }
 
   viewAdmobAds(category) {
-    localStorage.setItem("selected_sub_catagory", JSON.stringify(category));
+    localStorage.setItem("selected_sub_category", JSON.stringify(category));
     this.router.navigate(['/admin/admob-ads/']);
   }
 
@@ -172,7 +189,8 @@ export class ViewCategoriesComponent implements OnInit {
 
   searchData(searchQuery) {
     if (typeof searchQuery == "undefined" || searchQuery == "" || searchQuery == null) {
-      this.searchErr = "Please Enter Search Query";
+      this.searchErr = "";
+      this.showError("Please Enter Search Query", false);
       return false;
     }
     else {
@@ -206,7 +224,8 @@ export class ViewCategoriesComponent implements OnInit {
           }
           else {
             this.loading.close();
-            this.searchErr = results.message;
+            this.searchErr = "";
+            this.showError(results.message, false);
           }
         });
     }
@@ -221,6 +240,24 @@ export class ViewCategoriesComponent implements OnInit {
     this.showPagination = true;
     this.itemsPerPage = this.itemsPerPageArray[3].itemPerPageValue;
     this.getAllCategories(this.categoryId, this.currentPage, this.itemsPerPage);
+  }
+
+  showError(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-error'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
+  }
+
+  showSuccess(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-success'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
   }
 
 }

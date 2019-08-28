@@ -4,125 +4,341 @@
   </div>
 </div>
 <div class="row height-100">
-  <div class="col-lg-2 pl-0 pr-0">
+  <div class="pl-0 pr-0 left-nav-style h-100">
     <app-navigation></app-navigation>
   </div>
-  <div class="col-lg-10 pt-3 pb-3 div-scroll">
-    <div class="row pb-3">
-      <div class="col-xl-6 col-lg-6 col-md-6 p-0 col-sm-10">
-        <div class="row card-1" style="background-color: white;">
-          <div class="col-12 p-2 title-bar text-center">
-            <label class="m-0 font-weight-bold"> Change Password </label>
+  <div class="p-3 div-scroll main-container-style scroll" style="max-height: calc(100vh - 65px);">
+    <div class="row pb-3" [hidden]="is_verified==false">
+      <div class="col-xl-6 col-lg-6 col-md-6 p-0 col-sm-12">
+        <div class="cst-panel">
+          <div class="cst-panel-title">
+            <p class="m-0 font-18">Change Password</p>
           </div>
-          <div class="col-12 pt-4">
-            <div class="input-group mb-3">
-              <div class="input-group-prepend">
-                <span class="input-group-text font-weight-bold" id="basic-addon1">Current : </span>
+          <div class="cst-panel-body">
+            <div class="row" style="background-color: white;">
+              <div class="col-12 pt-4">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text font-weight-bold" id="basic-addon1">Current : </span>
+                  </div>
+                  <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
+                    [(ngModel)]="passwordData.current_password" aria-describedby="basic-addon1">
+                </div>
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text font-weight-bold" id="basic-addon2">New : </span>
+                  </div>
+                  <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
+                    [(ngModel)]="passwordData.new_password" aria-describedby="basic-addon2">
+                </div>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text font-weight-bold" id="basic-addon3">Repeat : </span>
+                  </div>
+                  <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
+                    [(ngModel)]="cnf_password" aria-describedby="basic-addon3">
+                </div>
               </div>
-              <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
-                [(ngModel)]="passwordData.current_password" aria-describedby="basic-addon1">
-            </div>
-            <div class="input-group mb-3">
-              <div class="input-group-prepend">
-                <span class="input-group-text font-weight-bold" id="basic-addon2">New : </span>
+              <div class="col-12 text-center">
+                <a class="text-danger">{{errorMsg}} &nbsp;</a>
+                <a class="text-info">{{successMsg}} &nbsp;</a>
               </div>
-              <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
-                [(ngModel)]="passwordData.new_password" aria-describedby="basic-addon2">
-            </div>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text font-weight-bold" id="basic-addon3">Repeat : </span>
+              <div class="col-12">
+                <div class="text-center pb-3">
+                  <button md-raised-button class="btn btn-action-1" (click)="changePassword(passwordData)">Save</button>
+                </div>
               </div>
-              <input type="password" class="form-control" (keydown.enter)="changePassword(passwordData)"
-                [(ngModel)]="cnf_password" aria-describedby="basic-addon3">
-            </div>
-          </div>
-          <div class="col-12 text-center">
-            <a class="text-danger">{{errorMsg}} &nbsp;</a>
-            <a class="text-info">{{successMsg}} &nbsp;</a>
-          </div>
-          <div class="col-12">
-            <div class="text-center pb-3">
-              <button md-raised-button class="btn title-bar" (click)="changePassword(passwordData)">Save</button>
             </div>
           </div>
         </div>
       </div>
-      <div class="col-xl-6 col-lg-6 col-md-6 col-sm-10">
-        <div class="row card-1" style="background-color: white;">
-          <div class="col-12 p-2 title-bar text-center">
-            <label class="m-0 font-weight-bold"> Add New Server URL </label>
+      <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 pr-0">
+        <div class="cst-panel mb-3" *ngIf="env.ENABLE_2FA==true">
+          <div class="cst-panel-title">
+            <p class="m-0 font-18">Two-Factor Authentication</p>
           </div>
-          <div class="col-12 pt-3 pb-3">
-            <div class="col-12 pr-0 pl-0">
-              <input type="text" class="form-control" (keydown.enter)="saveNewServerURL(new_server_url)"
-                [(ngModel)]="new_server_url" placeholder="Please enter new server URL here...">
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="text-center pb-3">
-              <button md-raised-button class="btn title-bar" (click)="saveNewServerURL(new_server_url)">Save</button>
+          <div class="cst-panel-body">
+            <div class="row" style="background-color: white;">
+              <div class="col-12 p-3">
+                <div class="container">
+                  <form class="toggle">
+                    <input type="radio" id="choice1" #choice1 name="choice" value="enable">
+                    <label for="choice1" (click)="updtAth($event, choice1, true, flap)">Enabled</label>
+                    <input type="radio" id="choice2" #choice2 name="choice" value="disable">
+                    <label for="choice2" (click)="updtAth($event, choice2, false, flap)">Disabled</label>
+                    <div id="flap" #flap><span class="content">{{tfa_status}}</span></div>
+                  </form>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="row card-1 mt-4" style="background-color: white;" *ngIf="env.ENABLE_2FA==true">
-          <div class="col-12 p-2 title-bar text-center">
-            <label class="m-0 font-weight-bold"> Two-Factor Authentication </label>
+        <div class="cst-panel">
+          <div class="cst-panel-title">
+            <p class="m-0 font-18">Add New Server URL</p>
           </div>
-          <div class="col-12 p-3">
-            <div class="container">
-              <form class="toggle">
-                <input type="radio" id="choice1" #choice1 name="choice" value="enable">
-                <label for="choice1" (click)="updtAth($event, choice1, true, flap)">Enabled</label>
-                <input type="radio" id="choice2" #choice2 name="choice" value="disable">
-                <label for="choice2" (click)="updtAth($event, choice2, false, flap)">Disabled</label>
-                <div id="flap" #flap><span class="content">{{tfa_status}}</span></div>
-              </form>
+          <div class="cst-panel-body">
+            <div class="row" style="background-color: white;">
+              <div class="col-12 pt-3 pb-3">
+                <div class="col-12 pr-0 pl-0">
+                  <input type="text" class="form-control" (keydown.enter)="saveNewServerURL(new_server_url)"
+                    [(ngModel)]="new_server_url" placeholder="Please enter new server URL here...">
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="text-center pb-3">
+                  <button md-raised-button class="btn btn-action-1"
+                    (click)="saveNewServerURL(new_server_url)">Save</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-sm-12 card-1 pl-0 pr-0 table-responsive mb-3 table-style scroll"
-      style="max-height: 60vh; overflow: auto;">
-      <table class="table table-hover mb-0">
-        <thead>
-          <tr class="table-inverse">
-            <th class="p-2">#</th>
-            <th class="p-2">Server URL </th>
-            <th class="p-2">API URL</th>
-            <th class="width-120px text-center p-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let server_details of server_list; let i = index;">
-            <td class="p-2">{{i+1}}</td>
-            <td class="p-2" *ngIf="server_details.is_editing==false">{{server_details.server_url}}</td>
-            <td class="p-2" *ngIf="server_details.is_editing==true">
-              <input type="text" class="form-control c-inpt-md" placeholder="Enter server URL..."
-                [(ngModel)]="server_details.server_url" (keydown.enter)="saveUpdatedServerURL(server_details)">
-            </td>
-            <td class="p-2" style="font-size:14px;">{{server_details.api_url}}</td>
-            <td class="text-center c-no-wrap p-2" *ngIf="server_details.is_editing==false">
-              <a title="Update">
-                <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
-                  (click)="updateServerURL(server_details)"></i>
-              </a>
-              <a title="Delete">
-                <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer"
-                  (click)="deleteServerURL(server_details)"></i>
-              </a>
-            </td>
-            <td class="text-center width-140px c-no-wrap pl-1 pr-1 pt-2 pb-2" *ngIf="server_details.is_editing==true">
-              <button class="btn btn-sm mr-2 btn-success" (click)="saveUpdatedServerURL(server_details)">SAVE</button>
-              <button class="btn btn-sm btn-light" (click)="resetRow(server_details, i)">Cancel</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
-        No Data Found
-      </h5>
+    <div class="cst-panel mb-3" [hidden]="is_verified==false">
+      <div class="cst-panel-title">
+        <p class="m-0 font-18">Statistics Server List</p>
+      </div>
+      <div class="cst-panel-body">
+        <div class="col-sm-12 pl-0 pr-0 table-responsive" style="background-color: white;">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr class="table-inverse">
+                <th class="p-2">#</th>
+                <th class="p-2">Server URL </th>
+                <th class="p-2">API URL</th>
+                <th class="width-120px text-center p-2">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let server_details of server_list; let i = index;">
+                <td class="p-2">{{i+1}}</td>
+                <td class="p-2" *ngIf="server_details.is_editing==false">{{server_details.server_url}}</td>
+                <td class="p-2" *ngIf="server_details.is_editing==true">
+                  <input type="text" class="form-control c-inpt-md" placeholder="Enter server URL..."
+                    [(ngModel)]="server_details.server_url" (keydown.enter)="saveUpdatedServerURL(server_details)">
+                </td>
+                <td class="p-2" style="font-size:14px;">{{server_details.api_url}}</td>
+                <td class="text-center c-no-wrap p-2" *ngIf="server_details.is_editing==false">
+                  <a title="Update">
+                    <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
+                      (click)="updateServerURL(server_details, server_list, tmp_server_list, ['server_url'])"></i>
+                  </a>
+                  <a title="Delete">
+                    <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer"
+                      (click)="deleteServerURL(server_details)"></i>
+                  </a>
+                </td>
+                <td class="text-center width-140px c-no-wrap pl-1 pr-1 pt-2 pb-2"
+                  *ngIf="server_details.is_editing==true">
+                  <button class="btn btn-sm mr-2 btn-success"
+                    (click)="saveUpdatedServerURL(server_details)">SAVE</button>
+                  <button class="btn btn-sm btn-light"
+                    (click)="resetRow(server_details, i, tmp_server_list, ['server_url'])">Cancel</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0">
+            No Data Found
+          </h5>
+        </div>
+      </div>
+    </div>
+    <div class="cst-panel mb-3" [hidden]="is_verified==false">
+      <div class="cst-panel-title">
+        <p class="m-0 font-18">Validation Configs</p>
+      </div>
+      <div class="cst-panel-body">
+        <div class="col-sm-12 pl-0 pr-0 table-responsive" style="background-color: white;">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr class="table-inverse">
+                <th class="p-2 width-50px">#</th>
+                <th class="p-2 width-93px">
+                  <span ngbTooltip="The category on which the validation should be applied." data-container="body"
+                    placement="bottom">Category
+                    ID</span>
+                </th>
+                <th class="p-2 width-289">
+                  <span ngbTooltip="Name of the validation(only for admin's knowledge)" data-container="body"
+                    placement="bottom">Validation
+                    Name</span>
+                </th>
+                <th class="p-2 width-120px">
+                  <span ngbTooltip="Maximum value for validation in KB" data-container="body"
+                    placement="bottom">Value(KB)</span>
+                </th>
+                <ng-template #validationTooltip>
+                  <div class="text-left">
+                    <p class="m-0" style="border-bottom:1px solid #f7f7f7;">
+                      if <span style="font-weight: 500">"For Featured Catalog = false" & "For Catalog Cover Image" =
+                        false</span>
+                    </p>
+                    <p class="m-0">&nbsp;-<span style="font-weight: 500">"For Featured Catalog" = false</span>: Will be
+                      applied on the
+                      content of the
+                      normal
+                      catalog of this category</p>
+                    <p>&nbsp;-<span style="font-weight: 500">"For Catalog Cover Image" = false</span>: Will not apply on
+                      the cover image of
+                      the
+                      catalog.</p>
+                  </div>
+                  <div class="text-left">
+                    <p class="m-0" style="border-bottom:1px solid #f7f7f7;">
+                      if <span style="font-weight: 500">"For Featured Catalog = false" & "For Catalog Cover Image" =
+                        true</span>
+                    </p>
+                    <p class="m-0">&nbsp;-<span style="font-weight: 500">"For Featured Catalog" = false</span>: Will be
+                      applied on the cover
+                      image of the normal catalog of this category</p>
+                    <p>&nbsp;-<span style="font-weight: 500">"For Catalog Cover Image" = true</span>: Will be applied on
+                      the cover image
+                      of the catalog</p>
+                  </div>
+                  <div class="text-left">
+                    <p class="m-0" style="border-bottom:1px solid #f7f7f7;">
+                      if <span style="font-weight: 500">"For Featured Catalog" = true & "For Catalog Cover Image" =
+                        false</span>
+                    </p>
+                    <p class="m-0">&nbsp;-<span style="font-weight: 500">"For Featured Catalog" = true</span>: Will be
+                      applied on the content of the
+                      featured catalog of this category</p>
+                    <p>&nbsp;-<span style="font-weight: 500">"For Catalog Cover Image" = false</span>: Will not apply on
+                      the
+                      cover image of the catalog
+                    </p>
+                  </div>
+                  <div class="text-left">
+                    <p class="m-0" style="border-bottom:1px solid #f7f7f7;">
+                      if <span style="font-weight: 500">"For Featured Catalog = true" & "For Catalog Cover Image =
+                        true"</span>
+                    </p>
+                    <p class="m-0">&nbsp;-<span style="font-weight: 500">"For Featured Catalog" = true</span>: Will be
+                      applied on the cover image of the
+                      featured catalog of this category</p>
+                    <p>&nbsp;-<span style="font-weight: 500">"For Catalog Cover Image" = true</span>: Will be applied on
+                      the cover image
+                      of the catalog
+                    </p>
+                  </div>
+                </ng-template>
+                <th class="p-2 text-center small font-weight-bold width-93px" [ngbTooltip]="validationTooltip"
+                  data-container="body" placement="bottom">For Featured Catalog?</th>
+                <th class="p-2 text-center small font-weight-bold width-93px" [ngbTooltip]="validationTooltip"
+                  data-container="body" placement="bottom">For Catalog Cover Image?</th>
+                <th class="p-2 width-500" ngbTooltip="Description of validation(only for admin's knowledge)"
+                  data-container="body" placement="bottom">Description</th>
+                <th class="width-120px text-center p-2">Action</th>
+              </tr>
+              <tr class="title-bar">
+                <th class="p-2 width-50px heading-1">
+                  Add New
+                </th>
+                <th class="p-2 c-no-wrap">
+                  <select class="form-control form-control-sm" [(ngModel)]="vltnData.category_id">
+                    <option value="">Select...</option>
+                    <option *ngFor="let categoryDetails of category_list;" [value]="categoryDetails.category_id">
+                      {{categoryDetails.name}}</option>
+                  </select>
+                </th>
+                <th class="p-2 c-no-wrap">
+                  <input type="text" class="form-control c-inpt-md" placeholder="Validation name..."
+                    [(ngModel)]="vltnData.validation_name" (keydown.enter)="addValidation(vltnData)">
+                </th>
+                <th class="p-2 c-no-wrap">
+                  <input type="text" class="form-control c-inpt-md width-120px" placeholder="Validation value..."
+                    [(ngModel)]="vltnData.max_value_of_validation" (keydown.enter)="addValidation(vltnData)">
+                </th>
+                <th class="p-2 c-no-wrap text-center">
+                  <input type="checkbox" id="is_featured" class="option-input checkbox"
+                    [(ngModel)]="vltnData.is_featured" />
+                </th>
+                <th class="p-2 c-no-wrap text-center">
+                  <input type="checkbox" id="is_catalog" class="option-input checkbox"
+                    [(ngModel)]="vltnData.is_catalog" />
+                </th>
+                <th class="p-2 c-no-wrap">
+                  <textarea class="form-control c-inpt-md" rows="2"
+                    style="font-size:13px; line-height: 1; height: 32px;" [(ngModel)]="vltnData.description"></textarea>
+                </th>
+                <th class="p-2 text-center c-no-wrap">
+                  <button class="btn btn-sm btn-success" (click)="addValidation(vltnData)">Add Validation</button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let validationDetails of validation_list; let i = index;">
+                <td class="p-2">{{i+1}}</td>
+                <td class="p-2" *ngIf="validationDetails.is_editing==false">{{validationDetails.category_id}}</td>
+                <td class="p-2" *ngIf="validationDetails.is_editing==true">
+                  <!-- <input type="text" class="form-control c-inpt-md width-93px d-inline-block align-top"
+                  placeholder="Category ID" [(ngModel)]="validationDetails.category_id"
+                  (keydown.enter)="saveUpdatedValidation(validationDetails)"> -->
+                  <select class="form-control form-control-sm" [(ngModel)]="validationDetails.category_id">
+                    <option value="" selected>Select...</option>
+                    <option *ngFor="let categoryDetails of category_list;" [value]="categoryDetails.category_id">
+                      {{categoryDetails.name}}</option>
+                  </select>
+                </td>
+                <td class="p-2" *ngIf="validationDetails.is_editing==false">{{validationDetails.validation_name}}</td>
+                <td class="p-2" *ngIf="validationDetails.is_editing==true">
+                  <input type="text" class="form-control c-inpt-md" placeholder="Enter validation name..."
+                    [(ngModel)]="validationDetails.validation_name"
+                    (keydown.enter)="saveUpdatedValidation(validationDetails)">
+                </td>
+                <td class="p-2" *ngIf="validationDetails.is_editing==false">
+                  {{validationDetails.max_value_of_validation}} KB
+                </td>
+                <td class="p-2" *ngIf="validationDetails.is_editing==true">
+                  <input type="text" class="form-control c-inpt-md width-120px" placeholder="Enter value..."
+                    [(ngModel)]="validationDetails.max_value_of_validation"
+                    (keydown.enter)="saveUpdatedValidation(validationDetails)">
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="option-input checkbox" [(ngModel)]="validationDetails.is_featured"
+                    [disabled]="validationDetails.is_editing==false" />
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="option-input checkbox" [(ngModel)]="validationDetails.is_catalog"
+                    [disabled]="validationDetails.is_editing==false" />
+                </td>
+                <td class="p-2" *ngIf="validationDetails.is_editing==false">{{validationDetails.description}}
+                </td>
+                <td class="p-2" *ngIf="validationDetails.is_editing==true">
+                  <textarea class="form-control c-inpt-md" rows="2"
+                    style="font-size:13px; line-height: 1; height: auto;"
+                    [(ngModel)]="validationDetails.description"></textarea>
+                </td>
+                <td class="text-center c-no-wrap p-2" *ngIf="validationDetails.is_editing==false">
+                  <a title="Update">
+                    <i class="fa fa-edit font-24 pr-2 text-warning align-text-bottom cursor-pointer"
+                      (click)="updateServerURL(validationDetails, validation_list, tmp_validation_list, ['category_id', 'validation_name', 'max_value_of_validation', 'is_featured', 'is_catalog', 'description'])"></i>
+                  </a>
+                  <a title="Delete">
+                    <i class="fa fa-trash-o font-24 text-danger pr-2 cursor-pointer"
+                      (click)="deleteValidation(validationDetails)"></i>
+                  </a>
+                </td>
+                <td class="text-center width-140px c-no-wrap pl-1 pr-1 pt-2 pb-2"
+                  *ngIf="validationDetails.is_editing==true">
+                  <button class="btn btn-sm mr-2 btn-success"
+                    (click)="saveUpdatedValidation(validationDetails)">SAVE</button>
+                  <button class="btn btn-sm btn-light"
+                    (click)="resetRow(validationDetails, i, tmp_validation_list, ['category_id', 'validation_name', 'max_value_of_validation', 'is_featured', 'is_catalog', 'description'])">Cancel</button>
+                </td>
+              </tr>
+              <tr *ngIf="validation_list.length==0">
+                <td colspan="8">
+                  <h6 class="m-0 font-weight-bold text-center">No validations found...</h6>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -14,8 +14,8 @@ export class GaAdsByCategoryComponent implements OnInit {
 
   token: any;
   ad_category_data: any = {};
-  selected_sub_category: any = JSON.parse(localStorage.getItem("selected_sub_catagory"));
-  selected_admob_catagory: any = JSON.parse(localStorage.getItem("selected_admob_catagory"));
+  selected_sub_category: any = JSON.parse(localStorage.getItem("selected_sub_category"));
+  selected_admob_category: any = JSON.parse(localStorage.getItem("selected_admob_category"));
   selectedTabIndex: any = 0;
   platform: any;
   errorMsg: any;

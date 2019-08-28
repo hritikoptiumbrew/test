@@ -74,6 +74,7 @@ import { MvToCtlgComponent } from './mv-to-ctlg/mv-to-ctlg.component';
 import { EnterOTPComponent } from './enter-otp/enter-otp.component';
 import { EnterPasswordComponent } from './enter-password/enter-password.component';
 import { SearchPipe } from './search.pipe';
+import { ViewSubCatTagsComponent } from './view-sub-cat-tags/view-sub-cat-tags.component';
 
 @NgModule({
   declarations: [
@@ -139,6 +140,7 @@ import { SearchPipe } from './search.pipe';
     EnterOTPComponent,
     EnterPasswordComponent,
     SearchPipe,
+    ViewSubCatTagsComponent,
   ],
   imports: [
     BrowserModule,
@@ -199,6 +201,7 @@ import { SearchPipe } from './search.pipe';
     MvToCtlgComponent,
     EnterOTPComponent,
     EnterPasswordComponent,
+    ViewSubCatTagsComponent,
   ],
   providers: [DataService, AuthenticationService],
   bootstrap: [AppComponent],

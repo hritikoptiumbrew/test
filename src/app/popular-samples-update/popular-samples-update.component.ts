@@ -12,6 +12,8 @@ export class PopularSamplesUpdateComponent implements OnInit {
 
   token: any;
   sample_data: any;
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
+  selected_catalog: any = JSON.parse(localStorage.getItem("selected_catalog"));
   advertisement_data: any = {};
   //catalog_id:any;
   fileList1: any;
@@ -79,6 +81,8 @@ export class PopularSamplesUpdateComponent implements OnInit {
 
     this.loading = this.dialog.open(LoadingComponent);
     let request_data = {
+      "category_id": this.selected_category.category_id,
+      "is_featured": this.selected_catalog.is_featured,
       "image_type": sample_data.image_type,
       "img_id": sample_data.img_id
     };

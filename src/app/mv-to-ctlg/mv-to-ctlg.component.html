@@ -23,8 +23,7 @@
                   <td class="width-50px p-1 text-right">{{i+1}}. </td>
                   <td class="p-1">{{catalog_details.catalog_name}}</td>
                   <td class="width-75px p-1">
-                    <input type="checkbox" class="form-control" style="height: 24px;"
-                      [(ngModel)]="catalog_details.is_linked" name="group1"
+                    <input type="checkbox" class="option-input" [(ngModel)]="catalog_details.is_linked" name="group1"
                       (change)="upChkVls(catalog_details, $event)" />
                   </td>
                 </tr>
@@ -41,7 +40,7 @@
   </div>
   <div class="col-12 pt-2 pb-2 text-center">
     <span class="text-danger">{{errorMsg}}</span><br>
-    <a md-raised-button class="btn title-bar mr-2" (click)="mvTplt()">Move</a>
-    <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+    <button md-raised-button class="btn btn-action-1 mr-2" (click)="mvTplt()">Move</button>
+    <button md-raised-button class="btn btn-action-cancel" [md-dialog-close]="true">Cancel</button>
   </div>
 </div>

@@ -1,52 +1,62 @@
-.selected_nav
-{
+.selected_nav {
     font-weight: bold;
     background-color: black;
     color: #ffffff !important;
 }
 
-nav > ul > li:hover{
+nav>ul>li:hover {
     cursor: pointer;
     background-color: black;
     color: #ffffff !important;
 }
 
-nav > ul > li
-{
-    color:#fff;
+nav>ul>li {
+    color: #fff;
 }
 
-.header-icons
-{
+.header-icons {
     font-size: 24px;
 }
 
-.header-admin-style
-{
-    height:30px;
+.header-admin-style {
+    height: 30px;
     width: 30px;
-    border-radius:30px;
+    border-radius: 30px;
 }
 
-.header-admin-style-sm
-{
-    height:60px;
+.header-admin-style-sm {
+    height: 60px;
     width: 60px;
-    border-radius:60px;
+    border-radius: 60px;
 }
 
-.img-logo
-{
+.img-logo {
     display: inline-block !important;
 }
 
-.pt-13
-{
-    padding-top:13px;
+.pt-13 {
+    padding-top: 13px;
 }
 
-.bg-color-white
-{
+.bg-color-white {
     background-color: #fff !important;
     color: #000 !important;
+}
+
+.app-name-style {
+    font-size: 36px;
+    font-weight: 900;
+    color: #44cbd7;
+    padding-left: 12px;
+    line-height: 56px;
+}
+
+@media only screen and (max-width: 1020px) {
+    .app-name-style {
+        font-size: 28px;
+        font-weight: 900;
+        color: #44cbd7;
+        padding-left: 12px;
+        line-height: 46px;
+    }
 }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MdDialog } from '@angular/material';
+import { MdDialog, MdSnackBar, MdSnackBarConfig } from '@angular/material';
 import { Router } from '@angular/router';
 import { DataService } from '../data.service';
 import { LoadingComponent } from '../loading/loading.component';
@@ -17,7 +17,7 @@ export class LoginComponent {
   loading: any;
   admin_detail: any = JSON.parse(localStorage.getItem("admin_detail"));
 
-  constructor(private dataService: DataService, private router: Router, public dialog: MdDialog) {
+  constructor(private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
     if (this.router.url == "/admin" || this.router.url == "/") {
       if (localStorage.getItem('photoArtsAdminToken')) {
         this.router.navigate(['/admin/categories']);
@@ -27,15 +27,18 @@ export class LoginComponent {
 
   do_login(user_detail) {
     if (typeof user_detail == "undefined" || user_detail == "" || user_detail == null) {
-      this.errorMsg = "Please Enter Username";
+      // this.errorMsg = "Please Enter Username";
+      this.showError("Please Enter Username", false);
       return false;
     }
     else if (typeof user_detail.user_id == "undefined" || user_detail.user_id == "" || user_detail.user_id == null) {
-      this.errorMsg = "Please Enter Username";
+      // this.errorMsg = "Please Enter Username";
+      this.showError("Please Enter Username", false);
       return false;
     }
     else if (typeof user_detail.password == "undefined" || user_detail.password == "" || user_detail.password == null) {
-      this.errorMsg = "Please Enter Password";
+      // this.errorMsg = "Please Enter Password";
+      this.showError("Please Enter Password", false);
       return false;
     }
     else {
@@ -69,7 +72,8 @@ export class LoginComponent {
           }
           else {
             this.successMsg = "";
-            this.errorMsg = results.message;
+            // this.errorMsg = results.message;
+            this.showError(results.message, false);
             this.loading.close();
           }
         });
@@ -91,6 +95,24 @@ export class LoginComponent {
         localStorage.setItem("admin_detail", JSON.stringify(this.admin_detail));
       }
     });
+  }
+
+  showError(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-error'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
+  }
+
+  showSuccess(message, action) {
+    let config = new MdSnackBarConfig();
+    config.extraClasses = ['snack-success'];
+    /* config.horizontalPosition = "right";
+    config.verticalPosition = "top"; */
+    config.duration = 5000;
+    this.snackBar.open(message, action ? 'Okay!' : undefined, config);
   }
 
 }

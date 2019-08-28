@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
 import { MdDialog, MdSnackBar, MdSnackBarConfig } from '@angular/material';
 import { Router } from '@angular/router';
 import { DataService } from '../data.service';
@@ -10,7 +10,8 @@ import { ViewImageComponent } from '../view-image/view-image.component';
 import { ENV_CONFIG } from '../app.constants';
 
 @Component({
-  templateUrl: './settings.component.html'
+  templateUrl: './settings.component.html',
+  encapsulation: ViewEncapsulation.None
 })
 export class SettingsComponent implements OnInit {
 
@@ -22,12 +23,17 @@ export class SettingsComponent implements OnInit {
   loading: any;
   server_list: any[] = [];
   tmp_server_list: any[] = [];
+  validation_list: any = [];
+  tmp_validation_list: any = [];
+  category_list: any = [];
+  vltnData: any = { "category_id": "" };
   total_record: any;
   new_server_url: any = "";
   st: any = {};
   lg_rep: any = {};
   env: any = ENV_CONFIG;
   tfa_status: any = "";
+  is_verified: any = false;
   @ViewChild('choice1') choice1: ElementRef;
   @ViewChild('choice2') choice2: ElementRef;
   @ViewChild('flap') flap: ElementRef;
@@ -35,7 +41,16 @@ export class SettingsComponent implements OnInit {
   constructor(private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.token = localStorage.getItem('photoArtsAdminToken');
     this.lg_rep = JSON.parse(localStorage.getItem('admin_detail'));
-    this.getStatisticsData();
+    if (!this.lg_rep.google2fa_enable || this.lg_rep.google2fa_enable == 0 || this.lg_rep.google2fa_enable == false) {
+      this.getStatisticsData();
+    }
+    else {
+      this.openOTPDialog(this.lg_rep, 'change-pwd').then((otpResp) => {
+        if (otpResp && otpResp.result && otpResp.result.user_name) {
+          this.getStatisticsData();
+        }
+      });
+    }
   }
 
   async ngOnInit() {
@@ -227,7 +242,7 @@ export class SettingsComponent implements OnInit {
       return false;
     }
     else {
-      if (!this.lg_rep.google2fa_enable || this.lg_rep.google2fa_enable == 0 || this.lg_rep.google2fa_enable == false) {
+      /* if (!this.lg_rep.google2fa_enable || this.lg_rep.google2fa_enable == 0 || this.lg_rep.google2fa_enable == false) {
         this.updatePwd(passwordData);
       }
       else {
@@ -236,7 +251,8 @@ export class SettingsComponent implements OnInit {
             this.updatePwd(passwordData);
           }
         });
-      }
+      } */
+      this.updatePwd(passwordData);
     }
   }
 
@@ -280,7 +296,6 @@ export class SettingsComponent implements OnInit {
       });
   }
 
-
   getStatisticsData() {
     this.loading = this.dialog.open(LoadingComponent);
     this.token = localStorage.getItem('photoArtsAdminToken');
@@ -298,6 +313,7 @@ export class SettingsComponent implements OnInit {
           });
           this.total_record = results.data.total_record;
           this.loading.close();
+          this.getValidationData();
           this.errorMsg = "";
           // this.showSuccess(results.message, false);
         }
@@ -326,17 +342,219 @@ export class SettingsComponent implements OnInit {
       });
   }
 
-  updateServerURL(server_details: any) {
-    this.server_list.forEach((element: any, i: number) => {
-      this.resetRow(element, i);
-    });
-    let category_data = JSON.parse(JSON.stringify(server_details));
-    server_details.is_editing = true;
+  getValidationData() {
+    this.category_list = [];
+    this.loading = this.dialog.open(LoadingComponent);
+    this.token = localStorage.getItem('photoArtsAdminToken');
+    this.dataService.postData('getAllValidationsForAdmin',
+      {}, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).subscribe(results => {
+        if (results.code == 200) {
+          this.validation_list = results.data.result;
+          this.category_list = results.data.category_list;
+          this.category_list.unshift({
+            category_id: 0,
+            name: "Default"
+          })
+          this.tmp_validation_list = JSON.parse(JSON.stringify(results.data.result));
+          this.validation_list.forEach((element: any) => {
+            element.is_editing = false;
+          });
+          this.is_verified = true;
+          this.loading.close();
+          this.errorMsg = "";
+          // this.showSuccess(results.message, false);
+        }
+        else if (results.code == 400) {
+          this.loading.close();
+          localStorage.removeItem("photoArtsAdminToken");
+          this.router.navigate(['/admin']);
+        }
+        else if (results.code == 401) {
+          this.token = results.data.new_token;
+          localStorage.setItem("photoArtsAdminToken", this.token);
+          this.getStatisticsData();
+        }
+        else {
+          this.loading.close();
+          this.successMsg = "";
+          // this.errorMsg = results.message;
+          this.errorMsg = "";
+          this.showError(results.message, false);
+        }
+      }, (error: any) => {
+        this.loading.close();
+        this.showError("Unable to connect with server, please reload the page.", false);
+        /* console.log(error.status); */
+        /* console.log(error); */
+      });
   }
 
-  resetRow(server_details: any, i: number) {
-    server_details.is_editing = false;
-    server_details.server_url = this.tmp_server_list[i].server_url;
+  saveUpdatedValidation(validationDetails) {
+    if (!validationDetails) {
+      this.showError("Please enter validation details", false);
+      return false;
+    }
+    else if (!validationDetails.validation_name || validationDetails.validation_name.trim() == "") {
+      this.showError("Please enter validation name", false);
+      return false;
+    }
+    else if (!validationDetails.max_value_of_validation || validationDetails.max_value_of_validation.trim() == "") {
+      this.showError("Please enter validation value", false);
+      return false;
+    }
+    else if (!validationDetails.description || validationDetails.description.trim() == "") {
+      this.showError("Please enter description for validation", false);
+      return false;
+    }
+    else {
+      let request_data: any = {
+        "setting_id": validationDetails.setting_id,
+        "category_id": validationDetails.category_id,
+        "validation_name": validationDetails.validation_name,
+        "max_value_of_validation": validationDetails.max_value_of_validation,
+        "is_featured": validationDetails.is_featured ? 1 : 0,
+        "is_catalog": validationDetails.is_catalog ? 1 : 0,
+        "description": validationDetails.description
+      };
+      this.token = localStorage.getItem('photoArtsAdminToken');
+      this.dataService.postData('editValidation',
+        request_data, {
+          headers: {
+            'Authorization': 'Bearer ' + this.token
+          }
+        }).subscribe(results => {
+          if (results.code == 200) {
+            this.showSuccess(results.message, false);
+            this.new_server_url = "";
+            this.getValidationData();
+          }
+          else if (results.code == 400) {
+            this.loading.close();
+            localStorage.removeItem("photoArtsAdminToken");
+            this.router.navigate(['/admin']);
+          }
+          else if (results.code == 401) {
+            this.token = results.data.new_token;
+            localStorage.setItem("photoArtsAdminToken", this.token);
+            this.saveUpdatedValidation(validationDetails);
+          }
+          else {
+            this.loading.close();
+            this.successMsg = "";
+            this.errorMsg = "";
+            this.showError(results.message, false);
+          }
+        }, error => {
+          /* console.log(error.status); */
+          /* console.log(error); */
+          this.loading.close();
+          this.successMsg = "";
+          this.errorMsg = "";
+          this.showError("Unable to connect with server, please try again.", false);
+        });
+    }
+  }
+
+  deleteValidation(validationDetails) {
+    let tmp_request_data = {
+      "setting_id": validationDetails.setting_id
+    };
+    let dialogRef = this.dialog.open(DeleteUserGeneratedComponent, { disableClose: true });
+    dialogRef.componentInstance.delete_request_data = tmp_request_data;
+    dialogRef.componentInstance.API_NAME = "deleteValidation";
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        this.getStatisticsData();
+      }
+    });
+  }
+
+  addValidation(vltnData) {
+    if (!vltnData) {
+      this.showError("Please enter validation details", false);
+      return false;
+    }
+    else if (!vltnData.category_id || vltnData.category_id.trim() == "") {
+      this.showError("Please enter category id", false);
+      return false;
+    }
+    else if (!vltnData.validation_name || vltnData.validation_name.trim() == "") {
+      this.showError("Please enter validation name", false);
+      return false;
+    }
+    else if (!vltnData.max_value_of_validation || vltnData.max_value_of_validation.trim() == "") {
+      this.showError("Please enter validation value", false);
+      return false;
+    }
+    else if (!vltnData.description || vltnData.description.trim() == "") {
+      this.showError("Please enter description for validation", false);
+      return false;
+    }
+    else {
+      let request_data: any = {
+        "category_id": vltnData.category_id,
+        "validation_name": vltnData.validation_name,
+        "max_value_of_validation": vltnData.max_value_of_validation,
+        "is_featured": vltnData.is_featured ? 1 : 0,
+        "is_catalog": vltnData.is_catalog ? 1 : 0,
+        "description": vltnData.description
+      };
+      this.token = localStorage.getItem('photoArtsAdminToken');
+      this.dataService.postData('addValidation',
+        request_data, {
+          headers: {
+            'Authorization': 'Bearer ' + this.token
+          }
+        }).subscribe(results => {
+          if (results.code == 200) {
+            this.showSuccess(results.message, false);
+            this.new_server_url = "";
+            this.vltnData = { "category_id": "" };
+            this.getValidationData();
+          }
+          else if (results.code == 400) {
+            this.loading.close();
+            localStorage.removeItem("photoArtsAdminToken");
+            this.router.navigate(['/admin']);
+          }
+          else if (results.code == 401) {
+            this.token = results.data.new_token;
+            localStorage.setItem("photoArtsAdminToken", this.token);
+            this.saveUpdatedValidation(vltnData);
+          }
+          else {
+            this.loading.close();
+            this.successMsg = "";
+            this.errorMsg = "";
+            this.showError(results.message, false);
+          }
+        }, error => {
+          /* console.log(error.status); */
+          /* console.log(error); */
+          this.loading.close();
+          this.successMsg = "";
+          this.errorMsg = "";
+          this.showError("Unable to connect with server, please try again.", false);
+        });
+    }
+  }
+
+  updateServerURL(row_details: any, data_list: any, original_data_list: any, data_key: any) {
+    data_list.forEach((element: any, i: number) => {
+      this.resetRow(element, i, original_data_list, data_key);
+    });
+    row_details.is_editing = true;
+  }
+
+  resetRow(row_details: any, i: number, data_list: any, data_key: any) {
+    row_details.is_editing = false;
+    data_key.forEach((element: any) => {
+      row_details[element] = data_list[i][element];
+    });
   }
 
   saveNewServerURL(new_server_url) {

@@ -12,6 +12,8 @@ export class AddSubcategoryImagesByIdComponent implements OnInit {
 
   token: any;
   category_img: any;
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
+  selected_catalog: any = JSON.parse(localStorage.getItem("selected_catalog"));
   catalog_id: any;
   fileList: any;
   file: any;
@@ -60,7 +62,9 @@ export class AddSubcategoryImagesByIdComponent implements OnInit {
       this.errorMsg = "";
       this.loading = this.dialog.open(LoadingComponent);
       let request_data = {
-        'catalog_id': this.catalog_id
+        'catalog_id': this.catalog_id,
+        'category_id': this.selected_category.category_id,
+        'is_featured': this.selected_catalog.is_featured
       };
       this.formData.append('request_data', JSON.stringify(request_data));
       this.dataService.postData('addCatalogImages', this.formData,

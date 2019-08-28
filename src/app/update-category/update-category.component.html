@@ -1,15 +1,15 @@
 <p class="text-center col-12 m-0 font-weight-bold title-bar pt-2 pb-2">
-    Update Category
-  </p>
+  Update Category
+</p>
 <div class="col-sm-12 pl-0 pr-0">
   <div class="row pt-4 pl-4 pr-4 pb-2">
     <div class="col-sm-12 pl-0 pr-0 pb-3">
-      <input type="text" class="form-control" [(ngModel)]="update_category_data.name" (keydown.enter)="updateCategory(update_category_data)"
-        placeholder="Category name">
+      <input type="text" class="form-control" [(ngModel)]="update_category_data.name"
+        (keydown.enter)="updateCategory(update_category_data)" placeholder="Category name">
     </div>
     <div class="col-sm-12 pl-0 pr-0 text-center">
-      <a md-raised-button class="btn title-bar" (click)="updateCategory(update_category_data)">Update</a>
-      <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+      <button md-raised-button class="btn btn-action-1" (click)="updateCategory(update_category_data)">Update</button>
+      <button md-raised-button class="btn btn-action-cancel" [md-dialog-close]="true">Cancel</button>
       <p class="m-0 pt-3 text-center text-danger">
         {{errorMsg}}
       </p>

@@ -2,7 +2,8 @@
   <h5 class="title-bar m-0"> Link Catalog </h5>
   <a class="cursor-pointer close-btn" (click)="closeDialog()"><i class="fa fa-close text-white font-18"></i></a>
 </div>
-<div class="col-sm-12 pr-0 pl-0 scroll" style="max-height:520px; height:520px; width:768px; max-width:100%; overflow:auto;">
+<div class="col-sm-12 pr-0 pl-0 scroll"
+  style="max-height:520px; height:520px; width:768px; max-width:100%; overflow:auto;">
   <table class="table mb-0">
     <tbody>
       <tr *ngFor="let catalog of catalog_list; let i = index;">
@@ -12,8 +13,12 @@
           <i class="fa fa-check fa-2x" *ngIf="catalog.linked==1"></i>
         </td>
         <td class="text-center">
-          <a md-raised-button class="btn title-bar" title="Unlink from {{catalog.name}}" *ngIf="catalog.linked==1" (click)="linkCatalogWithSubCategory(catalog,'deleteLinkedCatalog')"><i class="fa fa-chain-broken text-danger font-18"></i></a>
-          <a md-raised-button class="btn title-bar" title="Link with {{catalog.name}}" *ngIf="catalog.linked==0" (click)="linkCatalogWithSubCategory(catalog,'linkCatalog')"><i class="fa fa-link text-white font-18"></i></a>
+          <button class="btn btn-danger" title="Unlink from {{catalog.name}}" *ngIf="catalog.linked==1"
+            (click)="linkCatalogWithSubCategory(catalog,'deleteLinkedCatalog')"><i
+              class="fa fa-chain-broken text-white font-18"></i></button>
+          <button class="btn btn-success" title="Link with {{catalog.name}}" *ngIf="catalog.linked==0"
+            (click)="linkCatalogWithSubCategory(catalog,'linkCatalog')"><i
+              class="fa fa-link text-white font-18"></i></button>
         </td>
       </tr>
     </tbody>

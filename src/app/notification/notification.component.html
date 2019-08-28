@@ -4,10 +4,10 @@
   </div>
 </div>
 <div class="row height-100">
-  <div class="col-lg-2 pl-0 pr-0">
+  <div class="pl-0 pr-0 left-nav-style h-100">
     <app-navigation></app-navigation>
   </div>
-  <div class="col-lg-10 pt-3 pb-3 div-scroll">
+  <div class="p-3 div-scroll main-container-style">
     <div class="row col p-0 pb-3">
       <p class="pull-right m-0 pt-1 pb-1">{{current_path}}</p>
     </div>
@@ -43,7 +43,7 @@
         </div>
         <div class="col-12">
           <div class="text-center pb-3">
-            <button md-raised-button class="btn title-bar" (click)="sendNotification(notification)">Send</button>
+            <button md-raised-button class="btn btn-action-1" (click)="sendNotification(notification)">Send</button>
           </div>
         </div>
       </div>

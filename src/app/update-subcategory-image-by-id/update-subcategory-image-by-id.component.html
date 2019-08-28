@@ -37,7 +37,8 @@
     {{errorMsg}}
   </div>
   <div class="col-sm-12 pl-0 pr-0 pt-2 pb-3 text-center">
-    <a md-raised-button class="btn title-bar" (click)="updateImageByCategoryId(sub_category_data)">Update</a>
-    <button md-raised-button class="btn" [md-dialog-close]="true">Cancel</button>
+    <button md-raised-button class="btn btn-action-1"
+      (click)="updateImageByCategoryId(sub_category_data)">Update</button>
+    <button md-raised-button class="btn btn-action-cancel" [md-dialog-close]="true">Cancel</button>
   </div>
 </div>

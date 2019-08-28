@@ -12,6 +12,7 @@ export class CatalogsAddComponent implements OnInit {
 
   token: any;
   sub_category_id: any;
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
   catalog_data: any = {};
   fileList: any;
   file: any;
@@ -72,6 +73,7 @@ export class CatalogsAddComponent implements OnInit {
       this.errorMsg = "";
       this.loading = this.dialog.open(LoadingComponent);
       let request_data = {
+        "category_id": this.selected_category.category_id,
         "sub_category_id": this.sub_category_id,
         "is_free": catalog_data.is_free,
         "is_featured": catalog_data.is_featured,

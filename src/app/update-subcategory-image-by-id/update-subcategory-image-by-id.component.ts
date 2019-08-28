@@ -16,6 +16,8 @@ export class UpdateSubcategoryImageByIdComponent implements OnInit {
 
   token: any;
   sub_category_data: any;
+  selected_category: any = JSON.parse(localStorage.getItem("selected_category"));
+  selected_catalog: any = JSON.parse(localStorage.getItem("selected_catalog"));
   background_img: any;
   fileList: any;
   file: any;
@@ -148,6 +150,8 @@ export class UpdateSubcategoryImageByIdComponent implements OnInit {
     this.loading = this.dialog.open(LoadingComponent);
     let image_data = {
       'img_id': sub_category_data.img_id,
+      'category_id': this.selected_category.category_id,
+      'is_featured': this.selected_catalog.is_featured,
       'search_category': tmp_selected_tags
     };
     this.formData.append('request_data', JSON.stringify(image_data));
