@@ -63,11 +63,11 @@ export class AddJsonDataComponent implements OnInit {
   add(event): void {
     const input = event.input;
     const value = event.value;
-    if (!this.validateString(value)) {
+    /* if (!this.validateString(value)) {
       this.showError("Special characters not allowed, only alphanumeric, '&' is allowed in tag name.", false);
       return;
     }
-    else {
+    else { */
       let tmp_array = value.split(",");
       for (let i = 0; i < tmp_array.length; i++) {
         if ((tmp_array[i] || '').trim()) {
@@ -81,7 +81,7 @@ export class AddJsonDataComponent implements OnInit {
       }
 
       this.fruitCtrl.setValue(null);
-    }
+    /* } */
   }
 
   validateString(str) {
