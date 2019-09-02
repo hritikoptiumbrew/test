@@ -66,11 +66,11 @@ export class UpdateSubcategoryImageByIdComponent implements OnInit {
     const input = event.input;
     const value = event.value;
 
-    if (!this.validateString(value)) {
+    /* if (!this.validateString(value)) {
       this.errorMsg = "Special characters not allowed, only alphanumeric, '&' is allowed in tag name.";
       return;
     }
-    else {
+    else { */
       this.errorMsg = "";
       let tmp_array = value.split(",");
       for (let i = 0; i < tmp_array.length; i++) {
@@ -85,7 +85,7 @@ export class UpdateSubcategoryImageByIdComponent implements OnInit {
       }
 
       this.fruitCtrl.setValue(null);
-    }
+    /* } */
   }
 
   validateString(str) {

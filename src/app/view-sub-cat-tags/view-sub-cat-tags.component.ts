@@ -120,10 +120,10 @@ export class ViewSubCatTagsComponent implements OnInit {
       this.showError("Please enter tag name", false);
       return false;
     }
-    else if (!this.validateString(new_tag_name)) {
+    /* else if (!this.validateString(new_tag_name)) {
       this.showError("Special characters not allowed, only alphanumeric, '&' is allowed in tag name.", false);
       return false;
-    }
+    } */
     else {
       this.loading = this.dialog.open(LoadingComponent);
       this.dataService.postData('addSearchCategoryTag', {
@@ -172,10 +172,10 @@ export class ViewSubCatTagsComponent implements OnInit {
       this.showError("Please enter tag name", false);
       return false;
     }
-    else if (!this.validateString(search_tag.tag_name)) {
+    /* else if (!this.validateString(search_tag.tag_name)) {
       this.showError("Special characters not allowed, only alphanumeric, '&' is allowed in tag name.", false);
       return false;
-    }
+    } */
     else {
       this.loading = this.dialog.open(LoadingComponent);
       this.dataService.postData('updateSearchCategoryTag', {

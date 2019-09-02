@@ -129,10 +129,10 @@ export class SearchTagsComponent implements OnInit {
       this.showError("Please enter tag name", false);
       return false;
     }
-    else if (!this.validateString(tag_name)) {
+    /* else if (!this.validateString(tag_name)) {
       this.showError("Special characters not allowed, only alphanumeric, '&' is allowed in tag name.", false);
       return false;
-    }
+    } */
     else {
       this.dataService.postData('addTag', {
         "tag_name": tag_name
@@ -181,10 +181,10 @@ export class SearchTagsComponent implements OnInit {
       this.showError("Please enter tag name", false);
       return false;
     }
-    else if (!this.validateString(search_tag.tag_name)) {
+    /* else if (!this.validateString(search_tag.tag_name)) {
       this.showError("Special characters not allowed, only alphanumeric, '&' is allowed in tag name.", false);
       return false;
-    }
+    } */
     else {
       this.dataService.postData('updateTag', {
         "tag_name": search_tag.tag_name,
