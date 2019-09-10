@@ -25,7 +25,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -54,7 +54,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -83,7 +83,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -112,7 +112,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -141,7 +141,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -170,7 +170,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -199,7 +199,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -228,7 +228,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -257,7 +257,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -286,7 +286,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -315,7 +315,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -344,7 +344,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -373,7 +373,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -402,7 +402,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -431,7 +431,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -460,7 +460,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -489,7 +489,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -518,7 +518,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/ZipController.php",
+    "filename": "./app/Http/Controllers/ZipController.php",
     "groupTitle": "Admin"
   },
   {
@@ -547,7 +547,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -576,7 +576,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/LoginController.php",
+    "filename": "./app/Http/Controllers/LoginController.php",
     "groupTitle": "Admin"
   },
   {
@@ -605,7 +605,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -634,7 +634,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -663,7 +663,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -692,7 +692,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -721,7 +721,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -750,7 +750,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -779,7 +779,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -808,7 +808,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -837,7 +837,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -866,7 +866,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -895,7 +895,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -924,7 +924,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -953,7 +953,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -982,7 +982,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1011,7 +1011,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1040,7 +1040,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1069,7 +1069,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1098,7 +1098,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/Google2faController.php",
+    "filename": "./app/Http/Controllers/Google2faController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1127,7 +1127,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/LoginController.php",
+    "filename": "./app/Http/Controllers/LoginController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1156,7 +1156,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1185,7 +1185,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1214,7 +1214,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1243,7 +1243,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1272,7 +1272,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/Google2faController.php",
+    "filename": "./app/Http/Controllers/Google2faController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1301,7 +1301,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1330,7 +1330,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1359,7 +1359,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1388,7 +1388,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1417,7 +1417,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1446,7 +1446,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1475,7 +1475,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1504,7 +1504,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1533,7 +1533,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1562,7 +1562,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1591,7 +1591,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1620,7 +1620,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1649,7 +1649,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1678,7 +1678,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1707,7 +1707,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1736,7 +1736,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1765,7 +1765,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1794,7 +1794,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1823,7 +1823,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1852,7 +1852,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1881,7 +1881,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1910,7 +1910,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1939,7 +1939,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1968,7 +1968,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1997,7 +1997,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2026,7 +2026,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2055,7 +2055,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2084,7 +2084,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2113,7 +2113,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2142,7 +2142,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/LoginController.php",
+    "filename": "./app/Http/Controllers/LoginController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2171,7 +2171,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2200,7 +2200,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2229,7 +2229,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2258,7 +2258,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2287,7 +2287,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2316,7 +2316,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2345,7 +2345,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2374,7 +2374,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2403,7 +2403,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2432,7 +2432,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2461,7 +2461,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/NotificationController.php",
+    "filename": "./app/Http/Controllers/NotificationController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2490,7 +2490,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2519,7 +2519,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2548,7 +2548,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2577,7 +2577,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2606,7 +2606,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2635,7 +2635,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2664,7 +2664,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2693,7 +2693,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2722,7 +2722,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2751,7 +2751,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2780,7 +2780,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2809,7 +2809,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2838,7 +2838,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2867,7 +2867,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2896,7 +2896,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2925,7 +2925,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/Google2faController.php",
+    "filename": "./app/Http/Controllers/Google2faController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2954,7 +2954,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/LoginController.php",
+    "filename": "./app/Http/Controllers/LoginController.php",
     "groupTitle": "Common_For_All"
   },
   {
@@ -2983,7 +2983,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Common_For_All"
   },
   {
@@ -3012,7 +3012,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Common_For_All"
   },
   {
@@ -3041,7 +3041,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/SubscriptionPaymentController.php",
+    "filename": "./app/Http/Controllers/SubscriptionPaymentController.php",
     "groupTitle": "Payment_Subscription"
   },
   {
@@ -3070,7 +3070,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/SubscriptionPaymentController.php",
+    "filename": "./app/Http/Controllers/SubscriptionPaymentController.php",
     "groupTitle": "Payment_Subscription"
   },
   {
@@ -3099,7 +3099,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3128,7 +3128,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3157,7 +3157,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "./app/Http/Controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3186,7 +3186,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3215,7 +3215,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3244,7 +3244,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "./app/Http/Controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3273,7 +3273,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3302,7 +3302,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3331,7 +3331,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3360,7 +3360,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "./app/Http/Controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3389,7 +3389,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "./app/Http/Controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3418,7 +3418,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3447,7 +3447,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3476,7 +3476,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3505,7 +3505,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "./app/Http/Controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3534,7 +3534,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3563,7 +3563,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3592,7 +3592,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/NewsController.php",
+    "filename": "./app/Http/Controllers/NewsController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3621,7 +3621,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3650,7 +3650,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "./app/Http/Controllers/VideoController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3679,7 +3679,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3708,7 +3708,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3737,7 +3737,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "./app/Http/Controllers/QnAController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3766,7 +3766,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3795,7 +3795,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3824,7 +3824,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3853,7 +3853,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3882,7 +3882,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3911,7 +3911,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3940,7 +3940,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3969,7 +3969,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3998,7 +3998,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4027,7 +4027,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4056,7 +4056,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "./app/Http/Controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4085,7 +4085,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/NotificationController.php",
+    "filename": "./app/Http/Controllers/NotificationController.php",
     "groupTitle": "User"
   },
   {
@@ -4109,7 +4109,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/LoginController.php",
+    "filename": "./app/Http/Controllers/LoginController.php",
     "groupTitle": "User"
   },
   {
@@ -4138,7 +4138,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4167,7 +4167,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4196,7 +4196,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4225,7 +4225,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4254,7 +4254,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4283,7 +4283,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4312,7 +4312,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4341,7 +4341,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4370,7 +4370,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4399,7 +4399,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4428,7 +4428,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4457,7 +4457,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4486,7 +4486,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4515,7 +4515,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4544,7 +4544,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsplashController.php",
+    "filename": "./app/Http/Controllers/UnsplashController.php",
     "groupTitle": "User"
   },
   {
@@ -4573,7 +4573,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4602,7 +4602,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/PixabayController.php",
+    "filename": "./app/Http/Controllers/PixabayController.php",
     "groupTitle": "User"
   },
   {
@@ -4631,7 +4631,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4660,7 +4660,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4689,7 +4689,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4718,7 +4718,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4747,7 +4747,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4776,7 +4776,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4805,7 +4805,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4834,7 +4834,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4863,7 +4863,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4892,7 +4892,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4921,7 +4921,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/RegisterController.php",
+    "filename": "./app/Http/Controllers/RegisterController.php",
     "groupTitle": "User"
   },
   {
@@ -4950,7 +4950,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4969,7 +4969,7 @@ define({ "api": [
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":93,//compulsory\n\"search_category\":\"Flyers\",//compulsory\n\"page\":1,//compulsory\n\"item_count\":2,//compulsory\n\"is_featured\":0//optional\n}",
+          "content": "{\n\"sub_category_id\":66,//compulsory\n\"search_category\":\"Flyers\",//compulsory\n\"page\":1,//compulsory\n\"item_count\":2,//compulsory\n}",
           "type": "json"
         },
         {
@@ -4979,7 +4979,36 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "searchNormalImagesBySubCategoryId",
+    "title": "searchNormalImagesBySubCategoryId",
+    "name": "searchNormalImagesBySubCategoryId",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":66,//compulsory\n\"search_category\":\"india\",//compulsory\n\"page\":1,//compulsory\n\"item_count\":5//compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200, //return 427 when server not find any result related to your search_category\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 1,\n\"is_next_page\": false,\n\"result\": [\n{\n\"json_id\": 13442,\n\"sample_image\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5d51129eb3a3c_normal_image_1565594270.png\",\n\"is_free\": 0,\n\"is_featured\": null,\n\"is_portrait\": null,\n\"height\": 0,\n\"width\": 0,\n\"updated_at\": \"2019-08-30 10:00:06\",\n\"search_text\": 25.21432113647461\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5008,7 +5037,35 @@ define({ "api": [
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
+  },
+  {
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "varname1",
+            "description": "<p>No type.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "varname2",
+            "description": "<p>With type.</p>"
+          }
+        ]
+      }
+    },
+    "type": "",
+    "url": "",
+    "version": "0.0.0",
+    "filename": "./documentation/main.js",
+    "group": "c__wamp64_www_photo_editor_lab_backend_dev_api_documentation_main_js",
+    "groupTitle": "c__wamp64_www_photo_editor_lab_backend_dev_api_documentation_main_js",
+    "name": ""
   }
 ] });
