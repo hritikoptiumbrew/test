@@ -110,19 +110,21 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('deleteLink', 'AdminController@deleteLink');
     Route::post('getAllAdvertisements', 'AdminController@getAllAdvertisements');
     Route::post('getAllLink', 'AdminController@getAllLink');
-    Route::post('getAdvertiseLink', 'AdminController@getAdvertiseLink');
-    Route::post('addAdvertiseLink', 'AdminController@addAdvertiseLink');
-    Route::post('unlinkAdvertise', 'AdminController@unlinkAdvertise');
+    //Unused api's
+    Route::post('getAdvertiseLink', 'UnsedAPIsController@getAdvertiseLink');
+    Route::post('addAdvertiseLink', 'UnsedAPIsController@addAdvertiseLink');
+    Route::post('unlinkAdvertise', 'UnsedAPIsController@unlinkAdvertise');
 
     //User APIs
     Route::post('getUserProfile', 'LoginController@getUserProfile');
-    Route::post('getAllUser', 'AdminController@getAllUser');
-    Route::post('updateUserProfile', 'AdminController@updateUserProfile');
-    Route::post('getPurchaseUser', 'AdminController@getPurchaseUser');
-    Route::post('getAllRestoreDevice', 'AdminController@getAllRestoreDevice');
-    Route::post('searchRestoreDevice', 'AdminController@searchRestoreDevice');
-    Route::post('searchUser', 'AdminController@searchUser');
-    Route::post('searchPurchaseUser', 'AdminController@searchPurchaseUser');
+    //Unused api's
+    Route::post('getAllUser', 'UnsedAPIsController@getAllUser');
+    Route::post('updateUserProfile', 'UnsedAPIsController@updateUserProfile');
+    Route::post('getPurchaseUser', 'UnsedAPIsController@getPurchaseUser');
+    Route::post('getAllRestoreDevice', 'UnsedAPIsController@getAllRestoreDevice');
+    Route::post('searchRestoreDevice', 'UnsedAPIsController@searchRestoreDevice');
+    Route::post('searchUser', 'UnsedAPIsController@searchUser');
+    Route::post('searchPurchaseUser', 'UnsedAPIsController@searchPurchaseUser');
 
     //Image details
     Route::post('getImageDetails', 'AdminController@getImageDetails');
@@ -258,6 +260,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getFeaturedJsonImages', 'UserController@getFeaturedJsonImages'); // get all featured images of catalog for json
     Route::post('getDeletedJsonId', 'UserController@getDeletedJsonId');
     Route::post('searchCardsBySubCategoryId', 'UserController@searchCardsBySubCategoryId'); //Search cards by sub_category_id
+    Route::post('searchNormalImagesBySubCategoryId', 'UserController@searchNormalImagesBySubCategoryId'); //Search normal images by sub_category_id
 
     //Normal images
     Route::post('getImagesByCatalogId', 'UserController@getImagesByCatalogId');
