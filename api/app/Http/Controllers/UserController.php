@@ -2113,7 +2113,7 @@ class UserController extends Controller
 
                     $search_category = $this->search_category;
                     $code = 200;
-                    $message = "Templates fetched successfully.";
+                    $message = "Content fetched successfully.";
 
 
                     if ($this->is_verified == 1) {
@@ -2161,7 +2161,7 @@ class UserController extends Controller
                         $search_result = DB::select('SELECT
                                                     DISTINCT im.id as json_id,
                                                     IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
-                                                    im.is_free,
+                                                    IF(cm.is_free=1,1,0) AS is_free,
                                                     im.is_featured,
                                                     im.is_portrait,
                                                     coalesce(im.height,0) AS height,
@@ -2212,7 +2212,7 @@ class UserController extends Controller
                         $search_result = DB::select('SELECT
                                                     DISTINCT im.id as json_id,
                                                     IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
-                                                    im.is_free,
+                                                    IF(cm.is_free=1,1,0) AS is_free,
                                                     im.is_featured,
                                                     im.is_portrait,
                                                     coalesce(im.height,0) AS height,
@@ -2232,7 +2232,7 @@ class UserController extends Controller
                                                     isnull(im.display_img)
                                                     ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                         $code = 427;
-                        $message = "Sorry, we couldn't find any templates for '$search_category', but we found some other templates you might like:";
+                        $message = "Sorry, we couldn't find any content for '$search_category', but we found some other content you might like:";
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -2255,7 +2255,7 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             Log::error("searchNormalImagesBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search content.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
