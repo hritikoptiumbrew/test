@@ -173,6 +173,18 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getFeaturedTemplatesWithWebp
+                $keys = Redis::keys('pel:getFeaturedTemplatesWithWebp*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getAllFeaturedTemplatesWithShuffling
+                $keys = Redis::keys('pel:getAllFeaturedTemplatesWithShuffling*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Sub Category Images
@@ -220,7 +232,7 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
-                //getJsonSampleDataWithLastSyncTime
+                //getJsonSampleDataWithLastSyncTime & getJsonSampleDataWithLastSyncTime_webp
                 $keys = Redis::keys('pel:getJsonSampleDataWithLastSyncTime*');
                 foreach ($keys as $key) {
                     Redis::del($key);
@@ -300,6 +312,17 @@ class DeleteCacheKey
 
                 //searchNormalImagesBySubCategoryId
                 $keys = Redis::keys('pel:searchNormalImagesBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getFeaturedTemplatesWithWebp
+                $keys = Redis::keys('pel:getFeaturedTemplatesWithWebp*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+                //getAllFeaturedTemplatesWithShuffling
+                $keys = Redis::keys('pel:getAllFeaturedTemplatesWithShuffling*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }

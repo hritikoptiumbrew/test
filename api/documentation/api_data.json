@@ -2712,7 +2712,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{//all parameters are compulsory\n\"category_id\":1,\n\"img_id\":1,\n\"image_type\":1,\n\"is_featured\":1 //1=featured catalog, 0=normal catalog\n},\noriginal_img:image1.jpeg\ndisplay_img:image12.jpeg",
+          "content": "request_data:{//all parameters are compulsory\n\"category_id\":1,\n\"img_id\":1,\n\"image_type\":1,\n\"is_featured\":1 //1=featured catalog, 0=normal catalog\n},\noriginal_img:image1.jpeg //optional\ndisplay_img:image12.jpeg //optional",
           "type": "json"
         },
         {
@@ -4186,7 +4186,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"catalog_id\": 398, //compulsory\n\"sub_category_id\": 97 //compulsory\n}",
+          "content": "{//all parameters are compulsory\n\"catalog_id\": 398,\n\"sub_category_id\": 97\n}",
           "type": "json"
         },
         {
@@ -4737,7 +4737,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"catalog_id\": 398,\n\"item_count\": 20,\n\"last_sync_time\": \"0\",\n\"page\": 1,\n\"sub_category_id\": 97\n}",
+          "content": "{//all parameters are compulsory\n\"sub_category_id\": 97,\n\"catalog_id\": 398, //pass 0 if you don't have catalog_id(in this case you get all featured cards) otherwise you have to pass specific catalog_id\n\"page\": 1,\n\"item_count\": 2,\n\"last_sync_time\": \"2017-11-28 12:58:15\", //pass 0 on fist api call\n}",
           "type": "json"
         },
         {
@@ -4897,6 +4897,35 @@
   },
   {
     "type": "post",
+    "url": "getTemplatesWithLastSyncTime",
+    "title": "getTemplatesWithLastSyncTime",
+    "name": "getTemplatesWithLastSyncTime",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{//all parameters are compulsory\n\"sub_category_id\": 97,\n\"catalog_id\": 398, //pass 0 if you don't have catalog_id(in this case you get all featured cards) otherwise you have to pass specific catalog_id\n\"page\": 1,\n\"item_count\": 2,\n\"last_sync_time\": \"2017-11-28 09:50:37\" //pass 0 on fist api call\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Samples fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 3,\n\"is_next_page\": false,\n\"data\": [\n{\n\"json_id\": 3326,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d3523a43b5_json_image_1550660899.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 0,\n\"height\": 256,\n\"width\": 512,\n\"search_category\": \"Twitter\",\n\"original_img_height\": 512,\n\"original_img_width\": 1024,\n\"updated_at\": \"2019-02-20 11:08:20\"\n},\n{\n\"json_id\": 3325,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"is_portrait\": 0,\n\"height\": 408,\n\"width\": 528,\n\"search_category\": \"Brochure\",\n\"original_img_height\": 816,\n\"original_img_width\": 1056,\n\"updated_at\": \"2019-02-20 11:07:06\"\n}\n],\n\"last_sync_time\": \"2019-02-21 09:50:37\"\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
     "url": "registerUserDeviceByDeviceUdid",
     "title": "registerUserDeviceByDeviceUdid",
     "name": "registerUserDeviceByDeviceUdid",
@@ -4969,7 +4998,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":66,//compulsory\n\"search_category\":\"Flyers\",//compulsory\n\"page\":1,//compulsory\n\"item_count\":2,//compulsory\n}",
+          "content": "{//all parameters are compulsory\n\"sub_category_id\":66,\n\"search_category\":\"Flyers\",\n\"page\":1,\n\"item_count\":2\n}",
           "type": "json"
         },
         {
@@ -4998,7 +5027,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"sub_category_id\":66,//compulsory\n\"search_category\":\"india\",//compulsory\n\"page\":1,//compulsory\n\"item_count\":5//compulsory\n}",
+          "content": "{//all parameters are compulsory \n\"sub_category_id\":66,\n\"search_category\":\"india\",\n\"page\":1,\n\"item_count\":1\n}",
           "type": "json"
         },
         {
@@ -5039,6 +5068,34 @@
     },
     "filename": "./app/Http/Controllers/UserController.php",
     "groupTitle": "User"
+  },
+  {
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "varname1",
+            "description": "<p>No type.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "varname2",
+            "description": "<p>With type.</p>"
+          }
+        ]
+      }
+    },
+    "type": "",
+    "url": "",
+    "version": "0.0.0",
+    "filename": "./api/documentation/main.js",
+    "group": "c__wamp64_www_photo_editor_lab_backend_dev_api_api_documentation_main_js",
+    "groupTitle": "c__wamp64_www_photo_editor_lab_backend_dev_api_api_documentation_main_js",
+    "name": ""
   },
   {
     "success": {
