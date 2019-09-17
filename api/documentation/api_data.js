@@ -5032,7 +5032,7 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200, //return 427 when server not find any result related to your search_category\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 1,\n\"is_next_page\": false,\n\"result\": [\n{\n\"json_id\": 13442,\n\"sample_image\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5d51129eb3a3c_normal_image_1565594270.png\",\n\"is_free\": 0,\n\"is_featured\": null,\n\"is_portrait\": null,\n\"height\": 0,\n\"width\": 0,\n\"updated_at\": \"2019-08-30 10:00:06\",\n\"search_text\": 25.21432113647461\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200, //return 427 when server not find any result related to your search_category\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 1,\n\"is_next_page\": false,\n\"result\": [\n{\n\"img_id\": 13442,\n\"sample_image\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5d51129eb3a3c_normal_image_1565594270.png\",\n\"is_free\": 0,\n\"is_featured\": null,\n\"is_portrait\": null,\n\"height\": 0,\n\"width\": 0,\n\"updated_at\": \"2019-08-30 10:00:06\",\n\"search_text\": 25.21432113647461\n}\n]\n}\n}",
           "type": "json"
         }
       ]

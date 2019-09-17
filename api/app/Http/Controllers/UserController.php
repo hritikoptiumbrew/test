@@ -2189,7 +2189,7 @@ class UserController extends Controller
      * "is_next_page": false,
      * "result": [
      * {
-     * "json_id": 13442,
+     * "img_id": 13442,
      * "sample_image": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5d51129eb3a3c_normal_image_1565594270.png",
      * "is_free": 0,
      * "is_featured": null,
@@ -2274,7 +2274,7 @@ class UserController extends Controller
                         $total_row = $total_row_result[0]->total;
 
                         $search_result = DB::select('SELECT
-                                                    DISTINCT im.id as json_id,
+                                                    DISTINCT im.id AS img_id,
                                                     IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
                                                     IF(cm.is_free=1,1,0) AS is_free,
                                                     im.is_featured,
@@ -2325,7 +2325,7 @@ class UserController extends Controller
                         $total_row = $total_row_result[0]->total;
 
                         $search_result = DB::select('SELECT
-                                                    DISTINCT im.id as json_id,
+                                                    DISTINCT im.id AS img_id,
                                                     IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
                                                     IF(cm.is_free=1,1,0) AS is_free,
                                                     im.is_featured,
@@ -5431,7 +5431,7 @@ class UserController extends Controller
         catch (Exception $e)
         {
             Log::error("getAllFeaturedTemplatesWithShuffling : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            return $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all featured templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            return $response = array('total_row' => 0, 'featured_templates' => []);
         }
     }
 
