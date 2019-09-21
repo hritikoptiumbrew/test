@@ -1245,12 +1245,12 @@ class UserController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
-     * "catalog_id": 398,
-     * "item_count": 20,
-     * "last_sync_time": "0",
+     * {//all parameters are compulsory
+     * "sub_category_id": 97,
+     * "catalog_id": 398, //pass 0 if you don't have catalog_id(in this case you get all featured cards) otherwise you have to pass specific catalog_id
      * "page": 1,
-     * "sub_category_id": 97
+     * "item_count": 2,
+     * "last_sync_time": "2017-11-28 12:58:15", //pass 0 on fist api call
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -1329,118 +1329,233 @@ class UserController extends Controller
                     $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
                     $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
 
+                    //to pass compress image(jpg/png) only for certificate_maker app because webp is not supported there into iOS
+                    $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
+
                     if ($this->catalog_id == 0) {
 
                         $total_row_result = DB::select('SELECT COUNT(*) AS total
-                                                    FROM images
-                                                    WHERE catalog_id IN (SELECT catalog_id
-                                                                     FROM sub_category_catalog
-                                                                     WHERE sub_category_id = ?) AND is_featured = 1 and updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
+                                                            FROM images
+                                                            WHERE 
+                                                              catalog_id IN (SELECT catalog_id
+                                                                             FROM sub_category_catalog
+                                                                             WHERE sub_category_id = ?) AND 
+                                                              is_featured = 1 AND 
+                                                              updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
                         $total_row = $total_row_result[0]->total;
-
-                        if ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) {
-
-                            $result = DB::select('SELECT
-                                                  id as json_id,
-                                                  IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
-                                                  is_free,
-                                                  is_featured,
-                                                  is_portrait,
-                                                  coalesce(height,0) AS height,
-                                                  coalesce(width,0) AS width,
-                                                  coalesce(search_category,"") AS search_category,
-                                                  original_img_height,
-                                                  original_img_width,
-                                                  updated_at
-                                                FROM
-                                                  images
-                                                WHERE
-                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) and
-                                                  is_featured = 1 AND
-                                                  updated_at >= ?
-                                                order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
-
-                        } else {
-                            $result = DB::select('SELECT
-                                                  id as json_id,
-                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
-                                                  is_free,
-                                                  is_featured,
-                                                  is_portrait,
-                                                  coalesce(height,0) AS height,
-                                                  coalesce(width,0) AS width,
-                                                  coalesce(search_category,"") AS search_category,
-                                                  original_img_height,
-                                                  original_img_width,
-                                                  updated_at
-                                                FROM
-                                                  images
-                                                WHERE
-                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) and
-                                                  is_featured = 1 AND
-                                                  updated_at >= ?
-                                                order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
-
-                        }
+                        $result = DB::select('SELECT
+                                              id AS json_id,
+                                              '. $image_url .'
+                                              is_free,
+                                              is_featured,
+                                              is_portrait,
+                                              coalesce(height,0) AS height,
+                                              coalesce(width,0) AS width,
+                                              coalesce(search_category,"") AS search_category,
+                                              coalesce(original_img_height,0) AS original_img_height,
+                                              coalesce(original_img_width,0) AS original_img_width,
+                                              updated_at
+                                            FROM
+                                              images
+                                            WHERE
+                                              catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                              is_featured = 1 AND
+                                              updated_at >= ?
+                                            ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
                     } else {
 
-                        $total_row_result = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
+                        $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
                         $total_row = $total_row_result[0]->total;
-
-                        if ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) {
-
-                            $result = DB::select('SELECT
-                                               id as json_id,
-                                               IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,
-                                               is_free,
-                                               is_featured,
-                                               is_portrait,
-                                               coalesce(height,0) AS height,
-                                               coalesce(width,0) AS width,
-                                               coalesce(search_category,"") AS search_category,
-                                               original_img_height,
-                                               original_img_width,
-                                               updated_at
+                        $result = DB::select('SELECT
+                                                  id AS json_id,
+                                                  '. $image_url .'
+                                                  is_free,
+                                                  is_featured,
+                                                  is_portrait,
+                                                  coalesce(height,0) AS height,
+                                                  coalesce(width,0) AS width,
+                                                  coalesce(search_category,"") AS search_category,
+                                                  coalesce(original_img_height,0) AS original_img_height,
+                                                  coalesce(original_img_width,0) AS original_img_width,
+                                                  updated_at
                                                 FROM
-                                                images
+                                                  images
                                                 WHERE
-                                                catalog_id = ? AND
-                                                updated_at >= ?
-                                                order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
-
-                        } else {
-                            $result = DB::select('SELECT
-                                               id as json_id,
-                                               IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
-                                               is_free,
-                                               is_featured,
-                                               is_portrait,
-                                               coalesce(height,0) AS height,
-                                               coalesce(width,0) AS width,
-                                               coalesce(search_category,"") AS search_category,
-                                               original_img_height,
-                                               original_img_width,
-                                               updated_at
-                                                FROM
-                                                images
-                                                WHERE
-                                                catalog_id = ? AND
-                                                updated_at >= ?
-                                                order by updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
-
-                        }
-
+                                                  catalog_id = ? AND
+                                                  updated_at >= ?
+                                                ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
 
-
                 });
             }
 
             $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            } else {
+                $redis_result['last_sync_time'] = $last_sync_time;
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Samples fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch
+        (Exception $e) {
+            Log::error("getJsonSampleDataWithLastSyncTime_webp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get samples.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    //shuffle all featured templates for 24hours from given sub_category_id or get templates by catalog_id with last_sync_time
+    /**
+     * @api {post} getTemplatesWithLastSyncTime   getTemplatesWithLastSyncTime
+     * @apiName getTemplatesWithLastSyncTime
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {//all parameters are compulsory
+     * "sub_category_id": 97,
+     * "catalog_id": 398, //pass 0 if you don't have catalog_id(in this case you get all featured cards) otherwise you have to pass specific catalog_id
+     * "page": 1,
+     * "item_count": 2,
+     * "last_sync_time": "2017-11-28 09:50:37" //pass 0 on fist api call
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Samples fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 3,
+     * "is_next_page": false,
+     * "data": [
+     * {
+     * "json_id": 3326,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d3523a43b5_json_image_1550660899.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 0,
+     * "height": 256,
+     * "width": 512,
+     * "search_category": "Twitter",
+     * "original_img_height": 512,
+     * "original_img_width": 1024,
+     * "updated_at": "2019-02-20 11:08:20"
+     * },
+     * {
+     * "json_id": 3325,
+     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d34be91f98_json_image_1550660798.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 0,
+     * "height": 408,
+     * "width": 528,
+     * "search_category": "Brochure",
+     * "original_img_height": 816,
+     * "original_img_width": 1056,
+     * "updated_at": "2019-02-20 11:07:06"
+     * }
+     * ],
+     * "last_sync_time": "2019-02-21 09:50:37"
+     * }
+     * }
+     */
+    public function getTemplatesWithLastSyncTime(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'catalog_id', 'page', 'item_count', 'last_sync_time'), $request)) != '')
+                return $response;
+
+            $this->catalog_id = $request->catalog_id;
+            $this->sub_category_id = $request->sub_category_id;
+            $this->last_sync_date = $request->last_sync_time;
+            $this->item_count = $request->item_count;
+            $this->page = $request->page;
+            $this->offset = ($this->page - 1) * $this->item_count;
+            $last_sync_time = date("Y-m-d H:i:s");
+
+            //return all featured templates from given sub_category_id with pagination when catalog_id=0
+            if ($this->catalog_id == 0) {
+
+                //caching time of redis key to get all featured templates
+                $this->time_of_expired_redis_key = Config::get('constant.EXPIRATION_TIME_OF_REDIS_KEY_TO_GET_ALL_FEATURED_TEMPLATES');
+
+                if (!Cache::has("pel:getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id")) {
+                    $result = Cache::remember("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id", $this->time_of_expired_redis_key, function () {
+
+                        //to get all featured templates with {[(shuffling)((current_date) + (3:6 ratio of free/pro))] + [(shuffling)((remaining templates ORDER BY update_time DESC) + (3:6 ratio of free/pro))]}
+                        $featured_templates = $this->getAllFeaturedTemplatesWithShuffling($this->sub_category_id);
+
+                        if (!$featured_templates) {
+                            $featured_templates = [];
+                        }
+
+                        $total_row = $featured_templates['total_row'];
+
+                        //get elements from array with start & end position
+                        $result = array_slice($featured_templates['featured_templates'], $this->offset, $this->item_count);
+
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
+
+                    });
+                }
+                $redis_result = Cache::get("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id");
+
+            } else {
+
+                //return templates by catalog_id with pagination
+                if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
+                    $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+
+                        $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
+                        $total_row = $total_row_result[0]->total;
+                        $result = DB::select('SELECT
+                                                  id AS json_id,
+                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS sample_image,
+                                                  is_free,
+                                                  is_featured,
+                                                  is_portrait,
+                                                  coalesce(height,0) AS height,
+                                                  coalesce(width,0) AS width,
+                                                  coalesce(search_category,"") AS search_category,
+                                                  coalesce(original_img_height,0) AS original_img_height,
+                                                  coalesce(original_img_width,0) AS original_img_width,
+                                                  updated_at
+                                                FROM
+                                                  images
+                                                WHERE
+                                                  catalog_id = ? AND
+                                                  updated_at >= ?
+                                                ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
+
+
+                    });
+                }
+
+                $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
+
+            }
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -1857,11 +1972,11 @@ class UserController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":66,//compulsory
-     * "search_category":"Flyers",//compulsory
-     * "page":1,//compulsory
-     * "item_count":2,//compulsory
+     * {//all parameters are compulsory
+     * "sub_category_id":66,
+     * "search_category":"Flyers",
+     * "page":1,
+     * "item_count":2
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -2058,11 +2173,11 @@ class UserController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":66,//compulsory
-     * "search_category":"india",//compulsory
-     * "page":1,//compulsory
-     * "item_count":5//compulsory
+     * {//all parameters are compulsory 
+     * "sub_category_id":66,
+     * "search_category":"india",
+     * "page":1,
+     * "item_count":1
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -2074,7 +2189,7 @@ class UserController extends Controller
      * "is_next_page": false,
      * "result": [
      * {
-     * "json_id": 13442,
+     * "img_id": 13442,
      * "sample_image": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5d51129eb3a3c_normal_image_1565594270.png",
      * "is_free": 0,
      * "is_featured": null,
@@ -2159,7 +2274,7 @@ class UserController extends Controller
                         $total_row = $total_row_result[0]->total;
 
                         $search_result = DB::select('SELECT
-                                                    DISTINCT im.id as json_id,
+                                                    DISTINCT im.id AS img_id,
                                                     IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
                                                     IF(cm.is_free=1,1,0) AS is_free,
                                                     im.is_featured,
@@ -2210,7 +2325,7 @@ class UserController extends Controller
                         $total_row = $total_row_result[0]->total;
 
                         $search_result = DB::select('SELECT
-                                                    DISTINCT im.id as json_id,
+                                                    DISTINCT im.id AS img_id,
                                                     IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
                                                     IF(cm.is_free=1,1,0) AS is_free,
                                                     im.is_featured,
@@ -2261,7 +2376,6 @@ class UserController extends Controller
     }
 
     //get all samples without pagination
-
     /**
      * @api {post} getAllSamplesWithWebp   getAllSamplesWithWebp
      * @apiName getAllSamplesWithWebp
@@ -2273,9 +2387,9 @@ class UserController extends Controller
      * Value: Bearer token
      * }
      * @apiSuccessExample Request-Body:
-     * {
-     * "catalog_id": 398, //compulsory
-     * "sub_category_id": 97 //compulsory
+     * {//all parameters are compulsory
+     * "catalog_id": 398,
+     * "sub_category_id": 97
      * }
      * @apiSuccessExample Success-Response:
      * {
@@ -2401,7 +2515,6 @@ class UserController extends Controller
     }
 
     //get catalogs by sub _category_id with pagination
-
     /**
      * @api {post} getCatalogBySubCategoryIdWithWebp   getCatalogBySubCategoryIdWithWebp
      * @apiName getCatalogBySubCategoryIdWithWebp
@@ -2526,7 +2639,6 @@ class UserController extends Controller
     }
 
     //This API is used for Brochure Maker (iOS & Android)
-
     /**
      * @api {post} getFeaturedSamplesWithCatalogs   getFeaturedSamplesWithCatalogs
      * @apiName getFeaturedSamplesWithCatalogs
@@ -5203,6 +5315,124 @@ class UserController extends Controller
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
+    }
+
+    /*=============================| Sub functions |=============================*/
+
+    public function getAllFeaturedTemplatesWithShuffling($sub_category_id)
+    {
+        try{
+            $this->sub_category_id = $sub_category_id;
+
+            //get random featured templates from featured catalogs
+            if (!Cache::has("pel:getAllFeaturedTemplatesWithShuffling$this->sub_category_id")) {
+                $result = Cache::remember("getAllFeaturedTemplatesWithShuffling$this->sub_category_id", $this->time_of_expired_redis_key, function () {
+
+                    //query to get random records by 3:6 ratio on value of "is_free" column within current_date
+                    $records_of_current_date = DB::select('SELECT
+                                                                  id AS json_id,
+                                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS sample_image,
+                                                                  is_free,
+                                                                  is_featured,
+                                                                  is_portrait,
+                                                                  coalesce(height, 0) AS height,
+                                                                  coalesce(width, 0) AS width,
+                                                                  coalesce(search_category,"") AS search_category,
+                                                                  coalesce(original_img_height,0) AS original_img_height,
+                                                                  coalesce(original_img_width,0) AS original_img_width,
+                                                                  updated_at
+                                                                FROM (
+                                                                       (SELECT
+                                                                          @a := @a + 1,
+                                                                          ceil(@a / 3) AS rank,
+                                                                          im.*
+                                                                        FROM images AS im, (SELECT @a := 0) a
+                                                                        WHERE
+                                                                          catalog_id IN (SELECT catalog_id
+                                                                                         FROM sub_category_catalog
+                                                                                         WHERE sub_category_id = ? AND is_active = 1) AND
+                                                                          is_featured = 1 AND
+                                                                          is_free = 1 AND
+                                                                          curdate() = DATE(updated_at)
+                                                                        ORDER BY updated_at DESC)
+                                                                       UNION
+                                                                       (SELECT
+                                                                          @b := @b + 1,
+                                                                          ceil(@b / 6) AS rank,
+                                                                          im.*
+                                                                        FROM images AS im, (SELECT @b := 0) b
+                                                                        WHERE
+                                                                          catalog_id IN (SELECT catalog_id
+                                                                                         FROM sub_category_catalog
+                                                                                         WHERE sub_category_id = ? AND is_active = 1) AND
+                                                                          is_featured = 1 AND
+                                                                          is_free = 0 AND
+                                                                          curdate() = DATE(updated_at)
+                                                                        ORDER BY updated_at DESC)
+                                                                     ) derived_table
+                                                                ORDER BY rank, is_free DESC, rand()', [$this->sub_category_id, $this->sub_category_id]);
+
+                    //query to get remaining records randomly by 3:6 ratio on value of "is_free" column
+                    $remaining_records_excepting_current_date = DB::select('SELECT
+                                                                                  id AS json_id,
+                                                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS sample_image,
+                                                                                  is_free,
+                                                                                  is_featured,
+                                                                                  is_portrait,
+                                                                                  coalesce(height, 0) AS height,
+                                                                                  coalesce(width, 0) AS width,
+                                                                                  coalesce(search_category,"") AS search_category,
+                                                                                  coalesce(original_img_height,0) AS original_img_height,
+                                                                                  coalesce(original_img_width,0) AS original_img_width,
+                                                                                  updated_at
+                                                                                FROM (
+                                                                                       (SELECT
+                                                                                          @a := @a + 1,
+                                                                                          ceil(@a / 3) AS rank,
+                                                                                          im.*
+                                                                                        FROM images AS im, (SELECT @a := 0) a
+                                                                                        WHERE
+                                                                                          catalog_id IN (SELECT catalog_id
+                                                                                                         FROM sub_category_catalog
+                                                                                                         WHERE sub_category_id = ? AND is_active = 1) AND
+                                                                                          is_featured = 1 AND
+                                                                                          is_free = 1 AND
+                                                                                          curdate() != DATE(updated_at)
+                                                                                        ORDER BY updated_at DESC)
+                                                                                       UNION
+                                                                                       (SELECT
+                                                                                          @b := @b + 1,
+                                                                                          ceil(@b / 6) AS rank,
+                                                                                          im.*
+                                                                                        FROM images AS im, (SELECT @b := 0) b
+                                                                                        WHERE
+                                                                                          catalog_id IN (SELECT catalog_id
+                                                                                                         FROM sub_category_catalog
+                                                                                                         WHERE sub_category_id = ? AND is_active = 1) AND
+                                                                                          is_featured = 1 AND
+                                                                                          is_free = 0 AND
+                                                                                          curdate() != DATE(updated_at)
+                                                                                        ORDER BY updated_at DESC)
+                                                                                     ) derived_table
+                                                                                ORDER BY rank, is_free DESC, rand()', [$this->sub_category_id, $this->sub_category_id]);
+
+                    $featured_templates = array_merge($records_of_current_date,$remaining_records_excepting_current_date);
+                    $total_row = count($featured_templates);
+                    $result = array('total_row' => $total_row, 'featured_templates' => $featured_templates);
+                    return $result;
+
+                });
+            }
+
+            $featured_templates = Cache::get("getAllFeaturedTemplatesWithShuffling$this->sub_category_id");
+            return $featured_templates;
+
+        }
+        catch (Exception $e)
+        {
+            Log::error("getAllFeaturedTemplatesWithShuffling : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return $response = array('total_row' => 0, 'featured_templates' => []);
+        }
     }
 
 }

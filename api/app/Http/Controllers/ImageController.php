@@ -23,7 +23,7 @@ class ImageController extends Controller
 
         $image_type = $image_array->getMimeType();
         $image_size = $image_array->getSize();
-        //Log::info("Image Size",[$image_size]);
+        //Log::info("verifyImage image details : ",['size' => $image_size, 'mime_type' => $image_type]);
 
         /*
          * check size into kb

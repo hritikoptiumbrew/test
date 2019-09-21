@@ -1935,8 +1935,8 @@ class AdminController extends Controller
      * "image_type":1,
      * "is_featured":1 //1=featured catalog, 0=normal catalog
      * },
-     * original_img:image1.jpeg
-     * display_img:image12.jpeg
+     * original_img:image1.jpeg //optional
+     * display_img:image12.jpeg //optional
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -1961,7 +1961,9 @@ class AdminController extends Controller
             $image_type = $request->image_type;
             $is_featured = $request->is_featured;
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is featured background images
-            $created_at = date('Y-m-d H:i:s');
+
+            /* original_img : background image without content */
+            /* display_img : sample image show to the user */
 
             DB::beginTransaction();
             if ($request_body->hasFile('original_img')) {
@@ -1980,7 +1982,7 @@ class AdminController extends Controller
                     (new ImageController())->saveImageInToS3($original_img);
                 }
 
-                DB::update('UPDATE images SET original_img = ?,image_type = ?,created_at = ? WHERE id = ?', [$original_img, $image_type, $created_at, $img_id]);
+                DB::update('UPDATE images SET original_img = ?,image_type = ? WHERE id = ?', [$original_img, $image_type, $img_id]);
 
 
             } else {
@@ -2003,14 +2005,14 @@ class AdminController extends Controller
                     (new ImageController())->saveImageInToS3($display_img);
                 }
 
-                DB::update('UPDATE images SET display_img = ?,image_type = ?,created_at = ? WHERE id = ?', [$display_img, $image_type, $created_at, $img_id]);
+                DB::update('UPDATE images SET display_img = ?,image_type = ? WHERE id = ?', [$display_img, $image_type, $img_id]);
 
             } else {
                 $display_img = '';
             }
 
             if ($original_img == '' && $display_img == '') {
-                DB::update('UPDATE images SET image_type = ?,created_at = ? WHERE id = ?', [$image_type, $created_at, $img_id]);
+                DB::update('UPDATE images SET image_type = ? WHERE id = ?', [$image_type, $img_id]);
             }
 
             DB::commit();
@@ -2938,7 +2940,6 @@ class AdminController extends Controller
             $url = $request->url;
             $platform = $request->platform;
             $app_description = $request->app_description;
-            $create_at = date('Y-m-d H:i:s');
             $image_name = '';
             $logo_image_name = '';
             DB::beginTransaction();
@@ -2949,10 +2950,9 @@ class AdminController extends Controller
                             SET name = ?,
                                 url = ?,
                                 platform = ?,
-                                app_description = ?,
-                                created_at = ?
+                                app_description = ?
                             WHERE
-                                id = ?', [$name, $url, $platform, $app_description, $create_at, $advertise_link_id]);
+                                id = ?', [$name, $url, $platform, $app_description, $advertise_link_id]);
             } elseif ((!$request_body->hasFile('logo_file')) && $request_body->hasFile('file')) {
                 //Log::info("Only File");
                 $image_array = Input::file('file');
@@ -2983,10 +2983,9 @@ class AdminController extends Controller
                                 image = ?,
                                 url = ?,
                                 platform = ?,
-                                app_description = ?,
-                                created_at = ?
+                                app_description = ?
                             WHERE
-                                id = ?', [$name, $app_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
+                                id = ?', [$name, $app_image, $url, $platform, $app_description, $advertise_link_id]);
 
             } elseif ($request_body->hasFile('logo_file') && (!$request_body->hasFile('file'))) {
                 //Log::info("Only Logo-File");
@@ -3018,10 +3017,9 @@ class AdminController extends Controller
                                 app_logo_img = ?,
                                 url = ?,
                                 platform = ?,
-                                app_description = ?,
-                                created_at = ?
+                                app_description = ?
                             WHERE
-                                id = ?', [$name, $logo_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
+                                id = ?', [$name, $logo_image, $url, $platform, $app_description, $advertise_link_id]);
 
             } else {
                 //Log::info("Both File");
@@ -3068,10 +3066,9 @@ class AdminController extends Controller
                                 app_logo_img = ?,
                                 url = ?,
                                 platform = ?,
-                                app_description = ?,
-                                created_at = ?
+                                app_description = ?
                             WHERE
-                                id = ?', [$name, $app_image, $logo_image, $url, $platform, $app_description, $create_at, $advertise_link_id]);
+                                id = ?', [$name, $app_image, $logo_image, $url, $platform, $app_description, $advertise_link_id]);
             }
 
             DB::commit();
