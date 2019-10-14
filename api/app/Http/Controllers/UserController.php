@@ -2305,7 +2305,7 @@ class UserController extends Controller
                         $search_result = [];
                     }
 
-                    if (count($search_result) <= 0) {
+                   /* if (count($search_result) <= 0) {
 
 
                         $total_row_result = DB::select('SELECT count(*) as total
@@ -2349,7 +2349,7 @@ class UserController extends Controller
                                                     ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                         $code = 427;
                         $message = "Sorry, we couldn't find any content for '$search_category', but we found some other content you might like:";
-                    }
+                    }*/
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'catalog_list' => $catalog_list, 'content_list' => $search_result);
