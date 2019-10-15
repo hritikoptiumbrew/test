@@ -2350,7 +2350,7 @@ class UserController extends Controller
                         $code = 427;
                         $message = "Sorry, we couldn't find any content for '$search_category', but we found some other content you might like:";
                     }*/
-
+                    $total_row = isset($total_row) ? $total_row : 0;
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'catalog_list' => $catalog_list, 'content_list' => $search_result);
 
@@ -2375,6 +2375,7 @@ class UserController extends Controller
         }
         return $response;
     }
+
 
     //get all samples without pagination
     /**
