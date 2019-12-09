@@ -286,6 +286,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getJsonSampleDataWithLastSyncTime_webpIos', 'UserController@getJsonSampleDataWithLastSyncTime_webpIos');
     Route::post('getFeaturedJsonSampleData_webp', 'UserController@getFeaturedJsonSampleData_webp');
     Route::post('getAllSamplesWithWebp', 'UserController@getAllSamplesWithWebp');
+    Route::post('getTemplateWithCatalogs', 'UserController@getTemplateWithCatalogs');
 
     //Fonts
     Route::post('getAllFontsByCatalogId', 'UserController@getAllFontsByCatalogId');
