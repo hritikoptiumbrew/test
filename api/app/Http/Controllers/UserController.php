@@ -2481,7 +2481,7 @@ class UserController extends Controller
                                                    is_portrait,
                                                    coalesce(height,0) AS height,
                                                    coalesce(width,0) AS width,
-                                                   SUBSTRING_INDEX(search_category,",",1) AS search_category,
+                                                   coalesce(search_category,"") AS search_category,
                                                    original_img_height,
                                                    original_img_width,
                                                    updated_at
