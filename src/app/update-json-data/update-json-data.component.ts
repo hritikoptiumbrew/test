@@ -71,11 +71,11 @@ export class UpdateJsonDataComponent implements OnInit {
     const input = event.input;
     const value = event.value;
 
-    if (!this.validateString(value)) {
+    /* if (!this.validateString(value)) {
       this.showError("Special characters not allowed, only alphanumeric, '&' is allowed in tag name.", false);
       return;
     }
-    else {
+    else { */
       let tmp_array = value.split(",");
       for (let i = 0; i < tmp_array.length; i++) {
         if ((tmp_array[i] || '').trim()) {
@@ -89,7 +89,7 @@ export class UpdateJsonDataComponent implements OnInit {
       }
 
       this.fruitCtrl.setValue(null);
-    }
+    /* } */
   }
 
   validateString(str) {
@@ -246,6 +246,16 @@ export class UpdateJsonDataComponent implements OnInit {
     config.verticalPosition = "top"; */
     config.duration = 5000;
     this.snackBar.open(message, action ? 'Okay!' : undefined, config);
+  }
+
+  openFile(event) {
+    var input = event.target;
+    var reader = new FileReader();
+    reader.onload = (event: any) => {
+      var text = reader.result;
+      this.catalog_data.json_data = event.target.result;
+    };
+    reader.readAsText(input.files[0]);
   }
 
 }
