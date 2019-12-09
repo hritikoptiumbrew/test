@@ -1,8 +1,8 @@
 <div class="col-12 pt-2 pb-2 pr-0 pl-0 title-bar text-center" style="width: 991px;">
   <h5 class="title-bar m-0">Update JSON Data</h5>
 </div>
-<div class="row pt-4 pb-4 p-3 scroll" style="height: 60vh; overflow: auto">
-  <div class="col-5 pl-0">
+<div class="row pt-4 pb-4 p-3 scroll" style="height: 60vh; overflow: hidden">
+  <div class="col-5 pl-0" style="height: 100%; overflow: auto;">
     <div class="row pb-3 match-parent view-profile-img m-0-auto">
       <div class="col-12 text-center pr-0 pl-0 match-parent">
         <div class="match-parent">
@@ -74,8 +74,10 @@
       </md-autocomplete>
     </div>
   </div>
-  <div class="col-7 p-0">
+  <div class="col-7 p-0"  style="height: calc(100% - 50px)">
     <textarea class="form-control json-inputbox" [(ngModel)]="catalog_data.json_data"></textarea>
+    <p class="font-weight-bold m-0">--OR--</p>
+    <input type="file" class="form-control btn-sm" (change)="openFile($event)" accept='text/plain'>
   </div>
   <div class="col-sm-12 pl-0 pr-0 mt-3" *ngIf="incorrect_fonts.length > 0">
     <table class="table table-hover mb-0">

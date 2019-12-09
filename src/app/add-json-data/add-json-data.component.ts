@@ -241,4 +241,14 @@ export class AddJsonDataComponent implements OnInit {
     this.snackBar.open(message, action ? 'Okay!' : undefined, config);
   }
 
+  openFile(event) {
+    var input = event.target;
+    var reader = new FileReader();
+    reader.onload = (event: any) => {
+      var text = reader.result;
+      this.catalog_data.json_data = event.target.result;
+    };
+    reader.readAsText(input.files[0]);
+  }
+
 }
