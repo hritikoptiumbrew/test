@@ -8517,4 +8517,51 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function updateTagForBrandSearch(Request $request_body){
+        try {
+
+            /*$token = JWTAuth::getToken();
+            JWTAuth::toUser($token);*/
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $remaining_images = array();
+            $generated_images = array();
+            $catalog_id = $request->catalog_id;
+
+                $image_list =  DB::select('SELECT im.id FROM images AS im
+                                            WHERE 
+                                              im.is_active = 1 AND
+                                              im.catalog_id = ?  
+                                              ORDER BY im.updated_at ASC',[$catalog_id]);
+                $i = 0;
+                foreach ($image_list AS $json_id) {
+
+                    try{
+                        DB::update('Update images as im
+                                                SET im.search_category = concat("#",im.search_category),
+                                                updated_at = ? 
+                                                WHERE
+                                                      im.is_active = 1 AND
+                                                      id = ?', [date('Y-m-d H:i:s'),$json_id->id]);
+                        $generated_images[$catalog_id][$i] = $json_id->id;
+                    } catch (Exception $e) {
+                    Log::error("Unable to update tag with # : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+                    $remaining_images[$catalog_id][$i] = $json_id->id;
+                    }
+                    sleep(1);
+                    $i++;
+                }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tags are successfully updated .', 'generated_images' => $generated_images, 'remaining_images' => $remaining_images));
+
+        } catch (Exception $e) {
+            Log::error("updateTagForBrandSearch : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update tag with # character.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
 }

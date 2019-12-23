@@ -1961,6 +1961,188 @@ class UserController extends Controller
         return $response;
     }
 
+    //search catalog by catalog name
+    /**
+     * @api {post} searchCatalogByUser searchCatalogByUser
+     * @apiName searchCatalogByUser
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {//all parameters are compulsory
+     * "sub_category_id":66,
+     * "search_category":"grandient logo",
+     * "page":1,
+     * "item_count":2
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200, //return 427 when server not find any result related to your search_category
+     * "message": "Templates fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 2,
+     * "is_next_page": false,
+     * "result": [
+     * {
+     * "code": 200,
+     * "message": "Catalogs fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 21,
+     * "is_next_page": true,
+     * "result": [
+     * {
+     * "catalog_id": 498,
+     * "name": "Party",
+     * "webp_thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c7914a7c12f5_catalog_img_1551439015.webp",
+     * "webp_original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c7914a7c12f5_catalog_img_1551439015.webp",
+     * "is_featured": 1,
+     * "is_free": 1,
+     * "updated_at": "2019-03-01 11:16:56"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function searchCatalogByUser(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->search_category = strtolower(trim($request->search_category));
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+            $this->is_free = isset($request->is_free) ? ' AND ct.is_free = ' . $request->is_free : '';
+            $this->is_featured = isset($request->is_featured) ? ' AND ct.is_featured = ' . $request->is_featured : '';
+
+
+            //validate search text
+            $this->is_verified = (new VerificationController())->verifySearchText($this->search_category);
+
+            if (!Cache::has("pel:searchCatalogByUser$this->sub_category_id:$this->search_category:$this->offset:$this->item_count:$this->is_free:$this->is_featured")) {
+                $result = Cache::rememberforever("searchCatalogByUser$this->sub_category_id:$this->search_category:$this->offset:$this->item_count:$this->is_free:$this->is_featured", function () {
+
+                    $search_category = $this->search_category;
+                    $code = 200;
+                    $message = "Bundles fetched successfully.";
+                    if ($this->is_verified == 1) {
+
+                        $total_row_result = DB::select('SELECT
+                                                      count(ct.id) as total
+                                                    FROM
+                                                      catalog_master as ct,
+                                                      sub_category_catalog as sct
+                                                    WHERE
+                                                      sct.sub_category_id = ? AND
+                                                      (MATCH(ct.name) AGAINST("' . $search_category . '") OR 
+                                                       MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) AND
+                                                      sct.catalog_id = ct.id AND
+                                                      sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '
+                                                    ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+
+                        $total_row = $total_row_result[0]->total;
+
+                        $catalog_list = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          MATCH(ct.name) AGAINST("' . $search_category . '") +
+                                          MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                          ct.is_featured,
+                                          ct.is_free,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          (MATCH(ct.name) AGAINST("' . $search_category . '") OR 
+                                          MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) AND
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '
+                                        ORDER BY ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                    } else {
+                        $catalog_list = [];
+                    }
+
+                    if (count($catalog_list) <= 0) {
+
+                        $total_row_result = DB::select('SELECT
+                                                      count(ct.id) as total
+                                                    FROM
+                                                      catalog_master as ct,
+                                                      sub_category_catalog as sct
+                                                    WHERE
+                                                      sct.sub_category_id = ? AND
+                                                      sct.catalog_id = ct.id AND
+                                                      sct.is_active = 1 AND 
+                                                      ct.is_featured = 1 ' . $this->is_free . '
+                                                    ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+
+                        $total_row = $total_row_result[0]->total;
+
+                        $catalog_list = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                          ct.is_featured,
+                                          ct.is_free,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 AND 
+                                          ct.is_featured = 1 ' . $this->is_free . '
+                                        ORDER BY ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                        $code = 427;
+                        $message = "Sorry, we couldn't find any bundles for '$search_category', but we found some other bundles you might like:";
+                    }
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $catalog_list);
+
+                    $result = array('result' => $search_result, 'code' => $code, 'message' => $message);
+                    return $result;
+                });
+
+            }
+
+            $redis_result = Cache::get("searchCatalogByUser$this->sub_category_id:$this->search_category:$this->offset:$this->item_count:$this->is_free:$this->is_featured");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("searchCatalogByUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /**
      * @api {post} searchCardsBySubCategoryId searchCardsBySubCategoryId
      * @apiName searchCardsBySubCategoryId
@@ -2181,23 +2363,92 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Success-Response:
      * {
-     * "code": 200, //return 427 when server not find any result related to your search_category
-     * "message": "Templates fetched successfully.",
+     * "code": 200,
+     * "message": "Content fetched successfully.",
      * "cause": "",
      * "data": {
-     * "total_record": 1,
+     * "total_record": 6,
      * "is_next_page": false,
-     * "result": [
+     * "catalog_list": [
      * {
-     * "img_id": 13442,
-     * "sample_image": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5d51129eb3a3c_normal_image_1565594270.png",
-     * "is_free": 0,
+     * "catalog_id": 606,
+     * "name": "Flower",
+     * "thumbnail_img": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/thumbnail/5ccad4f1b8ee4_catalog_img_1556796657.png",
+     * "compressed_img": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad4f1b8ee4_catalog_img_1556796657.png",
+     * "original_img": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/original/5ccad4f1b8ee4_catalog_img_1556796657.png",
+     * "webp_thumbnail_img": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/webp_thumbnail/5ccad4f1b8ee4_catalog_img_1556796657.webp",
+     * "webp_original_img": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/webp_original/5ccad4f1b8ee4_catalog_img_1556796657.webp",
+     * "is_featured": 0,
+     * "is_free": 1,
+     * "updated_at": "2019-10-14 01:16:33"
+     * }
+     * ],
+     * "content_list": [
+     * {
+     * "img_id": 7281,
+     * "sample_image": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad50513133_normal_image_1556796677.png",
+     * "is_free": 1,
      * "is_featured": null,
      * "is_portrait": null,
      * "height": 0,
      * "width": 0,
-     * "updated_at": "2019-08-30 10:00:06",
-     * "search_text": 25.21432113647461
+     * "updated_at": "2019-10-14 01:30:59",
+     * "search_text": 20.13739013671875
+     * },
+     * {
+     * "img_id": 7285,
+     * "sample_image": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad5057288c_normal_image_1556796677.png",
+     * "is_free": 1,
+     * "is_featured": null,
+     * "is_portrait": null,
+     * "height": 0,
+     * "width": 0,
+     * "updated_at": "2019-10-14 01:30:55",
+     * "search_text": 20.13739013671875
+     * },
+     * {
+     * "img_id": 7283,
+     * "sample_image": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad50541763_normal_image_1556796677.png",
+     * "is_free": 1,
+     * "is_featured": null,
+     * "is_portrait": null,
+     * "height": 0,
+     * "width": 0,
+     * "updated_at": "2019-10-14 01:30:54",
+     * "search_text": 20.13739013671875
+     * },
+     * {
+     * "img_id": 7282,
+     * "sample_image": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad5052b7d3_normal_image_1556796677.png",
+     * "is_free": 1,
+     * "is_featured": null,
+     * "is_portrait": null,
+     * "height": 0,
+     * "width": 0,
+     * "updated_at": "2019-10-12 10:51:37",
+     * "search_text": 20.13739013671875
+     * },
+     * {
+     * "img_id": 7284,
+     * "sample_image": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad5055c8fc_normal_image_1556796677.png",
+     * "is_free": 1,
+     * "is_featured": null,
+     * "is_portrait": null,
+     * "height": 0,
+     * "width": 0,
+     * "updated_at": "2019-10-12 10:51:31",
+     * "search_text": 20.13739013671875
+     * },
+     * {
+     * "img_id": 7280,
+     * "sample_image": "http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad504ec5c3_normal_image_1556796676.png",
+     * "is_free": 1,
+     * "is_featured": null,
+     * "is_portrait": null,
+     * "height": 0,
+     * "width": 0,
+     * "updated_at": "2019-10-12 07:04:36",
+     * "search_text": 20.13739013671875
      * }
      * ]
      * }
@@ -2459,7 +2710,7 @@ class UserController extends Controller
                                                   is_portrait,
                                                   coalesce(height,0) AS height,
                                                   coalesce(width,0) AS width,
-                                                  coalesce(search_category,"") AS search_category,
+                                                  SUBSTRING_INDEX(SUBSTRING_INDEX(search_category, "#", -1), ",", 1) AS search_category,
                                                   original_img_height,
                                                   original_img_width,
                                                   updated_at
@@ -2481,7 +2732,7 @@ class UserController extends Controller
                                                    is_portrait,
                                                    coalesce(height,0) AS height,
                                                    coalesce(width,0) AS width,
-                                                   coalesce(search_category,"") AS search_category,
+                                                   SUBSTRING_INDEX(SUBSTRING_INDEX(search_category, "#", -1), ",", 1) AS search_category,
                                                    original_img_height,
                                                    original_img_width,
                                                    updated_at
@@ -2516,7 +2767,7 @@ class UserController extends Controller
         return $response;
     }
 
-    //get catalogs by sub _category_id with pagination
+    //get catalogs by sub_category_id with pagination
     /**
      * @api {post} getCatalogBySubCategoryIdWithWebp   getCatalogBySubCategoryIdWithWebp
      * @apiName getCatalogBySubCategoryIdWithWebp
@@ -5341,7 +5592,6 @@ class UserController extends Controller
                             "Youtube Thumbnails",
                             "Announcements",
                             "Book Cover",
-                            "Blog Graphics",
                             "Black And White",
                             "T Shirt",
                             "Comics",
@@ -5353,7 +5603,6 @@ class UserController extends Controller
                             "Leaderboard Ad",
                             "Skyscraper Ad",
                             "Miscellaneous"
-
                         );
                         $item_count_of_templates = Config::get('constant.ITEM_COUNT_OF_TEMPLATES');
 

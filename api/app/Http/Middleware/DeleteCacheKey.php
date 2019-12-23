@@ -185,6 +185,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //searchCatalogByUser
+                $keys = Redis::keys('pel:searchCatalogByUser*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Sub Category Images
@@ -559,6 +565,38 @@ class DeleteCacheKey
 
                 //getValidationFromCache
                 $keys = Redis::keys('pel:getValidationFromCache*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            //blog module
+            if ($api == '/api/addBlogContent' or $api == '/api/updateBlogContent' or $api == '/api/deleteBlogContent' or $api == '/api/setBlogRankOnTheTopByAdmin') {
+
+                //getBlogContent
+                $keys = Redis::keys('vf:getBlogContent*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getBlogListByUser
+                $keys = Redis::keys('vf:getBlogListByUser*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getBlogContentByIdForUser
+                $keys = Redis::keys('vf:getBlogContentByIdForUser*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            //only use brand-maker search module
+            if($api == '/api/updateTagForBrandSearch'){
+
+                //getAllSamplesWithWebp
+                $keys = Redis::keys('pel:getAllSamplesWithWebp*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }

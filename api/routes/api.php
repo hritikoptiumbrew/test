@@ -234,6 +234,13 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('getAllQuestionAnswerByTypeForAdmin','QnAController@getAllQuestionAnswerByTypeForAdmin');
     Route::post('searchQuestionAnswerForAdmin','QnAController@searchQuestionAnswerForAdmin');
 
+    //Blog writing
+    Route::post('addBlogContent', 'BlogController@addBlogContent');
+    Route::post('updateBlogContent', 'BlogController@updateBlogContent');
+    Route::post('deleteBlogContent', 'BlogController@deleteBlogContent');
+    Route::post('getBlogContent', 'BlogController@getBlogContent');
+    Route::post('setBlogRankOnTheTopByAdmin', 'BlogController@setBlogRankOnTheTopByAdmin');
+
 });
 
 //Common api
@@ -261,6 +268,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getDeletedJsonId', 'UserController@getDeletedJsonId');
     Route::post('searchCardsBySubCategoryId', 'UserController@searchCardsBySubCategoryId'); //Search cards by sub_category_id
     Route::post('searchNormalImagesBySubCategoryId', 'UserController@searchNormalImagesBySubCategoryId'); //Search normal images by sub_category_id
+    Route::post('searchCatalogByUser', 'UserController@searchCatalogByUser'); //Search catalog details by sub_category_id with default featured catalog list
 
     //Normal images
     Route::post('getImagesByCatalogId', 'UserController@getImagesByCatalogId');
@@ -343,6 +351,11 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
     Route::post('getAllQuestionType','QnAController@getAllQuestionType');
 
+    //Blog writing
+    Route::post('getBlogContentByUser', 'BlogController@getBlogContentByUser');
+    Route::post('getBlogListByUser', 'BlogController@getBlogListByUser');
+    Route::post('getBlogContentByIdForUser', 'BlogController@getBlogContentByIdForUser');
+
 
 });
 
@@ -356,3 +369,7 @@ Route::post('getPhpInfo', 'AdminController@getPhpInfo');
 
 //API to get fonts into font_collection (for designer use)
 Route::post('getAllFonts', 'AdminController@getAllFonts');
+
+//do not use any one
+//update tag with #tag for brand maker search module
+Route::post('updateTagForBrandSearch', 'AdminController@updateTagForBrandSearch');
