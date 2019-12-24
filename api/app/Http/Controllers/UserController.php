@@ -2050,7 +2050,8 @@ class UserController extends Controller
                                                       (MATCH(ct.name) AGAINST("' . $search_category . '") OR 
                                                        MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) AND
                                                       sct.catalog_id = ct.id AND
-                                                      sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '
+                                                      sct.is_active = 1 AND 
+                                                      ct.is_featured = 1 ' . $this->is_free . '
                                                     ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
 
                         $total_row = $total_row_result[0]->total;
@@ -2073,7 +2074,8 @@ class UserController extends Controller
                                           (MATCH(ct.name) AGAINST("' . $search_category . '") OR 
                                           MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) AND
                                           sct.catalog_id = ct.id AND
-                                          sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '
+                                          sct.is_active = 1 AND 
+                                          ct.is_featured = 1 ' . $this->is_free . '
                                         ORDER BY ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
 
                     } else {
