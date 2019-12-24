@@ -5609,7 +5609,7 @@ class UserController extends Controller
                         $categories_data = array();
                         foreach ($category_list as $key) {
 
-                            $search_text = "%$key%";
+                            $search_text = "%#$key%";
                             $content_list = DB::select('SELECT
                                                           im.id as json_id,
                                                           IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
@@ -5640,7 +5640,7 @@ class UserController extends Controller
                         $total_row = count($category_list);
                         $search_result = [];
                     } else {
-                        $search_text = "%$this->search_category%";
+                        $search_text = "%#$this->search_category%";
                         $total_row_result = DB::select('SELECT count(*) as total
                                                 FROM
                                                   images as im,
