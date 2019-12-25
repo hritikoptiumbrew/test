@@ -1200,3 +1200,81 @@ img {
     background: #e11010 !important;
     color: #fff !important;
 }
+
+.border-1-d9 {
+    border: 1px solid #d9d9d9;
+}
+
+.title-bar-mdl {
+    color: #000 !important;
+    background-color: #e7e7e7 !important;
+    border-bottom: 1px solid #cccccc;
+}
+
+.btn-mdl-ttl {
+    height: 32px;
+    padding: 5px 15px;
+}
+
+.mdl-body {
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.clr-inpt {
+    padding: 0;
+    height: 38px;
+    width: 38px;
+    max-width: 38px;
+}
+
+.sttc-btn-inpt {
+    /* height: 115px; */
+    width: 100%;
+    border: 1px solid #ced4da;
+    background: white;
+    font-size: 14px;
+}
+
+.position-relative {
+    position: relative;
+}
+
+.add-blg-dialog .mat-dialog-container {
+    max-width: 95vw;
+    width: 95vw;
+    max-height: 100vh;
+}
+.txt-overlay {
+    position: absolute;
+    top: 0;
+    left: 15px;
+    max-width: 100%;
+    word-break: break-all;
+}
+
+.sttc-button {
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: normal;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    color: rgb(0, 0, 0) !important;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0px;
+    padding: 8px 18px;
+    text-decoration: none !important;
+    background-color: #ffcd00 !important;
+    overflow-wrap: break-word;
+}
+
+.sttc-button:hover,
+.sttc-button:focus {
+    background-color: #d9ae00 !important;
+}
+#summernote+.note-editor .note-editable {
+    height: calc(70vh - 200px) !important;
+    width: 100%;
+}

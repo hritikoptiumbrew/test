@@ -20,6 +20,7 @@ import { AdmobAdsComponent } from './admob-ads/admob-ads.component';
 import { SearchTagsComponent } from './search-tags/search-tags.component';
 import { StatisticsComponent } from './statistics/statistics.component';
 import { FontListComponent } from './font-list/font-list.component';
+import { BlogListComponent } from './blog-list/blog-list.component';
 
 export const AppRoutes = [
     { path: '', component: LoginComponent, pathMatch: 'full' },
@@ -44,4 +45,5 @@ export const AppRoutes = [
     { path: 'admin/admob-ads', component: AdmobAdsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/search-tags', component: SearchTagsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/statistics', component: StatisticsComponent, canActivate: [AuthenticationService] },
+    { path: 'admin/blog-list', component: BlogListComponent, canActivate: [AuthenticationService] },
 ]

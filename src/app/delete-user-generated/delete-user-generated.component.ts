@@ -32,7 +32,7 @@ export class DeleteUserGeneratedComponent implements OnInit {
         }
       }).subscribe(results => {
         if (results.code == 200) {
-          if (API_NAME == 'deleteFont') {
+          if (API_NAME == 'deleteFont'|| API_NAME == 'deleteBlogContent') {
             this.showSuccess(results.message, false);
           }
           this.loading.close();
