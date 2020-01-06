@@ -23,6 +23,7 @@ export class NavigationComponent implements OnInit {
   selected_nav_promocodes: any;
   selected_nav_search_tags: any;
   selected_nav_statistics: any;
+  selected_nav_blog_list:any;
 
   token: any;
   loading: any;
@@ -101,9 +102,12 @@ export class NavigationComponent implements OnInit {
     if (this.router.url == "/admin/settings") {
       this.selected_nav_settings = "selected";
     }
+    if (this.router.url == "/admin/blog-list") {
+      this.selected_nav_blog_list = "selected";
+    }
   }
 
-
+  
   nav_categories() {
     this.router.navigate(['/admin/categories']);
   }
@@ -112,6 +116,9 @@ export class NavigationComponent implements OnInit {
   }
   nav_advertisements() {
     this.router.navigate(['/admin/advertisements']);
+  }
+  nav_blog_list() {
+    this.router.navigate(['/admin/blog-list']);
   }
   nav_promocodes() {
     this.router.navigate(['/admin/promocode-management']);

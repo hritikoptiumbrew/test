@@ -1,0 +1,82 @@
+<div class="row">
+  <div class="col-12 p-2 title-bar-mdl">
+    <p class="h6 mb-0 mt-1 pt-1 d-inline-block">Add Blog Data</p>
+    <div class="pull-right">
+      <a class="btn btn-success btn-mdl-ttl" style="color: white;" (click)="uploadBlog(blog_data)">Upload</a>
+      <a class="btn btn-secondary btn-mdl-ttl" (click)="dialogRef.close(true);">Cancel</a>
+    </div>
+  </div>
+  <div class="col-12 px-4 scroll mdl-body pb-4">
+    <div class="d-inline-block align-top pt-3 mr-2" style="width: calc(80% - 15px);">
+      <div class="row pb-3 match-parent view-profile-img m-0-auto d-inline-block align-top">
+        <div class="col-12 text-center pr-0 pl-0 match-parent border-1-d9">
+          <div class="match-parent">
+            <img *ngIf="blog_data.compressed_img" [src]="blog_data.compressed_img" class="pos-ab-img-upload img-240"
+              #imageElement>
+            <button type="button" class="add-image-btn" (click)="onImageClicked($event)">
+              <p class="plus">
+                <i class="fa fa-camera"></i>
+              </p>
+            </button>
+          </div>
+          <input type="file" class="match-parent" accept="image/*" #fileInput (change)="fileChange($event)">
+        </div>
+      </div>
+      <div class="d-inline-block pl-3" style="width: calc(100% - 160px);">
+        <div class="col-6 p-0 float-left pr-3">
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text font-weight-bold" id="basic-addon1">Title : </span>
+            </div>
+            <textarea class="form-control mr-2" rows="1" [(ngModel)]="blog_data.title.text_value"
+              aria-describedby="basic-addon1">
+            </textarea>
+            <input type="color" class="form-control clr-inpt mr-2" [(ngModel)]="blog_data.title.text_color">
+            <input type="number" class="form-control clr-inpt" [(ngModel)]="blog_data.title.text_size">
+          </div>
+        </div>
+        <div class="col-6 p-0 float-left">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text font-weight-bold" id="basic-addon2">Sub Title : </span>
+            </div>
+            <textarea class="form-control mr-2" rows="1" [(ngModel)]="blog_data.subtitle.text_value"
+              aria-describedby="basic-addon2">
+            </textarea>
+            <input type="color" class="form-control clr-inpt mr-2" [(ngModel)]="blog_data.subtitle.text_color">
+            <input type="number" class="form-control clr-inpt" [(ngModel)]="blog_data.subtitle.text_size">
+          </div>
+        </div>
+        <div class="col-12 px-0 d-flex">
+          <div class="d-inline-block align-top w-50">
+            <div class="border-1-d9" style="background: #e9ecef;">
+              <label for="sttcBtn" class="font-weight-500 mb-0 ml-2">Open Template button</label>
+              <textarea disabled id="sttcBtn" [(ngModel)]="openTmpltBtn" class="sttc-btn-inpt scroll"></textarea>
+            </div>
+          </div>
+          <div class="d-inline-block align-top w-50">
+            <div class="border-1-d9" style="background: #e9ecef;">
+              <label for="sttcBtn" class="font-weight-500 mb-0 ml-2">Search Template button</label>
+              <textarea disabled id="sttcBtn" [(ngModel)]="srcTmpltBtn" class="sttc-btn-inpt scroll"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="col-12 px-0">
+        <div id="summernote"></div>
+      </div>
+    </div>
+    <div class="d-inline-block align-top pt-3 position-relative" style="width: 20%;">
+      <img *ngIf="blog_data.compressed_img" [src]="blog_data.compressed_img" class="img-fluid">
+      <div class="txt-overlay">
+        <p class="m-0" [ngStyle]="{'color':blog_data.title.text_color, 'font-size.px': blog_data.title.text_size }"
+          style="white-space: pre-line; line-height: 1.1; word-break: break-word;">
+          {{blog_data.title.text_value}}</p>
+        <p [ngStyle]="{'color':blog_data.subtitle.text_color, 'font-size.px': blog_data.subtitle.text_size }"
+          style="white-space: pre-line; line-height: 1.1; margin: 0px; word-break: break-word;">
+          {{blog_data.subtitle.text_value}}</p>
+      </div>
+    </div>
+  </div>
+</div>

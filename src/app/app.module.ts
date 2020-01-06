@@ -75,6 +75,8 @@ import { EnterOTPComponent } from './enter-otp/enter-otp.component';
 import { EnterPasswordComponent } from './enter-password/enter-password.component';
 import { SearchPipe } from './search.pipe';
 import { ViewSubCatTagsComponent } from './view-sub-cat-tags/view-sub-cat-tags.component';
+import { BlogListComponent } from './blog-list/blog-list.component';
+import { AddOrUpdateBlogComponent } from './add-or-update-blog/add-or-update-blog.component';
 
 @NgModule({
   declarations: [
@@ -141,6 +143,8 @@ import { ViewSubCatTagsComponent } from './view-sub-cat-tags/view-sub-cat-tags.c
     EnterPasswordComponent,
     SearchPipe,
     ViewSubCatTagsComponent,
+    BlogListComponent,
+    AddOrUpdateBlogComponent,
   ],
   imports: [
     BrowserModule,
@@ -202,6 +206,7 @@ import { ViewSubCatTagsComponent } from './view-sub-cat-tags/view-sub-cat-tags.c
     EnterOTPComponent,
     EnterPasswordComponent,
     ViewSubCatTagsComponent,
+    AddOrUpdateBlogComponent
   ],
   providers: [DataService, AuthenticationService],
   bootstrap: [AppComponent],
