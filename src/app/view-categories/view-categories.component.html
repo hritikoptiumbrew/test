@@ -24,7 +24,7 @@
         </div>
       </div>
       <div class="cst-panel-body">
-        <div class="row pr-3 py-2 tbl-style-subcategory scroll">
+        <div class="row pr-3 py-2 tbl-style-subcategory scroll" *ngIf="categoryId != 4">
           <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 pr-0" *ngFor="let category of category_list">
             <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
               <div class="card-img-wrap">
@@ -85,6 +85,140 @@
           </h5>
         </div>
       </div>
+
+
+
+      <md-accordion class="headers-align" *ngIf="categoryId == 4">
+        <md-expansion-panel class="m-0" style="border-bottom: 1px solid #d2d2d2;" expanded="true">
+          <md-expansion-panel-header
+            style="background: #c2c8ce; font-weight: bold; max-height: 48px !important; line-height: 48px !important; border-bottom: 1px solid #d2d2d2;">
+            <md-panel-title style="line-height: 48px;">
+              <h5 *ngIf="categoryId == 4" style="line-height: 48px;"> Fonts</h5>
+            </md-panel-title>
+            <md-panel-description style="line-height: 48px; max-width: 150px;">
+              Total count: {{total_record}}
+            </md-panel-description>
+          </md-expansion-panel-header>
+          <div class="row pr-3 py-2 tbl-style-subcategory scroll">
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 pr-0" *ngFor="let category of category_list">
+              <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
+                <div class="card-img-wrap">
+                  <img class="background-card-sticker cursor-pointer" [src]="category.thumbnail_img"
+                    (click)="dataService.viewImage(category.original_img)" alt="{{category.name}} thumbnail image">
+                  <img alt="" *ngIf="category.is_featured==1" class="feature-img-templt"
+                    src="./assets/img/featured_img.png">
+                </div>
+                <h6 class="pt-2 pb-2 m-0">{{category.sub_category_id}}. {{category.name}}</h6>
+                <div class="row title-bar pt-2 pb-2 font-18 align-middle">
+                  <div class="col-12 pl-0 pr-0">
+                    <a title="View">
+                      <i class="fa fa-folder-open-o font-23 text-success cursor-pointer"
+                        (click)="viewSubCategory(category)"></i>
+                    </a>
+                    <a title="Update">
+                      <i class="fa fa-edit font-23 text-warning align-text-bottom cursor-pointer"
+                        (click)="updateSubCategory(category)"></i>
+                    </a>
+                    <a title="Delete">
+                      <i class="fa fa-trash-o font-24 text-danger cursor-pointer"
+                        (click)="deleteSubCategory(category)"></i>
+                    </a>
+                    <a ngbTooltip="Add search tags to {{category.name}}" placement="bottom" data-container="body">
+                      <i class="fa fa-tag font-23 cursor-pointer text-info" (click)="ivkSbCatTagDialog(category)"></i>
+                    </a>
+                    <!-- <a title="View all users">
+                      <i class="fa fa-users font-18 text-success cursor-pointer" (click)="viewAllUsers(category)"></i>
+                    </a> -->
+                    <!-- <a title="View premium users">
+                      <i class="fa fa-shopping-cart font-20 text-calm cursor-pointer"
+                        (click)="viewPremiumUsers(category)"></i>
+                    </a> -->
+                    <!-- <a title="View restored devices">
+                      <i class="fa fa-mobile font-24 text-primary cursor-pointer"
+                        (click)="viewRestoredDevices(category)"></i>
+                    </a> -->
+                    <!-- <a title="Send a notification">
+                      <i class="fa fa-bell font-20 text-yellow cursor-pointer" (click)="sendANotification(category)"></i>
+                    </a> -->
+                    <a title="View advertisements">
+                      <i class="fa fa-buysellads font-20 text-white cursor-pointer"
+                        (click)="viewAdvertisements(category)"></i>
+                    </a>
+                    <!-- <a title="View User Generated Designs">
+                      <i class="fa fa-ravelry font-20 text-pink cursor-pointer" (click)="viewDesignByUsers(category)"></i>
+                    </a> -->
+                    <a title="View Admob Ads">
+                      <i class="fa fa-google font-20 text-danger cursor-pointer" aria-hidden="true"
+                        (click)="viewAdmobAds(category)"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <h5 *ngIf="total_record==0" class="pb-3 pt-3 pl-3 m-0 col-12">
+              No Data Found
+            </h5>
+          </div>
+        </md-expansion-panel>
+        <md-expansion-panel class="m-0" style="border-bottom: 1px solid #d2d2d2;" (opened)="getCategories()">
+          <md-expansion-panel-header
+            style="background: #c2c8ce; font-weight: bold; max-height: 48px !important; line-height: 48px !important; border-bottom: 1px solid #d2d2d2;">
+            <md-panel-title style="line-height: 48px;">
+              <h5 *ngIf="categoryId == 4" style="line-height: 48px;"> Corrupted Fonts</h5>
+            </md-panel-title>
+            <md-panel-description style="line-height: 48px; max-width: 150px;">
+              <!--      Total count: {{normal_catalog_list.length}} -->
+            </md-panel-description>
+          </md-expansion-panel-header>
+          <h5 *ngIf="!len " class="pb-3 pt-3 pl-3 m-0">
+            No Data Found
+          </h5>
+          <div *ngIf="len" class="row mt-2 " style="height: calc(100vh - 250px); width: 100%; overflow: hidden;">
+            <div class="row px-3 scroll " style="height: calc(100vh - 180px); overflow: auto; width: 100%;">
+              <div class="col-sm-12 card-1 pl-0 pr-0 table-responsive mb-3 table-style scroll">
+                <table class="table table-hover mb-0 " style="width: 100%; max-height: 100%;">
+                  <thead>
+                    <tr class="table-inverse">
+                      <th class="width-75px">#</th>
+                      <th class="cursor-pointer">Font Name
+                      </th>
+                      <th class="cursor-pointer">Font
+                        Name(iOS)</th>
+                      <th class="cursor-pointer">Font
+                        Path(Android)</th>
+                      <th class="text-center cursor-pointer">
+                        Status</th>
+                    </tr>
+                  </thead>
+                  <tbody *ngFor="let font_details of fonts_list;">
+                    <tr>
+                      <td class=" font-weight-bold " colspan='5'
+                        style="background-color: rgb(252, 243, 240); padding: 5px; border-bottom: 1px solid #c2c8ce ; ">{{font_details.name}}</td>
+                    </tr>
+                    <tr *ngFor="let font of font_details.font_list; let i = index;" style="width: 100%;">
+                      <td class="width-75px">{{i+1}}</td>
+                      <td>{{font.font_name}}</td>
+                      <td>{{font.ios_font_name}}</td>
+                      <td>{{font.font_file}}</td>
+                      <td class="text-center">
+                        <span *ngIf="font_details.is_removed==0">In-Active</span>
+                        <span *ngIf="font_details.is_removed==1">Active</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </md-expansion-panel>
+      </md-accordion>
+
+
+
+
+
+
     </div>
 
     <div class="col-12 text-center pt-3">

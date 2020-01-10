@@ -8,6 +8,8 @@
   <p *ngIf="API_NAME == 'deleteSearchCategoryTag'">Are you sure you want to delete this Tag?</p>
   <p *ngIf="API_NAME == 'deleteValidation'">Are you sure you want to delete this Validation?</p>
   <p *ngIf="API_NAME == 'deleteBlogContent'">Are you sure you want to delete this Blog?</p>
+  <p *ngIf="API_NAME == 'removeInvalidFont'">Are you sure you want to remove this Font?</p>
+  
   <div class="row">
     <div class="col-sm-12 pl-0 pr-0 text-center">
       <a md-raised-button class="btn title-bar" (click)="deleteCategoryImage(delete_request_data, API_NAME)">Delete</a>

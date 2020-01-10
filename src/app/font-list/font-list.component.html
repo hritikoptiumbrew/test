@@ -17,19 +17,46 @@
       </div>
       <div class="cst-panel-body">
         <div class="row pr-3 pl-3 pt-2 pb-2">
-          <div class="col-sm-12 pl-0 pr-0">
-            <input type="file" class="form-control p-1 input-fonts" #fileInput (change)="fileChange($event)">
-            <input type="text" class="form-control input-font-name" placeholder="Enter font name..."
-              [(ngModel)]="font_details.ios_font_name" (keydown.enter)="uploadFontFile(font_details, '0')">
-            <!-- <input type="text" class="form-control input-font-name" placeholder="Enter font path..."
-                  [(ngModel)]="font_details.android_font_name" (keydown.enter)="uploadFontFile(font_details, '0')"> -->
-            <a md-raised-button class="btn mt-1 mb-1 title-bar" title="Upload selected font"
-              (click)="uploadFontFile(font_details, '0')">
-              <i class="fa fa-plus font-18"></i> &nbsp;New Font
-            </a>
-            <a md-raised-button class="btn mt-1 mb-1 title-bar" *ngIf="show_add==0" title="Replace selected font"
-              (click)="uploadFontFile(font_details, '1')">
-              Replace
+          <div class="col-sm-10 pl-0 pr-0">
+            <div class="font-input-wrappr">
+              <input type="file" class="form-control p-1 input-fonts" #fileInput (change)="fileChange($event)">
+              <input type="text" class="form-control input-font-name ml-0" placeholder="Enter font name..."
+                [(ngModel)]="font_details.ios_font_name" (keydown.enter)="uploadFontFile(font_details, '0')">
+              <!-- <input type="text" class="form-control input-font-name" placeholder="Enter font path..."
+                    [(ngModel)]="font_details.android_font_name" (keydown.enter)="uploadFontFile(font_details, '0')"> -->
+              <a md-raised-button class="btn title-bar mx-2" title="Upload selected font"
+                (click)="uploadFontFile(font_details, '0')" style="float: right; margin-top: 10px">
+                <i class="fa fa-plus font-18"></i> &nbsp;New Font
+              </a>
+              <a md-raised-button class="btn mt-1 mb-1 title-bar" *ngIf="show_add==0" title="Replace selected font"
+                (click)="uploadFontFile(font_details, '1')">
+                Replace
+              </a>
+            </div>
+
+
+
+           <!--  <div class="font-input-wrappr" >
+              <input type="file" class="form-control p-1 input-fonts" #fileInput (change)="fileChange($event)">
+              <input type="text" class="form-control input-font-name ml-0" placeholder="Enter font name..."
+                [(ngModel)]="font_details.ios_font_name" (keydown.enter)="uploadFontFile(font_details, '0')">
+              <a md-raised-button class="btn title-bar mx-2 " title="Upload selected font"
+                (click)="uploadFontFile(font_details, '0')" style="float: right; margin-top: 10px">
+                <i class="fa fa-plus font-18" ></i> &nbsp;New Font
+              </a>
+              <a md-raised-button class="btn mt-1 mb-1 title-bar ml-2" *ngIf="show_add==0" title="Replace selected font"
+                (click)="uploadFontFile(font_details, '1')">
+                Replace
+              </a>
+            </div>
+ -->
+
+
+          </div>
+          <div class="col-sm-2 mt-1 px-0 text-right">
+            <a md-raised-button class="btn  mb-1 title-bar mt-2 ml-3" title="Upload selected font"
+              (click)="removeInvalidFonts('removeInvalidFont')">
+              Move to Corrupted
             </a>
           </div>
         </div>
@@ -50,6 +77,8 @@
                   <th class="text-center cursor-pointer"
                     (click)="sortBy('is_active', order_type == true ? 'ASC' : 'DESC')">
                     Status</th>
+                  <th class="width-75px text-center"><input class="option-input " name="group1" type="checkbox"
+                      [(ngModel)]="checked" (click)="selectAllFont()"></th>
                   <th class="text-center width-140px">Action</th>
                 </tr>
               </thead>
@@ -71,6 +100,8 @@
                     <span *ngIf="font_details.is_active==0">In-Active</span>
                     <span *ngIf="font_details.is_active==1">Active</span>
                   </td>
+                  <td class="text-center"><input class="option-input " type="checkbox"
+                      [(ngModel)]="font_details.is_linked" (click)="selectFont()"></td>
                   <td class="text-center width-140px" *ngIf="font_details.is_editing==false">
                     <a title="Update"><i
                         class="fa fa-edit font-24 pr-2 pl-2 text-warning align-text-bottom cursor-pointer"

@@ -81,7 +81,8 @@ body {
 
 .table-style {
     background-color: white !important;
-    max-height: 620px;
+   /*  max-height: 620px; */
+    max-height: calc(100% - 85px);
 }
 
 .table td {
@@ -638,9 +639,16 @@ img {
 }
 
 .input-fonts {
+    width: 34.66%;
+    display: inline-block;
+    margin: 10px;
+    height: 36px;
+}
+
+/* .input-fonts {
     width: 30%;
     display: inline-block;
-}
+} */
 
 .input-font-name {
     width: 30%;
@@ -1006,6 +1014,7 @@ img {
     border-top: 0 !important;
     color: #000;
     padding-bottom: 8px;
+    position: sticky;
 }
 
 .cst-panel {
@@ -1245,6 +1254,7 @@ img {
     width: 95vw;
     max-height: 100vh;
 }
+
 .txt-overlay {
     position: absolute;
     top: 0;
@@ -1274,7 +1284,15 @@ img {
 .sttc-button:focus {
     background-color: #d9ae00 !important;
 }
+
 #summernote+.note-editor .note-editable {
     height: calc(70vh - 200px) !important;
     width: 100%;
+}
+
+.font-input-wrappr {
+    display: inline-block;
+    max-width: calc(100% - 300px);
+    border: 2px solid lightgray;
+    height: 60px;
 }

@@ -15,7 +15,7 @@ export class ViewCategoriesComponent implements OnInit {
 
   token: any;
   private sub: any; //route subscriber
-  private categoryId: any;
+  categoryId: any;
   category_list: any[];
   category_name: any;
   errorMsg: any;
@@ -30,6 +30,8 @@ export class ViewCategoriesComponent implements OnInit {
   searchTag: any;
   searchQuery: any;
   loading: any;
+  fonts_list: any;
+  len:any;
 
   constructor(public route: ActivatedRoute, private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.loading = this.dialog.open(LoadingComponent);
@@ -71,38 +73,38 @@ export class ViewCategoriesComponent implements OnInit {
         "page": currentPage,
         "item_count": itemsPerPage
       }, {
-        headers: {
-          'Authorization': 'Bearer ' + this.token
-        }
-      }).subscribe(results => {
-        if (results.code == 200) {
-          this.showPagination = true;
-          this.category_list = results.data.category_list;
-          this.total_record = results.data.total_record;
-          this.category_name = results.data.category_name;
-          this.errorMsg = "";
-          this.successMsg = results.message;
-          this.loading.close();
-        }
-        else if (results.code == 400) {
-          this.loading.close();
-          localStorage.removeItem("photoArtsAdminToken");
-          this.router.navigate(['/admin']);
-        }
-        else if (results.code == 401) {
-          this.token = results.data.new_token;
-          localStorage.setItem("photoArtsAdminToken", this.token);
-          this.getAllCategories(this.categoryId, this.currentPage, this.itemsPerPage);
-        }
-        else {
-          this.loading.close();
-          this.successMsg = "";
-          this.errorMsg = results.message;
-        }
-      }, error => {
-        /* console.log(error.status); */
-        /* console.log(error); */
-      });
+      headers: {
+        'Authorization': 'Bearer ' + this.token
+      }
+    }).subscribe(results => {
+      if (results.code == 200) {
+        this.showPagination = true;
+        this.category_list = results.data.category_list;
+        this.total_record = results.data.total_record;
+        this.category_name = results.data.category_name;
+        this.errorMsg = "";
+        this.successMsg = results.message;
+        this.loading.close();
+      }
+      else if (results.code == 400) {
+        this.loading.close();
+        localStorage.removeItem("photoArtsAdminToken");
+        this.router.navigate(['/admin']);
+      }
+      else if (results.code == 401) {
+        this.token = results.data.new_token;
+        localStorage.setItem("photoArtsAdminToken", this.token);
+        this.getAllCategories(this.categoryId, this.currentPage, this.itemsPerPage);
+      }
+      else {
+        this.loading.close();
+        this.successMsg = "";
+        this.errorMsg = results.message;
+      }
+    }, error => {
+      /* console.log(error.status); */
+      /* console.log(error); */
+    });
   }
 
   ivkSbCatTagDialog(category: any) {
@@ -200,36 +202,74 @@ export class ViewCategoriesComponent implements OnInit {
         "name": searchQuery,
         "category_id": this.categoryId
       }, {
-          headers: {
-            'Authorization': 'Bearer ' + this.token
-          }
-        }).subscribe(results => {
-          if (results.code == 200) {
-            this.category_list = results.data.category_list;
-            this.total_record = this.category_list.length;
-            this.errorMsg = "";
-            this.searchErr = "";
-            this.loading.close();
-          }
-          else if (results.code == 400) {
-            this.loading.close();
-            localStorage.removeItem("photoArtsAdminToken");
-            this.router.navigate(['/admin']);
-          }
-          else if (results.code == 401) {
-            this.token = results.data.new_token;
-            this.loading.close();
-            localStorage.setItem("photoArtsAdminToken", this.token);
-            this.searchData(searchQuery);
-          }
-          else {
-            this.loading.close();
-            this.searchErr = "";
-            this.showError(results.message, false);
-          }
-        });
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).subscribe(results => {
+        if (results.code == 200) {
+          this.category_list = results.data.category_list;
+          this.total_record = this.category_list.length;
+          this.errorMsg = "";
+          this.searchErr = "";
+          this.loading.close();
+        }
+        else if (results.code == 400) {
+          this.loading.close();
+          localStorage.removeItem("photoArtsAdminToken");
+          this.router.navigate(['/admin']);
+        }
+        else if (results.code == 401) {
+          this.token = results.data.new_token;
+          this.loading.close();
+          localStorage.setItem("photoArtsAdminToken", this.token);
+          this.searchData(searchQuery);
+        }
+        else {
+          this.loading.close();
+          this.searchErr = "";
+          this.showError(results.message, false);
+        }
+      });
     }
   }
+
+  getCategories() {
+    this.loading = this.dialog.open(LoadingComponent);
+    this.token = localStorage.getItem('photoArtsAdminToken');
+    this.dataService.postData('getCorruptedFontList',
+      {
+        "last_sync_time": 0
+      }, {
+      headers: {
+        'Authorization': 'Bearer ' + this.token
+      }
+    }).subscribe(results => {
+      if (results.code == 200) {
+        this.fonts_list = results.data.result;
+        this.len = this.fonts_list.length;
+        this.loading.close();
+      }
+      else if (results.code == 400) {
+        this.loading.close();
+        localStorage.removeItem("videoFlyerAdminToken");
+        this.router.navigate(['/admin']);
+      }
+      else if (results.code == 401) {
+        this.token = results.data.new_token;
+        localStorage.setItem("videoFlyerAdminToken", this.token);
+        this.getAllCategories(this.categoryId, this.currentPage, this.itemsPerPage);
+      }
+      else {
+        this.loading.close();
+        this.successMsg = "";
+        this.errorMsg = results.message;
+      }
+    }, error => {
+      /* console.log(error.status); */
+      /* console.log(error); */
+    });
+  }
+
 
   do_reset() {
     this.loading = this.dialog.open(LoadingComponent);
