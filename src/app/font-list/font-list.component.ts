@@ -35,6 +35,7 @@ export class FontListComponent implements OnInit {
   fileList: any;
   file: any;
   font_details: any = {};
+  checked: any;
 
   @ViewChild('fileInput') fileInputElement: ElementRef;
 
@@ -88,6 +89,7 @@ export class FontListComponent implements OnInit {
           this.tmp_fonts_list = JSON.parse(JSON.stringify(results.data.result));
           this.fonts_list.forEach(element => {
             element.is_editing = false;
+            element.is_linked = '';
           });
           this.total_record = this.fonts_list.length;
           this.errorMsg = "";
@@ -276,6 +278,66 @@ export class FontListComponent implements OnInit {
     });
   }
 
+  selectAllFont() {
+    for (let font_details of this.fonts_list) {
+      if (!this.checked) {
+        font_details.is_linked = true ;
+      } else {
+        font_details.is_linked = false ;
+      }
+    }
+  }
+
+  selectFont() {
+    var c;
+    for (let font_detail of this.fonts_list) {
+      if (font_detail.is_linked == 0) {
+        c = 0;
+        break;
+      }else if (font_detail.is_linked == 1) {
+        c = 1;
+      } 
+    }
+    if(c==0){
+      this.checked = false;
+    } else {
+      this.checked = true ;
+    }
+
+  }
+
+  removeInvalidFonts(API_NAME) {
+    var fontId = [];
+    var font_ids = '';
+
+    for (let font_details of this.fonts_list) {
+      if (font_details.is_linked) {
+        fontId.push(font_details.font_id);
+      }
+      font_ids = fontId.join(',');
+    }
+    if (font_ids == '' || font_ids == undefined || font_ids == null) {
+      this.showError("Please select fonts which you want to remove ", false);
+      return false;
+    } else {
+      var requestdata = {
+        "catalog_id": parseInt(this.catalogId),
+        "font_ids": font_ids,
+      }
+    }
+    let dialogRef = this.dialog.open(DeleteUserGeneratedComponent);
+    dialogRef.componentInstance.delete_request_data = requestdata;
+    dialogRef.componentInstance.API_NAME = API_NAME;
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        this.getAllFontsByCatalogId(this.catalogId);
+        for (let font_details of this.fonts_list) {
+          font_details.is_linked = 0;
+        }
+      }
+    });
+  }
+  
   getLocalStorageData() {
     let tmp_selected_category = JSON.parse(localStorage.getItem("selected_category"));
     let tmp_selected_sub_category = JSON.parse(localStorage.getItem("selected_sub_category"));
