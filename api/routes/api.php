@@ -168,6 +168,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('deleteFont', 'AdminController@deleteFont');
     Route::post('getAllFontsByCatalogIdForAdmin', 'AdminController@getAllFontsByCatalogIdForAdmin');
     Route::post('addInvalidFont', 'AdminController@addInvalidFont'); //API without font file validation
+    Route::post('removeInvalidFont', 'AdminController@removeInvalidFont'); //API to remove invalid fonts
 
     //Statistics of All servers
     Route::post('addServerUrl', 'AdminController@addServerUrl');
@@ -252,6 +253,7 @@ Route::middleware(['ability:user|admin,user_permission|admin_permission'])->grou
     //Sub_category & catalogs
     Route::post('getSubCategoryByCategoryId', 'AdminController@getSubCategoryByCategoryId');
     Route::post('getCatalogBySubCategoryId', 'AdminController@getCatalogBySubCategoryId');
+    Route::post('getCorruptedFontList', 'UserController@getCorruptedFontList'); //To get unused font list
 
 });
 

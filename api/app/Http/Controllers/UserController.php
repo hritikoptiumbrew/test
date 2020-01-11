@@ -5463,6 +5463,135 @@ class UserController extends Controller
         return $response;
     }
 
+    /**
+     * @api {post} getCorruptedFontList   getCorruptedFontList
+     * @apiName getCorruptedFontList
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "last_sync_time":"0" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Fonts details fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": [
+     *   {
+     *   "catalog_id": 228,
+     *   "name": "Roboto",
+     *   "is_removed": 0,
+     *   "is_free": 0,
+     *   "is_featured": 0,
+     *   "font_list": [
+     *   {
+     *   "font_id": 33,
+     *   "catalog_id": 228,
+     *   "font_name": "Roboto Thin",
+     *   "font_file": "Roboto-Thin.ttf",
+     *   "font_url": "http://192.168.0.115/videoflyer_backend/image_bucket/fonts/Roboto-Thin.ttf",
+     *   "ios_font_name": "Roboto-Thin",
+     *   6800"android_font_name": "fonts/nexa_rustsans_black.otf"
+     *   }
+     *  ]
+     *   }
+     * ],
+     * "last_sync_time": "2019-11-25 04:05:54"
+     * }
+     * }
+     */
+    public function getCorruptedFontList(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('last_sync_time'), $request)) != '')
+                return $response;
+
+            $this->last_sync_time = $request->last_sync_time;
+
+            if (!Cache::has("pel:getCorruptedFontList$this->last_sync_time")) {
+                $result = Cache::rememberforever("getCorruptedFontList$this->last_sync_time", function () {
+
+                    $catalog_list = DB::select('SELECT cfc.catalog_id,
+                                                      cfc.name,
+                                                      cfc.is_removed,
+                                                      cfc.is_free,
+                                                      cfc.is_featured
+                                                    FROM
+                                                      corrupt_font_catalog_master as cfc
+                                                    where
+                                                      cfc.is_active = 1 AND
+                                                      cfc.create_time >= ?
+                                                    order by cfc.update_time DESC', [$this->last_sync_time]);
+
+                    $result = array();
+                    $int = 0;
+                    Foreach($catalog_list AS $catalog){
+
+                        $catalog_id = $catalog->catalog_id;
+                        $catalog_name = $catalog->name;
+                        $is_removed = $catalog->is_removed;
+                        $is_free = $catalog->is_free;
+                        $is_featured = $catalog->is_featured;
+                        $font_result =  DB::select('SELECT
+                                              fm.font_id as font_id,
+                                              fm.catalog_id,
+                                              fm.font_name,
+                                              fm.font_file,
+                                              IF(fm.font_file != "",CONCAT("' . Config::get('constant.FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . '",fm.font_file),"") as font_url,
+                                              fm.ios_font_name,
+                                              fm.android_font_name
+                                            FROM
+                                              corrupt_font_detail_master as fm
+                                            where
+                                              fm.is_active = 1 AND
+                                              fm.catalog_id = ? AND 
+                                              fm.create_time >= ?
+                                            order by fm.update_time DESC', [$catalog_id,$this->last_sync_time]);
+                        $result_array = array(
+                            'catalog_id' => $catalog_id,
+                            'name' => $catalog_name,
+                            'is_removed' => $is_removed,
+                            'is_free' => $is_free,
+                            'is_featured' => $is_featured,
+                            'font_list' => $font_result
+                        );
+                        $delete_font_array = array($int => $result_array);
+                        $result = array_merge($result, $delete_font_array);
+                        $int++;
+                    }
+                    return $result;
+                });
+            }
+            $redis_result = Cache::get("getCorruptedFontList$this->last_sync_time");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $last_sync_time = date("Y-m-d H:i:s");
+
+            $response = Response::json(array('code' => 200, 'message' => 'Fonts details fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result,'last_sync_time' => $last_sync_time]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllFontsByCatalogId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /*================| This API only used for Brand Maker |===============*/
 
     /**

@@ -543,7 +543,7 @@ class BlogController extends Controller
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if (!Cache::has("vf:getBlogContent$this->page:$this->item_count")) {
+            if (!Cache::has("pel:getBlogContent$this->page:$this->item_count")) {
                 $result = Cache::rememberforever("getBlogContent$this->page:$this->item_count", function () {
 
                     $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ?', [1]);
@@ -787,7 +787,7 @@ class BlogController extends Controller
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if (!Cache::has("vf:getBlogListByUser$this->page:$this->item_count")) {
+            if (!Cache::has("pel:getBlogListByUser$this->page:$this->item_count")) {
                 $result = Cache::rememberforever("getBlogListByUser$this->page:$this->item_count", function () {
 
                     $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ?', [1]);
@@ -926,7 +926,7 @@ class BlogController extends Controller
 
             $this->blog_id = $request->blog_id;
 
-            if (!Cache::has("vf:getBlogContentByIdForUser$this->blog_id")) {
+            if (!Cache::has("pel:getBlogContentByIdForUser$this->blog_id")) {
                 $result = Cache::rememberforever("getBlogContentByIdForUser$this->blog_id", function () {
 
                     return DB::select('SELECT 
@@ -1069,7 +1069,7 @@ class BlogController extends Controller
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if (!Cache::has("vf:getBlogContentByUser$this->page:$this->item_count")) {
+            if (!Cache::has("pel:getBlogContentByUser$this->page:$this->item_count")) {
                 $result = Cache::rememberforever("getBlogContentByUser$this->page:$this->item_count", function () {
 
                     $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ?', [1]);

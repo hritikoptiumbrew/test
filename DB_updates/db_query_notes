@@ -66,3 +66,38 @@ CREATE TABLE settings_master (
 6) PhotoEditorLab : perform following query on database(02 Sep, 2019) search tag module
 ---------------------------------------------------------------------------------------------------
 ALTER TABLE catalog_master ADD FULLTEXT(name)
+
+7) VideoFlyer : perform following query on database (9 January, 2020) corrupted font module
+-------------------------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS corrupt_font_catalog_master(
+	id int(11) NOT NULL AUTO_INCREMENT,
+	catalog_id int(11) DEFAULT NULL,
+	name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	is_removed TINYINT(1) DEFAULT 0,
+	is_free TINYINT(1) DEFAULT 0,
+	is_featured TINYINT(1) DEFAULT 0,
+	is_active TINYINT(1) DEFAULT 0,
+	create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+	update_time timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	attribute1 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute2 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	PRIMARY KEY (id)
+) ENGINE=InnoDB
+
+CREATE TABLE corrupt_font_detail_master(
+	id int(11) AUTO_INCREMENT NOT NULL,
+	catalog_id INT(11) DEFAULT NULL,
+	font_id INT(11) DEFAULT NULL,
+	font_name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	font_file TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	ios_font_name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	android_font_name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	is_active TINYINT(1) DEFAULT 0,
+	create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+	update_time TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	attribute1 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute2 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	PRIMARY KEY(id)
+) ENGINE = INNODB

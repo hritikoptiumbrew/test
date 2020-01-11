@@ -6094,6 +6094,165 @@ class AdminController extends Controller
         return $response;
     }
 
+    /**
+     * @api {post} removeInvalidFont   removeInvalidFont
+     * @apiName removeInvalidFont
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "catalog_id":5, //compulsory
+     * "font_ids":"280,281", //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Font removed successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function removeInvalidFont(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array(
+                    'catalog_id',
+                    'font_ids'
+                ), $request)) != ''
+            )
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $font_ids = $request->font_ids;
+            $font_array = explode(',',$font_ids);
+
+            $is_exist_catalog = DB::select('SELECT 1 FROM corrupt_font_catalog_master WHERE catalog_id = ?',[$catalog_id]);
+            if(count($is_exist_catalog) > 0) {
+                $is_catalog_update = 1;
+            }else{
+                $is_catalog_update = 0;
+            }
+            $catalog_result = DB::select('SELECT cm.id, cm.image, cm.name, cm.is_free, cm.is_featured, count(fm.id) AS total_font 
+                                      FROM catalog_master AS cm,
+                                      font_master AS fm 
+                                      WHERE 
+                                      cm.id = fm.catalog_id AND
+                                      cm.id = ? AND 
+                                      cm.is_active = 1
+                                      GROUP BY cm.id',[$catalog_id]);
+
+            $create_time = date('Y-m-d H:i:s');
+            $catalog_image = $catalog_result[0]->image;
+            $catalog_name = $catalog_result[0]->name;
+            $is_free = $catalog_result[0]->is_free;
+            $is_featured = $catalog_result[0]->is_featured;
+            $total_font = $catalog_result[0]->total_font;
+
+
+
+            if(count($font_array) == $total_font){
+                if($is_catalog_update == 1){
+                    DB::beginTransaction();
+                    DB::update('UPDATE corrupt_font_catalog_master SET is_removed = 1 , create_time = ? WHERE catalog_id = ? ',[$create_time,$catalog_id]);
+                    DB::commit();
+                }else{
+                    DB::beginTransaction();
+                    DB::insert('INSERT
+                                INTO
+                                  corrupt_font_catalog_master(catalog_id, name, is_removed, is_free, is_featured, is_active)
+                                VALUES(?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_name, 1, $is_free, $is_featured, 1]);
+                    DB::commit();
+                }
+                foreach ($font_array AS $font){
+
+                    $font_result = DB::select('SELECT id,font_name, font_file, ios_font_name, android_font_name FROM font_master WHERE id = ? AND catalog_id = ?',[$font,$catalog_id]);
+                    $font_id = $font_result[0]->id;
+                    $font_name = $font_result[0]->font_name;
+                    $font_file = $font_result[0]->font_file;
+                    $ios_font_name = $font_result[0]->ios_font_name;
+                    $android_font_name = $font_result[0]->android_font_name;
+
+                    DB::beginTransaction();
+                    DB::insert('INSERT
+                                INTO
+                                  corrupt_font_detail_master(catalog_id, font_id, font_name, font_file, ios_font_name, android_font_name, is_active)
+                                VALUES(?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $font_id, $font_name, $font_file, $ios_font_name, $android_font_name, 1]);
+                    DB::commit();
+
+                    if($result = ((new ImageController())->removeFontIfIsExist($font_file)) == 1){
+                        Log::error("removeInvalidFont => removeFontIfIsExist : VideoFlyer is unable to remove font-files in to storage.");
+                    }
+                    DB::beginTransaction();
+                    DB::delete('DELETE FROM font_master where id = ? ', [$font]);
+                    DB::commit();
+                }
+                DB::beginTransaction();
+                DB::update('update catalog_master set is_active=?, is_featured= ?  where id = ? ', [0, 0, $catalog_id]);
+                DB::update('update sub_category_catalog set is_active=? where catalog_id = ? ', [0, $catalog_id]);
+                DB::commit();
+                if ($catalog_image) {
+                    //Image Delete in image_bucket
+                    (new ImageController())->deleteImage($catalog_image);
+                }
+
+            }else {
+
+                if($is_catalog_update == 1){
+                    DB::beginTransaction();
+                    DB::update('UPDATE corrupt_font_catalog_master SET is_removed = 0 , create_time = ? WHERE catalog_id = ? ',[$create_time,$catalog_id]);
+                    DB::commit();
+                }else{
+                    DB::beginTransaction();
+                    DB::insert('INSERT
+                                    INTO
+                                      corrupt_font_catalog_master(catalog_id, name, is_removed, is_free, is_featured, is_active)
+                                    VALUES(?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_name, 0, $is_free, $is_featured, 1]);
+                    DB::commit();
+                }
+                foreach ($font_array AS $font){
+
+                    $font_result = DB::select('SELECT id, font_name, font_file, ios_font_name, android_font_name FROM font_master WHERE id = ? AND catalog_id = ?',[$font,$catalog_id]);
+                    $font_id = $font_result[0]->id;
+                    $font_name = $font_result[0]->font_name;
+                    $font_file = $font_result[0]->font_file;
+                    $ios_font_name = $font_result[0]->ios_font_name;
+                    $android_font_name = $font_result[0]->android_font_name;
+
+                    DB::beginTransaction();
+                    DB::insert('INSERT
+                                INTO
+                                  corrupt_font_detail_master(catalog_id, font_id, font_name, font_file, ios_font_name, android_font_name, is_active)
+                                VALUES(?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $font_id, $font_name, $font_file, $ios_font_name, $android_font_name, 1]);
+                    DB::commit();
+                    if($result = ((new ImageController())->removeFontIfIsExist($font_file)) != 1){
+                        Log::error("removeInvalidFont => removeFontIfIsExist : VideoFlyer is unable to remove font-files in to storage.");
+                    }
+
+                    DB::beginTransaction();
+                    DB::delete('DELETE FROM font_master where id = ? ', [$font]);
+                    DB::commit();
+                }
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Font removed successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("removeInvalidFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'remove invalid font.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     /* ==================================| Statistics Module |=========================================*/
 
     /**

@@ -510,7 +510,7 @@ class DeleteCacheKey
             }
 
             //Font Module
-            if ($api == '/api/addFont' or $api == '/api/editFont' or $api == '/api/deleteFont' or $api == '/api/addInvalidFont') {
+            if ($api == '/api/addFont' or $api == '/api/editFont' or $api == '/api/deleteFont' or $api == '/api/addInvalidFont' or $api == '/api/removeInvalidFont') {
 
                 /*//getAllFontsByCatalogIdForAdmin
                 $keys = Redis::keys('pel:getAllFontsByCatalogIdForAdmin*');
@@ -532,6 +532,12 @@ class DeleteCacheKey
 
                 //getOfflineFontCatalogs
                 $keys = Redis::keys('pel:getOfflineFontCatalogs*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getCorruptedFontList
+                $keys = Redis::keys('pel:getCorruptedFontList*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
@@ -574,19 +580,19 @@ class DeleteCacheKey
             if ($api == '/api/addBlogContent' or $api == '/api/updateBlogContent' or $api == '/api/deleteBlogContent' or $api == '/api/setBlogRankOnTheTopByAdmin') {
 
                 //getBlogContent
-                $keys = Redis::keys('vf:getBlogContent*');
+                $keys = Redis::keys('pel:getBlogContent*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
 
                 //getBlogListByUser
-                $keys = Redis::keys('vf:getBlogListByUser*');
+                $keys = Redis::keys('pel:getBlogListByUser*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
 
                 //getBlogContentByIdForUser
-                $keys = Redis::keys('vf:getBlogContentByIdForUser*');
+                $keys = Redis::keys('pel:getBlogContentByIdForUser*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }

@@ -2466,6 +2466,35 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "removeInvalidFont",
+    "title": "removeInvalidFont",
+    "name": "removeInvalidFont",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"catalog_id\":5, //compulsory\n\"font_ids\":\"280,281\", //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Font removed successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/Http/Controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
     "url": "searchCatalogByName",
     "title": "searchCatalogByName",
     "name": "searchCatalogByName",
@@ -4598,6 +4627,35 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n\"code\": 200,\n\"message\": \"Content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 135,\n\"is_next_page\": true,\n\"result\": [\n{\n\"img_id\": 3303,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n},\n{\n\"img_id\": 3304,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/Http/Controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getCorruptedFontList",
+    "title": "getCorruptedFontList",
+    "name": "getCorruptedFontList",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"last_sync_time\":\"0\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Fonts details fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n  {\n  \"catalog_id\": 228,\n  \"name\": \"Roboto\",\n  \"is_removed\": 0,\n  \"is_free\": 0,\n  \"is_featured\": 0,\n  \"font_list\": [\n  {\n  \"font_id\": 33,\n  \"catalog_id\": 228,\n  \"font_name\": \"Roboto Thin\",\n  \"font_file\": \"Roboto-Thin.ttf\",\n  \"font_url\": \"http://192.168.0.115/videoflyer_backend/image_bucket/fonts/Roboto-Thin.ttf\",\n  \"ios_font_name\": \"Roboto-Thin\",\n  6800\"android_font_name\": \"fonts/nexa_rustsans_black.otf\"\n  }\n ]\n  }\n],\n\"last_sync_time\": \"2019-11-25 04:05:54\"\n}\n}",
           "type": "json"
         }
       ]
