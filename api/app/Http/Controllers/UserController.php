@@ -1498,7 +1498,7 @@ class UserController extends Controller
                 $this->time_of_expired_redis_key = Config::get('constant.EXPIRATION_TIME_OF_REDIS_KEY_TO_GET_ALL_FEATURED_TEMPLATES');
 
                 if (!Cache::has("pel:getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id")) {
-                    $result = Cache::remember("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id",1, function () {
+                    $result = Cache::remember("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id", $this->time_of_expired_redis_key, function () {
 
                         //to get all featured templates with {[(shuffling)((current_date) + (3:6 ratio of free/pro))] + [(shuffling)((remaining templates ORDER BY update_time DESC) + (3:6 ratio of free/pro))]}
                         $featured_templates = $this->getAllFeaturedTemplatesWithShuffling($this->sub_category_id);
@@ -5968,7 +5968,7 @@ class UserController extends Controller
 
             //get random featured templates from featured catalogs
             if (!Cache::has("pel:getAllFeaturedTemplatesWithShuffling$this->sub_category_id")) {
-                $result = Cache::remember("getAllFeaturedTemplatesWithShuffling$this->sub_category_id", 1, function () {
+                $result = Cache::remember("getAllFeaturedTemplatesWithShuffling$this->sub_category_id", $this->time_of_expired_redis_key, function () {
 
                     //query to get random records by 3:6 ratio on value of "is_free" column within current_date
                     $records_of_current_date = DB::select('SELECT
