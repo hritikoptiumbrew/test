@@ -167,9 +167,9 @@ class ImageController extends Controller
         //Log::info("Font file : ", ['type' => $file_type, 'size' => $file_size]);
 
         $validations = $this->getValidationFromCache($category_id, $is_featured, $is_catalog);
-        Log::info('verifyFontFile : ', ['validations' => $validations]);
+        //Log::info('verifyFontFile : ', ['validations' => $validations]);
 
-        $MAXIMUM_FILESIZE = 1024 * 1024;
+        $MAXIMUM_FILESIZE = $validations * 1024;
         //$MAXIMUM_FILESIZE = 1 * 1024 * 1024;
 
         /*Here special characters are restricted & only allow underscore & alphabetic values*/
@@ -1632,8 +1632,6 @@ class ImageController extends Controller
                                           category_id = ? AND 
                                           is_featured = ? AND 
                                           is_catalog = ?', [1, $this->category_id, $this->is_featured, $this->is_catalog]);
-                    Log::error('validation_info 1 : ',[$validation_info]);
-
 
                     if (count($validation_info) == 0) {
                         $validation_info = DB::select('SELECT
@@ -1649,11 +1647,8 @@ class ImageController extends Controller
                                         WHERE 
                                           category_id = ? AND 
                                           is_active = ?', [0, 1]);
-
-                        Log::error('validation_info 2 : ',[$validation_info]);
-
                     }
-                    Log::error('max_value_of_validation : ',[$validation_info[0]->max_value_of_validation]);
+
                     return $validation_info[0]->max_value_of_validation;
 
                 });
