@@ -175,6 +175,6 @@ return [
     /* host name to identify server for 2FA */
     'APP_HOST_NAME' => env('APP_HOST_NAME'),
 
-    'EXPIRATION_TIME_OF_REDIS_KEY_TO_GET_ALL_FEATURED_TEMPLATES' => 1440, //time to expire key of caching in minutes (1440 = 24 hours)
+    'EXPIRATION_TIME_OF_REDIS_KEY_TO_GET_ALL_FEATURED_TEMPLATES' => 1, //time to expire key of caching in minutes (1440 = 24 hours)
 
 ];
