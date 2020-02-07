@@ -68,7 +68,7 @@ class ImageController extends Controller
         if (!($image_type == 'image/png' || $image_type == 'image/jpeg'))
             $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($image_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => 201, 'message' => 'File size is greater then 200KB', 'cause' => '', 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'File size is greater then '.$validations.'', 'cause' => '', 'data' => json_decode("{}")));
         else
             $response = '';
         return $response;
@@ -120,7 +120,7 @@ class ImageController extends Controller
         $video_type = $video_array->getMimeType();
         $video_size = $video_array->getSize();
 
-        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
+        $MAXIMUM_FILESIZE = 5 * 1024 * 1024;
 
         //x-ms-asf ==>.asf or .asx
         //ap4 ==>.mp4

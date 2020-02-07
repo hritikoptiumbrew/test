@@ -6014,50 +6014,130 @@ class UserController extends Controller
                                                                      ) derived_table
                                                                 ORDER BY rank, is_free DESC, rand()', [$this->sub_category_id, $this->sub_category_id]);
 
-                    //query to get remaining records randomly by 3:6 ratio on value of "is_free" column
-                    $remaining_records_excepting_current_date = DB::select('SELECT
-                                                                                  id AS json_id,
-                                                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS sample_image,
-                                                                                  is_free,
-                                                                                  is_featured,
-                                                                                  is_portrait,
-                                                                                  coalesce(height, 0) AS height,
-                                                                                  coalesce(width, 0) AS width,
-                                                                                  coalesce(search_category,"") AS search_category,
-                                                                                  coalesce(original_img_height,0) AS original_img_height,
-                                                                                  coalesce(original_img_width,0) AS original_img_width,
-                                                                                  updated_at
-                                                                                FROM (
-                                                                                       (SELECT
-                                                                                          @a := @a + 1,
-                                                                                          ceil(@a / 3) AS rank,
+                   //call procedure for get data with shuffle(pass sub category id)
+//                   $remaining_records_excepting_current_date = DB::select('call getTemplatesWithShuffle('.$this->sub_category_id.')');
+//                      foreach ($remaining_records_excepting_current_date as $key) {
+//                         if ($key->sample_image != "") {
+//                             $key->sample_image = Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN').$key->sample_image;
+//                         }
+//                     }
+
+                    //query to get remaining records randomly by 3:6 ratio on value of "is_free" column (Direct query)
+                    $remaining_records_excepting_current_date = DB::select('
+                                                                              SELECT id AS json_id,
+                                                                              IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS sample_image,
+                                                                              is_free,
+                                                                              is_featured,
+                                                                              is_portrait,
+                                                                              coalesce(height, 0) AS height,
+                                                                              coalesce(width, 0) AS width,
+                                                                              coalesce(search_category,"") AS search_category,
+                                                                              coalesce(original_img_height,0) AS original_img_height,
+                                                                              coalesce(original_img_width,0) AS original_img_width,
+                                                                              updated_at
+                                                                              FROM (
+                                                                                      (SELECT
+                                                                                          @a := @a + 1,ceil(@a / 3) AS rank,
                                                                                           im.*
-                                                                                        FROM images AS im, (SELECT @a := 0) a
-                                                                                        WHERE
-                                                                                          catalog_id IN (SELECT catalog_id
-                                                                                                         FROM sub_category_catalog
-                                                                                                         WHERE sub_category_id = ? AND is_active = 1) AND
-                                                                                          is_featured = 1 AND
-                                                                                          is_free = 1 AND
-                                                                                          curdate() != DATE(updated_at)
-                                                                                        ORDER BY updated_at DESC)
+                                                                                          FROM (SELECT *
+                                                                                                  FROM images
+                                                                                                  WHERE catalog_id IN (SELECT catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                                                                                        is_featured = 1 AND
+                                                                                                        is_free = 1 AND
+                                                                                                        curdate() !=DATE(updated_at) ORDER By rand()) AS im,
+                                                                                                        (SELECT @a := 0) a)
                                                                                        UNION
                                                                                        (SELECT
-                                                                                          @b := @b + 1,
-                                                                                          ceil(@b / 6) AS rank,
-                                                                                          im.*
-                                                                                        FROM images AS im, (SELECT @b := 0) b
-                                                                                        WHERE
-                                                                                          catalog_id IN (SELECT catalog_id
-                                                                                                         FROM sub_category_catalog
-                                                                                                         WHERE sub_category_id = ? AND is_active = 1) AND
-                                                                                          is_featured = 1 AND
-                                                                                          is_free = 0 AND
-                                                                                          curdate() != DATE(updated_at)
-                                                                                        ORDER BY updated_at DESC)
-                                                                                     ) derived_table
-                                                                                ORDER BY rank, is_free DESC, rand()', [$this->sub_category_id, $this->sub_category_id]);
+                                                                                           @b := @b + 1,ceil(@b / 6) AS rank,
+                                                                                           im.*
+                                                                                           FROM (SELECT *
+                                                                                                   FROM images
+                                                                                                   WHERE catalog_id IN (SELECT catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                                                                                   is_featured = 1 AND
+                                                                                                   is_free = 0 AND
+                                                                                                   curdate() !=DATE(updated_at) ORDER By rand()) AS im,
+                                                                                                   (SELECT @b := 0) b)
+                                                                                     ) derived_table ORDER BY rank, is_free DESC', [$this->sub_category_id, $this->sub_category_id]);
 
+                    //query to get remaining records randomly by 3:6 ratio on value of "is_free" column
+//                    $remaining_records_excepting_current_date = DB::select('SELECT
+//                                                                                  id AS json_id,
+//                                                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS sample_image,
+//                                                                                  is_free,
+//                                                                                  is_featured,
+//                                                                                  is_portrait,
+//                                                                                  coalesce(height, 0) AS height,
+//                                                                                  coalesce(width, 0) AS width,
+//                                                                                  coalesce(search_category,"") AS search_category,
+//                                                                                  coalesce(original_img_height,0) AS original_img_height,
+//                                                                                  coalesce(original_img_width,0) AS original_img_width,
+//                                                                                  updated_at
+//                                                                                FROM (
+//                                                                                       (SELECT
+//                                                                                          @a := @a + 1,
+//                                                                                          ceil(@a / 3) AS rank,
+//                                                                                          im.*
+//                                                                                        FROM images AS im, (SELECT @a := 0) a
+//                                                                                        WHERE
+//                                                                                          catalog_id IN (SELECT catalog_id
+//                                                                                                         FROM sub_category_catalog
+//                                                                                                         WHERE sub_category_id = ? AND is_active = 1) AND
+//                                                                                          is_featured = 1 AND
+//                                                                                          is_free = 1 AND
+//                                                                                          curdate() != DATE(updated_at)
+//                                                                                        ORDER BY updated_at DESC)
+//                                                                                       UNION
+//                                                                                       (SELECT
+//                                                                                          @b := @b + 1,
+//                                                                                          ceil(@b / 6) AS rank,
+//                                                                                          im.*
+//                                                                                        FROM images AS im, (SELECT @b := 0) b
+//                                                                                        WHERE
+//                                                                                          catalog_id IN (SELECT catalog_id
+//                                                                                                         FROM sub_category_catalog
+//                                                                                                         WHERE sub_category_id = ? AND is_active = 1) AND
+//                                                                                          is_featured = 1 AND
+//                                                                                          is_free = 0 AND
+//                                                                                          curdate() != DATE(updated_at)
+//                                                                                        ORDER BY updated_at DESC)
+//                                                                                     ) derived_table
+//                                                                                ORDER BY rank, is_free DESC, rand()', [$this->sub_category_id, $this->sub_category_id]);
+//                    $data = DB::select('call getAllCard('.$this->sub_category_id.')');
+//                    dd($data);
+//                   $is_free =array();
+//                   $is_pro = array();
+//                   foreach ($remaining_records_excepting_current_date as $row){
+//                       if($row->is_free){
+//                           array_push($is_free,$row);
+//                       }else{
+//                           array_push($is_pro,$row);
+//                       }
+//                   }
+//                    shuffle($is_free);
+//                    shuffle($is_pro);
+//                    $free_slice = array_chunk($is_free,3);
+//                    $pro_slice = array_chunk($is_pro,6);
+//                    $max_count = max(count($free_slice),count($pro_slice));
+//
+//                    $final_array=array();
+//                    for($i=0;$i<=$max_count;$i++){
+//                        if(isset($free_slice[$i]) && is_array($free_slice[$i])){
+//                            array_push($final_array,$free_slice[$i]);
+//                        }
+//                        if(isset($pro_slice[$i]) && is_array($pro_slice[$i])){
+//                            array_push($final_array,$pro_slice[$i]);
+//                        }
+//                    }
+//
+//                    $result = array();
+//                    foreach ($final_array as $key => $value) {
+//                        if (is_array($value)) {
+//                            $result = array_merge($result,$value);
+//                        } else {
+//                            $result[$key] = $value;
+//                        }
+//                    }
+//                    $featured_templates = array_merge($records_of_current_date,$result);
                     $featured_templates = array_merge($records_of_current_date,$remaining_records_excepting_current_date);
                     $total_row = count($featured_templates);
                     $result = array('total_row' => $total_row, 'featured_templates' => $featured_templates);

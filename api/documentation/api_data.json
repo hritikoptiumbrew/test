@@ -25,7 +25,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/BlogController.php",
+    "filename": "app/http/controllers/BlogController.php",
     "groupTitle": "1User_Blog_content"
   },
   {
@@ -54,7 +54,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/BlogController.php",
+    "filename": "app/http/controllers/BlogController.php",
     "groupTitle": "1User_Blog_content"
   },
   {
@@ -83,7 +83,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/BlogController.php",
+    "filename": "app/http/controllers/BlogController.php",
     "groupTitle": "1User_Blog_content"
   },
   {
@@ -112,7 +112,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -141,7 +141,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -170,7 +170,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/BlogController.php",
+    "filename": "app/http/controllers/BlogController.php",
     "groupTitle": "Admin_Blog_content"
   },
   {
@@ -199,7 +199,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/BlogController.php",
+    "filename": "app/http/controllers/BlogController.php",
     "groupTitle": "Admin_Blog_content"
   },
   {
@@ -228,7 +228,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/BlogController.php",
+    "filename": "app/http/controllers/BlogController.php",
     "groupTitle": "Admin_Blog_content"
   },
   {
@@ -257,7 +257,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/BlogController.php",
+    "filename": "app/http/controllers/BlogController.php",
     "groupTitle": "Admin_Blog_content"
   },
   {
@@ -286,7 +286,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/BlogController.php",
+    "filename": "app/http/controllers/BlogController.php",
     "groupTitle": "Admin_Blog_content"
   },
   {
@@ -315,7 +315,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -344,7 +344,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -373,7 +373,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -402,7 +402,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -431,7 +431,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -460,7 +460,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -489,7 +489,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -518,7 +518,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -547,7 +547,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -576,7 +576,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -605,7 +605,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -634,7 +634,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -663,7 +663,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -692,7 +692,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -721,7 +721,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -750,7 +750,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/ZipController.php",
+    "filename": "app/http/controllers/ZipController.php",
     "groupTitle": "Admin"
   },
   {
@@ -779,7 +779,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -808,7 +808,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/LoginController.php",
+    "filename": "app/http/controllers/LoginController.php",
     "groupTitle": "Admin"
   },
   {
@@ -837,7 +837,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -866,7 +866,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -895,7 +895,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -924,7 +924,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -953,7 +953,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -982,7 +982,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1011,7 +1011,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1040,7 +1040,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1069,7 +1069,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1098,7 +1098,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1127,7 +1127,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1156,7 +1156,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1185,7 +1185,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1214,7 +1214,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1243,7 +1243,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1272,7 +1272,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1301,7 +1301,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1330,7 +1330,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/Google2faController.php",
+    "filename": "app/http/controllers/Google2faController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1359,7 +1359,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/LoginController.php",
+    "filename": "app/http/controllers/LoginController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1388,7 +1388,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1417,7 +1417,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1446,7 +1446,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1475,7 +1475,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1504,7 +1504,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/Google2faController.php",
+    "filename": "app/http/controllers/Google2faController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1533,7 +1533,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1562,7 +1562,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1591,7 +1591,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1620,7 +1620,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1649,7 +1649,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1678,7 +1678,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1707,7 +1707,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1736,7 +1736,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1765,7 +1765,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1794,7 +1794,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1823,7 +1823,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1852,7 +1852,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1881,7 +1881,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1910,7 +1910,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1939,7 +1939,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1968,7 +1968,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1997,7 +1997,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2026,7 +2026,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2055,7 +2055,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2079,12 +2079,12 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Data fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 182,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d5644e1424_catalog_image_1502434884.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d5644e1424_catalog_image_1502434884.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d5644e1424_catalog_image_1502434884.png\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_free\": 0,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Data fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 182,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d5644e1424_catalog_image_1502434884.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d5644e1424_catalog_image_1502434884.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d5644e1424_catalog_image_1502434884.png\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_verified\": 1,\n\"is_free\": 0,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2113,7 +2113,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2142,7 +2142,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2171,7 +2171,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2200,7 +2200,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2229,7 +2229,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2258,7 +2258,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2287,7 +2287,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2316,7 +2316,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2345,7 +2345,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2374,7 +2374,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/LoginController.php",
+    "filename": "app/http/controllers/LoginController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2403,7 +2403,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2432,7 +2432,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2461,7 +2461,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2490,7 +2490,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2519,7 +2519,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2548,7 +2548,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2577,7 +2577,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2606,7 +2606,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2635,7 +2635,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2664,7 +2664,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2693,7 +2693,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2722,7 +2722,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/NotificationController.php",
+    "filename": "app/http/controllers/NotificationController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2751,7 +2751,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2780,7 +2780,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2809,7 +2809,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2838,7 +2838,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2867,7 +2867,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2896,7 +2896,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2925,7 +2925,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2954,7 +2954,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2983,7 +2983,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -3012,7 +3012,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -3041,7 +3041,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -3070,7 +3070,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -3099,7 +3099,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -3128,7 +3128,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -3157,7 +3157,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -3186,7 +3186,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/Google2faController.php",
+    "filename": "app/http/controllers/Google2faController.php",
     "groupTitle": "Admin"
   },
   {
@@ -3215,7 +3215,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/LoginController.php",
+    "filename": "app/http/controllers/LoginController.php",
     "groupTitle": "Common_For_All"
   },
   {
@@ -3244,7 +3244,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Common_For_All"
   },
   {
@@ -3273,7 +3273,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Common_For_All"
   },
   {
@@ -3302,7 +3302,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/SubscriptionPaymentController.php",
+    "filename": "app/http/controllers/SubscriptionPaymentController.php",
     "groupTitle": "Payment_Subscription"
   },
   {
@@ -3331,7 +3331,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/SubscriptionPaymentController.php",
+    "filename": "app/http/controllers/SubscriptionPaymentController.php",
     "groupTitle": "Payment_Subscription"
   },
   {
@@ -3360,7 +3360,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3389,7 +3389,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3418,7 +3418,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3447,7 +3447,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3476,7 +3476,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3505,7 +3505,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3534,7 +3534,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3563,7 +3563,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3592,7 +3592,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3621,7 +3621,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3650,7 +3650,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3679,7 +3679,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3708,7 +3708,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3737,7 +3737,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3766,7 +3766,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3795,7 +3795,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3824,7 +3824,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3853,7 +3853,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/NewsController.php",
+    "filename": "app/http/controllers/NewsController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3882,7 +3882,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3911,7 +3911,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3940,7 +3940,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3969,7 +3969,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3998,7 +3998,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -4027,7 +4027,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4056,7 +4056,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4085,7 +4085,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4114,7 +4114,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4143,7 +4143,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4172,7 +4172,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4201,7 +4201,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4230,7 +4230,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4259,7 +4259,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4288,7 +4288,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4317,8 +4317,66 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
+  },
+  {
+    "type": "post",
+    "url": "addAnimationResources",
+    "title": "addAnimationResources",
+    "name": "addAnimationResources",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"zip_file\":\"file.zip\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Template uploaded successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/AdminController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "addAnimationResources1",
+    "title": "addAnimationResources1",
+    "name": "addAnimationResources1",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"video_file\":\"sample_video.mp4\" //compulsory\n\"file\":\"sample_image.jpg\" //compulsory\n\"json_file\":\"file.json\" //compulsory\n\"background_file\":\"image.jpg\" // any one = image,video and AE json file\n\"stickers\":\"[images.jpg]\" //select single or multiple images\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Template uploaded successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/AdminController.php",
+    "groupTitle": "User"
   },
   {
     "type": "post",
@@ -4346,7 +4404,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/NotificationController.php",
+    "filename": "app/http/controllers/NotificationController.php",
     "groupTitle": "User"
   },
   {
@@ -4370,7 +4428,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/LoginController.php",
+    "filename": "app/http/controllers/LoginController.php",
     "groupTitle": "User"
   },
   {
@@ -4399,7 +4457,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4428,7 +4486,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4457,7 +4515,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4486,7 +4544,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4515,7 +4573,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4544,7 +4602,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4573,7 +4631,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4602,7 +4660,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4626,12 +4684,12 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 135,\n\"is_next_page\": true,\n\"result\": [\n{\n\"img_id\": 3303,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n},\n{\n\"img_id\": 3304,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 135,\n\"is_next_page\": true,\n\"result\": [\n{\n\"img_id\": 3303,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"video_zip_file\": \"http://192.168.0.116/photo_editor_lab_backend/image_bucket/zip/5e29869af1aaf_video_file_1579779738.zip\", //if catalog belong to animated text\n\"resource_zip_file\": \"http://192.168.0.116/photo_editor_lab_backend/image_bucket/zip/5e29869af1e97_zip_file_1579779738.zip\",//if catalog belong to animated text\n\"is_verified\": 1,//if catalog belong to animated text\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n},\n{\n\"img_id\": 3304,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"video_zip_file\": \"http://192.168.0.116/photo_editor_lab_backend/image_bucket/zip/5e29869af1aaf_video_file_1579779738.zip\", //if catalog belong to animated text\n\"resource_zip_file\": \"http://192.168.0.116/photo_editor_lab_backend/image_bucket/zip/5e29869af1e97_zip_file_1579779738.zip\",//if catalog belong to animated text\n\"is_verified\": 1,//if catalog belong to animated text\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4660,7 +4718,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4689,7 +4747,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4718,7 +4776,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4747,7 +4805,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4776,7 +4834,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4805,7 +4863,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4834,7 +4892,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UnsplashController.php",
+    "filename": "app/http/controllers/UnsplashController.php",
     "groupTitle": "User"
   },
   {
@@ -4863,7 +4921,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4892,7 +4950,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/PixabayController.php",
+    "filename": "app/http/controllers/PixabayController.php",
     "groupTitle": "User"
   },
   {
@@ -4921,7 +4979,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4950,7 +5008,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4979,7 +5037,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5008,7 +5066,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5037,7 +5095,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5066,7 +5124,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5095,7 +5153,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5124,7 +5182,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5153,7 +5211,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5182,7 +5240,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5211,7 +5269,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5240,7 +5298,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5269,7 +5327,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/RegisterController.php",
+    "filename": "app/http/controllers/RegisterController.php",
     "groupTitle": "User"
   },
   {
@@ -5298,7 +5356,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5327,7 +5385,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5356,7 +5414,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5385,7 +5443,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5414,7 +5472,7 @@
         }
       ]
     },
-    "filename": "app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   }
 ]
