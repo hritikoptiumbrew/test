@@ -120,7 +120,7 @@ class ImageController extends Controller
         $video_type = $video_array->getMimeType();
         $video_size = $video_array->getSize();
 
-        $MAXIMUM_FILESIZE = 5 * 1024 * 1024;
+        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
 
         //x-ms-asf ==>.asf or .asx
         //ap4 ==>.mp4
