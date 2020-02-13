@@ -1,3 +1,2 @@
-Sitemap: https://flyerbuilder.app/sitemap.xml
 User-agent: *
-Disallow: /flyerbuilder.app/dist/*
+Disallow: /
