@@ -1486,38 +1486,65 @@ class UserController extends Controller
             $this->catalog_id = $request->catalog_id;
             $this->sub_category_id = $request->sub_category_id;
             $this->last_sync_date = $request->last_sync_time;
-            $this->item_count = $request->item_count;
+//            $this->item_count = $request->item_count;
+            $this->item_count = Config::get('constant.ITEM_COUNT_PER_PAGE_FOR_FEATURED_TEMPLATES');
             $this->page = $request->page;
             $this->offset = ($this->page - 1) * $this->item_count;
             $last_sync_time = date("Y-m-d H:i:s");
 
-            //return all featured templates from given sub_category_id with pagination when catalog_id=0
+            //return all featured templates from given sub_category_id with pagination and shuffle when catalog_id=0
             if ($this->catalog_id == 0) {
 
                 //caching time of redis key to get all featured templates
                 $this->time_of_expired_redis_key = Config::get('constant.EXPIRATION_TIME_OF_REDIS_KEY_TO_GET_ALL_FEATURED_TEMPLATES');
-
-                if (!Cache::has("pel:getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id")) {
-                    $result = Cache::remember("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id", $this->time_of_expired_redis_key, function () {
-
-                        //to get all featured templates with {[(shuffling)((current_date) + (3:6 ratio of free/pro))] + [(shuffling)((remaining templates ORDER BY update_time DESC) + (3:6 ratio of free/pro))]}
-                        $featured_templates = $this->getAllFeaturedTemplatesWithShuffling($this->sub_category_id);
-
-                        if (!$featured_templates) {
-                            $featured_templates = [];
+                if (Cache::has("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id")) {
+                    $redis_result = Cache::get("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id");
+                }else {
+                    $featured_templates = $this->getAllFeaturedTemplatesWithShuffling($this->sub_category_id);
+                    $this->total_row = $featured_templates['total_row'];
+                    $this->total_page = array_chunk($featured_templates['featured_templates'], $this->item_count);
+                    if ($this->page <= count($this->total_page)) {
+                        $keys = Redis::keys('pel:getFeaturedTemplatesWithWebp*');
+                        foreach ($keys as $key) {
+                            Redis::del($key);
                         }
-
-                        $total_row = $featured_templates['total_row'];
-
-                        //get elements from array with start & end position
-                        $result = array_slice($featured_templates['featured_templates'], $this->offset, $this->item_count);
-
-                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
-
-                    });
+                        for ($this->i = 0; $this->i < count($this->total_page); $this->i++) {
+                            $this->page_no = $this->i + 1;
+                            $result = Cache::remember("getFeaturedTemplatesWithWebp$this->page_no:$this->item_count:$this->catalog_id:$this->sub_category_id", $this->time_of_expired_redis_key, function () {
+                                if($this->page_no == count($this->total_page)) {
+                                    $is_next_page = false;
+                                }else{
+                                    $is_next_page = true;
+                                }
+                                return array('total_record' => $this->total_row, 'is_next_page' => $is_next_page, 'data' => $this->total_page[$this->i]);
+                            });
+                        }
+                        $redis_result = Cache::get("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id");
+                    } else {
+                        return Response::json(array('code' => 201, 'message' => 'Page you request does not exist.', 'cause' => '', 'data' => json_decode("{}")));
+                    }
                 }
-                $redis_result = Cache::get("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id");
+//                if (!Cache::has("pel:getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id")) {
+//                      $result = Cache::remember("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id", $this->time_of_expired_redis_key, function () {
+//
+//                        //to get all featured templates with {[(shuffling)((current_date) + (3:6 ratio of free/pro))] + [(shuffling)((remaining templates ORDER BY update_time DESC) + (3:6 ratio of free/pro))]}
+//                        $featured_templates = $this->getAllFeaturedTemplatesWithShuffling($this->sub_category_id);
+//
+//                        if (!$featured_templates) {
+//                            $featured_templates = [];
+//                        }
+//
+//                        $total_row = $featured_templates['total_row'];
+//
+//                        //get elements from array with start & end position
+//                        $result = array_slice($featured_templates['featured_templates'], $this->offset, $this->item_count);
+//
+//                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+//                        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
+//
+//                    });
+//                }
+//                $redis_result = Cache::get("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id");
 
             } else {
 
@@ -1566,9 +1593,8 @@ class UserController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Samples fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
-        } catch
-        (Exception $e) {
-            Log::error("getJsonSampleDataWithLastSyncTime_webp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        } catch(Exception $e) {
+            Log::error("getTemplatesWithLastSyncTime : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get samples.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -2887,7 +2913,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getCatalogBySubCategoryIdWithLastSyncTime : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("getCatalogBySubCategoryIdWithWebp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -5960,7 +5986,7 @@ class UserController extends Controller
     }
 
     /*=============================| Sub functions |=============================*/
-
+    //Get all feature template with shuffle
     public function getAllFeaturedTemplatesWithShuffling($sub_category_id)
     {
         try{
