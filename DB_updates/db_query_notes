@@ -67,7 +67,7 @@ CREATE TABLE settings_master (
 ---------------------------------------------------------------------------------------------------
 ALTER TABLE catalog_master ADD FULLTEXT(name)
 
-7) VideoFlyer : perform following query on database (9 January, 2020) corrupted font module
+7) PhotoEditorLab : perform following query on database (9 January, 2020) corrupted font module
 -------------------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS corrupt_font_catalog_master(
 	id int(11) NOT NULL AUTO_INCREMENT,
@@ -102,7 +102,30 @@ CREATE TABLE corrupt_font_detail_master(
 	PRIMARY KEY(id)
 ) ENGINE = INNODB
 
-7) Photo_editor_lab : perform following query on database (7 February, 2020) For store catalog_id id
+
+8) PhotoEditorLab : perform following query on database (9 January, 2020) Blog module
+-------------------------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS blog_master (
+	id int(11) NOT NULL AUTO_INCREMENT,
+	image TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	webp_image TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	title TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	subtitle TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	blog_json TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	height int(11) DEFAULT 0,
+	width int(11) DEFAULT 0,
+	is_active tinyint(1) NOT NULL DEFAULT 1,
+	create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+	update_time timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	attribute1 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute2 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	PRIMARY KEY (id)
+) ENGINE=InnoDB
+
+
+
+9) Photo_editor_lab : perform following query on database (7 February, 2020) For store catalog_id id
 -------------------------------------------------------------------------------------------------
 ALTER TABLE `blog_master` ADD `catalog_id` INT(11) NOT NULL AFTER `id`;
 

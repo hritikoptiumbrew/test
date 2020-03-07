@@ -83,20 +83,16 @@ define([
       $root.find(".sample-request-response-json").html("Loading...");
       refreshScrollSpy();
 
-      if (typeof header['Content-Type'] != 'undefined' && header['Content-Type'] == 'application/json') {
-          param = JSON.stringify(param)
-      }
-      else {
-          _.each( param, function( val, key ) {
-              var t = paramType[ key ].toLowerCase();
-              if ( t === 'object' || t === 'array' ) {
-                  try {
-                      param[ key ] = JSON.parse( val );
-                  } catch (e) {
-                  }
+      _.each( param, function( val, key ) {
+          var t = paramType[ key ].toLowerCase();
+          if ( t === 'object' || t === 'array' ) {
+              try {
+                  param[ key ] = JSON.parse( val );
+              } catch (e) {
               }
-          });
-      }
+          }
+      });
+
       // send AJAX request, catch success or error callback
       var ajaxRequest = {
           url        : url,
@@ -116,9 +112,9 @@ define([
               jsonResponse = JSON.parse(jqXHR.responseText);
               jsonResponse = JSON.stringify(jsonResponse, null, 4);
           } catch (e) {
-              jsonResponse = jqXHR.responseText;
+              jsonResponse = data;
           }
-          $root.find(".sample-request-response-json").text(jsonResponse);
+          $root.find(".sample-request-response-json").html(jsonResponse);
           refreshScrollSpy();
       };
 
@@ -129,18 +125,18 @@ define([
               jsonResponse = JSON.parse(jqXHR.responseText);
               jsonResponse = JSON.stringify(jsonResponse, null, 4);
           } catch (e) {
-              jsonResponse = jqXHR.responseText;
+              jsonResponse = escape(jqXHR.responseText);
           }
 
           if (jsonResponse)
-              message += "\n" + jsonResponse;
+              message += "<br>" + jsonResponse;
 
           // flicker on previous error to make clear that there is a new response
           if($root.find(".sample-request-response").is(":visible"))
               $root.find(".sample-request-response").fadeTo(1, 0.1);
 
           $root.find(".sample-request-response").fadeTo(250, 1);
-          $root.find(".sample-request-response-json").text(message);
+          $root.find(".sample-request-response-json").html(message);
           refreshScrollSpy();
       };
   }
