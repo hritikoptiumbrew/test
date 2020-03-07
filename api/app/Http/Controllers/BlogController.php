@@ -128,6 +128,7 @@ class BlogController extends Controller
 
 //            $catalog_id = $request->catalog_id;
             $catalog_id = 894;
+            $platform = 2;
             $title = $request->title;
             $subtitle = $request->subtitle;
             $blog_data = $request->blog_data;
@@ -165,8 +166,8 @@ class BlogController extends Controller
             DB::beginTransaction();
 
             DB::insert('INSERT INTO blog_master
-                        (image,catalog_id,webp_image,title,subtitle,blog_json,height, width, is_active,create_time) VALUES(?,?,?,?,?,?,?,?,?,?)',
-                [$blog_img,$catalog_id,$webp_blog_img, $title, $subtitle, $blog_json, $dimension['height'], $dimension['width'], 1, $create_at]);
+                        (image,catalog_id,platform,webp_image,title,subtitle,blog_json,height, width, is_active,create_time) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                [$blog_img,$catalog_id,$platform,$webp_blog_img, $title, $subtitle, $blog_json, $dimension['height'], $dimension['width'], 1, $create_at]);
 
             DB::commit();
 
@@ -503,6 +504,7 @@ class BlogController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
+     * "platform":2,//1=android,2=IOS
      * "catalog_id":895,
      * "page":1,
      * "item_count":10
@@ -542,18 +544,19 @@ class BlogController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id','page', 'item_count'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id','platform','page', 'item_count','platform'), $request)) != '')
                 return $response;
 
             $this->catalog_id = $request->catalog_id;
+            $this->platform = $request->platform;
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if (!Cache::has("pel:getBlogContent$this->page:$this->item_count:$this->catalog_id")) {
-                $result = Cache::rememberforever("getBlogContent$this->page:$this->item_count:$this->catalog_id", function () {
+            if (!Cache::has("pel:getBlogContent$this->page:$this->item_count:$this->catalog_id:$this->platform")) {
+                $result = Cache::rememberforever("getBlogContent$this->page:$this->item_count:$this->catalog_id:$this->platform", function () {
 
-                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ? AND catalog_id =?', [1,$this->catalog_id]);
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ? AND catalog_id =? AND platform=?', [1,$this->catalog_id,$this->platform]);
                     $total_row = $total_row_result[0]->total;
 
                     $result = DB::select('SELECT 
@@ -571,9 +574,10 @@ class BlogController extends Controller
                                           is_active
                                       FROM  blog_master 
                                       WHERE is_active = ? AND
-                                      catalog_id =?
+                                      catalog_id =? AND
+                                      platform=?
                                       ORDER BY update_time DESC 
-                                      LIMIT ?, ?', [1,$this->catalog_id,$this->offset, $this->item_count]);
+                                      LIMIT ?, ?', [1,$this->catalog_id,$this->platform,$this->offset, $this->item_count]);
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result);
@@ -581,7 +585,7 @@ class BlogController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getBlogContent$this->page:$this->item_count:$this->catalog_id");
+            $redis_result = Cache::get("getBlogContent$this->page:$this->item_count:$this->catalog_id:$this->platform");
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -752,6 +756,7 @@ class BlogController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
+     * "platform"=2,//1=Android,2=IOS
      * "catalog_id":895,
      * "page":1,
      * "item_count":10
@@ -791,18 +796,19 @@ class BlogController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count','catalog_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count','catalog_id','platform'), $request)) != '')
                 return $response;
 
             $this->catalog_id = $request->catalog_id;
+            $this->platform = $request->platform;
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if (!Cache::has("pel:getBlogListByUser$this->page:$this->item_count:$this->catalog_id")) {
-                $result = Cache::rememberforever("getBlogListByUser$this->page:$this->item_count:$this->catalog_id", function () {
+            if (!Cache::has("pel:getBlogListByUser$this->page:$this->item_count:$this->catalog_id:$this->platform")) {
+                $result = Cache::rememberforever("getBlogListByUser$this->page:$this->item_count:$this->catalog_id:$this->platform", function () {
 
-                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ? AND catalog_id = ? ', [1,$this->catalog_id]);
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ? AND catalog_id = ? AND platform=? ', [1,$this->catalog_id,$this->platform]);
                     $total_row = $total_row_result[0]->total;
 
                     $result = DB::select('SELECT 
@@ -820,9 +826,10 @@ class BlogController extends Controller
                                           is_active
                                       FROM  blog_master 
                                       WHERE is_active = ? AND
-                                      catalog_id =? 
+                                      catalog_id =? AND
+                                      platform=?
                                       ORDER BY update_time DESC 
-                                      LIMIT ?, ?', [1,$this->catalog_id, $this->offset, $this->item_count]);
+                                      LIMIT ?, ?', [1,$this->catalog_id,$this->platform, $this->offset, $this->item_count]);
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result);
@@ -830,7 +837,7 @@ class BlogController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getBlogListByUser$this->page:$this->item_count:$this->catalog_id");
+            $redis_result = Cache::get("getBlogListByUser$this->page:$this->item_count:$this->catalog_id:$this->platform");
 
             if (!$redis_result) {
                 $redis_result = [];

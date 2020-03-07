@@ -73,7 +73,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"catalog_id\":895,\n\"page\":1,\n\"item_count\":10\n}",
+          "content": "{\n\"platform\"=2,//1=Android,2=IOS\n\"catalog_id\":895,\n\"page\":1,\n\"item_count\":10\n}",
           "type": "json"
         },
         {
