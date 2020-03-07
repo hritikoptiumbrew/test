@@ -59,7 +59,8 @@ class BlogController extends Controller
      *          type="string",
      *          description="Give title, subtitle, blog_data in json object",
      *         @SWG\Schema(
-     *              required={"title","subtitle","blog_data"},
+     *              required={"catalog_id","title","subtitle","blog_data"},
+     *              @SWG\Property(property="catalog_id",  type="integer", example="895", description=""),
      *              @SWG\Property(property="title",  type="string", example="Title description", description=""),
      *              @SWG\Property(property="subtitle",  type="string", example="Subtitle description", description=""),
      *              @SWG\Property(property="blog_data",  type="object", example={}, description="blog json"),
@@ -96,6 +97,7 @@ class BlogController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * request_data:{
+     * "catalog_id":895,//compulsory
      * "title":"test", //compulsory
      * "subtitle":"demo", //compulsory
      * "blog_data":"<p></p>" //compulsory
@@ -124,6 +126,8 @@ class BlogController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('title', 'subtitle', 'blog_data'), $request)) != '')
                 return $response;
 
+//            $catalog_id = $request->catalog_id;
+            $catalog_id = 894;
             $title = $request->title;
             $subtitle = $request->subtitle;
             $blog_data = $request->blog_data;
@@ -161,8 +165,8 @@ class BlogController extends Controller
             DB::beginTransaction();
 
             DB::insert('INSERT INTO blog_master
-                        (image,webp_image,title,subtitle,blog_json,height, width, is_active,create_time) VALUES(?,?,?,?,?,?,?,?,?)',
-                [$blog_img, $webp_blog_img, $title, $subtitle, $blog_json, $dimension['height'], $dimension['width'], 1, $create_at]);
+                        (image,catalog_id,webp_image,title,subtitle,blog_json,height, width, is_active,create_time) VALUES(?,?,?,?,?,?,?,?,?,?)',
+                [$blog_img,$catalog_id,$webp_blog_img, $title, $subtitle, $blog_json, $dimension['height'], $dimension['width'], 1, $create_at]);
 
             DB::commit();
 
@@ -468,7 +472,8 @@ class BlogController extends Controller
      *        in="body",
      *        name="request_body",
      *   	  @SWG\Schema(
-     *          required={"page","item_count"},
+     *          required={"catalog_id","page","item_count"},
+     *          @SWG\Property(property="catalog_id",  type="integer", example=895, description=""),
      *          @SWG\Property(property="page",  type="integer", example=1, description=""),
      *          @SWG\Property(property="item_count",  type="integer", example=4, description=""),
      *        ),
@@ -498,6 +503,7 @@ class BlogController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
+     * "catalog_id":895,
      * "page":1,
      * "item_count":10
      * }
@@ -521,6 +527,7 @@ class BlogController extends Controller
      * "title": "{\"text_color\":\"#000000\",\"text_size\":16,\"text_value\":\"test\"}",
      * "subtitle": "{\"text_color\":\"#000000\",\"text_size\":36,\"text_value\":\"test\"}",
      * "blog_json": "{\"title\":{\"text_color\":\"#000000\",\"text_size\":16,\"text_value\":\"test\"},\"subtitle\":{\"text_color\":\"#000000\",\"text_size\":36,\"text_value\":\"test\"},\"blog_data\":\"test<style>.sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, \\\"Segoe UI\\\", Roboto, \\\"Helvetica Neue\\\", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}<\\/style><script>function OpenTemplate(templateID) { alert(\\\"OpenTemplate - \\\" + templateID); } function searchTemplate(searchTag) { alert(\\\"searchTemplate - \\\" + searchTag); } <\\/script>\",\"fg_image\":\"5d26bbe50f627_blog_image_1562819557.png\"}",
+     * "catalog_id":895,
      * "is_active": 1
      * }
      * ]
@@ -535,18 +542,18 @@ class BlogController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id','page', 'item_count'), $request)) != '')
                 return $response;
 
-
+            $this->catalog_id = $request->catalog_id;
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if (!Cache::has("pel:getBlogContent$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getBlogContent$this->page:$this->item_count", function () {
+            if (!Cache::has("pel:getBlogContent$this->page:$this->item_count:$this->catalog_id")) {
+                $result = Cache::rememberforever("getBlogContent$this->page:$this->item_count:$this->catalog_id", function () {
 
-                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ?', [1]);
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ? AND catalog_id =?', [1,$this->catalog_id]);
                     $total_row = $total_row_result[0]->total;
 
                     $result = DB::select('SELECT 
@@ -560,11 +567,13 @@ class BlogController extends Controller
                                           title,
                                           subtitle,
                                           blog_json,
+                                          catalog_id,
                                           is_active
                                       FROM  blog_master 
-                                      WHERE is_active = ?
+                                      WHERE is_active = ? AND
+                                      catalog_id =?
                                       ORDER BY update_time DESC 
-                                      LIMIT ?, ?', [1, $this->offset, $this->item_count]);
+                                      LIMIT ?, ?', [1,$this->catalog_id,$this->offset, $this->item_count]);
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result);
@@ -572,7 +581,7 @@ class BlogController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getBlogContent$this->page:$this->item_count");
+            $redis_result = Cache::get("getBlogContent$this->page:$this->item_count:$this->catalog_id");
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -712,8 +721,9 @@ class BlogController extends Controller
      *        in="body",
      *        name="request_body",
      *   	  @SWG\Schema(
-     *          required={"page","item_count"},
-     *          @SWG\Property(property="page",  type="integer", example=1, description=""),
+     *          required={"catalog_id","page","item_count"},
+     *          @SWG\Property(property="catalog_id",  type="integer", example=895, description=""),
+     *         @SWG\Property(property="page",  type="integer", example=1, description=""),
      *          @SWG\Property(property="item_count",  type="integer", example=4, description=""),
      *        ),
      *      ),
@@ -721,7 +731,7 @@ class BlogController extends Controller
      *            response=200,
      *            description="Success",
      *        @SWG\Schema(
-     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Blog content fetched successfully.","cause":"","data":{"total_record":9,"is_next_page":false,"result":{{"blog_id":23,"thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","compressed_img":"http://192.168.0.114/videoflyer_backend/image_bucket/compressed/5d1b4e68c98e2_blog_image_1562070632.jpg","original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","title":"{\"text_color\":\"#ff8040\",\"text_size\":16,\"text_value\":\"CONTENT OF THE WEEK | JUNE 28, 2019 \"}","subtitle":"{\"text_color\":\"#000000\",\"text_size\":36,\"text_value\":\"Share the love with the Beth Ellen font\"}","is_active":1}}}}, description=""),),
+     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Blog content fetched successfully.","cause":"","data":{"total_record":9,"is_next_page":false,"result":{{"blog_id":23,"thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","compressed_img":"http://192.168.0.114/videoflyer_backend/image_bucket/compressed/5d1b4e68c98e2_blog_image_1562070632.jpg","original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","title":"{\"text_color\":\"#ff8040\",\"text_size\":16,\"text_value\":\"CONTENT OF THE WEEK | JUNE 28, 2019 \"}","subtitle":"{\"text_color\":\"#000000\",\"text_size\":36,\"text_value\":\"Share the love with the Beth Ellen font\"}","catalog_id":895,"is_active":1}}}}, description=""),),
      *        ),
      * 		@SWG\Response(
      *            response=201,
@@ -742,6 +752,7 @@ class BlogController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      * {
+     * "catalog_id":895,
      * "page":1,
      * "item_count":10
      * }
@@ -765,6 +776,7 @@ class BlogController extends Controller
      * "width": 256,
      * "title": "{\"text_color\":\"#000000\",\"text_size\":16,\"text_value\":\"test\"}",
      * "subtitle": "{\"text_color\":\"#000000\",\"text_size\":36,\"text_value\":\"subtitle\"}",
+     * "catalog_id":895,
      * "is_active": 1
      * }
      * ]
@@ -779,18 +791,18 @@ class BlogController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count','catalog_id'), $request)) != '')
                 return $response;
 
-
+            $this->catalog_id = $request->catalog_id;
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if (!Cache::has("pel:getBlogListByUser$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getBlogListByUser$this->page:$this->item_count", function () {
+            if (!Cache::has("pel:getBlogListByUser$this->page:$this->item_count:$this->catalog_id")) {
+                $result = Cache::rememberforever("getBlogListByUser$this->page:$this->item_count:$this->catalog_id", function () {
 
-                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ?', [1]);
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ? AND catalog_id = ? ', [1,$this->catalog_id]);
                     $total_row = $total_row_result[0]->total;
 
                     $result = DB::select('SELECT 
@@ -804,11 +816,13 @@ class BlogController extends Controller
                                           width,
                                           title,
                                           subtitle,
+                                          catalog_id,
                                           is_active
                                       FROM  blog_master 
-                                      WHERE is_active = ?
+                                      WHERE is_active = ? AND
+                                      catalog_id =? 
                                       ORDER BY update_time DESC 
-                                      LIMIT ?, ?', [1, $this->offset, $this->item_count]);
+                                      LIMIT ?, ?', [1,$this->catalog_id, $this->offset, $this->item_count]);
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result);
@@ -816,7 +830,7 @@ class BlogController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getBlogListByUser$this->page:$this->item_count");
+            $redis_result = Cache::get("getBlogListByUser$this->page:$this->item_count:$this->catalog_id");
 
             if (!$redis_result) {
                 $redis_result = [];

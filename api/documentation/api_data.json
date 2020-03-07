@@ -73,12 +73,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"page\":1,\n\"item_count\":10\n}",
+          "content": "{\n\"catalog_id\":895,\n\"page\":1,\n\"item_count\":10\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Blog content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 10,\n\"is_next_page\": true,\n\"result\": [\n{\n\"blog_id\": 27,\n\"thumbnail_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/thumbnail/5d26bff8efadc_blog_image_1562820600.png\",\n\"compressed_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/compressed/5d26bff8efadc_blog_image_1562820600.png\",\n\"original_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/original/5d26bff8efadc_blog_image_1562820600.png\",\n\"webp_original_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/webp_original/5d26bff8efadc_blog_image_1562820600.png\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/webp_thumbnail/5d26bff8efadc_blog_image_1562820600.png\",\n\"height\": 256,\n\"width\": 256,\n\"title\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"test\\\"}\",\n\"subtitle\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"subtitle\\\"}\",\n\"is_active\": 1\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Blog content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 10,\n\"is_next_page\": true,\n\"result\": [\n{\n\"blog_id\": 27,\n\"thumbnail_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/thumbnail/5d26bff8efadc_blog_image_1562820600.png\",\n\"compressed_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/compressed/5d26bff8efadc_blog_image_1562820600.png\",\n\"original_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/original/5d26bff8efadc_blog_image_1562820600.png\",\n\"webp_original_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/webp_original/5d26bff8efadc_blog_image_1562820600.png\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/webp_thumbnail/5d26bff8efadc_blog_image_1562820600.png\",\n\"height\": 256,\n\"width\": 256,\n\"title\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"test\\\"}\",\n\"subtitle\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"subtitle\\\"}\",\n\"catalog_id\":895,\n\"is_active\": 1\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -160,7 +160,7 @@
         },
         {
           "title": "Request-Body:",
-          "content": "request_data:{\n\"title\":\"test\", //compulsory\n\"subtitle\":\"demo\", //compulsory\n\"blog_data\":\"<p></p>\" //compulsory\n}\nfile:ob.jpg //compulsory",
+          "content": "request_data:{\n\"catalog_id\":895,//compulsory\n\"title\":\"test\", //compulsory\n\"subtitle\":\"demo\", //compulsory\n\"blog_data\":\"<p></p>\" //compulsory\n}\nfile:ob.jpg //compulsory",
           "type": "json"
         },
         {
@@ -218,12 +218,12 @@
         },
         {
           "title": "Request-Body:",
-          "content": "{\n\"page\":1,\n\"item_count\":10\n}",
+          "content": "{\n\"catalog_id\":895,\n\"page\":1,\n\"item_count\":10\n}",
           "type": "json"
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Blog content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 9,\n\"is_next_page\": false,\n\"result\": [\n{\n\"blog_id\": 26,\n\"fg_image\": \"5d26bbe50f627_blog_image_1562819557.png\",\n\"thumbnail_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/thumbnail/5d26bbe50f627_blog_image_1562819557.png\",\n\"compressed_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/compressed/5d26bbe50f627_blog_image_1562819557.png\",\n\"original_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/original/5d26bbe50f627_blog_image_1562819557.png\",\n\"webp_original_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/webp_original/5d26bbe50f627_blog_image_1562819557.png\",\n\"webp_thumbnail_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/webp_thumbnail/5d26bbe50f627_blog_image_1562819557.png\",\n\"title\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"test\\\"}\",\n\"subtitle\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"test\\\"}\",\n\"blog_json\": \"{\\\"title\\\":{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"test\\\"},\\\"subtitle\\\":{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"test\\\"},\\\"blog_data\\\":\\\"test<style>.sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, \\\\\\\"Segoe UI\\\\\\\", Roboto, \\\\\\\"Helvetica Neue\\\\\\\", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}<\\\\/style><script>function OpenTemplate(templateID) { alert(\\\\\\\"OpenTemplate - \\\\\\\" + templateID); } function searchTemplate(searchTag) { alert(\\\\\\\"searchTemplate - \\\\\\\" + searchTag); } <\\\\/script>\\\",\\\"fg_image\\\":\\\"5d26bbe50f627_blog_image_1562819557.png\\\"}\",\n\"is_active\": 1\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Blog content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 9,\n\"is_next_page\": false,\n\"result\": [\n{\n\"blog_id\": 26,\n\"fg_image\": \"5d26bbe50f627_blog_image_1562819557.png\",\n\"thumbnail_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/thumbnail/5d26bbe50f627_blog_image_1562819557.png\",\n\"compressed_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/compressed/5d26bbe50f627_blog_image_1562819557.png\",\n\"original_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/original/5d26bbe50f627_blog_image_1562819557.png\",\n\"webp_original_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/webp_original/5d26bbe50f627_blog_image_1562819557.png\",\n\"webp_thumbnail_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/webp_thumbnail/5d26bbe50f627_blog_image_1562819557.png\",\n\"title\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"test\\\"}\",\n\"subtitle\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"test\\\"}\",\n\"blog_json\": \"{\\\"title\\\":{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"test\\\"},\\\"subtitle\\\":{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"test\\\"},\\\"blog_data\\\":\\\"test<style>.sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, \\\\\\\"Segoe UI\\\\\\\", Roboto, \\\\\\\"Helvetica Neue\\\\\\\", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}<\\\\/style><script>function OpenTemplate(templateID) { alert(\\\\\\\"OpenTemplate - \\\\\\\" + templateID); } function searchTemplate(searchTag) { alert(\\\\\\\"searchTemplate - \\\\\\\" + searchTag); } <\\\\/script>\\\",\\\"fg_image\\\":\\\"5d26bbe50f627_blog_image_1562819557.png\\\"}\",\n\"catalog_id\":895,\n\"is_active\": 1\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -2079,7 +2079,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Data fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 182,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d5644e1424_catalog_image_1502434884.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d5644e1424_catalog_image_1502434884.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d5644e1424_catalog_image_1502434884.png\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_verified\": 1,\n\"is_free\": 0,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Data fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"image_list\": [\n{\n\"img_id\": 182,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/598d5644e1424_catalog_image_1502434884.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/598d5644e1424_catalog_image_1502434884.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/598d5644e1424_catalog_image_1502434884.png\",\n\"is_json_data\": 0,\n\"json_data\": \"\",\n\"is_featured\": \"\",\n\"is_free\": 0,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]
@@ -4322,64 +4322,6 @@
   },
   {
     "type": "post",
-    "url": "addAnimationResources",
-    "title": "addAnimationResources",
-    "name": "addAnimationResources",
-    "group": "User",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"zip_file\":\"file.zip\" //compulsory\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Template uploaded successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "app/http/controllers/AdminController.php",
-    "groupTitle": "User"
-  },
-  {
-    "type": "post",
-    "url": "addAnimationResources1",
-    "title": "addAnimationResources1",
-    "name": "addAnimationResources1",
-    "group": "User",
-    "version": "1.0.0",
-    "success": {
-      "examples": [
-        {
-          "title": "Request-Header:",
-          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
-          "type": "json"
-        },
-        {
-          "title": "Request-Body:",
-          "content": "{\n\"video_file\":\"sample_video.mp4\" //compulsory\n\"file\":\"sample_image.jpg\" //compulsory\n\"json_file\":\"file.json\" //compulsory\n\"background_file\":\"image.jpg\" // any one = image,video and AE json file\n\"stickers\":\"[images.jpg]\" //select single or multiple images\n}",
-          "type": "json"
-        },
-        {
-          "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Template uploaded successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "app/http/controllers/AdminController.php",
-    "groupTitle": "User"
-  },
-  {
-    "type": "post",
     "url": "clearBadgeCountData",
     "title": "clearBadgeCountData",
     "name": "clearBadgeCountData",
@@ -4684,7 +4626,7 @@
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200,\n\"message\": \"Content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 135,\n\"is_next_page\": true,\n\"result\": [\n{\n\"img_id\": 3303,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"video_zip_file\": \"http://192.168.0.116/photo_editor_lab_backend/image_bucket/zip/5e29869af1aaf_video_file_1579779738.zip\", //if catalog belong to animated text\n\"resource_zip_file\": \"http://192.168.0.116/photo_editor_lab_backend/image_bucket/zip/5e29869af1e97_zip_file_1579779738.zip\",//if catalog belong to animated text\n\"is_verified\": 1,//if catalog belong to animated text\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n},\n{\n\"img_id\": 3304,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"video_zip_file\": \"http://192.168.0.116/photo_editor_lab_backend/image_bucket/zip/5e29869af1aaf_video_file_1579779738.zip\", //if catalog belong to animated text\n\"resource_zip_file\": \"http://192.168.0.116/photo_editor_lab_backend/image_bucket/zip/5e29869af1e97_zip_file_1579779738.zip\",//if catalog belong to animated text\n\"is_verified\": 1,//if catalog belong to animated text\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 135,\n\"is_next_page\": true,\n\"result\": [\n{\n\"img_id\": 3303,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb53019f81_normal_image_1550562608.jpg\",\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n},\n{\n\"img_id\": 3304,\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5c6bb530289e5_normal_image_1550562608.jpg\",\n\"is_featured\": \"\",\n\"is_free\": 1,\n\"is_portrait\": 0,\n\"search_category\": \"\"\n}\n]\n}\n}",
           "type": "json"
         }
       ]

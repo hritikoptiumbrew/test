@@ -101,3 +101,10 @@ CREATE TABLE corrupt_font_detail_master(
 	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
 	PRIMARY KEY(id)
 ) ENGINE = INNODB
+
+7) Photo_editor_lab : perform following query on database (7 February, 2020) For store catalog_id id
+-------------------------------------------------------------------------------------------------
+ALTER TABLE `blog_master` ADD `catalog_id` INT(11) NOT NULL AFTER `id`;
+
+ALTER TABLE  `blog_master`
+ADD CONSTRAINT `blog_master_ibfk_1` FOREIGN KEY (`catalog_id`) REFERENCES `catalog_master`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
