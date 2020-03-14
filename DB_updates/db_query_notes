@@ -136,4 +136,4 @@ ALTER TABLE `blog_master` ADD `platform` TINYINT(1) NOT NULL COMMENT '\"1=Androi
 
 10) Photo_editor_lab : perform following query on database (14 March, 2020) For store store platform type
 -------------------------------------------------------------------------------------------------
-ALTER TABLE `blog_master` CHANGE `platform` `platform` TINYINT(1) NOT NULL COMMENT '\"1=Android,2=IOS3=Both\"';
+ALTER TABLE `blog_master` CHANGE `platform` `platform` TINYINT(1) NOT NULL COMMENT '\"1=Android,2=IOS,3=Both\"';
