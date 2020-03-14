@@ -133,3 +133,4 @@ ALTER TABLE  `blog_master`
 ADD CONSTRAINT `blog_master_ibfk_1` FOREIGN KEY (`catalog_id`) REFERENCES `catalog_master`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `blog_master` ADD `platform` TINYINT(1) NOT NULL COMMENT '\"1=Android,2=IOS\"' AFTER `is_active`;
+ALTER TABLE `blog_master` CHANGE `platform` `platform` TINYINT(1) NOT NULL COMMENT '\"1=Android,2=IOS3=Both\"';
