@@ -59,8 +59,9 @@ class BlogController extends Controller
      *          type="string",
      *          description="Give title, subtitle, blog_data in json object",
      *         @SWG\Schema(
-     *              required={"catalog_id","title","subtitle","blog_data"},
+     *              required={"catalog_id","platform","title","subtitle","blog_data"},
      *              @SWG\Property(property="catalog_id",  type="integer", example="895", description=""),
+     *              @SWG\Property(property="platform",  type="integer", example="1", description="1=Android,2=Ios,3=Both"),
      *              @SWG\Property(property="title",  type="string", example="Title description", description=""),
      *              @SWG\Property(property="subtitle",  type="string", example="Subtitle description", description=""),
      *              @SWG\Property(property="blog_data",  type="object", example={}, description="blog json"),
@@ -124,13 +125,11 @@ class BlogController extends Controller
 
             $request = json_decode($request_body->input('request_data'));
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('title', 'subtitle', 'blog_data'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id','platform','title', 'subtitle', 'blog_data'), $request)) != '')
                 return $response;
 
-//            $catalog_id = $request->catalog_id;
-            $catalog_id = 894;
-//            $platform = $request->platform;
-            $platform = 2;
+            $catalog_id = $request->catalog_id;
+            $platform = $request->platform;
             $title = $request->title;
             $subtitle = $request->subtitle;
             $blog_data = $request->blog_data;
@@ -211,8 +210,9 @@ class BlogController extends Controller
      *          type="string",
      *          description="Give blog_id,fg_image,title, subtitle, blog_data in json object",
      *         @SWG\Schema(
-     *              required={"blog_id","fg_image","title","subtitle","blog_data"},
+     *              required={"blog_id","platform","fg_image","title","subtitle","blog_data"},
      *              @SWG\Property(property="blog_id",  type="integer", example=1, description=""),
+     *              @SWG\Property(property="platform",  type="integer", example=1, description="1=Android,2=Ios,3=Both"),
      *              @SWG\Property(property="fg_image",  type="string", example="1.jpg", description=""),
      *              @SWG\Property(property="title",  type="string", example="Title description", description=""),
      *              @SWG\Property(property="subtitle",  type="string", example="Subtitle description", description=""),
@@ -250,6 +250,7 @@ class BlogController extends Controller
      * @apiSuccessExample Request-Body:
      * request_data:{
      * "blog_id":1,
+     * "platform":1,//1=Android,2=ios,3=both
      * "title":"test",
      * "subtitle":"demo",
      * "blog_data":"<p></p>"
@@ -275,13 +276,12 @@ class BlogController extends Controller
 
             $request = json_decode($request_body->input('request_data'));
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('blog_id', 'title', 'subtitle', 'blog_data', 'fg_image'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('blog_id','platform', 'title', 'subtitle', 'blog_data', 'fg_image'), $request)) != '')
                 return $response;
             $blog_img = NULL;
 
             $title = $request->title;
-//           $platform = $request->platform;
-            $platform='';
+            $platform = $request->platform;
             $subtitle = $request->subtitle;
             $blog_data = $request->blog_data;
             $old_original_img = $request->fg_image;
@@ -534,6 +534,7 @@ class BlogController extends Controller
      * "subtitle": "{\"text_color\":\"#000000\",\"text_size\":36,\"text_value\":\"test\"}",
      * "blog_json": "{\"title\":{\"text_color\":\"#000000\",\"text_size\":16,\"text_value\":\"test\"},\"subtitle\":{\"text_color\":\"#000000\",\"text_size\":36,\"text_value\":\"test\"},\"blog_data\":\"test<style>.sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, \\\"Segoe UI\\\", Roboto, \\\"Helvetica Neue\\\", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}<\\/style><script>function OpenTemplate(templateID) { alert(\\\"OpenTemplate - \\\" + templateID); } function searchTemplate(searchTag) { alert(\\\"searchTemplate - \\\" + searchTag); } <\\/script>\",\"fg_image\":\"5d26bbe50f627_blog_image_1562819557.png\"}",
      * "catalog_id":895,
+     * "platform": 1,
      * "is_active": 1
      * }
      * ]
@@ -574,6 +575,7 @@ class BlogController extends Controller
                                           subtitle,
                                           blog_json,
                                           catalog_id,
+                                          platform,
                                           is_active
                                       FROM  blog_master 
                                       WHERE is_active = ? AND
@@ -727,8 +729,9 @@ class BlogController extends Controller
      *        in="body",
      *        name="request_body",
      *   	  @SWG\Schema(
-     *          required={"catalog_id","page","item_count"},
+     *          required={"catalog_id","platform","page","item_count"},
      *          @SWG\Property(property="catalog_id",  type="integer", example=895, description=""),
+     *          @SWG\Property(property="platform",  type="integer", example=1, description="1=android,2=ios"),
      *         @SWG\Property(property="page",  type="integer", example=1, description=""),
      *          @SWG\Property(property="item_count",  type="integer", example=4, description=""),
      *        ),
@@ -861,13 +864,13 @@ class BlogController extends Controller
      * - Users ------------------------------------------------------
      *
      * @SWG\Post(
-     *        path="/getBlogListByUser",
+     *        path="/getBlogContentByIdForUser",
      *        tags={"Users_blog"},
      *        security={
      *                  {"Bearer": {}},
      *                 },
-     *        operationId="getBlogListByUser",
-     *        summary="getBlogListByUser",
+     *        operationId="getBlogContentByIdForUser",
+     *        summary="getBlogContentByIdForUser",
      *        produces={"application/json"},
      * 		@SWG\Parameter(
      *        in="header",
@@ -880,9 +883,8 @@ class BlogController extends Controller
      *        in="body",
      *        name="request_body",
      *   	  @SWG\Schema(
-     *          required={"page","item_count"},
-     *          @SWG\Property(property="page",  type="integer", example=1, description=""),
-     *          @SWG\Property(property="item_count",  type="integer", example=4, description=""),
+     *          required={"blog_id"},
+     *          @SWG\Property(property="blog_id",  type="integer", example=1, description=""),
      *        ),
      *      ),
      * 		@SWG\Response(
