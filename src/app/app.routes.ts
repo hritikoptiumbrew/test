@@ -45,5 +45,5 @@ export const AppRoutes = [
     { path: 'admin/admob-ads', component: AdmobAdsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/search-tags', component: SearchTagsComponent, canActivate: [AuthenticationService] },
     { path: 'admin/statistics', component: StatisticsComponent, canActivate: [AuthenticationService] },
-    { path: 'admin/blog-list', component: BlogListComponent, canActivate: [AuthenticationService] },
+    { path: 'admin/blog-list/:categoryId/:subCategoryName/:subCategoryId/:catalogName/:catalogId', component: BlogListComponent, canActivate: [AuthenticationService] },
 ]

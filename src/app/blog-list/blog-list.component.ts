@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { DataService } from 'app/data.service';
 import { LoadingComponent } from 'app/loading/loading.component';
 import { MdDialog, MdSnackBar, MdSnackBarConfig } from '@angular/material';
@@ -23,10 +23,10 @@ export class BlogListComponent implements OnInit {
   loading: any;
   itemsPerPageArray: any[];
   showPagination: boolean = true;
+  catalogId: any;
 
-  constructor(private router: Router, private dataService: DataService, public dialog: MdDialog, public snackBar: MdSnackBar) {
+  constructor(public route: ActivatedRoute, private router: Router, private dataService: DataService, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.loading = this.dialog.open(LoadingComponent);
-    this.getAllBlogs();
     this.itemsPerPageArray = [
       { 'itemPerPageValue': '25', 'itemPerPageName': '25' },
       { 'itemPerPageValue': '50', 'itemPerPageName': '50' },
@@ -38,7 +38,14 @@ export class BlogListComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    this.route.params
+      .subscribe(params => {
+        // this.subCategoryName = params['subCategoryName'];
+        // this.subCategoryId = params['subCategoryId'];
+        // this.categoryId = params['categoryId'];
+        this.catalogId = params['catalogId'];
+        this.getAllBlogs();
+      });
   }
 
   pageChanged(event) {
@@ -57,6 +64,7 @@ export class BlogListComponent implements OnInit {
     this.token = localStorage.getItem('photoArtsAdminToken');
     this.dataService.postData('getBlogContent',
       {
+        "catalog_id": this.catalogId,
         "page": this.currentPage,
         "item_count": this.itemsPerPage
       }, {
@@ -138,12 +146,12 @@ export class BlogListComponent implements OnInit {
     });
   }
 
-  ivkAddBlg(platform) {
+  ivkAddBlg() {
     let dialogRef = this.dialog.open(AddOrUpdateBlogComponent, {
       disableClose: true,
       panelClass: 'add-blg-dialog',
     });
-    dialogRef.componentInstance.platform = platform;
+    dialogRef.componentInstance.catalog_id = this.catalogId;
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
         this.getAllBlogs();

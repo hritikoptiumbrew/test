@@ -205,6 +205,9 @@ export class CatalogsGetComponent implements OnInit {
     else if (this.categoryId == 4) {
       this.router.navigate(['/admin/fonts/', this.categoryId, this.subCategoryName, this.subCategoryId, catalog.name, catalog.catalog_id]);
     }
+    else if (this.categoryId == 7) {
+      this.router.navigate(['/admin/blog-list/', this.categoryId, this.subCategoryName, this.subCategoryId, catalog.name, catalog.catalog_id]);
+    }
     else {
       this.router.navigate(['/admin/categories/', this.categoryId, this.subCategoryName, this.subCategoryId, catalog.name, catalog.catalog_id]);
     }
