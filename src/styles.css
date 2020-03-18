@@ -1290,6 +1290,10 @@ img {
     width: 100%;
 }
 
+.note-frame * {
+    text-indent: 0 !important;
+}
+
 .font-input-wrappr {
     display: inline-block;
     max-width: calc(100% - 300px);
