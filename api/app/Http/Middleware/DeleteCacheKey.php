@@ -173,6 +173,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //searchCardsBySubCategoryId
+                $keys = Redis::keys('pel:searchCardsBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
                 //getFeaturedTemplatesWithWebp
                 $keys = Redis::keys('pel:getFeaturedTemplatesWithWebp*');
                 foreach ($keys as $key) {

@@ -2764,7 +2764,7 @@ class AdminController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllSubCategoryToLinkTemplate : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("getAllSubCategoryToMoveTemplate : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' get all sub category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
