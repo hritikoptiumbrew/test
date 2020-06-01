@@ -7,23 +7,26 @@
   <div class="pl-0 pr-0 left-nav-style h-100">
     <app-navigation></app-navigation>
   </div>
-  <div class="p-3 div-scroll main-container-style">  
+  <div class="p-3 div-scroll main-container-style">
     <div class="cst-panel">
       <div class="cst-panel-title row">
         <div class="col-md-12 px-0">
           <h5 class="pull-right m-0 pt-1">Total Records : {{total_record}}</h5>
         </div>
       </div>
-      <div class="cst-panel-body">      
-          <div class="col-sm-12 text-right">
-            <a md-raised-button class="btn mt-1 mb-1 title-bar" style="font-weight: bold;" (click)="ivkAddBlg('android')">
+      <div class="cst-panel-body">
+        <div class="col-sm-12 text-right">
+          <a md-raised-button class="btn mt-1 mb-1 title-bar" style="font-weight: bold;" (click)="ivkAddBlg()">
+            <i class="fa fa-book" style="font-size: 30px; padding-right:8px;"></i>
+            Add Blog</a>
+          <!-- <a md-raised-button class="btn mt-1 mb-1 title-bar" style="font-weight: bold;" (click)="ivkAddBlg('android')">
               <i class="fa fa-android" style="font-size: 30px; padding-right:8px;"></i>
               Add Blog</a>
             <a md-raised-button class="btn mt-1 mb-1 mr-1 title-bar" style="font-weight: bold;" (click)="ivkAddBlg('ios')">
               <i class="fa fa-apple" style="font-size: 30px; padding-right:3px;"></i>
-              Add Blog</a>
+              Add Blog</a> -->
         </div>
-        <div class="row pr-3 py-2 tbl-style-subcategory scroll" >
+        <div class="row pr-3 py-2 tbl-style-subcategory scroll">
           <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 pr-0" *ngFor="let blog of blog_list">
             <div class="col-12 pl-0 pr-0 background-card card card-1 text-center">
               <div class="card-img-wrap">
@@ -34,11 +37,10 @@
                 <div class="col-12 pl-0 pr-0">
                   <a title="Update">
                     <i class="fa fa-edit font-23 text-warning align-text-bottom cursor-pointer"
-                    (click)="ivkUpdateBlg(blog)"></i>
+                      (click)="ivkUpdateBlg(blog)"></i>
                   </a>
                   <a title="Delete">
-                    <i class="fa fa-trash-o font-24 text-danger cursor-pointer"
-                    (click)="ivkDelBlg(blog)"></i>
+                    <i class="fa fa-trash-o font-24 text-danger cursor-pointer" (click)="ivkDelBlg(blog)"></i>
                   </a>
                   <a title="Move to first" class="cursor-pointer mr-2" (click)="moveToFirst(blog)">
                     <svg class="action-btn" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">

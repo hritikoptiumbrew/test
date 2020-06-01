@@ -23,6 +23,18 @@
         </div>
       </div>
       <div class="d-inline-block pl-3" style="width: calc(100% - 160px);">
+        <div class="col-12 p-0 pr-3">
+          <div class="input-group mb-2" style="border: 1px solid #e9ecef;">
+            <div class="input-group-prepend mr-3">
+              <span class="input-group-text font-weight-bold" id="basic-addon1">Blog Appear In : </span>
+            </div>
+            <md-radio-group [(ngModel)]="platform" (change)="changePlatform()">
+              <md-radio-button value="android" class="mt-1 mb-1 mr-4">Android</md-radio-button>
+              <md-radio-button value="ios" class="mt-1 mb-1 mr-4"> IOS </md-radio-button>
+              <md-radio-button value="both" class="mt-1 mb-1">Both</md-radio-button>
+            </md-radio-group>
+          </div>
+        </div>
         <div class="col-6 p-0 float-left pr-3">
           <div class="input-group mb-2">
             <div class="input-group-prepend">
@@ -47,7 +59,7 @@
             <input type="number" class="form-control clr-inpt" [(ngModel)]="blog_data.subtitle.text_size">
           </div>
         </div>
-        <div class="col-12 px-0 d-flex">
+        <div class="col-12 px-0 d-flex" *ngIf="platform == 'android' || platform == 'ios'">
           <div class="d-inline-block align-top w-50">
             <div class="border-1-d9" style="background: #e9ecef;">
               <label for="sttcBtn" class="font-weight-500 mb-0 ml-2">Open Template button</label>

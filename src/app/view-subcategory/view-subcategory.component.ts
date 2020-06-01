@@ -10,6 +10,7 @@ import { AddJsonImagesComponent } from '../add-json-images/add-json-images.compo
 import { AddJsonDataComponent } from '../add-json-data/add-json-data.component';
 import { UpdateJsonDataComponent } from '../update-json-data/update-json-data.component';
 import { MvToCtlgComponent } from '../mv-to-ctlg/mv-to-ctlg.component';
+import { AddOrUpdateBlogComponent } from 'app/add-or-update-blog/add-or-update-blog.component';
 
 @Component({
   selector: 'app-view-subcategory',
@@ -55,35 +56,35 @@ export class ViewSubcategoryComponent implements OnInit {
     this.token = localStorage.getItem('photoArtsAdminToken');
     this.dataService.postData('getAllTags',
       {}, {
-        headers: {
-          'Authorization': 'Bearer ' + this.token
-        }
-      }).subscribe(results => {
-        if (results.code == 200) {
-          this.search_tag_list = results.data.result;
-          localStorage.setItem("search_tag_list", JSON.stringify(this.search_tag_list));
-          this.loading.close();
-          this.errorMsg = "";
-        }
-        else if (results.code == 400) {
-          this.loading.close();
-          localStorage.removeItem("photoArtsAdminToken");
-          this.router.navigate(['/admin']);
-        }
-        else if (results.code == 401) {
-          this.token = results.data.new_token;
-          localStorage.setItem("photoArtsAdminToken", this.token);
-          this.getAllSearchTags();
-        }
-        else {
-          this.loading.close();
-          this.successMsg = "";
-          this.errorMsg = results.message;
-        }
-      }, error => {
-        /* console.log(error.status); */
-        /* console.log(error); */
-      });
+      headers: {
+        'Authorization': 'Bearer ' + this.token
+      }
+    }).subscribe(results => {
+      if (results.code == 200) {
+        this.search_tag_list = results.data.result;
+        localStorage.setItem("search_tag_list", JSON.stringify(this.search_tag_list));
+        this.loading.close();
+        this.errorMsg = "";
+      }
+      else if (results.code == 400) {
+        this.loading.close();
+        localStorage.removeItem("photoArtsAdminToken");
+        this.router.navigate(['/admin']);
+      }
+      else if (results.code == 401) {
+        this.token = results.data.new_token;
+        localStorage.setItem("photoArtsAdminToken", this.token);
+        this.getAllSearchTags();
+      }
+      else {
+        this.loading.close();
+        this.successMsg = "";
+        this.errorMsg = results.message;
+      }
+    }, error => {
+      /* console.log(error.status); */
+      /* console.log(error); */
+    });
   }
 
   pageChanged(event) {
@@ -98,38 +99,38 @@ export class ViewSubcategoryComponent implements OnInit {
       {
         "catalog_id": this.catalogId
       }, {
-        headers: {
-          'Authorization': 'Bearer ' + this.token
-        }
-      }).subscribe(results => {
-        if (results.code == 200) {
-          this.sub_category_list = results.data.image_list;
-          this.total_record = this.sub_category_list.length;
-          this.sub_category_name = results.data.category_name;
-          this.errorMsg = "";
-          this.successMsg = results.message;
-          this.loading.close();
-          this.getAllSearchTags();
-        }
-        else if (results.code == 400) {
-          this.loading.close();
-          localStorage.removeItem("photoArtsAdminToken");
-          this.router.navigate(['/admin']);
-        }
-        else if (results.code == 401) {
-          this.token = results.data.new_token;
-          localStorage.setItem("photoArtsAdminToken", this.token);
-          this.getAllCategories();
-        }
-        else {
-          this.loading.close();
-          this.successMsg = "";
-          this.errorMsg = results.message;
-        }
-      }, error => {
-        /* console.log(error.status); */
-        /* console.log(error); */
-      });
+      headers: {
+        'Authorization': 'Bearer ' + this.token
+      }
+    }).subscribe(results => {
+      if (results.code == 200) {
+        this.sub_category_list = results.data.image_list;
+        this.total_record = this.sub_category_list.length;
+        this.sub_category_name = results.data.category_name;
+        this.errorMsg = "";
+        this.successMsg = results.message;
+        this.loading.close();
+        this.getAllSearchTags();
+      }
+      else if (results.code == 400) {
+        this.loading.close();
+        localStorage.removeItem("photoArtsAdminToken");
+        this.router.navigate(['/admin']);
+      }
+      else if (results.code == 401) {
+        this.token = results.data.new_token;
+        localStorage.setItem("photoArtsAdminToken", this.token);
+        this.getAllCategories();
+      }
+      else {
+        this.loading.close();
+        this.successMsg = "";
+        this.errorMsg = results.message;
+      }
+    }, error => {
+      /* console.log(error.status); */
+      /* console.log(error); */
+    });
   }
 
   viewSubCategory(category) {
@@ -152,6 +153,16 @@ export class ViewSubcategoryComponent implements OnInit {
     });
   }
 
+  addBlogs() {
+    let dialogRef = this.dialog.open(AddOrUpdateBlogComponent);
+    // dialogRef.componentInstance.catalog_id = this.catalogId;
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        this.getAllCategories();
+      }
+    });
+  }
+
   addSubCategory() {
     let dialogRef = this.dialog.open(AddSubcategoryImagesByIdComponent);
     dialogRef.componentInstance.catalog_id = this.catalogId;
@@ -167,32 +178,32 @@ export class ViewSubcategoryComponent implements OnInit {
     this.dataService.postData('setContentRankOnTheTopByAdmin', {
       "img_id": category.img_id
     }, {
-        headers: {
-          'Authorization': 'Bearer ' + this.token
-        }
-      }).subscribe(results => {
-        if (results.code == 200) {
-          this.showSuccess(results.message, false);
-          this.getAllCategories();
-          this.errorMsg = "";
-          // this.loading.close();
-        }
-        else if (results.code == 400) {
-          this.loading.close();
-          localStorage.removeItem("photoArtsAdminToken");
-          this.router.navigate(['/admin']);
-        }
-        else if (results.code == 401) {
-          this.token = results.data.new_token;
-          this.loading.close();
-          localStorage.setItem("photoArtsAdminToken", this.token);
-          this.moveToFirst(category);
-        }
-        else {
-          this.loading.close();
-          this.showError(results.message, false);
-        }
-      });
+      headers: {
+        'Authorization': 'Bearer ' + this.token
+      }
+    }).subscribe(results => {
+      if (results.code == 200) {
+        this.showSuccess(results.message, false);
+        this.getAllCategories();
+        this.errorMsg = "";
+        // this.loading.close();
+      }
+      else if (results.code == 400) {
+        this.loading.close();
+        localStorage.removeItem("photoArtsAdminToken");
+        this.router.navigate(['/admin']);
+      }
+      else if (results.code == 401) {
+        this.token = results.data.new_token;
+        this.loading.close();
+        localStorage.setItem("photoArtsAdminToken", this.token);
+        this.moveToFirst(category);
+      }
+      else {
+        this.loading.close();
+        this.showError(results.message, false);
+      }
+    });
   }
 
   mvTCtlg(category) {
