@@ -48,8 +48,8 @@ class LoginController extends Controller
             if (($response = (new VerificationController())->verifyUser($email_id, $role_name)) != '')
                 return $response;
 
-//            if (($response = (new VerificationController())->checkIfUserIsActive($email_id)) != '')
-//                return $response;
+            if (($response = (new VerificationController())->checkIfUserIsActive($email_id)) != '')
+                return $response;
 
             $response = Response::json(array('code' => 200, 'message' => 'Login successfully.', 'cause' => '', 'data' => ['token' => $token]));
 

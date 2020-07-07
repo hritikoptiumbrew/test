@@ -178,22 +178,13 @@ class VerificationController extends Controller
     public function verifyUser($email_id, $role_name)
     {
         try {
-            $result = DB::select('SELECT r.name,um.is_active
+            $result = DB::select('SELECT r.name
                                   FROM role_user ru, roles r, user_master um
                                   WHERE r.id = ru.role_id AND
                                         um.id = ru.user_id AND
                                         um.email_id = ?', [$email_id]);
+            $response = (sizeof($result) > 0 && $result[0]->name == $role_name) ? '' : Response::json(array('code' => 201, 'message' => 'Unauthorized user.', 'cause' => '', 'data' => json_decode("{}")));
 
-            if(count($result) > 0 && $result[0]->name != $role_name){
-               $response = Response::json(array('code' => 201, 'message' => 'Unauthorized user.', 'cause' => '', 'data' => json_decode("{}")));
-            }elseif (count($result) > 0 && $result[0]->is_active != '1'){
-                $response = Response::json(array('code' => 201, 'message' => 'You are inactive user. Please contact to administrator.', 'cause' => '', 'data' => json_decode("{}")));
-            }elseif (count($result) == 0){
-                $response = Response::json(array('code' => 201, 'message' => 'Invalid email id or password.', 'cause' => '', 'data' => json_decode("{}")));
-            }else{
-                $response = "";
-            }
-//            $response = (sizeof($result) > 0 && $result[0]->name == $role_name) ? '' : Response::json(array('code' => 201, 'message' => 'Unauthorized user.', 'cause' => '', 'data' => json_decode("{}")));
         } catch (Exception $e) {
             Log::error("verifyUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'verify user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
