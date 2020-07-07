@@ -87,5 +87,6 @@ return [
     */
     //cut paste photo editor
     'prefix' => 'pel',
+    'ttl' => 60,
 
 ];
