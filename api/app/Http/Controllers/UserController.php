@@ -1333,8 +1333,9 @@ class UserController extends Controller
                     $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
 
                     if ($this->catalog_id == 0) {
-
-                        $total_row_result = DB::select('SELECT COUNT(*) AS total
+                        if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp$this->catalog_id:$this->sub_category_id:$this->last_sync_date")) {
+                            $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp$this->catalog_id:$this->sub_category_id:$this->last_sync_date", function () {
+                                $total_row_result = DB::select('SELECT COUNT(*) AS total
                                                             FROM images
                                                             WHERE 
                                                               catalog_id IN (SELECT catalog_id
@@ -1342,7 +1343,9 @@ class UserController extends Controller
                                                                              WHERE sub_category_id = ?) AND 
                                                               is_featured = 1 AND 
                                                               updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
-                        $total_row = $total_row_result[0]->total;
+                                return $total_row_result[0]->total;
+                            });
+                        }
                         $result = DB::select('SELECT
                                               id AS json_id,
                                               '. $image_url .'
@@ -1364,9 +1367,13 @@ class UserController extends Controller
                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
                     } else {
+                        if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp$this->catalog_id:$this->sub_category_id:$this->last_sync_date")) {
+                            $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp$this->catalog_id:$this->sub_category_id:$this->last_sync_date", function () {
+                                $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
+                                return $total_row_result[0]->total;
+                            });
+                        }
 
-                        $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
-                        $total_row = $total_row_result[0]->total;
                         $result = DB::select('SELECT
                                                   id AS json_id,
                                                   '. $image_url .'
@@ -1386,7 +1393,7 @@ class UserController extends Controller
                                                   updated_at >= ?
                                                 ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
                     }
-
+                    $total_row = Cache::get("getJsonSampleDataWithLastSyncTime_webp$this->catalog_id:$this->sub_category_id:$this->last_sync_date");
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
 
@@ -2251,8 +2258,9 @@ class UserController extends Controller
                     $message = "Templates fetched successfully.";
 
                     if ($this->is_verified == 1) {
-
-                        $total_row_result = DB::select('SELECT count(*) as total
+                        if (!Cache::has("pel:searchCardsBySubCategoryId$this->sub_category_id:$this->search_category")) {
+                            $result = Cache::rememberforever("searchCardsBySubCategoryId$this->sub_category_id:$this->search_category", function () {
+                                $total_row_result = DB::select('SELECT count(*) as total
                                                                 FROM
                                                                 images as im,
                                                                 catalog_master AS cm,
@@ -2265,11 +2273,14 @@ class UserController extends Controller
                                                                 scc.sub_category_id = ? AND
                                                                 isnull(im.original_img) AND
                                                                 isnull(im.display_img) AND
-                                                                (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
-                                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE))
+                                                                (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
+                                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
                                                                 ', [$this->sub_category_id]);
 
-                        $total_row = $total_row_result[0]->total;
+                                return $total_row_result[0]->total;
+                            });
+                        }
+                        $total_row = Cache::get("searchCardsBySubCategoryId$this->sub_category_id:$this->search_category");
 
                         $search_result = DB::select('SELECT
                                                     DISTINCT im.id as json_id,
@@ -2302,9 +2313,10 @@ class UserController extends Controller
                     }
 
                     if (count($search_result) <= 0) {
+                        if (!Cache::has("pel:searchCardsBySubCategoryId$this->sub_category_id")) {
+                            $result = Cache::rememberforever("searchCardsBySubCategoryId$this->sub_category_id", function () {
 
-
-                        $total_row_result = DB::select('SELECT count(*) as total
+                                $total_row_result = DB::select('SELECT count(*) as total
                                                             FROM
                                                             images as im,
                                                             catalog_master AS cm,
@@ -2318,8 +2330,10 @@ class UserController extends Controller
                                                             isnull(im.original_img) AND
                                                             isnull(im.display_img)
                                                             ', [$this->sub_category_id]);
-
-                        $total_row = $total_row_result[0]->total;
+                                return $total_row_result[0]->total;
+                            });
+                        }
+                        $total_row = Cache::get("searchCardsBySubCategoryId$this->sub_category_id");
 
                         $search_result = DB::select('SELECT
                                                     DISTINCT im.id as json_id,
@@ -2534,7 +2548,9 @@ class UserController extends Controller
                                           MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) AND
                                           sct.is_active = 1  ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
                         }
-                        $total_row_result = DB::select('SELECT count(*) as total
+                        if (!Cache::has("pel:searchNormalImagesBySubCategoryId$this->sub_category_id:$this->search_category")) {
+                            $result = Cache::rememberforever("searchNormalImagesBySubCategoryId$this->sub_category_id:$this->search_category", function () {
+                                $total_row_result = DB::select('SELECT count(*) as total
                                                                 FROM
                                                                 images as im,
                                                                 catalog_master AS cm,
@@ -2547,11 +2563,13 @@ class UserController extends Controller
                                                                 scc.sub_category_id = ? AND
                                                                 isnull(im.original_img) AND
                                                                 isnull(im.display_img) AND
-                                                                (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
-                                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE))
+                                                                (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
+                                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
                                                                 ', [$this->sub_category_id]);
-
-                        $total_row = $total_row_result[0]->total;
+                                      return $total_row_result[0]->total;
+                            });
+                        }
+                        $total_row = Cache::get("searchNormalImagesBySubCategoryId$this->sub_category_id:$this->search_category");
 
                         $search_result = DB::select('SELECT
                                                     DISTINCT im.id AS img_id,
@@ -5228,7 +5246,9 @@ class UserController extends Controller
 
                     $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
 
-                    $total_row_result = DB::select('SELECT
+                    if (!Cache::has("pel:getContentByCatalogId$this->catalog_id")) {
+                        $result = Cache::rememberforever("getContentByCatalogId$this->catalog_id", function () {
+                            $total_row_result = DB::select('SELECT
                                                       count(im.id) as total
                                                     FROM
                                                       images as im
@@ -5237,8 +5257,10 @@ class UserController extends Controller
                                                       im.catalog_id = ? AND
                                                       isnull(im.original_img) AND
                                                       isnull(im.display_img)', [$this->catalog_id]);
-
-                    $total_row = $total_row_result[0]->total;
+                               return $total_row_result[0]->total;
+                        });
+                    }
+                    $total_row = Cache::get("getContentByCatalogId$this->catalog_id");
 
                     $content_list = DB::select('SELECT
                                                   im.id as img_id,
@@ -5612,7 +5634,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllFontsByCatalogId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("getCorruptedFontList : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;

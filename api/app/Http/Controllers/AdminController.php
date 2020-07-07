@@ -1477,11 +1477,29 @@ class AdminController extends Controller
                 $result = Cache::rememberforever("getCatalogBySubCategoryId$this->sub_category_id", function () {
 
                     //sub Category Name
-                    $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
+                    if (!Cache::has("pel:getCatalogBySubCategoryId$this->sub_category_id:1")) {
+                        $result = Cache::rememberforever("getCatalogBySubCategoryId$this->sub_category_id:1", function () {
+                            $name = DB::select('SELECT
+                                                   COUNT(scc.id) as total,
+                                                   sc.name 
+                                                FROM
+                                                   sub_category_catalog as scc,
+                                                   sub_category as sc 
+                                                WHERE
+                                                  sc.id = scc.sub_category_id AND 
+                                                  scc.sub_category_id = ? AND 
+                                                  scc.is_active = ?
+                                                GROUP BY
+                                                   sc.name  ', [$this->sub_category_id, 1]);
+                            return $name;
+                        });
+                    }
+                    $name = Cache::get("getCatalogBySubCategoryId$this->sub_category_id:1");
+//                    $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
                     $category_name = $name[0]->name;
 
-                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
-                    $total_row = $total_row_result[0]->total;
+//                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
+                    $total_row = $name[0]->total;
 
                     $result = DB::select('SELECT
                                         ct.id as catalog_id,
