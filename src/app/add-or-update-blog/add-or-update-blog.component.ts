@@ -4,7 +4,7 @@ import { DataService } from 'app/data.service';
 import { Router } from '@angular/router';
 import { LoadingComponent } from 'app/loading/loading.component';
 import { ERROR } from 'app/app.constants';
-
+declare var $: any;
 @Component({
   selector: 'app-add-or-update-blog',
   templateUrl: './add-or-update-blog.component.html',
@@ -70,6 +70,14 @@ export class AddOrUpdateBlogComponent implements OnInit {
           lineNumbers: true,
           mode: 'text/html'
         },
+        fontNames: [
+          'Arial', 'Arial Black', 'Comic Sans MS', 'Courier New',
+          'Helvetica Neue', 'Helvetica', 'Impact', 'Lucida Grande',
+          'Tahoma', 'Times New Roman', 'Verdana', 'Azo Sans'
+        ],
+        //'font-family': 'Azo Sans',
+        fontSizes: ['8', '9', '10', '11', '12', '14', '18', '24', '36', '48', '64', '82', '150', "152", "154", "156", "158", "160", "162", "164", "166", "168", "170", "172", "174", "176", "178", "180", "182", "184", "186", "188", "190", "192", "194", "196", "198", "200"],
+        fontNamesIgnoreCheck: ['Azo Sans'],
         toolbar: [
           ['fontsize', ['fontsize']],
           ['color', ['color']],
@@ -80,8 +88,21 @@ export class AddOrUpdateBlogComponent implements OnInit {
           ['table', ['table']],
           ['insert', ['link', 'picture', 'hr']],
           ['view', ['fullscreen', 'codeview']],
-          ['help', ['help']]
-        ]
+          ['help', ['help']],
+          ['mybutton', ['ClearFormat']]
+        ],
+        buttons: {
+          ClearFormat: function (context) {
+            var ui = $.summernote.ui;
+            var button = ui.button({
+              contents: '<i class="fa fa-retweet"/>  Clear Formating',
+              click: function () {
+                $("#summernote").summernote("removeFormat");
+              }
+            })
+            return button.render();
+          }
+        }
       });
       if (that.data) {
         $('#summernote').summernote('code', that.blog_data.blog_data);
@@ -166,7 +187,7 @@ export class AddOrUpdateBlogComponent implements OnInit {
         "catalog_id": this.catalog_id,
         "title": blog_data.title,
         "subtitle": blog_data.subtitle,
-        "blog_data": this.getCode('#summernote')
+        "blog_data": "<body>" + this.getCode('#summernote') + "</body>"
       };
       this.formData.append('request_data', JSON.stringify(request_data));
       this.dataService.postData('addBlogContent', this.formData,
@@ -304,7 +325,4 @@ export class AddOrUpdateBlogComponent implements OnInit {
       this.addBlog(blog_data);
     }
   }
-
-
-
 }
