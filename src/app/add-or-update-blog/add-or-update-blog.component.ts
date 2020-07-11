@@ -24,14 +24,17 @@ export class AddOrUpdateBlogComponent implements OnInit {
   catalog_id: any;
   openTmpltBtn: any;
   srcTmpltBtn: any;
+
+
+  globalStyle: any = '<style>body{padding: 10px; text-indent: 0px !important;} span{text-indent: 0px !important} p{margin: 0 !important; text-indent: 0px !important;} table { border: none;margin: 0 !important;width: 100%;} .sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}</style>';
+  
   @ViewChild('fileInput') fileInputElement: ElementRef;
 
   constructor(public dialogRef: MdDialogRef<AddOrUpdateBlogComponent>, @Inject(MD_DIALOG_DATA) public data: any, private dataService: DataService, private router: Router, private renderer: Renderer, public dialog: MdDialog, public snackBar: MdSnackBar) {
-    console.log('blog constructor');
     this.token = localStorage.getItem('photoArtsAdminToken');
     if (data) {
-      this.openTmpltBtn = '<br><style>body{padding: 10px;} p{margin: 0 !important;} table { border: none;margin: 0 !important;width: 100%;} .sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}</style><button class="sttc-button" onclick="OpenTemplate(' + "'10'" + ')">Open Template</button><br><br>';
-      this.srcTmpltBtn = '<br><style>body{padding: 10px;} p{margin: 0 !important;} table { border: none;margin: 0 !important;width: 100%;} .sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}</style><button class="sttc-button" onclick="searchTemplate(' + "'illustration'" + ')">Search Template</button><br><br>';
+      this.openTmpltBtn = '<br>' + this.globalStyle + '<button class="sttc-button" onclick="OpenTemplate(' + "'10'" + ')">Open Template</button><br><br>';
+      this.srcTmpltBtn = '<br>' + this.globalStyle + '<button class="sttc-button" onclick="searchTemplate(' + "'illustration'" + ')">Search Template</button><br><br>';
       this.blog_data = {
         "title": { "text_color": "#ffffff" },
         "subtitle": { "text_color": "#ffffff" }
@@ -90,7 +93,7 @@ export class AddOrUpdateBlogComponent implements OnInit {
           ['insert', ['link', 'picture', 'hr']],
           ['view', ['fullscreen', 'codeview']],
           ['help', ['help']],
-          ['mybutton', ['ClearFormat']]
+          ['mybutton', ['ClearFormat', 'refreshStyle']]
         ],
         buttons: {
           ClearFormat: function (context) {
@@ -102,6 +105,16 @@ export class AddOrUpdateBlogComponent implements OnInit {
               }
             })
             return button.render();
+          },
+          refreshStyle: function(context) {
+            var ui = $.summernote.ui;
+            var button = ui.button({
+              contents: '<i class="fa fa-refresh"/>  Refresh Style',
+              click: function () {
+                that.updateStyle();
+              }
+            })
+            return button.render();
           }
         }
       });
@@ -109,16 +122,22 @@ export class AddOrUpdateBlogComponent implements OnInit {
         $('#summernote').summernote('code', that.blog_data.blog_data);
       } else {
         if (that.platform == 'android') {
-          $('#summernote').summernote('code', '<style>body{padding: 10px;} p{margin: 0 !important;} table { border: none;margin: 0 !important;width: 100%;} .sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}</style><script>function OpenTemplate(templateID) { if(templateID){ Android.moveToNextScreen(templateID); } } function searchTemplate(searchTag) { Android.goToSearchScreen(searchTag);} </script>');
+          $('#summernote').summernote('code', that.globalStyle + '<script>function OpenTemplate(templateID) { if(templateID){ Android.moveToNextScreen(templateID); } } function searchTemplate(searchTag) { Android.goToSearchScreen(searchTag);} </script>');
         }
         else if (this.platform == 'ios') {
-          $('#summernote').summernote('code', '<style>body{padding: 10px;} p{margin: 0 !important;} table { border: none;margin: 0 !important;width: 100%;} .sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}</style><script> function OpenTemplate(templateID) { if(templateID){ window.location = "videoadking://?templateID="+ templateID } } function searchTemplate(searchTag) { window.location = "videoadking://?searchTag="+ searchTag} </script>');
+          $('#summernote').summernote('code', that.globalStyle + '<script> function OpenTemplate(templateID) { if(templateID){ window.location = "videoadking://?templateID="+ templateID } } function searchTemplate(searchTag) { window.location = "videoadking://?searchTag="+ searchTag} </script>');
         }
         else {
-          $('#summernote').summernote('code', '<style>body{padding: 10px;} p{margin: 0 !important;} table { border: none;margin: 0 !important;width: 100%;} .sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}</style><script> function OpenTemplate(templateID) { } function searchTemplate(searchTag) { } </script>');
+          $('#summernote').summernote('code', that.globalStyle + '<script> function OpenTemplate(templateID) { } function searchTemplate(searchTag) { } </script>');
         }
       }
     });
+  }
+
+  updateStyle(){
+    var fullCode = $('#summernote').summernote('code');
+    var content = fullCode.replace(/<style[^>]*>.*?<\/style>/gi, '');
+      $('#summernote').summernote('code', content + this.globalStyle);
   }
 
   changePlatform() {

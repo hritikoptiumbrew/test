@@ -154,6 +154,7 @@ export class BlogListComponent implements OnInit {
     dialogRef.componentInstance.catalog_id = this.catalogId;
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
+        this.loading = this.dialog.open(LoadingComponent);
         this.getAllBlogs();
       }
     });
@@ -167,6 +168,7 @@ export class BlogListComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
+        this.loading = this.dialog.open(LoadingComponent);
         this.getAllBlogs();
       }
     });
