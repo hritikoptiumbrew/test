@@ -25,7 +25,6 @@ export class AddOrUpdateBlogComponent implements OnInit {
   openTmpltBtn: any;
   srcTmpltBtn: any;
 
-
   globalStyle: any = '<style>body{padding: 10px; text-indent: 0px !important;} span{text-indent: 0px !important} p{margin: 0 !important; text-indent: 0px !important;} table { border: none;margin: 0 !important;width: 100%;} .sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}</style>';
   
   @ViewChild('fileInput') fileInputElement: ElementRef;
@@ -61,7 +60,7 @@ export class AddOrUpdateBlogComponent implements OnInit {
     let that = this;
     $(document).ready(function () {
       var testData = $('#summernote').summernote({
-        placeholder: 'Your HTML content...',
+        placeholder: 'Your HTML content here...',
         minHeight: null,
         maxHeight: null,
         disableResizeEditor: true,
