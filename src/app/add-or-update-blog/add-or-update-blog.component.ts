@@ -25,7 +25,7 @@ export class AddOrUpdateBlogComponent implements OnInit {
   openTmpltBtn: any;
   srcTmpltBtn: any;
 
-  globalStyle: any = '<style>body{padding: 10px; text-indent: 0px !important;} span{text-indent: 0px !important} p{margin: 0 !important; text-indent: 0px !important;} table { border: none;margin: 0 !important;width: 100%;} .sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}</style>';
+  globalStyle: any = '<style>body{padding: 5px; text-indent: 0px !important; font-size: 16px !important;} span{text-indent: 0px !important} p{margin: 0 !important; text-indent: 0px !important;} table { border: none;margin: 0 !important;width: 100%;} .sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}</style>';
   
   @ViewChild('fileInput') fileInputElement: ElementRef;
 
@@ -79,7 +79,7 @@ export class AddOrUpdateBlogComponent implements OnInit {
           'Tahoma', 'Times New Roman', 'Verdana', 'Azo Sans'
         ],
         //'font-family': 'Azo Sans',
-        fontSizes: ['8', '9', '10', '11', '12', '14', '18', '24', '36', '48', '64', '82', '150', "152", "154", "156", "158", "160", "162", "164", "166", "168", "170", "172", "174", "176", "178", "180", "182", "184", "186", "188", "190", "192", "194", "196", "198", "200"],
+        fontSizes: ['8', '9', '10', '11', '12', '14','15', '16', '17', '18', '24', '36', '48', '64', '82', '150', "152", "154", "156", "158", "160", "162", "164", "166", "168", "170", "172", "174", "176", "178", "180", "182", "184", "186", "188", "190", "192", "194", "196", "198", "200"],
         fontNamesIgnoreCheck: ['Azo Sans'],
         toolbar: [
           ['fontsize', ['fontsize']],
@@ -206,7 +206,7 @@ export class AddOrUpdateBlogComponent implements OnInit {
         "catalog_id": this.catalog_id,
         "title": blog_data.title,
         "subtitle": blog_data.subtitle,
-        "blog_data": "<body>" + this.getCode('#summernote') + "</body>"
+        "blog_data": "<body><meta name='viewport' content='width=device-width,initial-scale=1,maximum-scale=1'/>" + this.getCode('#summernote') + "</body>"
       };
       this.formData.append('request_data', JSON.stringify(request_data));
       this.dataService.postData('addBlogContent', this.formData,
