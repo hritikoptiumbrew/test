@@ -94,6 +94,13 @@ export class AddOrUpdateBlogComponent implements OnInit {
           ['help', ['help']],
           ['mybutton', ['ClearFormat', 'refreshStyle']]
         ],
+        popover: {
+          image: [
+            ['image', ['resizeFull', 'resize85','resize75', 'resize60', 'resizeHalf', 'resize40' , 'resizeQuarter', 'resizeNone']],
+            ['float', ['floatLeft', 'floatRight', 'floatNone']],
+            ['remove', ['removeMedia']]
+          ],
+        },
         buttons: {
           ClearFormat: function (context) {
             var ui = $.summernote.ui;
