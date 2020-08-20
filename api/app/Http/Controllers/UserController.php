@@ -2718,7 +2718,9 @@ class UserController extends Controller
                                           sct.is_active = 1
                                           ORDER BY FIELD(sct.sub_category_id,' . $this->default_sub_category_id . ')');
                         }
-                        $total_row_result = DB::select('SELECT count(*) as total
+                        $tempArr = array_unique(array_column($catalog_list, 'catalog_id'));
+                        $catalog_list = array_intersect_key($catalog_list, $tempArr);
+                        $total_row_result = DB::select('SELECT count(DISTINCT im.id) as total
                                                                 FROM
                                                                 images as im,
                                                                 catalog_master AS cm,
@@ -2763,6 +2765,8 @@ class UserController extends Controller
                                                     (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
                                                     MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE))
                                                    ORDER BY FIELD(scc.sub_category_id,' . $this->default_sub_category_id . ') LIMIT ?, ?', [$this->offset, $this->item_count]);
+                        $tempArr = array_unique(array_column($search_result, 'img_id'));
+                        $search_result = array_intersect_key($search_result, $tempArr);
                     } else {
                         $catalog_list = [];
                         $search_result = [];
