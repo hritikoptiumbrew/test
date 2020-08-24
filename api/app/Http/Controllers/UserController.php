@@ -2695,6 +2695,7 @@ class UserController extends Controller
                     if ($this->is_verified == 1) {
                         $catalog_list = [];
                         if ($this->page == 1) {
+                            DB::statement("SET sql_mode = '' ");
                             $catalog_list = DB::select('SELECT
                                           DISTINCT(ct.id) as catalog_id,
                                           ct.name,
@@ -2716,10 +2717,11 @@ class UserController extends Controller
                                           (MATCH(ct.name) AGAINST("' . $search_category . '") OR 
                                           MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) AND
                                           sct.is_active = 1
-                                          ORDER BY FIELD(sct.sub_category_id,' . $this->default_sub_category_id . ')');
+                                          GROUP BY catalog_id
+                                          ORDER BY FIELD(sct.sub_category_id,' . $this->default_sub_category_id . '),ct.updated_at DESC');
                         }
-                        $tempArr = array_unique(array_column($catalog_list, 'catalog_id'));
-                        $catalog_list = array_intersect_key($catalog_list, $tempArr);
+//                        $tempArr = array_unique(array_column($catalog_list, 'catalog_id'));
+//                        $catalog_list = array_intersect_key($catalog_list, $tempArr);
                         $total_row_result = DB::select('SELECT count(DISTINCT im.id) as total
                                                                 FROM
                                                                 images as im,
@@ -2764,9 +2766,10 @@ class UserController extends Controller
                                                     isnull(im.display_img) AND
                                                     (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
                                                     MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE))
-                                                   ORDER BY FIELD(scc.sub_category_id,' . $this->default_sub_category_id . ') LIMIT ?, ?', [$this->offset, $this->item_count]);
-                        $tempArr = array_unique(array_column($search_result, 'img_id'));
-                        $search_result = array_intersect_key($search_result, $tempArr);
+                                                   GROUP BY img_id
+                                                   ORDER BY FIELD(scc.sub_category_id,' . $this->default_sub_category_id . '),im.updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
+//                        $tempArr = array_unique(array_column($search_result, 'img_id'));
+//                        $search_result = array_intersect_key($search_result, $tempArr);
                     } else {
                         $catalog_list = [];
                         $search_result = [];
