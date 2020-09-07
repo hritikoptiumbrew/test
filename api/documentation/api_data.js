@@ -1,6 +1,93 @@
 define({ "api": [
   {
     "type": "post",
+    "url": "getBlogContentByIdForUser",
+    "title": "getBlogContentByIdForUser",
+    "name": "getBlogContentByIdForUser",
+    "group": "1User_Blog_content",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"blog_id\":1\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Blog content fetched successfully.\",\n\"cause\": \"\",\n\"data\": [\n{\n\"blog_id\": 23,\n\"thumbnail_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/thumbnail/5d26d844c218c_blog_image_1562826820.jpg\",\n\"compressed_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/compressed/5d26d844c218c_blog_image_1562826820.jpg\",\n\"original_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/original/5d26d844c218c_blog_image_1562826820.jpg\",\n\"webp_original_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/webp_original/5d26d844c218c_blog_image_1562826820.webp\",\n\"webp_thumbnail_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/webp_thumbnail/5d26d844c218c_blog_image_1562826820.webp\",\n\"height\": 205,\n\"width\": 460,\n\"title\": \"{\\\"text_color\\\":\\\"#ff8040\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"CONTENT OF THE WEEK | JUNE 28, 2019 \\\"}\",\n\"subtitle\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"Share the love with the Beth Ellen font\\\"}\",\n\"blog_json\": \"{\\\"title\\\":{\\\"text_color\\\":\\\"#ff8040\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"CONTENT OF THE WEEK | JUNE 28, 2019 \\\"},\\\"subtitle\\\":{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"Share the love with the Beth Ellen font\\\"},\\\"blog_data\\\":\\\"<div class=\\\\\\\"blog-content-container w-container\\\\\\\" style=\\\\\\\"margin-left: auto; margin-right: auto; max-width: 820px; margin-bottom: 0px; padding-right: 48px; padding-left: 48px; color: rgb(154, 142, 144); font-family: &quot;Proxima soft&quot;, sans-serif; font-size: 20px;\\\\\\\"><div class=\\\\\\\"blog-rich-text w-richtext\\\\\\\" style=\\\\\\\"max-width: none; margin-bottom: 0px;\\\\\\\"><p data-w-id=\\\\\\\"22c9a481-8fcd-41e6-58b6-2557f5185c67\\\\\\\" style=\\\\\\\"margin-bottom: 32px; color: rgb(103, 94, 96); line-height: 32px;\\\\\\\"><span data-w-id=\\\\\\\"ca7b771b-5085-17f2-9436-55a954d2d2d1\\\\\\\" style=\\\\\\\"font-weight: 700;\\\\\\\"><span data-w-id=\\\\\\\"256615da-5297-05cc-1fcc-5d117d06336c\\\\\\\" style=\\\\\\\"color: rgb(255, 207, 0);\\\\\\\">At Over HQ, we feel so blessed<\\\\/span><\\\\/span>&nbsp;to have such a wildly talented community. People who find beauty in the darkness, and inspire the world by sharing their own unique story. &nbsp;<br data-w-id=\\\\\\\"4146cb54-c93e-83f0-fd6c-72864595f2cc\\\\\\\"><\\\\/p><p data-w-id=\\\\\\\"83868078-48d0-7ddd-a395-b8918c02f15b\\\\\\\" style=\\\\\\\"margin-bottom: 32px; color: rgb(103, 94, 96); line-height: 32px;\\\\\\\">That's exactly what Over Artist&nbsp;<a data-w-id=\\\\\\\"500bd531-3a4f-03ad-76ef-84f1bee4174b\\\\\\\" href=\\\\\\\"http:\\\\/\\\\/robjelinskistudios.com\\\\/\\\\\\\" data-rt-link-type=\\\\\\\"external\\\\\\\" style=\\\\\\\"color: rgb(72, 66, 67); text-decoration: none;\\\\\\\">Rob Jelinski<\\\\/a>&nbsp;did when he created a font in his mom\\\\u2019s handwriting, to honor her after she passed away. &nbsp;<br data-w-id=\\\\\\\"09eb3989-c1c0-792b-9349-0838955e7c37\\\\\\\"><\\\\/p><p data-w-id=\\\\\\\"7018f834-79c6-438c-c240-257118722874\\\\\\\" style=\\\\\\\"margin-bottom: 32px; color: rgb(103, 94, 96); line-height: 32px;\\\\\\\">As an artist and graphic designer, Rob wanted to share the Beth Ellen font with the world and bring it to life in the Over app, so that his mom's memory would live on forever.&nbsp;<br data-w-id=\\\\\\\"088ad354-17e6-b285-ee43-98bcffc5e39c\\\\\\\"><\\\\/p><blockquote data-w-id=\\\\\\\"2d4c6bf4-047c-4a55-edda-f269f3c34729\\\\\\\" style=\\\\\\\"margin-top: 36px; margin-bottom: 36px; color: rgb(86, 79, 80); max-width: 720px; padding: 0px 20px 0px 36px; border-left: 5px solid rgb(255, 207, 0); font-size: 36px; line-height: 54px;\\\\\\\">My single request is that you help the legacy of Beth Ellen live on by sending a short note to someone you love each time the font is used.&nbsp;<br data-w-id=\\\\\\\"b2a8b15a-fa4f-f616-96f4-ca0d488dc733\\\\\\\"><\\\\/blockquote><p data-w-id=\\\\\\\"a4c898d5-f34e-9c95-e7e7-2499f5cb1dfb\\\\\\\" style=\\\\\\\"margin-bottom: 32px; color: rgb(103, 94, 96); line-height: 32px;\\\\\\\">So send a little love to someone today! \\\\ud83d\\\\udc95<br data-w-id=\\\\\\\"75a95d8d-1347-aa7b-20ae-0b776eee9545\\\\\\\"><\\\\/p><p data-w-id=\\\\\\\"92163f65-699a-31ab-11be-0896ed7dc813\\\\\\\" style=\\\\\\\"margin-bottom: 32px; color: rgb(103, 94, 96); line-height: 32px;\\\\\\\">And if you need some help getting started, here are our some of our fave heartfelt quotes expressing love and gratitude \\\\u2013 all featuring the Beth Ellen font. &nbsp;<\\\\/p><figure data-w-id=\\\\\\\"a1158060-9b50-4df6-cc9d-4591ec52ac51\\\\\\\" class=\\\\\\\"w-richtext-figure-type-image w-richtext-align-normal\\\\\\\" data-rt-type=\\\\\\\"image\\\\\\\" data-rt-align=\\\\\\\"normal\\\\\\\" style=\\\\\\\"display: table; margin-top: 16px; margin-bottom: 16px; position: relative; max-width: 60%; clear: both;\\\\\\\"><div data-w-id=\\\\\\\"2776b881-5753-2b87-b01b-6c8c37b508ea\\\\\\\" style=\\\\\\\"font-size: 0px; color: transparent; display: inline-block;\\\\\\\"><img data-w-id=\\\\\\\"b33107d4-8e06-99cf-ca9d-7213caa5063e\\\\\\\" src=\\\\\\\"https:\\\\/\\\\/assets-global.website-files.com\\\\/5c7e6a9e0899242e0da98296\\\\/5d16291ad639969cb99c193f_IMG_0517.jpeg\\\\\\\" style=\\\\\\\"border: 0px; max-width: 100%; display: inline-block; width: 434px;\\\\\\\"><\\\\/div><\\\\/figure><figure data-w-id=\\\\\\\"41be35ee-2ca1-c46d-cedf-41886418990f\\\\\\\" class=\\\\\\\"w-richtext-figure-type-image w-richtext-align-normal\\\\\\\" data-rt-type=\\\\\\\"image\\\\\\\" data-rt-align=\\\\\\\"normal\\\\\\\" style=\\\\\\\"display: table; margin-top: 16px; margin-bottom: 16px; position: relative; max-width: 60%; clear: both;\\\\\\\"><div data-w-id=\\\\\\\"7c31acb5-c799-708f-3314-8128518151b2\\\\\\\" style=\\\\\\\"font-size: 0px; color: transparent; display: inline-block;\\\\\\\"><img data-w-id=\\\\\\\"b185eae1-43a8-a3d0-556e-e5d9d0a6853f\\\\\\\" src=\\\\\\\"https:\\\\/\\\\/assets-global.website-files.com\\\\/5c7e6a9e0899242e0da98296\\\\/5d1629451cd58642f6b91e1c_IMG_0518.jpeg\\\\\\\" style=\\\\\\\"border: 0px; max-width: 100%; display: inline-block; width: 434px;\\\\\\\"><\\\\/div><\\\\/figure><figure data-w-id=\\\\\\\"52d8388f-2f50-8a4e-54be-0ca3b5d4caba\\\\\\\" class=\\\\\\\"w-richtext-figure-type-image w-richtext-align-normal\\\\\\\" data-rt-type=\\\\\\\"image\\\\\\\" data-rt-align=\\\\\\\"normal\\\\\\\" style=\\\\\\\"display: table; margin-top: 16px; margin-bottom: 16px; position: relative; max-width: 60%; clear: both;\\\\\\\"><div data-w-id=\\\\\\\"bbb57cdd-c599-5c81-b991-617a22f8c5df\\\\\\\" style=\\\\\\\"font-size: 0px; color: transparent; display: inline-block;\\\\\\\"><img data-w-id=\\\\\\\"9ba93941-e474-2dfe-55f4-c215647082f4\\\\\\\" src=\\\\\\\"https:\\\\/\\\\/assets-global.website-files.com\\\\/5c7e6a9e0899242e0da98296\\\\/5d16295e34e447164da049b8_IMG_0521.jpeg\\\\\\\" style=\\\\\\\"border: 0px; max-width: 100%; display: inline-block; width: 434px;\\\\\\\"><\\\\/div><div data-w-id=\\\\\\\"bbb57cdd-c599-5c81-b991-617a22f8c5df\\\\\\\" style=\\\\\\\"font-size: 0px; color: transparent; display: inline-block;\\\\\\\"><br><\\\\/div><\\\\/figure><figure data-w-id=\\\\\\\"f8c522d5-ce7e-947f-f572-a417b1d20d5f\\\\\\\" class=\\\\\\\"w-richtext-figure-type-image w-richtext-align-normal\\\\\\\" data-rt-type=\\\\\\\"image\\\\\\\" data-rt-align=\\\\\\\"normal\\\\\\\" style=\\\\\\\"display: table; margin-top: 16px; margin-bottom: 16px; position: relative; max-width: 60%; clear: both;\\\\\\\"><div data-w-id=\\\\\\\"99435f16-eacc-8cb8-dd54-ff688026ed3f\\\\\\\" style=\\\\\\\"font-size: 0px; color: transparent; display: inline-block;\\\\\\\"><img data-w-id=\\\\\\\"1640f001-51c6-7f52-e0e9-bdee4cba18eb\\\\\\\" src=\\\\\\\"https:\\\\/\\\\/assets-global.website-files.com\\\\/5c7e6a9e0899242e0da98296\\\\/5d162970d1287ccc9e080bf5_IMG_0523.jpeg\\\\\\\" style=\\\\\\\"border: 0px; max-width: 100%; display: inline-block; width: 434px;\\\\\\\"><\\\\/div><\\\\/figure><\\\\/div><\\\\/div><div class=\\\\\\\"container blog-content-container w-container\\\\\\\" style=\\\\\\\"max-width: 820px; padding-right: 48px; padding-bottom: 0px; padding-left: 48px; -webkit-box-pack: center; justify-content: center; -webkit-box-align: center; align-items: center; margin-bottom: 0px; color: rgb(154, 142, 144); font-family: &quot;Proxima soft&quot;, sans-serif; font-size: 20px;\\\\\\\"><div class=\\\\\\\"blog-img-gallery\\\\\\\" style=\\\\\\\"display: flex; margin-top: 32px; margin-bottom: 32px; -webkit-box-pack: center; justify-content: center; -webkit-box-align: start; align-items: flex-start;\\\\\\\"><\\\\/div><\\\\/div><div class=\\\\\\\"blog-content-container w-container\\\\\\\" style=\\\\\\\"margin-left: auto; margin-right: auto; max-width: 820px; margin-bottom: 0px; padding-right: 48px; padding-left: 48px; color: rgb(154, 142, 144); font-family: &quot;Proxima soft&quot;, sans-serif; font-size: 20px;\\\\\\\"><div class=\\\\\\\"blog-rich-text w-richtext\\\\\\\" style=\\\\\\\"max-width: none; margin-bottom: 0px;\\\\\\\"><p style=\\\\\\\"margin-bottom: 32px; color: rgb(103, 94, 96); line-height: 32px;\\\\\\\"><span style=\\\\\\\"font-weight: 700;\\\\\\\"><span style=\\\\\\\"color: rgb(255, 207, 0);\\\\\\\">Tip<\\\\/span>:<\\\\/span>&nbsp;For a realistic handwritten note effect, try using the Beth Ellen font on textured paper as a background.<br><\\\\/p><p style=\\\\\\\"margin-bottom: 32px; color: rgb(103, 94, 96); line-height: 32px;\\\\\\\">\\\\u200d<\\\\/p><div><br><\\\\/div><\\\\/div><button class=\\\\\\\"sttc-button\\\\\\\" onclick=\\\\\\\"searchTemplate('illustration')\\\\\\\">Search Template<\\\\/button><br><\\\\/div><style>.sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, \\\\\\\"Segoe UI\\\\\\\", Roboto, \\\\\\\"Helvetica Neue\\\\\\\", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}<\\\\/style><script>function OpenTemplate(templateID) { alert(\\\\\\\"OpenTemplate\\\\\\\", templateID); } function searchTemplate(searchTag) { alert(\\\\\\\"searchTemplate\\\\\\\", searchTag); } <\\\\/script>\\\",\\\"fg_image\\\":\\\"5d1b4e68c98e2_blog_image_1562070632.jpg\\\"}\",\n\"is_active\": 1\n}\n]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/BlogController.php",
+    "groupTitle": "1User_Blog_content"
+  },
+  {
+    "type": "post",
+    "url": "getBlogContentByUser",
+    "title": "getBlogContentByUser",
+    "name": "getBlogContentByUser",
+    "group": "1User_Blog_content",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"page\":1,\n\"item_count\":10\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Blog content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 3,\n\"is_next_page\": false,\n\"result\": [\n{\n\"blog_id\": 6,\n\"fg_image\": \"5d13082801518_blog_image_1561528360.png\",\n\"thumbnail_img\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/thumbnail/5d13082801518_blog_image_1561528360.png\",\n\"compressed_img\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5d13082801518_blog_image_1561528360.png\",\n\"original_img\": \"http://192.168.0.114/photo_editor_lab_backend/image_bucket/original/5d13082801518_blog_image_1561528360.png\",\n\"blog_json\": \"{\\\"title\\\":\\\"test\\\",\\\"subtitle\\\":\\\"demo\\\",\\\"blog_data\\\":\\\"<header class=\\\\\\\"entry-header\\\\\\\" style=\\\\\\\"box-sizing: inherit; margin-bottom: 27px; color: rgb(64, 64, 64); font-family: Lato, sans-serif; font-size: 16px;\\\\\\\"><\\\\/div>\\\"}\",\n\"is_active\": 1\n},\n{\n\"blog_id\": 2,\n\"fg_image\": \"5d13082801518_blog_image_1561528360.png\",\n\"thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5d11e5af99f3f_blog_image_1561453999.png\",\n\"compressed_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5d11e5af99f3f_blog_image_1561453999.png\",\n\"original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5d11e5af99f3f_blog_image_1561453999.png\",\n\"blog_json\": \"{\\\"title\\\":\\\"Title Description\\\",\\\"subtitle\\\":\\\"Sub title sub title\\\",\\\"blog_data\\\":\\\"<header class=\\\\\\\"entry-header\\\\\\\" style=\\\\\\\"box-sizing: inherit; margin-bottom: 27px; color: rgb(64, 64, 64); font-family: Lato, sans-serif; font-size: 16px;\\\\\\\"><\\\\/div>\\\"}\",\n\"is_active\": 1\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/BlogController.php",
+    "groupTitle": "1User_Blog_content"
+  },
+  {
+    "type": "post",
+    "url": "getBlogListByUser",
+    "title": "getBlogListByUser",
+    "name": "getBlogListByUser",
+    "group": "1User_Blog_content",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"platform\"=2,//1=Android,2=IOS\n\"catalog_id\":895,\n\"page\":1,\n\"item_count\":10\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Blog content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 10,\n\"is_next_page\": true,\n\"result\": [\n{\n\"blog_id\": 27,\n\"thumbnail_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/thumbnail/5d26bff8efadc_blog_image_1562820600.png\",\n\"compressed_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/compressed/5d26bff8efadc_blog_image_1562820600.png\",\n\"original_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/original/5d26bff8efadc_blog_image_1562820600.png\",\n\"webp_original_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/webp_original/5d26bff8efadc_blog_image_1562820600.png\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/webp_thumbnail/5d26bff8efadc_blog_image_1562820600.png\",\n\"height\": 256,\n\"width\": 256,\n\"title\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"test\\\"}\",\n\"subtitle\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"subtitle\\\"}\",\n\"catalog_id\":895,\n\"is_active\": 1\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/BlogController.php",
+    "groupTitle": "1User_Blog_content"
+  },
+  {
+    "type": "post",
     "url": "addCategory",
     "title": "addCategory",
     "name": "AddCategory",
@@ -25,7 +112,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -54,8 +141,153 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "addBlogContent",
+    "title": "addBlogContent",
+    "name": "addBlogContent",
+    "group": "Admin_Blog_content",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "request_data:{\n\"catalog_id\":895,//compulsory\n\"title\":\"test\", //compulsory\n\"subtitle\":\"demo\", //compulsory\n\"blog_data\":\"<p></p>\" //compulsory\n}\nfile:ob.jpg //compulsory",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Blog content added successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/BlogController.php",
+    "groupTitle": "Admin_Blog_content"
+  },
+  {
+    "type": "post",
+    "url": "deleteBlogContent",
+    "title": "deleteBlogContent",
+    "name": "deleteBlogContent",
+    "group": "Admin_Blog_content",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"blog_id\":1\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Blog deleted successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/BlogController.php",
+    "groupTitle": "Admin_Blog_content"
+  },
+  {
+    "type": "post",
+    "url": "getBlogContent",
+    "title": "getBlogContent",
+    "name": "getBlogContent",
+    "group": "Admin_Blog_content",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"catalog_id\":895,\n\"page\":1,\n\"item_count\":10\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Blog content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 9,\n\"is_next_page\": false,\n\"result\": [\n{\n\"blog_id\": 26,\n\"fg_image\": \"5d26bbe50f627_blog_image_1562819557.png\",\n\"thumbnail_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/thumbnail/5d26bbe50f627_blog_image_1562819557.png\",\n\"compressed_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/compressed/5d26bbe50f627_blog_image_1562819557.png\",\n\"original_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/original/5d26bbe50f627_blog_image_1562819557.png\",\n\"webp_original_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/webp_original/5d26bbe50f627_blog_image_1562819557.png\",\n\"webp_thumbnail_img\": \"http://192.168.0.114/videoflyer_backend/image_bucket/webp_thumbnail/5d26bbe50f627_blog_image_1562819557.png\",\n\"title\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"test\\\"}\",\n\"subtitle\": \"{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"test\\\"}\",\n\"blog_json\": \"{\\\"title\\\":{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":16,\\\"text_value\\\":\\\"test\\\"},\\\"subtitle\\\":{\\\"text_color\\\":\\\"#000000\\\",\\\"text_size\\\":36,\\\"text_value\\\":\\\"test\\\"},\\\"blog_data\\\":\\\"test<style>.sttc-button {font-family: -apple-system, system-ui, BlinkMacSystemFont, \\\\\\\"Segoe UI\\\\\\\", Roboto, \\\\\\\"Helvetica Neue\\\\\\\", Arial, sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: 4px; box-shadow: none; color: #ffffff; cursor: pointer; display: inline-block; margin: 0px; padding: 8px 18px; text-decoration: none; background-color: #ffcd00; overflow-wrap: break-word; user-select:none !important;}.sttc-button:hover, .sttc-button:focus{ background-color: #d9ae00;}<\\\\/style><script>function OpenTemplate(templateID) { alert(\\\\\\\"OpenTemplate - \\\\\\\" + templateID); } function searchTemplate(searchTag) { alert(\\\\\\\"searchTemplate - \\\\\\\" + searchTag); } <\\\\/script>\\\",\\\"fg_image\\\":\\\"5d26bbe50f627_blog_image_1562819557.png\\\"}\",\n\"catalog_id\":895,\n\"is_active\": 1\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/BlogController.php",
+    "groupTitle": "Admin_Blog_content"
+  },
+  {
+    "type": "post",
+    "url": "setBlogRankOnTheTopByAdmin",
+    "title": "setBlogRankOnTheTopByAdmin",
+    "name": "setBlogRankOnTheTopByAdmin",
+    "group": "Admin_Blog_content",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"blog_id\":10\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Blog content rank set successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/BlogController.php",
+    "groupTitle": "Admin_Blog_content"
+  },
+  {
+    "type": "post",
+    "url": "updateBlogContent",
+    "title": "updateBlogContent",
+    "name": "updateBlogContent",
+    "group": "Admin_Blog_content",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\n Key: Authorization\n Value: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "request_data:{\n\"blog_id\":1,\n\"title\":\"test\",\n\"subtitle\":\"demo\",\n\"blog_data\":\"<p></p>\"\n}\nfile:ob.jpg //optional",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Blog content updated successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/BlogController.php",
+    "groupTitle": "Admin_Blog_content"
   },
   {
     "type": "post",
@@ -83,7 +315,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -112,7 +344,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -141,7 +373,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -170,7 +402,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -199,7 +431,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -228,7 +460,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -257,7 +489,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -286,7 +518,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -315,7 +547,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -344,7 +576,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -373,7 +605,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -402,7 +634,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -431,7 +663,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -460,7 +692,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -489,7 +721,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -518,7 +750,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/ZipController.php",
+    "filename": "app/http/controllers/ZipController.php",
     "groupTitle": "Admin"
   },
   {
@@ -547,7 +779,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -576,7 +808,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/LoginController.php",
+    "filename": "app/http/controllers/LoginController.php",
     "groupTitle": "Admin"
   },
   {
@@ -605,7 +837,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -634,7 +866,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -663,7 +895,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -692,7 +924,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -721,7 +953,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -750,7 +982,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -779,7 +1011,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -808,7 +1040,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -837,7 +1069,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -866,7 +1098,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -895,7 +1127,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -924,7 +1156,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -953,7 +1185,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -982,7 +1214,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1011,7 +1243,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1040,7 +1272,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1069,7 +1301,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1098,7 +1330,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/Google2faController.php",
+    "filename": "app/http/controllers/Google2faController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1127,7 +1359,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/LoginController.php",
+    "filename": "app/http/controllers/LoginController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1156,7 +1388,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1185,7 +1417,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1214,7 +1446,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1243,7 +1475,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1272,7 +1504,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/Google2faController.php",
+    "filename": "app/http/controllers/Google2faController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1301,7 +1533,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1330,7 +1562,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1359,7 +1591,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1388,7 +1620,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1417,7 +1649,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1446,7 +1678,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1475,7 +1707,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1504,7 +1736,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1533,7 +1765,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1562,7 +1794,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1591,7 +1823,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1620,7 +1852,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1649,7 +1881,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1678,7 +1910,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1707,7 +1939,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1736,7 +1968,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1765,7 +1997,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1794,7 +2026,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1823,7 +2055,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1852,7 +2084,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1881,7 +2113,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1910,7 +2142,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1939,7 +2171,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1968,7 +2200,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -1997,7 +2229,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2026,7 +2258,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2055,7 +2287,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2084,7 +2316,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2113,7 +2345,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2142,7 +2374,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/LoginController.php",
+    "filename": "app/http/controllers/LoginController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2171,7 +2403,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2200,7 +2432,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2229,7 +2461,36 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
+    "groupTitle": "Admin"
+  },
+  {
+    "type": "post",
+    "url": "removeInvalidFont",
+    "title": "removeInvalidFont",
+    "name": "removeInvalidFont",
+    "group": "Admin",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"catalog_id\":5, //compulsory\n\"font_ids\":\"280,281\", //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Font removed successfully.\",\n\"cause\": \"\",\n\"data\": {}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2258,7 +2519,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2287,7 +2548,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2316,7 +2577,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2345,7 +2606,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2374,7 +2635,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2403,7 +2664,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2432,7 +2693,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2461,7 +2722,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/NotificationController.php",
+    "filename": "app/http/controllers/NotificationController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2490,7 +2751,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2519,7 +2780,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2548,7 +2809,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2577,7 +2838,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2606,7 +2867,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2635,7 +2896,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2664,7 +2925,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2693,7 +2954,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2722,7 +2983,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2751,7 +3012,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2780,7 +3041,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2809,7 +3070,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2838,7 +3099,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2867,7 +3128,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2896,7 +3157,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsedAPIsController.php",
+    "filename": "app/http/controllers/UnsedAPIsController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2925,7 +3186,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/Google2faController.php",
+    "filename": "app/http/controllers/Google2faController.php",
     "groupTitle": "Admin"
   },
   {
@@ -2954,7 +3215,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/LoginController.php",
+    "filename": "app/http/controllers/LoginController.php",
     "groupTitle": "Common_For_All"
   },
   {
@@ -2983,7 +3244,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Common_For_All"
   },
   {
@@ -3012,7 +3273,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Common_For_All"
   },
   {
@@ -3041,7 +3302,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/SubscriptionPaymentController.php",
+    "filename": "app/http/controllers/SubscriptionPaymentController.php",
     "groupTitle": "Payment_Subscription"
   },
   {
@@ -3070,7 +3331,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/SubscriptionPaymentController.php",
+    "filename": "app/http/controllers/SubscriptionPaymentController.php",
     "groupTitle": "Payment_Subscription"
   },
   {
@@ -3099,7 +3360,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3128,7 +3389,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3157,7 +3418,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3186,7 +3447,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3215,7 +3476,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3244,7 +3505,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3273,7 +3534,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3302,7 +3563,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3331,7 +3592,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3360,7 +3621,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3389,7 +3650,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3418,7 +3679,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3447,7 +3708,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3476,7 +3737,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3505,7 +3766,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_Admin"
   },
   {
@@ -3534,7 +3795,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3563,7 +3824,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3592,7 +3853,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/NewsController.php",
+    "filename": "app/http/controllers/NewsController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3621,7 +3882,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3650,7 +3911,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/VideoController.php",
+    "filename": "app/http/controllers/VideoController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3679,7 +3940,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3708,7 +3969,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3737,7 +3998,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/QnAController.php",
+    "filename": "app/http/controllers/QnAController.php",
     "groupTitle": "Resume_User"
   },
   {
@@ -3766,7 +4027,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3795,7 +4056,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3824,7 +4085,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3853,7 +4114,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3882,7 +4143,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3911,7 +4172,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3940,7 +4201,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3969,7 +4230,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -3998,7 +4259,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4027,7 +4288,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4056,7 +4317,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/AdminController.php",
+    "filename": "app/http/controllers/AdminController.php",
     "groupTitle": "Statistics__admin_"
   },
   {
@@ -4085,7 +4346,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/NotificationController.php",
+    "filename": "app/http/controllers/NotificationController.php",
     "groupTitle": "User"
   },
   {
@@ -4109,7 +4370,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/LoginController.php",
+    "filename": "app/http/controllers/LoginController.php",
     "groupTitle": "User"
   },
   {
@@ -4138,7 +4399,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4167,7 +4428,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4196,7 +4457,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4225,7 +4486,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4254,7 +4515,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4283,7 +4544,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4312,7 +4573,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4341,7 +4602,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4370,7 +4631,36 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getCorruptedFontList",
+    "title": "getCorruptedFontList",
+    "name": "getCorruptedFontList",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"last_sync_time\":\"0\" //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"Fonts details fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"result\": [\n  {\n  \"catalog_id\": 228,\n  \"name\": \"Roboto\",\n  \"is_removed\": 0,\n  \"is_free\": 0,\n  \"is_featured\": 0,\n  \"font_list\": [\n  {\n  \"font_id\": 33,\n  \"catalog_id\": 228,\n  \"font_name\": \"Roboto Thin\",\n  \"font_file\": \"Roboto-Thin.ttf\",\n  \"font_url\": \"http://192.168.0.115/videoflyer_backend/image_bucket/fonts/Roboto-Thin.ttf\",\n  \"ios_font_name\": \"Roboto-Thin\",\n  6800\"android_font_name\": \"fonts/nexa_rustsans_black.otf\"\n  }\n ]\n  }\n],\n\"last_sync_time\": \"2019-11-25 04:05:54\"\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4399,7 +4689,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4428,7 +4718,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4457,7 +4747,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4486,7 +4776,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4515,7 +4805,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4544,7 +4834,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UnsplashController.php",
+    "filename": "app/http/controllers/UnsplashController.php",
     "groupTitle": "User"
   },
   {
@@ -4573,7 +4863,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4602,7 +4892,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/PixabayController.php",
+    "filename": "app/http/controllers/PixabayController.php",
     "groupTitle": "User"
   },
   {
@@ -4631,7 +4921,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4660,7 +4950,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4689,7 +4979,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4718,7 +5008,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4747,7 +5037,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4776,7 +5066,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4805,7 +5095,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4834,7 +5124,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4863,7 +5153,36 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "getTemplateWithCatalogs",
+    "title": "getTemplateWithCatalogs",
+    "name": "getTemplateWithCatalogs",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{\n\"sub_category_id\":1, //compulsory\n\"catalog_id\":1, //compulsory, pass 0 if you don't have catalog_id(in this case you get all featured cards) otherwise you have to pass specific catalog_id\n\"is_get_data_for_1st_catalog\":1,//optional,pass 1 if you want sample images of 1st catalog\n\"page\":1, //compulsory\n\"item_count\":2 //compulsory\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200,\n\"message\": \"All templates are fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 128,\n\"is_next_page\": true,\n\"category_list\": [\n{\n\"catalog_id\": 168,\n\"name\": \"Business Card Catalog2\",\n\"thumbnail_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/thumbnail/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"compressed_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"original_img\": \"http://192.168.0.113/ob_photolab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2018-06-21 12:04:36\"\n},\n{\n\"catalog_id\": 259,\n\"name\": \"pavan\",\n\"thumbnail_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/thumbnail/5ce7a0ab5fbdc_catalog_img_1558683819.jpg\",\n\"compressed_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/compressed/5ce7a0ab5fbdc_catalog_img_1558683819.jpg\",\n\"original_img\": \"http://192.168.0.113/videoflyer_backend/image_bucket/original/5ce7a0ab5fbdc_catalog_img_1558683819.jpg\",\n\"is_free\": 1,\n\"is_featured\": 1,\n\"updated_at\": \"2019-06-17 03:33:07\"\n}\n],\n\"sample_cards\": [\n{\n\"json_id\": 3326,\n\"sample_image\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c6d3523a43b5_json_image_1550660899.webp\",\n\"is_free\": 1,\n\"is_featured\": 0,\n\"is_portrait\": 0,\n\"height\": 256,\n\"width\": 512,\n\"search_category\": \"Twitter\",\n\"original_img_height\": 512,\n\"original_img_width\": 1024,\n\"updated_at\": \"2019-02-20 11:08:20\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4892,7 +5211,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4921,7 +5240,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -4950,7 +5269,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/RegisterController.php",
+    "filename": "app/http/controllers/RegisterController.php",
     "groupTitle": "User"
   },
   {
@@ -4979,7 +5298,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5008,7 +5327,36 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "searchCatalogByUser",
+    "title": "searchCatalogByUser",
+    "name": "searchCatalogByUser",
+    "group": "User",
+    "version": "1.0.0",
+    "success": {
+      "examples": [
+        {
+          "title": "Request-Header:",
+          "content": "{\nKey: Authorization\nValue: Bearer token\n}",
+          "type": "json"
+        },
+        {
+          "title": "Request-Body:",
+          "content": "{//all parameters are compulsory\n\"sub_category_id\":66,\n\"search_category\":\"grandient logo\",\n\"page\":1,\n\"item_count\":2\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "{\n\"code\": 200, //return 427 when server not find any result related to your search_category\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 2,\n\"is_next_page\": false,\n\"result\": [\n{\n\"code\": 200,\n\"message\": \"Catalogs fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 21,\n\"is_next_page\": true,\n\"result\": [\n{\n\"catalog_id\": 498,\n\"name\": \"Party\",\n\"webp_thumbnail_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5c7914a7c12f5_catalog_img_1551439015.webp\",\n\"webp_original_img\": \"http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_original/5c7914a7c12f5_catalog_img_1551439015.webp\",\n\"is_featured\": 1,\n\"is_free\": 1,\n\"updated_at\": \"2019-03-01 11:16:56\"\n}\n]\n}\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5032,12 +5380,12 @@ define({ "api": [
         },
         {
           "title": "Success-Response:",
-          "content": "{\n\"code\": 200, //return 427 when server not find any result related to your search_category\n\"message\": \"Templates fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 1,\n\"is_next_page\": false,\n\"result\": [\n{\n\"img_id\": 13442,\n\"sample_image\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5d51129eb3a3c_normal_image_1565594270.png\",\n\"is_free\": 0,\n\"is_featured\": null,\n\"is_portrait\": null,\n\"height\": 0,\n\"width\": 0,\n\"updated_at\": \"2019-08-30 10:00:06\",\n\"search_text\": 25.21432113647461\n}\n]\n}\n}",
+          "content": "{\n\"code\": 200,\n\"message\": \"Content fetched successfully.\",\n\"cause\": \"\",\n\"data\": {\n\"total_record\": 6,\n\"is_next_page\": false,\n\"catalog_list\": [\n{\n\"catalog_id\": 606,\n\"name\": \"Flower\",\n\"thumbnail_img\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/thumbnail/5ccad4f1b8ee4_catalog_img_1556796657.png\",\n\"compressed_img\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad4f1b8ee4_catalog_img_1556796657.png\",\n\"original_img\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/original/5ccad4f1b8ee4_catalog_img_1556796657.png\",\n\"webp_thumbnail_img\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/webp_thumbnail/5ccad4f1b8ee4_catalog_img_1556796657.webp\",\n\"webp_original_img\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/webp_original/5ccad4f1b8ee4_catalog_img_1556796657.webp\",\n\"is_featured\": 0,\n\"is_free\": 1,\n\"updated_at\": \"2019-10-14 01:16:33\"\n}\n],\n\"content_list\": [\n{\n\"img_id\": 7281,\n\"sample_image\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad50513133_normal_image_1556796677.png\",\n\"is_free\": 1,\n\"is_featured\": null,\n\"is_portrait\": null,\n\"height\": 0,\n\"width\": 0,\n\"updated_at\": \"2019-10-14 01:30:59\",\n\"search_text\": 20.13739013671875\n},\n{\n\"img_id\": 7285,\n\"sample_image\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad5057288c_normal_image_1556796677.png\",\n\"is_free\": 1,\n\"is_featured\": null,\n\"is_portrait\": null,\n\"height\": 0,\n\"width\": 0,\n\"updated_at\": \"2019-10-14 01:30:55\",\n\"search_text\": 20.13739013671875\n},\n{\n\"img_id\": 7283,\n\"sample_image\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad50541763_normal_image_1556796677.png\",\n\"is_free\": 1,\n\"is_featured\": null,\n\"is_portrait\": null,\n\"height\": 0,\n\"width\": 0,\n\"updated_at\": \"2019-10-14 01:30:54\",\n\"search_text\": 20.13739013671875\n},\n{\n\"img_id\": 7282,\n\"sample_image\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad5052b7d3_normal_image_1556796677.png\",\n\"is_free\": 1,\n\"is_featured\": null,\n\"is_portrait\": null,\n\"height\": 0,\n\"width\": 0,\n\"updated_at\": \"2019-10-12 10:51:37\",\n\"search_text\": 20.13739013671875\n},\n{\n\"img_id\": 7284,\n\"sample_image\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad5055c8fc_normal_image_1556796677.png\",\n\"is_free\": 1,\n\"is_featured\": null,\n\"is_portrait\": null,\n\"height\": 0,\n\"width\": 0,\n\"updated_at\": \"2019-10-12 10:51:31\",\n\"search_text\": 20.13739013671875\n},\n{\n\"img_id\": 7280,\n\"sample_image\": \"http://192.168.0.115/photo_editor_lab_backend/image_bucket/compressed/5ccad504ec5c3_normal_image_1556796676.png\",\n\"is_free\": 1,\n\"is_featured\": null,\n\"is_portrait\": null,\n\"height\": 0,\n\"width\": 0,\n\"updated_at\": \"2019-10-12 07:04:36\",\n\"search_text\": 20.13739013671875\n}\n]\n}\n}",
           "type": "json"
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
   },
   {
@@ -5066,63 +5414,7 @@ define({ "api": [
         }
       ]
     },
-    "filename": "./app/Http/Controllers/UserController.php",
+    "filename": "app/http/controllers/UserController.php",
     "groupTitle": "User"
-  },
-  {
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "optional": false,
-            "field": "varname1",
-            "description": "<p>No type.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "varname2",
-            "description": "<p>With type.</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "./api/documentation/main.js",
-    "group": "c__wamp64_www_photo_editor_lab_backend_dev_api_api_documentation_main_js",
-    "groupTitle": "c__wamp64_www_photo_editor_lab_backend_dev_api_api_documentation_main_js",
-    "name": ""
-  },
-  {
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "optional": false,
-            "field": "varname1",
-            "description": "<p>No type.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "varname2",
-            "description": "<p>With type.</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "./documentation/main.js",
-    "group": "c__wamp64_www_photo_editor_lab_backend_dev_api_documentation_main_js",
-    "groupTitle": "c__wamp64_www_photo_editor_lab_backend_dev_api_documentation_main_js",
-    "name": ""
   }
 ] });

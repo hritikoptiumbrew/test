@@ -3,7 +3,7 @@ define({
   "version": "1.0.0",
   "description": "API Doc For PhotoEditorLab",
   "title": "PhotoEditorLab",
-  "url": "http://192.168.0.113/photo_editor_lab_backend/api/public/api/",
+  "url": "http://192.168.0.116/photo_editor_lab_backend/api/public/api/",
   "header": {
     "title": "PhotoEditorLab Admin",
     "content": ""
@@ -25,8 +25,8 @@ define({
   "apidoc": "0.3.0",
   "generator": {
     "name": "apidoc",
-    "time": "2019-09-17T04:37:38.120Z",
+    "time": "2020-03-07T10:12:33.117Z",
     "url": "http://apidocjs.com",
-    "version": "0.17.7"
+    "version": "0.18.0"
   }
 });

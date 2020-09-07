@@ -68,7 +68,7 @@ class ImageController extends Controller
         if (!($image_type == 'image/png' || $image_type == 'image/jpeg'))
             $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG file', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($image_size > $MAXIMUM_FILESIZE)
-            $response = Response::json(array('code' => 201, 'message' => 'File size is greater then 200KB', 'cause' => '', 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => 'File size is greater then '.$validations.'', 'cause' => '', 'data' => json_decode("{}")));
         else
             $response = '';
         return $response;
@@ -176,14 +176,14 @@ class ImageController extends Controller
         $fileData = pathinfo(basename($file_array->getClientOriginalName()));
         $file_name = str_replace(" ", "", strtolower($fileData['filename']));
         $string_array = str_split($file_name);
-        foreach ($string_array as $key)
-        {
-            $is_valid = preg_match ('/[[:alpha:]_]+/', $key);
-            if($is_valid == 0)
-            {
-                return $response = Response::json(array('code' => 201, 'message' => 'Special characters (except underscore) & numeric value are not allowed into the file name.', 'cause' => '', 'data' => json_decode("{}")));
-            }
-        }
+//        foreach ($string_array as $key)
+//        {
+//            $is_valid = preg_match ('/[[:alpha:]_]+/', $key);
+//            if($is_valid == 0)
+//            {
+//                return $response = Response::json(array('code' => 201, 'message' => 'Special characters (except underscore) & numeric value are not allowed into the file name.', 'cause' => '', 'data' => json_decode("{}")));
+//            }
+//        }
 
         /* there is no specific mimetype for otf & ttf so here we used 2 popular type */
 
@@ -1403,6 +1403,32 @@ class ImageController extends Controller
         } catch (Exception $e) {
             Log::error("checkIsImageExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return $response = '';
+        }
+    }
+
+    // Check font is exist into font directory
+    public function removeFontIfIsExist($file_name)
+    {
+        try {
+            $file_url = Config::get('constant.FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . $file_name;
+            if (Config::get('constant.APP_ENV') != 'local') {
+
+                $aws_bucket = Config::get('constant.AWS_BUCKET');
+                $disk = Storage::disk('s3');
+                $value = "$aws_bucket/fonts/" . $file_name;
+                if ($disk->exists($value)) {
+                    $this->deleteObjectFromS3($file_name , 'fonts');
+                }
+            } else {
+                $file_path = '../..' . Config::get('constant.FONT_FILE_DIRECTORY') . $file_name;
+                if (($is_exist = ($this->checkFileExist($file_path)) == 1)) {
+                    $this->unlinkFileFromLocalStorage($file_name, Config::get('constant.FONT_FILE_DIRECTORY'));
+                }
+            }
+            return $response = 1;
+        } catch (Exception $e) {
+            Log::error("removeFontIfIsExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return $response = 0;
         }
     }
 

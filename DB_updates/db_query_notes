@@ -66,3 +66,74 @@ CREATE TABLE settings_master (
 6) PhotoEditorLab : perform following query on database(02 Sep, 2019) search tag module
 ---------------------------------------------------------------------------------------------------
 ALTER TABLE catalog_master ADD FULLTEXT(name)
+
+7) PhotoEditorLab : perform following query on database (9 January, 2020) corrupted font module
+-------------------------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS corrupt_font_catalog_master(
+	id int(11) NOT NULL AUTO_INCREMENT,
+	catalog_id int(11) DEFAULT NULL,
+	name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	is_removed TINYINT(1) DEFAULT 0,
+	is_free TINYINT(1) DEFAULT 0,
+	is_featured TINYINT(1) DEFAULT 0,
+	is_active TINYINT(1) DEFAULT 0,
+	create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+	update_time timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	attribute1 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute2 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	PRIMARY KEY (id)
+) ENGINE=InnoDB
+
+CREATE TABLE corrupt_font_detail_master(
+	id int(11) AUTO_INCREMENT NOT NULL,
+	catalog_id INT(11) DEFAULT NULL,
+	font_id INT(11) DEFAULT NULL,
+	font_name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	font_file TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	ios_font_name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	android_font_name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	is_active TINYINT(1) DEFAULT 0,
+	create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+	update_time TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	attribute1 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute2 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	PRIMARY KEY(id)
+) ENGINE = INNODB
+
+
+8) PhotoEditorLab : perform following query on database (9 January, 2020) Blog module
+-------------------------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS blog_master (
+	id int(11) NOT NULL AUTO_INCREMENT,
+	image TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	webp_image TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	title TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	subtitle TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	blog_json TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	height int(11) DEFAULT 0,
+	width int(11) DEFAULT 0,
+	is_active tinyint(1) NOT NULL DEFAULT 1,
+	create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+	update_time timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	attribute1 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute2 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	attribute3 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+	PRIMARY KEY (id)
+) ENGINE=InnoDB
+
+
+
+9) Photo_editor_lab : perform following query on database (7 February, 2020) For store catalog_id id
+-------------------------------------------------------------------------------------------------
+ALTER TABLE `blog_master` ADD `catalog_id` INT(11) NOT NULL AFTER `id`;
+
+ALTER TABLE  `blog_master`
+ADD CONSTRAINT `blog_master_ibfk_1` FOREIGN KEY (`catalog_id`) REFERENCES `catalog_master`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `blog_master` ADD `platform` TINYINT(1) NOT NULL COMMENT '\"1=Android,2=IOS\"' AFTER `is_active`;
+
+10) Photo_editor_lab : perform following query on database (14 March, 2020) For store store platform type
+-------------------------------------------------------------------------------------------------
+ALTER TABLE `blog_master` CHANGE `platform` `platform` TINYINT(1) NOT NULL COMMENT '\"1=Android,2=IOS,3=Both\"';

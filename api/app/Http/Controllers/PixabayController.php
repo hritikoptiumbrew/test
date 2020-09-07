@@ -262,7 +262,7 @@ class PixabayController extends Controller
             $this->per_page = $per_page;
             $this->is_cache = 1;
 
-            $this->url = Config::get('constant.PIXABAY_API_URL') . '?key=' . $key . '&q=' . $this->category . '&page=' . $this->page . '&per_page=' . $this->per_page;
+            $this->url = Config::get('constant.PIXABAY_API_URL') . '?key=' . $key . '&q=' . $this->category . '&safesearch=true&page=' . $this->page . '&per_page=' . $this->per_page;
 
             //Log::info('url : ',['url' => $this->url]);
 

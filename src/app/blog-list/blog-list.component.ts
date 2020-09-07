@@ -18,7 +18,7 @@ export class BlogListComponent implements OnInit {
   total_record: any;
   errorMsg: any;
   successMsg: any;
-  itemsPerPage: any = 25;
+  itemsPerPage: any = 5;
   currentPage: number = 1;
   loading: any;
   itemsPerPageArray: any[];
@@ -28,13 +28,15 @@ export class BlogListComponent implements OnInit {
   constructor(public route: ActivatedRoute, private router: Router, private dataService: DataService, public dialog: MdDialog, public snackBar: MdSnackBar) {
     this.loading = this.dialog.open(LoadingComponent);
     this.itemsPerPageArray = [
+      { 'itemPerPageValue': '1', 'itemPerPageName': '1' },
+      { 'itemPerPageValue': '5', 'itemPerPageName': '5' },
       { 'itemPerPageValue': '25', 'itemPerPageName': '25' },
       { 'itemPerPageValue': '50', 'itemPerPageName': '50' },
       { 'itemPerPageValue': '75', 'itemPerPageName': '75' },
       { 'itemPerPageValue': '100', 'itemPerPageName': '100' },
     ];
-    this.itemsPerPage = this.itemsPerPageArray[3].itemPerPageValue;
-    this.itemsPerPage = this.itemsPerPageArray[0].itemPerPageValue;
+    this.itemsPerPage = this.itemsPerPageArray[1].itemPerPageValue;
+    // this.itemsPerPage = this.itemsPerPageArray[0].itemPerPageValue;
   }
 
   ngOnInit() {
@@ -154,6 +156,7 @@ export class BlogListComponent implements OnInit {
     dialogRef.componentInstance.catalog_id = this.catalogId;
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
+        this.loading = this.dialog.open(LoadingComponent);
         this.getAllBlogs();
       }
     });
@@ -167,6 +170,7 @@ export class BlogListComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
+        this.loading = this.dialog.open(LoadingComponent);
         this.getAllBlogs();
       }
     });

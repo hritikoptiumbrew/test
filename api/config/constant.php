@@ -175,6 +175,12 @@ return [
     /* host name to identify server for 2FA */
     'APP_HOST_NAME' => env('APP_HOST_NAME'),
 
-    'EXPIRATION_TIME_OF_REDIS_KEY_TO_GET_ALL_FEATURED_TEMPLATES' => 1440, //time to expire key of caching in minutes (1440 = 24 hours)
+    'EXPIRATION_TIME_OF_REDIS_KEY_TO_GET_ALL_FEATURED_TEMPLATES' => 5, //time to expire key of caching in minutes (1440 = 24 hours)
+    'ITEM_COUNT_PER_PAGE_FOR_FEATURED_TEMPLATES'=>20, //set item count per page for feature template(with  shuffle )
+
+    'SUB_CATEGORY_ID_OF_TEXT_ART' => env('SUB_CATEGORY_ID_OF_TEXT_ART'),
+    'SUB_CATEGORY_ID_OF_SHAPES' => env('SUB_CATEGORY_ID_OF_SHAPES'),
+    'SUB_CATEGORY_ID_OF_GRAPHICS' => env('SUB_CATEGORY_ID_OF_GRAPHICS')
+
 
 ];

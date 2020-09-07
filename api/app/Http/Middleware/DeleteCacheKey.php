@@ -173,6 +173,18 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+               //searchNormalImagesBySubCategoryIdForFlyer
+                $keys = Redis::keys('pel:searchNormalImagesBySubCategoryIdForFlyer*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //searchCardsBySubCategoryId
+                $keys = Redis::keys('pel:searchCardsBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
                 //getFeaturedTemplatesWithWebp
                 $keys = Redis::keys('pel:getFeaturedTemplatesWithWebp*');
                 foreach ($keys as $key) {
@@ -181,6 +193,12 @@ class DeleteCacheKey
 
                 //getAllFeaturedTemplatesWithShuffling
                 $keys = Redis::keys('pel:getAllFeaturedTemplatesWithShuffling*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //searchCatalogByUser
+                $keys = Redis::keys('pel:searchCatalogByUser*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
@@ -312,6 +330,12 @@ class DeleteCacheKey
 
                 //searchNormalImagesBySubCategoryId
                 $keys = Redis::keys('pel:searchNormalImagesBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //searchNormalImagesBySubCategoryIdForFlyer
+                $keys = Redis::keys('pel:searchNormalImagesBySubCategoryIdForFlyer*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
@@ -504,7 +528,7 @@ class DeleteCacheKey
             }
 
             //Font Module
-            if ($api == '/api/addFont' or $api == '/api/editFont' or $api == '/api/deleteFont' or $api == '/api/addInvalidFont') {
+            if ($api == '/api/addFont' or $api == '/api/editFont' or $api == '/api/deleteFont' or $api == '/api/addInvalidFont' or $api == '/api/removeInvalidFont') {
 
                 /*//getAllFontsByCatalogIdForAdmin
                 $keys = Redis::keys('pel:getAllFontsByCatalogIdForAdmin*');
@@ -526,6 +550,12 @@ class DeleteCacheKey
 
                 //getOfflineFontCatalogs
                 $keys = Redis::keys('pel:getOfflineFontCatalogs*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getCorruptedFontList
+                $keys = Redis::keys('pel:getCorruptedFontList*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
@@ -559,6 +589,38 @@ class DeleteCacheKey
 
                 //getValidationFromCache
                 $keys = Redis::keys('pel:getValidationFromCache*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            //blog module
+            if ($api == '/api/addBlogContent' or $api == '/api/updateBlogContent' or $api == '/api/deleteBlogContent' or $api == '/api/setBlogRankOnTheTopByAdmin') {
+
+                //getBlogContent
+                $keys = Redis::keys('pel:getBlogContent*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getBlogListByUser
+                $keys = Redis::keys('pel:getBlogListByUser*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getBlogContentByIdForUser
+                $keys = Redis::keys('pel:getBlogContentByIdForUser*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            //only use brand-maker search module
+            if($api == '/api/updateTagForBrandSearch'){
+
+                //getAllSamplesWithWebp
+                $keys = Redis::keys('pel:getAllSamplesWithWebp*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
