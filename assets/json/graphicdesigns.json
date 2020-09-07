@@ -1,0 +1,46 @@
+{
+    "meta_detail": {
+        "canonical": "https://graphicdesigns.co.in/",
+        "site_name":"graphicdesigns",
+        "thumbnail_image": "https://postermaker.co.in/MVM.png",
+        "title": "Business and Marketing Video Maker | Create videos for free",
+        "description": "Catch more customers with irresistible marketing videos. Combine stunning animation with photos, footage, and text. Start now, share in minutes.",
+        "webp_logo": "assets/images/MVM-logo.webp",
+        "png_logo": "assets/images/MVM-logo.png",
+        "favicon": "gd_favicon",
+        "support":"https://graphicdesigns.co.in/support/",
+        "privacy_policy":"https://graphicdesigns.co.in/privacy-policy/",
+        "contact_us":"https://graphicdesigns.co.in/terms-of-use/"
+    },
+    "content_detail": [{
+            "title": "MVM: Marketing Video, Promo Video, Slideshow Maker",
+            "webp_logo": "assets/images/app_logo/marketing_video_maker.webp",
+            "png_logo": "assets/images/app_logo/marketing_video_maker.png",
+            "content": "Easily create marketing videos that grab more followers. Choose from 1000+ ready-to-use editable templates, stickers, animations, and text styles.",
+            "webp_image": "assets/images/MVM-home.webp",
+            "png_image": "assets/images/MVM-home.jpg",
+            "playstore_link": "https://play.google.com/store/apps/details?id=com.digitalmarketing.slideshowmaker",
+            "appstore_link": "https://apps.apple.com/us/app/mvm-marketing-video-maker/id1480483917"
+        },
+        {
+            "title": "Story Maker, Story Art, Highlight Cover For Insta",
+            "webp_logo": "assets/images/app_logo/story_maker.webp",
+            "png_logo": "assets/images/app_logo/story_maker.png",
+            "content": "Create Stories for Instagram, Facebook, Snapchat and Whatsapp Status to please your followers.",
+            "webp_image": "assets/images/1Sstory-home.webp",
+            "png_image": "assets/images/1Sstory-home.jpg",
+            "playstore_link": "https://play.google.com/store/apps/details?id=com.onestory.storymaker",
+            "appstore_link": "https://apps.apple.com/us/app/1sstory-story-maker-editor/id1484440581"
+        },
+        {
+            "title": "Banner Maker Thumbnail Creator Cover Photo Design",
+            "webp_logo": "assets/images/app_logo/banner_maker.webp",
+            "png_logo": "assets/images/app_logo/banner_maker.png",
+            "content": "Are you looking for creative banner maker app at your fingertips? Create engaging, high converting banner with a professional banner maker.",
+            "webp_image": "assets/images/banner-maker.webp",
+            "png_image": "assets/images/banner-maker.png",
+            "playstore_link": "https://play.google.com/store/apps/details?id=com.rollerbannermaker",
+            "appstore_link": ""
+        }
+    ]
+}

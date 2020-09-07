@@ -31,27 +31,7 @@
     <meta http-equiv="Expires" content="1" />
 
     <!--====== Favicon Icon ======-->
-    <link rel="apple-touch-icon" sizes="57x57" href="../assets/images/favicon/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="../assets/images/favicon/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="../assets/images/favicon/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/images/favicon/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="../assets/images/favicon/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="../assets/images/favicon/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="../assets/images/favicon/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="../assets/images/favicon/apple-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/favicon/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="../assets/images/favicon/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="../assets/images/favicon/android-icon-512x512.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/favicon/android-icon-48x48.png">
-    <link rel="shortcut icon" type="image/icon" href="../assets/images/favicon/favicon.ico">
-    <link rel="icon" type="image/icon" href="../assets/images/favicon/favicon.ico">
-    <link rel="manifest" href="../assets/images/favicon/manifest.json">
     <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="../assets/images/favicon/ms-icon-144x144.png">
-    <meta name="msapplication-config" content="../assets/images/favicon/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
 
     <!--====== Animate CSS ======-->
@@ -77,6 +57,95 @@
 
     <!--====== Style CSS ======-->
     <link rel="stylesheet" href="../assets/css/style.css?v1.0">
+    <script>
+        var json_data;
+        function init() {
+
+
+            switch (window.location.href) {
+                case 'https://flyerbuilder.app/terms-of-use/':
+                    $.getJSON('../assets/json/flyerbuilder.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+                case 'https://postermaker.co.in/terms-of-use/#/':
+                    $.getJSON('../assets/json/postermaker.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeMetadata(json_data);
+                        changeFavicon();
+                    });
+                    break;
+                case 'https://photoeditorlab.co.in/terms-of-use/#/':
+                    $.getJSON('../assets/json/photoeditorlab.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+                case 'https://graphicdesigns.co.in/terms-of-use/#/':
+                    $.getJSON('../assets/json/graphicdesigns.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeMetadata(json_data);
+                        changeFavicon();
+                    });
+
+                    break;
+                default:
+                    $.getJSON('../assets/json/photoeditorlab.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+            }
+        }
+
+        window.onload = init;
+
+        function changeFavicon() {
+            $('head').append('<link rel="apple-touch-icon" sizes="57x57" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-57x57.png">' +
+                '<link rel="apple-touch-icon" sizes="60x60" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-60x60.png">' +
+                '<link rel="apple-touch-icon" sizes="72x72" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-72x72.png">' +
+                '<link rel="apple-touch-icon" sizes="76x76" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-76x76.png">' +
+                '<link rel="apple-touch-icon" sizes="114x114" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-114x114.png">' +
+                '<link rel="apple-touch-icon" sizes="120x120" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-120x120.png">' +
+                '<link rel="apple-touch-icon" sizes="144x144" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-144x144.png">' +
+                '<link rel="apple-touch-icon" sizes="152x152" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-152x152.png">' +
+                '<link rel="apple-touch-icon" sizes="180x180" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-180x180.png">' +
+                '<link rel="icon" type="image/png" sizes="192x192" href="../assets/images/' + json_data.meta_detail.favicon + '/android-icon-192x192.png">' +
+                '<link rel="icon" type="image/png" sizes="32x32" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon-32x32.png">' +
+                '<link rel="icon" type="image/png" sizes="96x96" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon-96x96.png">' +
+                '<link rel="icon" type="image/png" sizes="16x16" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon-16x16.png">' +
+                '<link rel="icon" type="image/png" sizes="512x512" href="../assets/images/' + json_data.meta_detail.favicon + '/android-icon-512x512.png">' +
+                '<link rel="icon" type="image/png" sizes="48x48" href="../assets/images/' + json_data.meta_detail.favicon + '/android-icon-48x48.png">' +
+                '<link rel="shortcut icon" type="image/icon" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon.ico">' +
+                '<link rel="icon" type="image/icon" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon.ico">' +
+                '<link rel="manifest" href="assets/images/' + json_data.meta_detail.favicon + '/manifest.json">' +
+                '<meta name="msapplication-TileImage" content="../assets/images/' + json_data.meta_detail.favicon + '/ms-icon-144x144.png">' +
+                '<meta name="msapplication-config" content="../assets/images/' + json_data.meta_detail.favicon + '/browserconfig.xml">');
+
+        }
+
+        function changeMetadata(json_data) {
+            document.title = json_data.meta_detail.title;
+            $('link[rel="canonical"]').attr("href", json_data.meta_detail.contact_us);
+            $('meta[property="og:url"]').attr("content", json_data.meta_detail.canonical);
+            $('meta[name="twitter:url"]').attr("content", json_data.meta_detail.canonical);
+            $('meta[property="og:site_name"]').attr("content", json_data.meta_detail.site_name);
+            $('meta[property="og:image"]').attr("content", json_data.meta_detail.thumbnail_image);
+            $('meta[name="twitter:image"]').attr("content", json_data.meta_detail.thumbnail_image);
+            $('meta[property="og:title"]').attr("content", json_data.meta_detail.title);
+            $('meta[name="twitter:title"]').attr("content", json_data.meta_detail.title);
+            $('meta[name="description"]').attr("content", json_data.meta_detail.description);
+            $('meta[property="og:description"]').attr("content", json_data.meta_detail.description);
+            $('meta[name="twitter:description"]').attr("content", json_data.meta_detail.description);
+            $(".navbar-brand").append('<img class="my-2" src="../' + json_data.meta_detail.webp_logo + '" onerror=' + "'this.src=" + '"../' + json_data.meta_detail.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo">');
+            $(".footer-logo").append('<img src="../' + json_data.meta_detail.webp_logo + '" onerror=' + "'this.src=" + '"../' + json_data.meta_detail.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo" class="img-fluid">');
+        }
+    </script>
+
 
 </head>
 
@@ -115,8 +184,6 @@
                     <div class="col-lg-12">
                         <nav class="navbar navbar-expand-lg">
                             <a class="navbar-brand" href="../index.html">
-                                <img src="../assets/images/logo.webp" onerror='this.src="../assets/images/logo.png"'
-                                    alt="Logo">
                             </a>
                             <button class="navbar-toggler" type="button" data-toggle="collapse"
                                 data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -128,20 +195,14 @@
 
                             <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                                 <ul id="nav" class="navbar-nav ml-auto">
+                                    <li class="nav-item">
+                                        <a class="" target="_blank" href="../index.html">Home</a>
+                                    </li>
                                     <li class="nav-item ">
-                                        <a class="" href="../index.html#home">Home</a>
+                                        <a class="" target="_blank" href="../privacy-policy/">Privacy Policy</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="" href="../index.html#why">Why</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="" href="../index.html#features">Features</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="" href="../index.html#screenshots">Screenshots</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="" href="../index.html#download">Download</a>
+                                        <a class="" target="_blank" href="../support/">Contact Us</a>
                                     </li>
                                 </ul>
                             </div> <!-- navbar collapse -->
@@ -168,73 +229,112 @@
                                 data-wow-duration="1.3s" data-wow-delay="0.2s">
                                 Terms & Conditions</h1>
                             <!--  <p class="text " >Terms & Conditions</p> -->
-                            <p class="text ">By downloading or using the app, these terms will automatically
-                                apply to you – you should make sure therefore that you read them carefully before using
-                                the app. You’re not allowed to copy, or modify the app, any part of the app, or our
-                                trademarks in any way. You’re not allowed to attempt to extract the source code of the
-                                app, and you also shouldn’t try to translate the app into other languages, or make
-                                derivative versions. The app itself, and all the trade marks, copyright, database rights
-                                and other intellectual property rights related to it, still belong to SBG.</p>
+                            <p class="text ">By downloading or using the app, these terms will automatically apply to
+                                you – you should make sure therefore that you read them carefully before using the app.
+                                You’re not allowed to copy, or modify the app, any part of the app, or our trademarks in
+                                any way. You’re not allowed to attempt to extract the source code of the app, and you
+                                also shouldn’t try to translate the app into other languages, or make derivative
+                                versions. The app itself, and all the trade marks, copyright, database rights and other
+                                intellectual property rights related to it, still belong to We.</p>
 
-                            <p class="text ">SBG is committed to ensuring that the app is as useful and
-                                efficient as possible. For that reason, we reserve the right to make changes to the app
-                                or to charge for its services, at any time and for any reason. We will never charge you
-                                for the app or its services without making it very clear to you exactly what you’re
-                                paying for.</p>
-                            <p class="text ">The This app app stores and processes personal data that you have
-                                provided to us, in order to provide my Service. It’s your responsibility to keep your
-                                phone and access to the app secure. We therefore recommend that you do not jailbreak or
-                                root your phone, which is the process of removing software restrictions and limitations
-                                imposed by the official operating system of your device. It could make your phone
-                                vulnerable to malware/viruses/malicious programs, compromise your phone’s security
-                                features and it could mean that the This app app won’t work properly or at all.</p>
-                            <p class="text ">You should be aware that there are certain things that SBG will
-                                not take responsibility for. Certain functions of the app will require the app to have
-                                an active internet connection. The connection can be Wi-Fi, or provided by your mobile
-                                network provider, but SBG cannot take responsibility for the app not working at full
+                            <p class="text ">We are committed to ensuring that the app is as useful and efficient as
+                                possible. For that reason, we reserve the right to make changes to the app or to charge
+                                for its services, at any time and for any reason. We will never charge you for the app
+                                or its services without making it very clear to you exactly what you’re paying for.</p>
+                            <p class="text ">The This app app stores and processes personal data that you have provided
+                                to us, in order to provide my Service. It’s your responsibility to keep your phone and
+                                access to the app secure. We therefore recommend that you do not jailbreak or root your
+                                phone, which is the process of removing software restrictions and limitations imposed by
+                                the official operating system of your device. It could make your phone vulnerable to
+                                malware/viruses/malicious programs, compromise your phone’s security features and it
+                                could mean that the This app app won’t work properly or at all.</p>
+
+
+                            <p class="text ">
+                                The app does use third party services that declare their own
+                                Terms and Conditions.
+                            </p>
+                            <p class="text ">
+                                Link to Terms and Conditions of third party service
+                                providers used by the app
+                            </p>
+                            <ul class="ml-3 ul-square">
+                                <li><a href="https://policies.google.com/terms" target="_blank"
+                                        rel="noopener noreferrer">
+                                        <h6>Google Play Services</h6>
+                                    </a></li>
+                                <li class="list-item"><a href="https://developers.google.com/admob/terms"
+                                        target="_blank" rel="noopener noreferrer">
+                                        <h6>AdMob</h6>
+                                    </a></li>
+                                <li class="list-item"><a href="https://firebase.google.com/terms/analytics"
+                                        target="_blank" rel="noopener noreferrer">
+                                        <h6>Google Analytics for Firebase</h6>
+                                    </a></li>
+                                <li class="list-item"><a href="https://firebase.google.com/terms/crashlytics"
+                                        target="_blank" rel="noopener noreferrer">
+                                        <h6>Firebase Crashlytics</h6>
+                                    </a></li>
+                                <li class="list-item"><a href="https://www.facebook.com/legal/terms/plain_text_terms"
+                                        target="_blank" rel="noopener noreferrer">
+                                        <h6>Facebook</h6>
+                                    </a></li>
+                                <li class="list-item"><a href="https://fabric.io/terms/fabric" target="_blank"
+                                        rel="noopener noreferrer">
+                                        <h6>Fabric</h6>
+                                    </a></li>
+                                <li class="list-item"><a href="https://onesignal.com/tos" target="_blank"
+                                        rel="noopener noreferrer">
+                                        <h6>One Signal</h6>
+                                    </a></li>
+                            </ul>
+                            <p class="text ">You should be aware that there are certain things that We will not take
+                                responsibility for. Certain functions of the app will require the app to have an active
+                                internet connection. The connection can be Wi-Fi, or provided by your mobile network
+                                provider, but We cannot take responsibility for the app not working at full
                                 functionality if you don’t have access to Wi-Fi, and you don’t have any of your data
                                 allowance left.</p>
-                            <p class="text ">If you’re using the app outside of an area with Wi-Fi, you should
-                                remember that your terms of the agreement with your mobile network provider will still
-                                apply. As a result, you may be charged by your mobile provider for the cost of data for
-                                the duration of the connection while accessing the app, or other third party charges. In
+                            <p class="text ">If you’re using the app outside of an area with Wi-Fi, you should remember
+                                that your terms of the agreement with your mobile network provider will still apply. As
+                                a result, you may be charged by your mobile provider for the cost of data for the
+                                duration of the connection while accessing the app, or other third party charges. In
                                 using the app, you’re accepting responsibility for any such charges, including roaming
                                 data charges if you use the app outside of your home territory (i.e. region or country)
                                 without turning off data roaming. If you are not the bill payer for the device on which
                                 you’re using the app, please be aware that we assume that you have received permission
                                 from the bill payer for using the app.</p>
-                            <p class="text ">Along the same lines, SBG cannot always take responsibility for
-                                the way you use the app i.e. You need to make sure that your device stays charged – if
-                                it runs out of battery and you can’t turn it on to avail the Service, SBG cannot accept
+                            <p class="text ">Along the same lines, We cannot always take responsibility for the way you
+                                use the app i.e. You need to make sure that your device stays charged – if it runs out
+                                of battery and you can’t turn it on to avail the Service, We cannot accept
                                 responsibility.</p>
-                            <p class="text ">With respect to SBG’s
-                                responsibility for your use of the app, when you’re using the app, it’s important to
-                                bear in mind that although we endeavour to ensure that it is updated and correct at
-                                all times, we do rely on third parties to provide information to us so that we can
-                                make it available to you. SBG accepts no liability for any loss, direct or indirect,
-                                you experience as a result of relying wholly on this functionality of the app.</p>
-                            <p class="text ">At some point, we may wish
-                                to update the app. The app is currently available on iOS – the requirements for
-                                system(and for any additional systems we decide to extend the availability of the
-                                app to) may change, and you’ll need to download the updates if you want to keep
-                                using the app. SBG does not promise that it will always update the app so that it is
-                                relevant to you and/or works with the iOS version that you have installed on your
-                                device. However, you promise to always accept updates to the application when
-                                offered to you, We may also wish to stop providing the app, and may terminate use of
-                                it at any time without giving notice of termination to you. Unless we tell you
-                                otherwise, upon any termination, (a) the rights and licenses granted to you in these
-                                terms will end; (b) you must stop using the app, and (if needed) delete it from your
-                                device.</p>
+                            <p class="text ">With respect to We’s responsibility for your use of the app, when you’re
+                                using the app, it’s important to bear in mind that although we endeavour to ensure that
+                                it is updated and correct at all times, we do rely on third parties to provide
+                                information to us so that we can make it available to you. We accepts no liability for
+                                any loss, direct or indirect, you experience as a result of relying wholly on this
+                                functionality of the app.</p>
+                            <p class="text ">At some point, we may wish to update the app. The app is currently
+                                available on Android & iOS – the requirements for both systems(and for any additional
+                                systems we decide to extend the availability of the app to) may change, and you’ll need
+                                to download the updates if you want to keep using the app. We does not promise that it
+                                will always update the app so that it is relevant to you and/or works with the Android &
+                                iOS version that you have installed on your device. However, you promise to always
+                                accept updates to the application when offered to you, We may also wish to stop
+                                providing the app, and may terminate use of it at any time without giving notice of
+                                termination to you. Unless we tell you otherwise, upon any termination, (a) the rights
+                                and licenses granted to you in these terms will end; (b) you must stop using the app,
+                                and (if needed) delete it from your device.</p>
                             <h6 class="text ">Changes to This
                                 Terms and Conditions</h6>
-                            <p class="text ">I may update our Terms and
-                                Conditions from time to time. Thus, you are advised to review this page periodically
-                                for any changes. I will notify you of any changes by posting the new Terms and
-                                Conditions on this page. These changes are effective immediately after they are
-                                posted on this page.</p>
+                            <p class="text ">I may update our Terms and Conditions from time to time. Thus, you are
+                                advised to review this page periodically for any changes. I will notify you of any
+                                changes by posting the new Terms and Conditions on this page.
+
+                                These terms and conditions are effective as of 2018-09-02.</p>
                             <h6 class="text">Contact Us</h6>
                             <p class="text">If you have any questions
-                                or suggestions about my Terms and Conditions, do not hesitate to contact me.</p>
+                                or suggestions about my Terms and Conditions, do not hesitate to contact me at Contact
+                                Us.</p>
                         </div> <!-- header hero content -->
                     </div>
                 </div> <!-- row -->
@@ -248,14 +348,7 @@
 
     <!--====== HEADER PART ENDS ======-->
 
-
-
-
-
-
-
-
-    <!--====== PART START ======-->
+    <!--======FOOTER PART START ======-->
 
     <footer id="footer" class="footer-area">
         <div class="footer-shape shape-1"></div>
@@ -271,11 +364,10 @@
         <div class="footer-widget  pb-80">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-6 col-md-6">
                         <div class="footer-about mt-50 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.2s">
-                            <a class="logo" href="../index.html">
-                                <img src="../assets/images/logo.webp" onerror='this.src="../assets/images/logo.png"'
-                                    class="img-fluid" alt="Logo">
+                            <a class="logo footer-logo" href="../index.html">
+
                             </a>
                             <ul class="social">
                                 <li><a target="_blank" href="https://www.facebook.com/photoadking/"><i
@@ -289,23 +381,8 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="col-lg-5 col-md-6">
+                    <div class="col-lg-6 col-md-6 text-center">
                         <div class="footer-link d-flex flex-wrap">
-                            <div class="footer-link-wrapper mt-45 wow fadeIn" data-wow-duration="1.3s"
-                                data-wow-delay="0.4s">
-                                <div class="footer-title">
-                                    <h4 class="title">Quick Links</h4>
-                                </div>
-                                <ul class="link">
-                                    <li><a class="" href="../index.html#home">Home</a></li>
-                                    <li><a class="" href="../index.html#why">Why</a></li>
-                                    <li><a class="" href="../index.html#features">Features</a></li>
-                                    <li><a class="" href="../index.html#screenshots">Screenshots</a></li>
-                                    <li><a class="" href="../index.html#download">Download</a></li>
-                                    <!-- <li><a class="" href="#">Pricing</a></li> -->
-                                    <!-- <li><a class="" href="#">Contact</a></li> -->
-                                </ul>
-                            </div>
                             <div class="footer-link-wrapper mt-45 wow fadeIn" data-wow-duration="1.3s"
                                 data-wow-delay="0.6s">
                                 <div class="footer-title">
@@ -318,37 +395,10 @@
                                             Of Use</a></li>
                                     <li><a class="" target="_blank" href="../support/">Contact Us</a>
                                     </li>
-                                    <!-- <li><a class="" href="#">Legal</a></li>
-                                    <li><a class="" href="#">Site Map</a></li> -->
                                 </ul>
                             </div>
                         </div>
                     </div>
-                    <!--   <div class="col-lg-3 col-md-6">
-                        <div class="footer-contact mt-45 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.8s">
-                            <div class="footer-title">
-                                <h4 class="title">Quick Link</h4>
-                            </div>
-                            <ul class="contact-list">
-                                <li>
-                                    <div class="contact-info d-flex">
-                                        <div class="info-content media-body">
-                                            <p class="text"><a href="#"><i class="lni lni-envelope"></i>
-                                                    sbg.appolu@gmail.com</a></p>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="contact-info d-flex">
-                                        <div class="info-content media-body">
-                                            <p class="text"><a href="#"><i class="lni lni-world"></i>
-                                                    www.yourweb.com</a></p>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </div>
@@ -357,10 +407,9 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="copyright d-sm-flex justify-content-between">
-                            <!-- <div class="copyright-privacy text-center">
-                            </div> -->
                             <div class="copyright-text w-100 text-center">
-                                <p class="text small text-center">Copyright © 2019-2020 all rights reserved</p>
+                                <p class="text small text-center">Copyright © 2019-
+                                    <script>document.write(new Date().getFullYear())</script> all rights reserved</p>
                             </div>
                         </div>
                     </div>

@@ -1,0 +1,66 @@
+{
+    "meta_detail": {
+        "canonical": "https://postermaker.co.in/",
+        "site_name":"postermaker",
+        "thumbnail_image": "https://postermaker.co.in/poster_maker.png",
+        "title": "Free Poster Maker: Design Your Own Posters",
+        "description": "Poster maker App helps you easily design different sizes of digital posters in minutes, no design skills needed.",
+        "webp_logo": "assets/images/postermakerlogo1.webp",
+        "png_logo": "assets/images/postermakerlogo1.png",
+        "favicon": "pm_favicon",
+        "support":"https://postermaker.co.in/support/",
+        "privacy_policy":"https://postermaker.co.in/privacy-policy/",
+        "contact_us":"https://postermaker.co.in/terms-of-use/"
+    },
+    "content_detail": [{
+            "title": "No design skills needed. No Watermark! Design stunning posters in minutes.",
+            "webp_logo": "assets/images/app_logo/poster_maker.webp",
+            "png_logo": "assets/images/app_logo/poster_maker.png",
+            "content": "This poster making app will ease your job for creating & editing Instagram Post Templates, Facebook Post Templates & more with ready-to-use poster design.",
+            "webp_image": "assets/images/flyer-home.webp",
+            "png_image": "assets/images/flyer-home.jpg",
+            "playstore_link": "https://play.google.com/store/apps/details?id=com.nra.flyermaker",
+            "appstore_link": "https://apps.apple.com/us/app/poster-maker-flyer-creator/id1347162740"
+        },
+        {
+            "title": "A digital business card is a unique marketing strategy used to promote your business in the world.",
+            "webp_logo": "assets/images/app_logo/business_card_maker.webp",
+            "png_logo": "assets/images/app_logo/business_card_maker.png",
+            "content": "Create engaging, high converting unique business cards with a professional business card maker and visiting card maker app.",
+            "webp_image": "assets/images/cover-art.webp",
+            "png_image": "assets/images/cover-art.jpg",
+            "playstore_link": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.businesscardmaker",
+            "appstore_link": "https://apps.apple.com/us/app/business-card-maker-designer/id1316860834"
+        },
+        {
+            "title": "create an advertisement for your products or services ",
+            "webp_logo": "assets/images/app_logo/ad_maker_logo.webp",
+            "png_logo": "assets/images/app_logo/ad_maker_logo.png",
+            "content": "Use this graphic design app to create product advertisements for your business to increase engagement and entertain the audience.",
+            "webp_image": "assets/images/banner-maker-home.webp",
+            "png_image": "assets/images/banner-maker-home.png",
+            "playstore_link": "https://play.google.com/store/apps/details?id=com.nra.productmarketingmaker",
+            "appstore_link": "https://apps.apple.com/us/app/ad-maker-banner-maker/id1362417191"
+        },
+        {
+            "title": " Invite your friends and family for special occasions",
+            "webp_logo": "assets/images/app_logo/invitation_card_maker.webp",
+            "png_logo": "assets/images/app_logo/invitation_card_maker.png",
+            "content": "Announce your special day to the whole world with a beautiful invitation and greeting card maker. Get started today!",
+            "webp_image": "assets/images/invitation-maker.webp",
+            "png_image": "assets/images/invitation-maker.png",
+            "playstore_link": "https://play.google.com/store/apps/details?id=com.optimumbrewlab.invitationcardmaker",
+            "appstore_link": "https://apps.apple.com/us/app/invitation-maker-make-ecards/id1320828574"
+        },
+        {
+            "title": "Video advertising made easy!!",
+            "webp_logo": "assets/images/app_logo/flyer_maker_logo.webp",
+            "png_logo": "assets/images/app_logo/flyer_maker_logo.png",
+            "content": "Create your own video posters, promotional video flyers, video invitation cards, video quotes, typography and artwork on video, happy birthday greetings and festival wishes with video and more.",
+            "webp_image": "assets/images/video-flyer.webp",
+            "png_image": "assets/images/video-flyer.png",
+            "playstore_link": "https://play.google.com/store/apps/details?id=com.videoflyermaker",
+            "appstore_link": ""
+        }
+    ]
+}

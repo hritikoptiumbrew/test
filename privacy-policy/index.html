@@ -11,46 +11,24 @@
         content="Design high-quality custom flyers by using flyer maker. Choose from a wide array of promotional flyer design templates for your every need.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="canonical" href="https://flyerbuilder.app/privacy-policy/" />
-
- <!--    <meta property="og:image:height" content="462">
-    <meta property="og:image:width" content="883"> -->
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Flyer Maker, Poster Maker, Banner Maker, Graphic Design With Templates" />
     <meta property="og:description"
-      content="Design high-quality custom flyers by using flyer maker. Choose from a wide array of promotional flyer design templates for your every need." />
+        content="Design high-quality custom flyers by using flyer maker. Choose from a wide array of promotional flyer design templates for your every need." />
     <meta property="og:image" content="https://flyerbuilder.app/flyerbuilderlogo.png" />
     <meta property="og:url" content="https://flyerbuilder.app" />
     <meta property="og:site_name" content="flyerbuilder" />
-  
+
     <meta name="twitter:title" content="Flyer Maker, Poster Maker, Banner Maker, Graphic Design With Templates" />
     <meta name="twitter:description"
-      content="Design high-quality custom flyers by using flyer maker. Choose from a wide array of promotional flyer design templates for your every need." />
-    <meta name="twitter:image"  content="https://flyerbuilder.app/flyerbuilderlogo.png" />
+        content="Design high-quality custom flyers by using flyer maker. Choose from a wide array of promotional flyer design templates for your every need." />
+    <meta name="twitter:image" content="https://flyerbuilder.app/flyerbuilderlogo.png" />
     <meta name="twitter:url" content="https://flyerbuilder.app">
     <meta http-equiv="Expires" content="1" />
     <!--====== Favicon Icon ======-->
-    <link rel="apple-touch-icon" sizes="57x57" href="../assets/images/favicon/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="../assets/images/favicon/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="../assets/images/favicon/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/images/favicon/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="../assets/images/favicon/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="../assets/images/favicon/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="../assets/images/favicon/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="../assets/images/favicon/apple-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/favicon/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="../assets/images/favicon/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="../assets/images/favicon/android-icon-512x512.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/favicon/android-icon-48x48.png">
-    <link rel="shortcut icon" type="image/icon" href="../assets/images/favicon/favicon.ico">
-    <link rel="icon" type="image/icon" href="../assets/images/favicon/favicon.ico">
-    <link rel="manifest" href="../assets/images/favicon/manifest.json">
+
     <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="../assets/images/favicon/ms-icon-144x144.png">
-    <meta name="msapplication-config" content="../assets/images/favicon/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
 
     <!--====== Animate CSS ======-->
@@ -76,6 +54,94 @@
 
     <!--====== Style CSS ======-->
     <link rel="stylesheet" href="../assets/css/style.css?v1.0">
+
+    <script>
+        var json_data;
+        function init() {
+
+            switch (window.location.href) {
+                case 'https://flyerbuilder.app/privacy-policy/':
+                    $.getJSON('../assets/json/flyerbuilder.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+                case 'https://postermaker.co.in/privacy-policy/#/':
+                    $.getJSON('../assets/json/postermaker.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeMetadata(json_data);
+                        changeFavicon();
+                    });
+
+                    break;
+                case 'https://photoeditorlab.co.in/privacy-policy/#/':
+                    $.getJSON('../assets/json/photoeditorlab.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+                case 'https://graphicdesigns.co.in/privacy-policy/#/':
+                    $.getJSON('../assets/json/graphicdesigns.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeMetadata(json_data);
+                        changeFavicon();
+                    });
+
+                    break;
+                default:
+                    $.getJSON('../assets/json/photoeditorlab.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+            }
+        }
+
+        window.onload = init;
+
+        function changeFavicon() {
+            $('head').append('<link rel="apple-touch-icon" sizes="57x57" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-57x57.png">' +
+                '<link rel="apple-touch-icon" sizes="60x60" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-60x60.png">' +
+                '<link rel="apple-touch-icon" sizes="72x72" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-72x72.png">' +
+                '<link rel="apple-touch-icon" sizes="76x76" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-76x76.png">' +
+                '<link rel="apple-touch-icon" sizes="114x114" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-114x114.png">' +
+                '<link rel="apple-touch-icon" sizes="120x120" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-120x120.png">' +
+                '<link rel="apple-touch-icon" sizes="144x144" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-144x144.png">' +
+                '<link rel="apple-touch-icon" sizes="152x152" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-152x152.png">' +
+                '<link rel="apple-touch-icon" sizes="180x180" href="../assets/images/' + json_data.meta_detail.favicon + '/apple-icon-180x180.png">' +
+                '<link rel="icon" type="image/png" sizes="192x192" href="../assets/images/' + json_data.meta_detail.favicon + '/android-icon-192x192.png">' +
+                '<link rel="icon" type="image/png" sizes="32x32" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon-32x32.png">' +
+                '<link rel="icon" type="image/png" sizes="96x96" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon-96x96.png">' +
+                '<link rel="icon" type="image/png" sizes="16x16" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon-16x16.png">' +
+                '<link rel="icon" type="image/png" sizes="512x512" href="../assets/images/' + json_data.meta_detail.favicon + '/android-icon-512x512.png">' +
+                '<link rel="icon" type="image/png" sizes="48x48" href="../assets/images/' + json_data.meta_detail.favicon + '/android-icon-48x48.png">' +
+                '<link rel="shortcut icon" type="image/icon" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon.ico">' +
+                '<link rel="icon" type="image/icon" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon.ico">' +
+                '<link rel="manifest" href="assets/images/' + json_data.meta_detail.favicon + '/manifest.json">' +
+                '<meta name="msapplication-TileImage" content="../assets/images/' + json_data.meta_detail.favicon + '/ms-icon-144x144.png">' +
+                '<meta name="msapplication-config" content="../assets/images/' + json_data.meta_detail.favicon + '/browserconfig.xml">');
+        }
+
+        function changeMetadata(json_data) {
+            document.title = json_data.meta_detail.title;
+            $('link[rel="canonical"]').attr("href", json_data.meta_detail.privacy_policy);
+            $('meta[property="og:url"]').attr("content", json_data.meta_detail.canonical);
+            $('meta[name="twitter:url"]').attr("content", json_data.meta_detail.canonical);
+            $('meta[property="og:site_name"]').attr("content", json_data.meta_detail.site_name);
+            $('meta[property="og:image"]').attr("content", json_data.meta_detail.thumbnail_image);
+            $('meta[name="twitter:image"]').attr("content", json_data.meta_detail.thumbnail_image);
+            $('meta[property="og:title"]').attr("content", json_data.meta_detail.title);
+            $('meta[name="twitter:title"]').attr("content", json_data.meta_detail.title);
+            $('meta[name="description"]').attr("content", json_data.meta_detail.description);
+            $('meta[property="og:description"]').attr("content", json_data.meta_detail.description);
+            $('meta[name="twitter:description"]').attr("content", json_data.meta_detail.description);
+            $(".navbar-brand").append('<img class="my-2" src="../' + json_data.meta_detail.webp_logo + '" onerror=' + "'this.src=" + '"../' + json_data.meta_detail.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo">');
+            $(".footer-logo").append('<img src="../' + json_data.meta_detail.webp_logo + '" onerror=' + "'this.src=" + '"../' + json_data.meta_detail.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo" class="img-fluid">');
+        }
+    </script>
 
 </head>
 
@@ -113,8 +179,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <nav class="navbar navbar-expand-lg">
-                            <a class="navbar-brand"  href="../index.html">
-                                <img src="../assets/images/logo.webp" onerror='this.src="../assets/images/logo.png"' alt="Logo">
+                            <a class="navbar-brand" href="../index.html">
                             </a>
                             <button class="navbar-toggler" type="button" data-toggle="collapse"
                                 data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -126,20 +191,14 @@
 
                             <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                                 <ul id="nav" class="navbar-nav ml-auto">
-                                    <li class="nav-item ">
-                                        <a class="" href="../index.html#home">Home</a>
+                                    <li class="nav-item">
+                                        <a class="" target="_blank" href="../index.html">Home</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="" href="../index.html#why">Why</a>
+                                        <a class="" target="_blank" href="../terms-of-use/">Terms Of Use</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="" href="../index.html#features">Features</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="" href="../index.html#screenshots">Screenshots</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="" href="../index.html#download">Download</a>
+                                        <a class="" target="_blank" href="../support/">Contact Us</a>
                                     </li>
                                 </ul>
                             </div> <!-- navbar collapse -->
@@ -164,21 +223,18 @@
                         <div class="header-hero-content p-0">
                             <h1 class="header-title text-center content_title">
                                 Privacy Policy</h1>
-                            <!--  <h3 class="text ">Privacy Policy</h3> -->
-                            <p class="text ">SBG built the This app as a
-                                Freemium app. This SERVICE is provided by SBG at no cost and is intended for use as
-                                is.</p>
-                            <p class="text ">This page is used to inform
-                                visitors regarding my policies with the collection, use, and disclosure of Personal
-                                Information if anyone decided to use my Service.</p>
-                            <p class="text ">If you choose to use my
-                                Service, then you agree to the collection and use of information in relation to this
-                                policy. The Personal Information that I collect is used for providing and improving
-                                the Service. I will not use or share your information with anyone except as
-                                described in this Privacy Policy.</p>
-                            <p class="text  ">The terms used in this
-                                Privacy Policy have the same meanings as in our Terms and Conditions, which is
-                                accessible at This app unless otherwise defined in this Privacy Policy.</p>
+                            <p class="text ">We built the This app as a Freemium app. This SERVICE is provided by We at
+                                no cost and is intended for use as is.</p>
+                            <p class="text ">This page is used to inform visitors regarding my policies with the
+                                collection, use, and disclosure of Personal Information if anyone decided to use my
+                                Service.</p>
+                            <p class="text ">If you choose to use my Service, then you agree to the collection and use
+                                of information in relation to this policy. The Personal Information that I collect is
+                                used for providing and improving the Service. I will not use or share your information
+                                with anyone except as described in this Privacy Policy.</p>
+                            <p class="text ">The terms used in this Privacy Policy have the same meanings as in our
+                                Terms and Conditions, which is accessible at This app unless otherwise defined in this
+                                Privacy Policy.</p>
                             <h6 class="text ">Information
                                 Collection and Use</h6>
                             <p class="text ">For a better experience,
@@ -189,17 +245,20 @@
                                 party services that may collect information used to identify you.</p>
                             <p class="text ">Link to privacy policy of
                                 third party service providers used by the app</p>
-                            <ul class="ml-3 ul-square" >
+                            <ul class="ml-3 ul-square">
                                 <li><a href="https://support.google.com/admob/answer/6128543?hl=en" target="_blank">
                                         <h6>AdMob</h6>
                                     </a></li>
-                                <li class="list-item"><a href="https://firebase.google.com/policies/analytics" target="_blank">
+                                <li class="list-item"><a href="https://firebase.google.com/policies/analytics"
+                                        target="_blank">
                                         <h6>Firebase Analytics</h6>
                                     </a></li>
                                 <li class="list-item"><a href="https://fabric.io/privacy" target="_blank">
                                         <h6>Fabric</h6>
                                     </a></li>
-                                <li class="list-item"><a href="https://firebase.google.com/products/crashlytics?utm_source=crashlytics_marketing&utm_medium=redirect&utm_campaign=crashlytics_redirect" target="_blank">
+                                <li class="list-item"><a
+                                        href="https://firebase.google.com/products/crashlytics?utm_source=crashlytics_marketing&utm_medium=redirect&utm_campaign=crashlytics_redirect"
+                                        target="_blank">
                                         <h6>Crashlytics</h6>
                                     </a></li>
                             </ul>
@@ -228,7 +287,7 @@
                             <p class="text ">I may employ third-party
                                 companies and individuals due to the following reasons:</p>
                             <ul class="ul-circle">
-                                <li class="ml-5" >To facilitate our Service;</li>
+                                <li class="ml-5">To facilitate our Service;</li>
                                 <li>To provide the Service on our behalf;
                                 </li>
                                 <li>To perform Service-related services;
@@ -274,7 +333,7 @@
                             <h6 class="text">Contact Us
                             </h6>
                             <p class="text ">If you have any questions
-                                or suggestions about my Privacy Policy, do not hesitate to contact me.</p>
+                                or suggestions about my Privacy Policy, do not hesitate to contact me at my email.</p>
 
                         </div> <!-- header hero content -->
                     </div>
@@ -289,14 +348,7 @@
 
     <!--====== HEADER PART ENDS ======-->
 
-
-
-
-
-
-
-
-    <!--====== PART START ======-->
+    <!--====== FOOTER START ======-->
 
     <footer id="footer" class="footer-area">
         <div class="footer-shape shape-1"></div>
@@ -312,36 +364,24 @@
         <div class="footer-widget  pb-80">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-6 col-md-6">
                         <div class="footer-about mt-50 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.2s">
-                            <a class="logo" href="../index.html">
-                                <img src="../assets/images/logo.webp" onerror='this.src="../assets/images/logo.png"'  class="img-fluid" alt="Logo">
+                            <a class="logo footer-logo" href="../index.html">
                             </a>
                             <ul class="social">
-                                <li><a target="_blank" href="https://www.facebook.com/photoadking/"><i class="lni lni-facebook"></i></a></li>
-                                <li><a target="_blank" href="https://www.instagram.com/photoadking/"><i class="lni lni-instagram"></i></a></li>
-                                <li><a target="_blank" href="https://twitter.com/photoadking"><i class="lni lni-twitter"></i></a></li>
-                                <li><a target="_blank" href="https://in.linkedin.com/showcase/photoadking"><i class="lni lni-linkedin"></i></a></li>
+                                <li><a target="_blank" href="https://www.facebook.com/photoadking/"><i
+                                            class="lni lni-facebook"></i></a></li>
+                                <li><a target="_blank" href="https://www.instagram.com/photoadking/"><i
+                                            class="lni lni-instagram"></i></a></li>
+                                <li><a target="_blank" href="https://twitter.com/photoadking"><i
+                                            class="lni lni-twitter"></i></a></li>
+                                <li><a target="_blank" href="https://in.linkedin.com/showcase/photoadking"><i
+                                            class="lni lni-linkedin"></i></a></li>
                             </ul>
                         </div>
                     </div>
-                    <div class="col-lg-5 col-md-6">
+                    <div class="col-lg-6 col-md-6 text-center">
                         <div class="footer-link d-flex flex-wrap">
-                            <div class="footer-link-wrapper mt-45 wow fadeIn" data-wow-duration="1.3s"
-                                data-wow-delay="0.4s">
-                                <div class="footer-title">
-                                    <h4 class="title">Quick Links</h4>
-                                </div>
-                                <ul class="link">
-                                    <li><a class="" href="../index.html#home">Home</a></li>
-                                    <li><a class="" href="../index.html#why">Why</a></li>
-                                    <li><a class="" href="../index.html#features">Features</a></li>
-                                    <li><a class="" href="../index.html#screenshots">Screenshots</a></li>
-                                    <li><a class="" href="../index.html#download">Download</a></li>
-                                    <!-- <li><a class="" href="#">Pricing</a></li> -->
-                                    <!-- <li><a class="" href="#">Contact</a></li> -->
-                                </ul>
-                            </div>
                             <div class="footer-link-wrapper mt-45 wow fadeIn" data-wow-duration="1.3s"
                                 data-wow-delay="0.6s">
                                 <div class="footer-title">
@@ -354,37 +394,10 @@
                                             Of Use</a></li>
                                     <li><a class="" target="_blank" href="../support/">Contact Us</a>
                                     </li>
-                                    <!-- <li><a class="" href="#">Legal</a></li>
-                                    <li><a class="" href="#">Site Map</a></li> -->
                                 </ul>
                             </div>
                         </div>
                     </div>
-                    <!--   <div class="col-lg-3 col-md-6">
-                        <div class="footer-contact mt-45 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.8s">
-                            <div class="footer-title">
-                                <h4 class="title">Quick Link</h4>
-                            </div>
-                            <ul class="contact-list">
-                                <li>
-                                    <div class="contact-info d-flex">
-                                        <div class="info-content media-body">
-                                            <p class="text"><a href="#"><i class="lni lni-envelope"></i>
-                                                    sbg.appolu@gmail.com</a></p>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="contact-info d-flex">
-                                        <div class="info-content media-body">
-                                            <p class="text"><a href="#"><i class="lni lni-world"></i>
-                                                    www.yourweb.com</a></p>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </div>
@@ -393,10 +406,9 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="copyright d-sm-flex justify-content-between">
-                            <!-- <div class="copyright-privacy text-center">
-                            </div> -->
                             <div class="copyright-text w-100 text-center">
-                                <p class="text small text-center">Copyright © 2019-2020 all rights reserved</p>
+                                <p class="text small text-center">Copyright © 2019-
+                                    <script>document.write(new Date().getFullYear())</script> all rights reserved</p>
                             </div>
                         </div>
                     </div>
