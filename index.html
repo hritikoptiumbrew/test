@@ -28,7 +28,7 @@
 
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="theme-color" content="#ffffff">
-
+    <link rel="preload" href="assets/fonts/LineIcons.woff2" as="font" crossorigin>
     <!--====== Animate CSS ======-->
     <link rel="stylesheet" href="assets/css/animate.css">
 
@@ -36,10 +36,10 @@
     <link rel="stylesheet" href="assets/css/magnific-popup.css">
 
     <!--====== Slick CSS ======-->
-    <link rel="stylesheet" href="assets/css/slick.css">
+    <!-- <link rel="stylesheet" href="assets/css/slick.css"> -->
 
     <!--====== Swiper CSS ======-->
-    <link rel="stylesheet" href="assets/css/swiper.min.css">
+    <!-- <link rel="stylesheet" href="assets/css/swiper.min.css"> -->
 
     <!--====== lineicons CSS ======-->
     <link rel="stylesheet" href="assets/css/lineicons.css">
@@ -91,15 +91,15 @@
                         changeMetadata(json_data);
                     });
                     break;
-                case 'https://postermaker.co.in/#/':
+                case 'https://postermaker.co.in/':
                     $.getJSON('assets/json/postermaker.json', function (data) {
                         json_data = JSON.parse(JSON.stringify(data));
-                        changeMetadata(json_data);
                         changeFavicon();
+                        changeMetadata(json_data);                        
                     });
 
                     break;
-                case 'https://photoeditorlab.co.in/#/':
+                case 'https://photoeditorlab.co.in/':
                     $.getJSON('assets/json/photoeditorlab.json', function (data) {
                         json_data = JSON.parse(JSON.stringify(data));
                         changeFavicon();
@@ -107,11 +107,11 @@
                     });
                     break;
 
-                case 'https://graphicdesigns.co.in/#/':
+                case 'https://graphicdesigns.co.in/':
                     $.getJSON('assets/json/graphicdesigns.json', function (data) {
                         json_data = JSON.parse(JSON.stringify(data));
-                        changeMetadata(json_data);
                         changeFavicon();
+                        changeMetadata(json_data);                       
                     });
 
                     break;
@@ -241,10 +241,7 @@
 </head>
 
 <body>
-    <!--[if IE]>
-    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-  <![endif]-->
-
+   
     <!--====== PRELOADER PART START ======-->
 
     <div class="preloader">
@@ -274,9 +271,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <nav class="navbar navbar-expand-lg">
-                            <a class="navbar-brand" href="#">
-                                <!-- <img id="logo_img" src="assets/images/logo.webp"
-                                    onerror='this.src="assets/images/logo.png"' alt="Logo"> -->
+                            <a class="navbar-brand" href="">
                             </a>
                             <button class="navbar-toggler" type="button" data-toggle="collapse"
                                 data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -309,7 +304,6 @@
 
     </div>
 
-    <a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
 
     <!--====== HEADER PART ENDS ======-->
     <footer id="footer" class="footer-area">
@@ -328,7 +322,7 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6">
                         <div class="footer-about mt-50 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.2s">
-                            <a class="logo footer-logo" href="#">
+                            <a class="logo footer-logo" href="">
 
                             </a>
                             <ul class="social">
@@ -387,7 +381,7 @@
 
     <!--====== Jquery js ======-->
     <script src="assets/js/vendor/jquery-1.12.4.min.js"></script>
-    <script src="assets/js/vendor/modernizr-3.7.1.min.js"></script>
+    <!-- <script src="assets/js/vendor/modernizr-3.7.1.min.js"></script> -->
 
     <!--====== Bootstrap js ======-->
     <script src="assets/js/popper.min.js"></script>
@@ -395,7 +389,7 @@
     <script src="assets/js/bootstrap.min.js"></script>
 
     <!--====== Slick js ======-->
-    <script src="assets/js/slick.min.js"></script>
+    <!-- <script src="assets/js/slick.min.js"></script> -->
 
     <!--====== Magnific Popup js ======-->
     <script src="assets/js/jquery.magnific-popup.min.js"></script>
@@ -404,11 +398,11 @@
     <script src="assets/js/wow.min.js"></script>
 
     <!--====== Swiper js ======-->
-    <script src="assets/js/swiper.min.js"></script>
+    <!-- <script src="assets/js/swiper.min.js"></script> -->
 
     <!--====== Scrolling Nav js ======-->
-    <script src="assets/js/jquery.easing.min.js"></script>
-    <script src="assets/js/scrolling-nav.js"></script>
+    <!-- <script src="assets/js/jquery.easing.min.js"></script> -->
+    <!-- <script src="assets/js/scrolling-nav.js"></script> -->
 
     <!--====== Main js ======-->
     <script src="assets/js/main.js"></script>

@@ -10,30 +10,26 @@
     <meta name="description"
         content="Design high-quality custom flyers by using flyer maker. Choose from a wide array of promotional flyer design templates for your every need.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="canonical" href="https://flyerbuilder.app/terms-of-use/" />
+    <link rel="canonical" href="" />
 
-    <!-- <meta property="og:image:height" content="462">
-    <meta property="og:image:width" content="883"> -->
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Flyer Maker, Poster Maker, Banner Maker, Graphic Design With Templates" />
-    <meta property="og:description"
-        content="Design high-quality custom flyers by using flyer maker. Choose from a wide array of promotional flyer design templates for your every need." />
-    <meta property="og:image" content="https://flyerbuilder.app/flyerbuilderlogo.png" />
-    <meta property="og:url" content="https://flyerbuilder.app" />
-    <meta property="og:site_name" content="flyerbuilder" />
+    <meta property="og:title" content="" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:site_name" content="" />
 
-    <meta name="twitter:title" content="Flyer Maker, Poster Maker, Banner Maker, Graphic Design With Templates" />
-    <meta name="twitter:description"
-        content="Design high-quality custom flyers by using flyer maker. Choose from a wide array of promotional flyer design templates for your every need." />
-    <meta name="twitter:image" content="https://flyerbuilder.app/flyerbuilderlogo.png" />
-    <meta name="twitter:url" content="https://flyerbuilder.app">
+    <meta name="twitter:title" content="" />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:image" content="" />
+    <meta name="twitter:url" content="">
     <meta http-equiv="Expires" content="1" />
 
     <!--====== Favicon Icon ======-->
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="theme-color" content="#ffffff">
-
+    <link rel="preload" href="../assets/fonts/LineIcons.woff2" as="font" crossorigin>
     <!--====== Animate CSS ======-->
     <link rel="stylesheet" href="../assets/css/animate.css">
 
@@ -70,25 +66,25 @@
                         changeMetadata(json_data);
                     });
                     break;
-                case 'https://postermaker.co.in/terms-of-use/#/':
+                case 'https://postermaker.co.in/terms-of-use/':
                     $.getJSON('../assets/json/postermaker.json', function (data) {
                         json_data = JSON.parse(JSON.stringify(data));
-                        changeMetadata(json_data);
                         changeFavicon();
+                        changeMetadata(json_data);                       
                     });
                     break;
-                case 'https://photoeditorlab.co.in/terms-of-use/#/':
+                case 'https://photoeditorlab.co.in/terms-of-use/':
                     $.getJSON('../assets/json/photoeditorlab.json', function (data) {
                         json_data = JSON.parse(JSON.stringify(data));
                         changeFavicon();
                         changeMetadata(json_data);
                     });
                     break;
-                case 'https://graphicdesigns.co.in/terms-of-use/#/':
+                case 'https://graphicdesigns.co.in/terms-of-use/':
                     $.getJSON('../assets/json/graphicdesigns.json', function (data) {
                         json_data = JSON.parse(JSON.stringify(data));
-                        changeMetadata(json_data);
                         changeFavicon();
+                        changeMetadata(json_data);
                     });
 
                     break;
@@ -122,7 +118,7 @@
                 '<link rel="icon" type="image/png" sizes="48x48" href="../assets/images/' + json_data.meta_detail.favicon + '/android-icon-48x48.png">' +
                 '<link rel="shortcut icon" type="image/icon" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon.ico">' +
                 '<link rel="icon" type="image/icon" href="../assets/images/' + json_data.meta_detail.favicon + '/favicon.ico">' +
-                '<link rel="manifest" href="assets/images/' + json_data.meta_detail.favicon + '/manifest.json">' +
+                '<link rel="manifest" href="../assets/images/' + json_data.meta_detail.favicon + '/manifest.json">' +
                 '<meta name="msapplication-TileImage" content="../assets/images/' + json_data.meta_detail.favicon + '/ms-icon-144x144.png">' +
                 '<meta name="msapplication-config" content="../assets/images/' + json_data.meta_detail.favicon + '/browserconfig.xml">');
 
@@ -183,7 +179,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <nav class="navbar navbar-expand-lg">
-                            <a class="navbar-brand" href="../index.html">
+                            <a class="navbar-brand" href="../">
                             </a>
                             <button class="navbar-toggler" type="button" data-toggle="collapse"
                                 data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -196,7 +192,7 @@
                             <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                                 <ul id="nav" class="navbar-nav ml-auto">
                                     <li class="nav-item">
-                                        <a class="" target="_blank" href="../index.html">Home</a>
+                                        <a class="" target="_blank" href="../">Home</a>
                                     </li>
                                     <li class="nav-item ">
                                         <a class="" target="_blank" href="../privacy-policy/">Privacy Policy</a>
@@ -366,7 +362,7 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6">
                         <div class="footer-about mt-50 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.2s">
-                            <a class="logo footer-logo" href="../index.html">
+                            <a class="logo footer-logo" href="../">
 
                             </a>
                             <ul class="social">
@@ -420,14 +416,14 @@
 
     <!--====== Jquery js ======-->
     <script src="../assets/js/vendor/jquery-1.12.4.min.js"></script>
-    <script src="../assets/js/vendor/modernizr-3.7.1.min.js"></script>
+    <!-- <script src="../assets/js/vendor/modernizr-3.7.1.min.js"></script> -->
 
     <!--====== Bootstrap js ======-->
     <script src="../assets/js/popper.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
 
     <!--====== Slick js ======-->
-    <script src="../assets/js/slick.min.js"></script>
+    <!-- <script src="../assets/js/slick.min.js"></script> -->
 
     <!--====== Magnific Popup js ======-->
     <script src="../assets/js/jquery.magnific-popup.min.js"></script>
@@ -436,11 +432,11 @@
     <script src="../assets/js/wow.min.js"></script>
 
     <!--====== Swiper js ======-->
-    <script src="../assets/js/swiper.min.js"></script>
+    <!-- <script src="../assets/js/swiper.min.js"></script> -->
 
     <!--====== Scrolling Nav js ======-->
-    <script src="../assets/js/jquery.easing.min.js"></script>
-    <script src="../assets/js/scrolling-nav.js"></script>
+    <!-- <script src="../assets/js/jquery.easing.min.js"></script> -->
+    <!-- <script src="../assets/js/scrolling-nav.js"></script> -->
 
     <!--====== Main js ======-->
     <script src="../assets/js/main.js"></script>
