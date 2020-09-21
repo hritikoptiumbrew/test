@@ -1288,6 +1288,7 @@ img {
 #summernote+.note-editor .note-editable {
     height: calc(70vh - 200px) !important;
     width: 100%;
+    font-family: Verdana;
 }
 
 .note-frame * {

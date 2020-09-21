@@ -275,6 +275,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('searchNormalImagesBySubCategoryId', 'UserController@searchNormalImagesBySubCategoryId'); //Search normal images by sub_category_id
     Route::post('searchNormalImagesBySubCategoryId_v2', 'UserController@searchNormalImagesBySubCategoryId_v2'); //Search normal images by sub_category_id
     Route::post('searchCatalogByUser', 'UserController@searchCatalogByUser'); //Search catalog details by sub_category_id with default featured catalog list
+    Route::post('searchNormalImagesBySubCategoryIdForFlyer', 'UserController@searchNormalImagesBySubCategoryIdForFlyer'); //Search normal images by sub_category_id from (text-art,graphics,shape) for flyer BG
 
     //Normal images
     Route::post('getImagesByCatalogId', 'UserController@getImagesByCatalogId');

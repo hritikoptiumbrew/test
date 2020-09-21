@@ -173,6 +173,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+               //searchNormalImagesBySubCategoryIdForFlyer
+                $keys = Redis::keys('pel:searchNormalImagesBySubCategoryIdForFlyer*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
                 //searchCardsBySubCategoryId
                 $keys = Redis::keys('pel:searchCardsBySubCategoryId*');
                 foreach ($keys as $key) {
@@ -324,6 +330,12 @@ class DeleteCacheKey
 
                 //searchNormalImagesBySubCategoryId
                 $keys = Redis::keys('pel:searchNormalImagesBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //searchNormalImagesBySubCategoryIdForFlyer
+                $keys = Redis::keys('pel:searchNormalImagesBySubCategoryIdForFlyer*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
