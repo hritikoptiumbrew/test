@@ -175,6 +175,22 @@ class VerificationController extends Controller
     }
 
     //verify user by email & role
+ /*   public function verifyUser($email_id, $role_name)
+    {
+        try {
+            $result = DB::select('SELECT r.name
+                                  FROM role_user ru, roles r, user_master um
+                                  WHERE r.id = ru.role_id AND
+                                        um.id = ru.user_id AND
+                                        um.email_id = ?', [$email_id]);
+            $response = (sizeof($result) > 0 && $result[0]->name == $role_name) ? '' : Response::json(array('code' => 201, 'message' => 'Unauthorized user.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("verifyUser : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'verify user.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }*/
     public function verifyUser($email_id, $role_name)
     {
         try {

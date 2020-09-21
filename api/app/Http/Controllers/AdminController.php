@@ -1477,29 +1477,11 @@ class AdminController extends Controller
                 $result = Cache::rememberforever("getCatalogBySubCategoryId$this->sub_category_id", function () {
 
                     //sub Category Name
-                    if (!Cache::has("pel:getCatalogBySubCategoryId$this->sub_category_id:1")) {
-                        $result = Cache::rememberforever("getCatalogBySubCategoryId$this->sub_category_id:1", function () {
-                            $name = DB::select('SELECT
-                                                   COUNT(scc.id) as total,
-                                                   sc.name 
-                                                FROM
-                                                   sub_category_catalog as scc,
-                                                   sub_category as sc 
-                                                WHERE
-                                                  sc.id = scc.sub_category_id AND 
-                                                  scc.sub_category_id = ? AND 
-                                                  scc.is_active = ?
-                                                GROUP BY
-                                                   sc.name  ', [$this->sub_category_id, 1]);
-                            return $name;
-                        });
-                    }
-                    $name = Cache::get("getCatalogBySubCategoryId$this->sub_category_id:1");
-//                    $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
+                    $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
                     $category_name = $name[0]->name;
 
-//                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
-                    $total_row = $name[0]->total;
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
+                    $total_row = $total_row_result[0]->total;
 
                     $result = DB::select('SELECT
                                         ct.id as catalog_id,
@@ -1535,6 +1517,83 @@ class AdminController extends Controller
 
         } catch (Exception $e) {
             Log::error("getCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+    public function getCatalogBySubCategoryId_v2(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+            //Log::info('getCatalogBySubCategoryId request : ',['request' => $request]);
+
+            $this->sub_category_id = $request->sub_category_id;
+
+            if (!Cache::has("pel:getCatalogBySubCategoryId_v2$this->sub_category_id")) {
+                $result = Cache::rememberforever("getCatalogBySubCategoryId_v2$this->sub_category_id", function () {
+
+                    //sub Category Name
+                    if (!Cache::has("pel:getCatalogBySubCategoryId_v2$this->sub_category_id:1")) {
+                        $result = Cache::rememberforever("getCatalogBySubCategoryId_v2$this->sub_category_id:1", function () {
+                            $name = DB::select('SELECT
+                                                   COUNT(scc.id) as total,
+                                                   sc.name 
+                                                FROM
+                                                   sub_category_catalog as scc,
+                                                   sub_category as sc 
+                                                WHERE
+                                                  sc.id = scc.sub_category_id AND 
+                                                  scc.sub_category_id = ? AND 
+                                                  scc.is_active = ?
+                                                GROUP BY
+                                                   sc.name  ', [$this->sub_category_id, 1]);
+                            return $name;
+                        });
+                    }
+                    $name = Cache::get("getCatalogBySubCategoryId_v2$this->sub_category_id:1");
+                    $category_name = $name[0]->name;
+                    $total_row = $name[0]->total;
+
+                    $result = DB::select('SELECT
+                                        ct.id as catalog_id,
+                                        ct.name,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                        IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                        IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                        ct.is_free,
+                                        ct.is_featured
+                                      FROM
+                                        catalog_master as ct,
+                                        sub_category_catalog as sct
+                                      WHERE
+                                        sct.sub_category_id = ? AND
+                                        sct.catalog_id=ct.id AND
+                                        sct.is_active=1
+                                      order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                    return array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
+                });
+            }
+
+            $redis_result = Cache::get("getCatalogBySubCategoryId_v2$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getCatalogBySubCategoryId_v2 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
