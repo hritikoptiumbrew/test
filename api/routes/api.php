@@ -318,6 +318,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
     //Get templates by category tags
     Route::post('getTemplatesBySubCategoryTags', 'UserController@getTemplatesBySubCategoryTags');
+    Route::post('getTemplatesBySubCategoryTags_v2', 'UserController@getTemplatesBySubCategoryTags_v2');
 
     //Shuffle all featured templates for 24hours from given sub_category_id or get templates by catalog_id with last_sync_time
     Route::post('getTemplatesWithLastSyncTime', 'UserController@getTemplatesWithLastSyncTime');
