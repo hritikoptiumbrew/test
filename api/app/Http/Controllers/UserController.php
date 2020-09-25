@@ -2993,9 +2993,11 @@ class UserController extends Controller
                                                           MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) AND
                                                           sct.is_active = 1
                                                           GROUP BY catalog_id
-                                                          ORDER BY FIELD(sct.sub_category_id,' . $this->default_sub_category_id . ')');
+                                                          ORDER BY FIELD(sct.sub_category_id,' . $this->default_sub_category_id . '),ct.updated_at DESC');
                         }
-                        $total_row_result = DB::select('SELECT count(*) as total
+                        if (!Cache::has("pel:searchNormalImagesBySubCategoryIdForFlyer$this->default_sub_category_id:$this->search_category")) {
+                            $result = Cache::rememberforever("searchNormalImagesBySubCategoryIdForFlyer$this->default_sub_category_id:$this->search_category", function () {
+                                $total_row_result = DB::select('SELECT count(DISTINCT im.id) as total
                                                                 FROM
                                                                 images as im,
                                                                 catalog_master AS cm,
@@ -3008,10 +3010,13 @@ class UserController extends Controller
                                                                 scc.sub_category_id IN(' . $this->default_sub_category_id . ') AND
                                                                 isnull(im.original_img) AND
                                                                 isnull(im.display_img) AND
-                                                                (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
-                                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE))');
+                                                                (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
+                                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))');
 
-                        $total_row = $total_row_result[0]->total;
+                                return $total_row_result[0]->total;
+                            });
+                        }
+                        $total_row = Cache::get("searchNormalImagesBySubCategoryIdForFlyer$this->default_sub_category_id:$this->search_category");
 
                         DB::statement("SET sql_mode = '' ");
                         $search_result = DB::select('SELECT
@@ -3041,7 +3046,7 @@ class UserController extends Controller
                                                         (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
                                                         MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE))
                                                     GROUP BY img_id
-                                                    ORDER BY FIELD(scc.sub_category_id,' . $this->default_sub_category_id . ') LIMIT ?, ?', [$this->offset, $this->item_count]);
+                                                    ORDER BY FIELD(scc.sub_category_id,' . $this->default_sub_category_id . '),im.updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
                     } else {
                         $catalog_list = [];
                         $search_result = [];
