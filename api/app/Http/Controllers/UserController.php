@@ -4112,7 +4112,7 @@ class UserController extends Controller
                     $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
                     $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
 
-                    $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
+                    $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(i.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",i.image),"") as sample_image,' : 'IF(i.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",i.attribute1),"") as sample_image,';
                     if ($this->catalog_id == 0) {
 
                         $category_list = DB::select('SELECT
@@ -4138,21 +4138,21 @@ class UserController extends Controller
                             $total_row = $total_cards[0]->total;
 
                             $sample_cards = DB::select('SELECT
-                                                  id AS json_id,
+                                                  i.id AS json_id,
                                                   '. $image_url .'
-                                                  is_free,
-                                                  is_featured,
-                                                  is_portrait,
-                                                  coalesce(height,0) AS height,
-                                                  coalesce(width,0) AS width,
-                                                  coalesce(search_category,"") AS search_category,
-                                                  coalesce(original_img_height,0) AS original_img_height,
-                                                  coalesce(original_img_width,0) AS original_img_width,
-                                                  updated_at
+                                                  i.is_free,
+                                                  i.is_featured,
+                                                  i.is_portrait,
+                                                  coalesce(i.height,0) AS height,
+                                                  coalesce(i.width,0) AS width,
+                                                  coalesce(i.search_category,"") AS search_category,
+                                                  coalesce(i.original_img_height,0) AS original_img_height,
+                                                  coalesce(i.original_img_width,0) AS original_img_width,
+                                                  i.updated_at
                                                   FROM
-                                                    images
+                                                    images as i
                                                   WHERE
-                                                    catalog_id = ?
+                                                    i.catalog_id = ?
                                                   ORDER BY updated_at DESC LIMIT ?, ?', [$category_list[0]->catalog_id, $this->offset, $this->item_count]);
 
                             $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -4197,7 +4197,7 @@ class UserController extends Controller
                                                             sct.is_active = 1 AND
                                                             ct.is_featured = 1 AND
                                                             i.is_featured = 1
-                                                            ORDER BY i.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+                                                            ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
 
                             $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
@@ -4214,21 +4214,21 @@ class UserController extends Controller
                         $total_row = $total_cards[0]->total;
 
                         $sample_cards = DB::select('SELECT
-                                                  id AS json_id,
+                                                  i.id AS json_id,
                                                   '. $image_url .'
-                                                  is_free,
-                                                  is_featured,
-                                                  is_portrait,
-                                                  coalesce(height,0) AS height,
-                                                  coalesce(width,0) AS width,
-                                                  coalesce(search_category,"") AS search_category,
-                                                  coalesce(original_img_height,0) AS original_img_height,
-                                                  coalesce(original_img_width,0) AS original_img_width,
-                                                  updated_at
+                                                  i.is_free,
+                                                  i.is_featured,
+                                                  i.is_portrait,
+                                                  coalesce(i.height,0) AS height,
+                                                  coalesce(i.width,0) AS width,
+                                                  coalesce(i.search_category,"") AS search_category,
+                                                  coalesce(i.original_img_height,0) AS original_img_height,
+                                                  coalesce(i.original_img_width,0) AS original_img_width,
+                                                  i.updated_at
                                                   FROM
-                                                    images
+                                                    images AS i
                                                   WHERE
-                                                    catalog_id = ?
+                                                    i.catalog_id = ?
                                                   ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->offset, $this->item_count]);
 
                         $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
