@@ -49,25 +49,25 @@ export class AddJsonDataComponent implements OnInit {
     }
     this.filtered_search_tags = this.fruitCtrl.valueChanges.
       startWith(null).
-      map((fruit: string | null) => fruit ? this._filter(fruit) : this.all_search_tags.slice());
+      map((fruit: string | null) => fruit ? this._filter(fruit) : this.all_search_tags.slice()); 
+    this.selected_search_tags = this.selected_catalog.name.toLowerCase().replace(/[^a-zA-Z ]/g, "  ").replace(/\s\s+/g, ' ').replace(/\s?$/,'').split(" ");
   }
 
   @ViewChild('fileInput') fileInputElement: ElementRef;
   @ViewChild('fruitInput') fruitInput: ElementRef;
 
-  ngOnInit() {
+  ngOnInit() {  
     this.token = localStorage.getItem('photoArtsAdminToken');
     /* console.log(this.catalog_data); */
   }
-
   add(event): void {
     const input = event.input;
     const value = event.value;
-    /* if (!this.validateString(value)) {
+    if (!this.validateString(value)) {
       this.showError("Special characters not allowed, only alphanumeric, '&' is allowed in tag name.", false);
       return;
     }
-    else { */
+    else {
       let tmp_array = value.split(",");
       for (let i = 0; i < tmp_array.length; i++) {
         if ((tmp_array[i] || '').trim()) {
@@ -82,6 +82,7 @@ export class AddJsonDataComponent implements OnInit {
 
       this.fruitCtrl.setValue(null);
     /* } */
+    }
   }
 
   validateString(str) {
@@ -167,6 +168,7 @@ export class AddJsonDataComponent implements OnInit {
       /* console.log(catalog_data_tmp.json_data); */
       catalog_data_tmp.json_data = JSON.parse(catalog_data_tmp.json_data);
       /* console.log(catalog_data_tmp.json_data); */
+      this.selected_search_tags = this.arrayUnique(this.selected_search_tags);
       let tmp_selected_tags = this.selected_search_tags.join();
       /* console.log(tmp_selected_tags); */
       let request_data = {
@@ -251,4 +253,15 @@ export class AddJsonDataComponent implements OnInit {
     reader.readAsText(input.files[0]);
   }
 
+  arrayUnique(array) {
+    var a = array.concat();
+    for (var i = 0; i < a.length; ++i) {
+      for (var j = i + 1; j < a.length; ++j) {
+        if (a[i].toLowerCase() === a[j].toLowerCase())
+          a.splice(j--, 1);
+      }
+    }
+
+    return a;
+  }
 }
