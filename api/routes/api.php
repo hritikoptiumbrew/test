@@ -253,6 +253,7 @@ Route::middleware(['ability:user|admin,user_permission|admin_permission'])->grou
     //Sub_category & catalogs
     Route::post('getSubCategoryByCategoryId', 'AdminController@getSubCategoryByCategoryId');
     Route::post('getCatalogBySubCategoryId', 'AdminController@getCatalogBySubCategoryId');
+    Route::post('getCatalogBySubCategoryId_v2', 'AdminController@getCatalogBySubCategoryId_v2');
     Route::post('getCorruptedFontList', 'UserController@getCorruptedFontList'); //To get unused font list
 
 });
@@ -266,10 +267,13 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getJsonData', 'UserController@getJsonData');
     Route::post('getJsonSampleData', 'UserController@getJsonSampleData');
     Route::post('getContentByCatalogId', 'UserController@getContentByCatalogId');
+    Route::post('getContentByCatalogId_v2', 'UserController@getContentByCatalogId_v2');
     Route::post('getFeaturedJsonImages', 'UserController@getFeaturedJsonImages'); // get all featured images of catalog for json
     Route::post('getDeletedJsonId', 'UserController@getDeletedJsonId');
     Route::post('searchCardsBySubCategoryId', 'UserController@searchCardsBySubCategoryId'); //Search cards by sub_category_id
+    Route::post('searchCardsBySubCategoryId_v2', 'UserController@searchCardsBySubCategoryId_v2'); //Search cards by sub_category_id
     Route::post('searchNormalImagesBySubCategoryId', 'UserController@searchNormalImagesBySubCategoryId'); //Search normal images by sub_category_id
+    Route::post('searchNormalImagesBySubCategoryId_v2', 'UserController@searchNormalImagesBySubCategoryId_v2'); //Search normal images by sub_category_id
     Route::post('searchCatalogByUser', 'UserController@searchCatalogByUser'); //Search catalog details by sub_category_id with default featured catalog list
     Route::post('searchNormalImagesBySubCategoryIdForFlyer', 'UserController@searchNormalImagesBySubCategoryIdForFlyer'); //Search normal images by sub_category_id from (text-art,graphics,shape) for flyer BG
 
@@ -294,6 +298,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
     //API with webp images
     Route::post('getJsonSampleDataWithLastSyncTime_webp', 'UserController@getJsonSampleDataWithLastSyncTime_webp');
+    Route::post('getJsonSampleDataWithLastSyncTime_webp_v2', 'UserController@getJsonSampleDataWithLastSyncTime_webp_v2');
     Route::post('getJsonSampleDataWithLastSyncTime_webpIos', 'UserController@getJsonSampleDataWithLastSyncTime_webpIos');
     Route::post('getFeaturedJsonSampleData_webp', 'UserController@getFeaturedJsonSampleData_webp');
     Route::post('getAllSamplesWithWebp', 'UserController@getAllSamplesWithWebp');
@@ -313,6 +318,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
     //Get templates by category tags
     Route::post('getTemplatesBySubCategoryTags', 'UserController@getTemplatesBySubCategoryTags');
+    Route::post('getTemplatesBySubCategoryTags_v2', 'UserController@getTemplatesBySubCategoryTags_v2');
 
     //Shuffle all featured templates for 24hours from given sub_category_id or get templates by catalog_id with last_sync_time
     Route::post('getTemplatesWithLastSyncTime', 'UserController@getTemplatesWithLastSyncTime');

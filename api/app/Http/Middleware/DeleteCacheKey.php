@@ -107,6 +107,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getCatalogBySubCategoryId_v2
+                $keys = Redis::keys('pel:getCatalogBySubCategoryId_v2*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
                 //getOfflineFontCatalogs
                 $keys = Redis::keys('pel:getOfflineFontCatalogs*');
                 foreach ($keys as $key) {
@@ -173,6 +179,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //searchNormalImagesBySubCategoryId_v2
+                $keys = Redis::keys('pel:searchNormalImagesBySubCategoryId_v2*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
                //searchNormalImagesBySubCategoryIdForFlyer
                 $keys = Redis::keys('pel:searchNormalImagesBySubCategoryIdForFlyer*');
                 foreach ($keys as $key) {
@@ -181,6 +193,12 @@ class DeleteCacheKey
 
                 //searchCardsBySubCategoryId
                 $keys = Redis::keys('pel:searchCardsBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //searchCardsBySubCategoryId_v2
+                $keys = Redis::keys('pel:searchCardsBySubCategoryId_v2*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
@@ -220,6 +238,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getContentByCatalogId_v2
+                $keys = Redis::keys('pel:getContentByCatalogId_v2*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
                 //getJsonSampleDataFilterBySearchTag
                 $keys = Redis::keys('pel:getJsonSampleDataFilterBySearchTag*');
                 foreach ($keys as $key) {
@@ -228,6 +252,12 @@ class DeleteCacheKey
 
                 //searchCardsBySubCategoryId
                 $keys = Redis::keys('pel:searchCardsBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //searchCardsBySubCategoryId_v2
+                $keys = Redis::keys('pel:searchCardsBySubCategoryId_v2*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
@@ -252,6 +282,12 @@ class DeleteCacheKey
 
                 //getJsonSampleDataWithLastSyncTime & getJsonSampleDataWithLastSyncTime_webp
                 $keys = Redis::keys('pel:getJsonSampleDataWithLastSyncTime*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+               //getJsonSampleDataWithLastSyncTime_webp_v2
+                $keys = Redis::keys('pel:getJsonSampleDataWithLastSyncTime_webp_v2*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
@@ -322,6 +358,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getTemplatesBySubCategoryTags_v2
+                $keys = Redis::keys('pel:getTemplatesBySubCategoryTags_v2*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
                 //getCategoryTagBySubCategoryId
                 $keys = Redis::keys('pel:getCategoryTagBySubCategoryId*');
                 foreach ($keys as $key) {
@@ -330,6 +372,12 @@ class DeleteCacheKey
 
                 //searchNormalImagesBySubCategoryId
                 $keys = Redis::keys('pel:searchNormalImagesBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //searchNormalImagesBySubCategoryId_v2
+                $keys = Redis::keys('pel:searchNormalImagesBySubCategoryId_v2*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
@@ -573,6 +621,12 @@ class DeleteCacheKey
 
                 //getTemplatesBySubCategoryTags
                 $keys = Redis::keys('pel:getTemplatesBySubCategoryTags*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getTemplatesBySubCategoryTags_v2
+                $keys = Redis::keys('pel:getTemplatesBySubCategoryTags_v2*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
