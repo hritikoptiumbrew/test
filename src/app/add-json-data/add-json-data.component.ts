@@ -50,7 +50,7 @@ export class AddJsonDataComponent implements OnInit {
     this.filtered_search_tags = this.fruitCtrl.valueChanges.
       startWith(null).
       map((fruit: string | null) => fruit ? this._filter(fruit) : this.all_search_tags.slice()); 
-    this.selected_search_tags = this.selected_catalog.name.toLowerCase().replace(/[^a-zA-Z ]/g, "  ").replace(/\s\s+/g, ' ').replace(/\s?$/,'').split(" ");
+    this.selected_search_tags = this.selected_catalog.name.toLowerCase().replace(/[^a-zA-Z ]/g, "  ").replace(/\s\s+/g, ' ').trim().split(" ");
   }
 
   @ViewChild('fileInput') fileInputElement: ElementRef;
