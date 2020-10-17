@@ -2672,9 +2672,21 @@ class AdminController extends Controller
             $catalog_id = $request->catalog_id;
             $template_list = $request->template_list;
 
+            $catalog_detail = DB::select('SELECT name FROM catalog_master WHERE id =? ', [$catalog_id]);
+
+            $tag = str_replace(' ', ',',strtolower(preg_replace('/[^A-Za-z ]/', '', $catalog_detail[0]->name)));
+
             foreach ($template_list as $key) {
+                $template_detail = DB::select('SELECT search_category FROM images WHERE id=?', [$key]);
+                $search_category =  $template_detail[0]->search_category;
+                if ($search_category != NULL || $search_category != "") {
+                    $search_category .=  ','.$tag;
+                }else{
+                    $search_category = $tag;
+                }
+                $search_category = implode(',', array_unique(array_filter(explode(',', $search_category))));
                 DB::beginTransaction();
-                DB::update('UPDATE images SET catalog_id = ? where id = ?', [$catalog_id, $key]);
+                DB::update('UPDATE images SET catalog_id = ?,search_category =? where id = ?', [$catalog_id,$search_category, $key]);
                 DB::commit();
             }
 
