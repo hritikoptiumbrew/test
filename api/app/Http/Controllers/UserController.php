@@ -6960,4 +6960,91 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * @api {post} addCategoryNameAsTag addCategoryNameAsTag
+     * @apiName addCategoryNameAsTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "catalog_id":12,
+     * "page":1,
+     * "item_count":10
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Tag added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addCategoryNameAsTag(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id','page','item_count'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $offset = ($page - 1) * $item_count;
+
+            $total_row_result = DB::select('SELECT 
+                                               count(id) as total
+                                            FROM
+                                               images
+                                            WHERE
+                                               catalog_id = ?', [$catalog_id]);
+
+            $total_row = $total_row_result[0]->total;
+            $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
+
+            $templates = DB::select('SELECT 
+                                      i.id,
+                                      cm.name,
+                                      i.search_category,
+                                      i.updated_at 
+                                  FROM
+                                      images as i,
+                                      catalog_master as cm
+                                  WHERE
+                                      i.catalog_id = ? AND
+                                      i.catalog_id = cm.id 
+                                  ORDER BY i.updated_at ASC LIMIT ?,? ', [$catalog_id,$offset,$item_count]);
+            if (count($templates) > 0) {
+                $tag = str_replace(' ', ',',strtolower(preg_replace('/[^A-Za-z ]/', '', $templates[0]->name)));
+
+                foreach ($templates as $row) {
+                    if ($row->search_category != NULL || $row->search_category != "") {
+                        $row->search_category .=  ','.$tag;
+                    }else{
+                        $row->search_category = $tag;
+                    }
+                    $row->search_category = implode(',', array_unique(array_filter(explode(',', $row->search_category))));
+                    DB::beginTransaction();
+                    DB::update('UPDATE images SET search_category =?,updated_at =? WHERE id=?', [$row->search_category, $row->updated_at,$row->id]);
+                    DB::commit();
+                }
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag added successfully.', 'cause' => '', 'data' =>array('total_record' => $total_row, 'is_next_page' => $is_next_page)));
+        } catch (Exception $e) {
+            Log::error("addCategoryNameAsTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+
 }

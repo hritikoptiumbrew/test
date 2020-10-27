@@ -365,6 +365,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getBlogListByUser', 'BlogController@getBlogListByUser');
     Route::post('getBlogContentByIdForUser', 'BlogController@getBlogContentByIdForUser');
 
+    Route::post('addCategoryNameAsTag', 'UserController@addCategoryNameAsTag');
 
 });
 
