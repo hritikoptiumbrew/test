@@ -2107,6 +2107,159 @@ class UserController extends Controller
         return $response;
     }
 
+    /**
+     * @api {post} getFeaturedSampleAndCatalogWithWebp  getFeaturedSampleAndCatalogWithWebp
+     * @apiName getFeaturedSampleAndCatalogWithWebp
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":51
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "All json fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "result": {
+     *"category_list": [
+     *{
+     *"catalog_id": 909,
+     *"name": "catalog3",
+     *"thumbnail_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/thumbnail/5fa11c8d37cc2_catalog_img_1604394125.jpg",
+     *"compressed_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.jpg",
+     *"original_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/original/5fa11c8d37cc2_catalog_img_1604394125.jpg",
+     *"is_free": 1,
+     *"is_featured": 1,
+     *"updated_at": "2020-11-03 09:02:05"
+     *},
+     *{
+     *"catalog_id": 908,
+     *"name": "catalog2",
+     *"thumbnail_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/thumbnail/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"compressed_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"original_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/original/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"is_free": 1,
+     * "is_featured": 1,
+     * "updated_at": "2020-11-03 09:01:43"
+     * }
+     * ],
+     * "sample_cards": [
+     *{
+     *"json_id": 18152,
+     *"sample_image": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/webp_original/5fa14d93ddc74_json_image_1604406675.webp",
+     *"is_free": 1,
+     *"is_featured": 1,
+     *"is_portrait": 1,
+     *"height": 400,
+     *"width": 325,
+     *"original_img_height": 800,
+     *"original_img_width": 650,
+     *"updated_at": "2020-11-03 12:36:13"
+     *},
+     *{
+     *"json_id": 18153,
+     *"sample_image": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/webp_original/5fa14da652632_json_image_1604406694.webp",
+     *"is_free": 1,
+     *"is_featured": 1,
+     *"is_portrait": 1,
+     *"height": 400,
+     *"width": 325,
+     *"original_img_height": 800,
+     *"original_img_width": 650,
+     *"updated_at": "2020-11-03 12:31:34"
+     *}
+     * ]
+     * }
+     * }
+     * }
+     */
+    public function getFeaturedSampleAndCatalogWithWebp(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_JSON');
+            $this->offset = 0;
+
+            //Log::info('request_data', ['request_data' => $request]);
+
+            if (!Cache::has("pel:getFeaturedSampleAndCatalogWithWebp$this->item_count:$this->sub_category_id")) {
+                $result = Cache::rememberforever("getFeaturedSampleAndCatalogWithWebp$this->item_count:$this->sub_category_id", function () {
+
+                    $category_list = DB::select('SELECT
+                                                  ct.id as catalog_id,
+                                                  ct.name,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                                  ct.is_free,
+                                                  ct.is_featured,
+                                                  ct.updated_at
+                                                FROM
+                                                  catalog_master as ct,
+                                                  sub_category_catalog as sct
+                                                WHERE
+                                                  sct.sub_category_id = ? AND
+                                                  sct.catalog_id=ct.id AND
+                                                  sct.is_active=1 AND
+                                                  ct.is_featured = 1
+                                                order by ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id,$this->offset, $this->item_count]);
+
+                    $sample_cards = DB::select('SELECT
+                                              id AS json_id,
+                                              IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                              is_free,
+                                              is_featured,
+                                              is_portrait,
+                                              coalesce(height,0) AS height,
+                                              coalesce(width,0) AS width,
+                                              coalesce(original_img_height,0) AS original_img_height,
+                                              coalesce(original_img_width,0) AS original_img_width,
+                                              updated_at
+                                            FROM
+                                              images
+                                            WHERE
+                                              catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                              is_featured = 1
+                                            ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id,$this->offset, $this->item_count]);
+
+                    return array("category_list" => $category_list ,'sample_cards' => $sample_cards);
+                });
+            }
+
+            $redis_result = Cache::get("getFeaturedSampleAndCatalogWithWebp$this->item_count:$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Featured cards fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+        } catch
+        (Exception $e) {
+            Log::error("getFeaturedSampleAndCatalogWithWebp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get featured json sample data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+
     //search catalog by catalog name
     /**
      * @api {post} searchCatalogByUser searchCatalogByUser

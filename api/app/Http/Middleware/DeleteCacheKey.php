@@ -53,6 +53,12 @@ class DeleteCacheKey
                     //Log::info("pel:getImageDetails Key Deleted");
                 }*/
 
+                //getAllValidationsForAdmin
+                $keys = Redis::keys('pel:getAllValidationsForAdmin*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Sub-Category
@@ -336,6 +342,12 @@ class DeleteCacheKey
 
                 //getFeaturedSamplesWithCatalogs
                 $keys = Redis::keys('pel:getFeaturedSamplesWithCatalogs*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getFeaturedSampleAndCatalogWithWebp
+                $keys = Redis::keys('pel:getFeaturedSampleAndCatalogWithWebp*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
