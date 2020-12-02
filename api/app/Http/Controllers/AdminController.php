@@ -321,6 +321,10 @@ class AdminController extends Controller
                 return $response;
 
             $name = $request->name;
+            $is_exist = DB::select('SELECT id FROM category WHERE name = ? ', [$name]);
+            if (count($is_exist) > 0) {
+                return Response::json(array('code' => 201, 'message' => 'Category already exists.', 'cause' => '', 'data' => json_decode('{}')));
+            }
             $create_at = date('Y-m-d H:i:s');
             DB::beginTransaction();
 
@@ -373,6 +377,11 @@ class AdminController extends Controller
 
             $category_id = $request->category_id;
             $name = $request->name;
+
+            $is_exist = DB::select('SELECT id FROM category WHERE name = ? AND id !=?', [$name, $category_id]);
+            if (count($is_exist) > 0) {
+                return Response::json(array('code' => 201, 'message' => 'Category already exists.', 'cause' => '', 'data' => json_decode('{}')));
+            }
 
             DB::beginTransaction();
 
