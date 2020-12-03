@@ -1,0 +1,99 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : addvalidations.component.html
+File Created  : Tuesday, 27th October 2020 05:39:32 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:20:19 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="validation-card mb-0">
+  <nb-card-header class="header-text" style="position: relative;">
+    <h5 *ngIf="!validationsData" class="text-center">Add Validation</h5>
+    <h5 *ngIf="validationsData" class="text-center">Update Validation</h5>
+    <i class="fa fa-times close-icon" title="Close" (click)="closeDialog()"></i>
+  </nb-card-header>
+  <nb-card-body class="pb-0">
+    <div class="row">
+      <div class="col-md-3 pr-0">
+        <label class="d-block form-label">Category Id</label>
+      </div>
+      <div class="col-md-9 pl-0">
+        <div class="form-group">
+          <nb-select class="va-middle mr-2" class="mw-100" [(selected)]="selectedCategory" id="selectCategory"
+            (selectedChange)="checkCategValid()">
+            <nb-option *ngFor="let item of categoryData" value="{{item.category_id}}">{{ item.name }}</nb-option>
+          </nb-select>
+          <p id="selectCategoryError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 14px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3 pr-0">
+        <label class="d-block form-label">Validation Name</label>
+      </div>
+      <div class="col-md-9 pl-0">
+        <div class="form-group">
+          <input type="text" class="mw-100" [(ngModel)]="validName" nbInput placeholder="Enter validation name"
+            id="validNameInput" [attr.valid-status]="validationsData?true:false"
+            (keyup)="checkValidation('validNameInput','','validInputError','','','blank')"
+            (keyup.enter)="checkValidation('validNameInput','','validInputError',errormsg.VALIDATION_NAME_EMPTY,'','usual')">
+          <p id="validInputError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 32px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3 pr-0">
+        <label class="d-block form-label">Validation Value</label>
+      </div>
+      <div class="col-md-9 pl-0">
+        <div class="form-group">
+          <input type="number" class="mw-100" [(ngModel)]="validValue" nbInput placeholder="E.g. 1024"
+            [attr.valid-status]="validationsData?true:false" id="ValueInput"
+            (keyup)="checkValidation('ValueInput','','valueInputError','','','blank')"
+            (keyup.enter)="checkValidation('ValueInput','','valueInputError',errormsg.VALIDATION_VALUE_EMPTY,'','usual')">
+          <p id="valueInputError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 14px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3 pr-0">
+        <label class="d-block form-label">Description</label>
+      </div>
+      <div class="col-md-9 pl-0">
+        <div class="form-group">
+          <textarea class="mw-100" nbInput [(ngModel)]="validDescrip" placeholder="Enter description"
+            [attr.valid-status]="validationsData?true:false" id="descripText"
+            (keyup)="checkValidation('descripText','','descipTextError','','','blank')"
+            (keyup.enter)="checkValidation('descripText','','descipTextError',errormsg.VALIDATION_DESCRIP_EMPTY,'','usual')"></textarea>
+          <p id="descipTextError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 14px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-8 pr-0">
+        <label class="d-block form-label"><input type="checkbox" [(ngModel)]="validSelectCatalog" value="1"
+            class="option-input-valid">For Featured Catalog?</label>
+      </div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-8 pr-0">
+        <label class="d-block form-label"><input type="checkbox" [(ngModel)]="validSelectCover" value="1"
+            class="option-input-valid">For Catalog Cover Image?</label>
+      </div>
+    </div>
+  </nb-card-body>
+  <nb-card-footer class="p-0">
+    <div class="form-group text-center">
+      <p id="valiaddError" style="color: red;margin-bottom: 2px;margin-top: 4px;height: 20px;"></p>
+      <button *ngIf="!validationsData" class="btn btn-primary w-50 mr-2" id="validAdd" (click)="addValidation()">Add</button>
+      <button *ngIf="validationsData" class="btn btn-primary w-50 mr-2" id="validAdd"
+        (click)="addValidation()">Update</button>
+    </div>
+  </nb-card-footer>
+</nb-card>

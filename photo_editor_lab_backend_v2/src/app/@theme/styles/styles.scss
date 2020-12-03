@@ -1,0 +1,59 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : styles.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:38:33 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
+
+// themes - our custom or/and out of the box themes
+@import 'themes';
+
+// framework component themes (styles tied to theme variables)
+@import '~@nebular/theme/styles/globals';
+@import '~@nebular/auth/styles/all';
+
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+@import '~bootstrap/scss/grid';
+
+// loading progress bar theme
+@import './pace.theme';
+
+@import './layout';
+@import './overrides';
+
+// install the framework and custom global styles
+@include nb-install() {
+
+  // framework global styles
+  @include nb-theme-global();
+  @include nb-auth-global();
+
+  @include ngx-layout();
+  // loading progress bar
+  @include ngx-pace-theme();
+
+  @include nb-overrides();
+}
+
+;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

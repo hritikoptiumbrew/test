@@ -1,0 +1,25 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : _overrides.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:38:20 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import './themes';
+
+@mixin nb-overrides() {
+  nb-select.size-medium button {
+    padding: 0.4375rem 2.2rem 0.4375rem 1.125rem !important;
+
+    nb-icon {
+      right: 0.41rem !important;
+    }
+  }
+}

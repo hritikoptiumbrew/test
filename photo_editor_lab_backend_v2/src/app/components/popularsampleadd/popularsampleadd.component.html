@@ -1,0 +1,73 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : popularsampleadd.component.html
+File Created  : Thursday, 22nd October 2020 05:42:15 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 22nd October 2020 05:47:18 pm
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+<nb-card>
+  <nb-card-header class="header-text" style="position: relative;">
+    <h5 *ngIf="!sampleData" class="text-center">Upload Images</h5>
+    <h5 *ngIf="sampleData" class="text-center">Update Sub Category</h5>
+    <i class="fa fa-times close-icon" title="Close" (click)="closedialog()"></i>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row">
+      <div class="col-md-6 text-center">
+        <label class="form-label">Background Image</label>
+        <div class="img-preview" id="sampleImage" [attr.valid-status]="sampleData?true:false">
+          <img *ngIf="sampleImage" class="placeholder-img" >
+          <img *ngIf="sampleImage" [src]="sampleImage"
+            onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+          <label for="fileInput1">
+            <i class="fa fa-camera" title="Click here to choose image"></i>
+          </label>
+        </div>
+        <p id="imageErrorSample" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 27px;"></p>
+        <input type="file" id="fileInput1" autofocus="true" accept="image/*" style="display: none;"
+          (change)="fileChange1($event)">
+      </div>
+      <div class="col-md-6 text-center">
+        <label class="form-label">Display Image</label>
+        <div class="img-preview" id="displayImage" [attr.valid-status]="sampleData?true:false">
+          <img *ngIf="displayImage" class="placeholder-img" >
+          <img *ngIf="displayImage" [src]="displayImage"
+            onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+          <label for="fileInput2">
+            <i class="fa fa-camera" title="Click here to choose image"></i>
+          </label>
+        </div>
+        <p id="imageErrorDisplay" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 27px;"></p>
+        <input type="file" id="fileInput2" autofocus="true" accept="image/*" style="display: none;"
+          (change)="fileChange2($event)">
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-4 pr-0">
+        <label class="d-block form-label">Image Type</label>
+      </div>
+      <div class="col-md-8 pl-0">
+        <div class="form-group">
+          <nb-radio-group [(ngModel)]="selectType" id="radiosampleInput" [attr.valid-status]="sampleData?true:false">
+            <nb-radio value="1">Background</nb-radio>
+            <nb-radio value="2">Frame
+            </nb-radio>
+          </nb-radio-group>
+          <p id="radiosampleError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="form-group text-center">
+      <p id="sampleAddError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 32px;"></p>
+      <button *ngIf="!sampleData" class="btn btn-primary w-50 mr-2" id="sampleAdd" (click)="addsampleImage()">Add</button>
+      <button *ngIf="sampleData" class="btn btn-primary w-50 mr-2" id="sampleAdd"
+        (click)="addsampleImage()">Update</button>
+      <!-- <button class="btn btn-danger w-25" (click)="closedialog()">Cancel</button> -->
+    </div>
+  </nb-card-body>
+</nb-card>

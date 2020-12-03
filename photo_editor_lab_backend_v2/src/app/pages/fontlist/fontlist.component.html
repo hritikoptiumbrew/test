@@ -1,0 +1,87 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : fontlist.component.html
+File Created  : Thursday, 22nd October 2020 12:16:53 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 22nd October 2020 12:27:36 pm
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="row">
+      <div class="col-md-12">
+        <ol class="breadcrumb bg-none mb-0">
+          <li class="breadcrumb-item main-home" nbTooltip="Go to categories" nbTooltipPlacement="bottom"
+            nbTooltipStatus="primary" (click)="gotoCategories()">Categories</li>
+          <li class="breadcrumb-item main-home" nbTooltip="Go to {{ broadHome }}" nbTooltipPlacement="bottom"
+            nbTooltipStatus="primary" (click)="gotoSubCategories()">{{ broadHome }}</li>
+          <li class="breadcrumb-item main-home" nbTooltip="Go to {{ broadSubHome }}" nbTooltipPlacement="bottom"
+            nbTooltipStatus="primary" (click)="gotoCatalog()">{{ broadSubHome }}</li>
+          <li class="breadcrumb-item active" aria-current="page">{{ broadItem }}</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 text-right">
+    <nb-card class="w-355 ml-auto">
+      <nb-card-header class="text-center fs-20 fw-700 p-7">
+        TOTAL FONTS : {{ totalRecords }}
+      </nb-card-header>
+    </nb-card>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12 text-right">
+    <!-- <nb-select [(selected)]="selectedPageSize" (selectedChange)="setPageSize($event)">
+      <nb-option *ngFor="let item of pageSize" value="{{item}}">{{ item }}</nb-option>
+    </nb-select> -->
+    <button class="btn bg-primary ml-2 mr-2 text-light" (click)="addFont()">Add New Font</button>
+    <button class="btn bg-primary text-light" (click)="moveToCorrupt()">Move to Corrupted</button>
+    <!-- <nb-card class="mb-0">
+      <nb-card-header>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group mb-0">
+              <input type="file" class="form-control height-45" id="fontFile" (change)="fileChange($event)">
+              <p id="fontError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 14px;"></p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group mb-0">
+              <input type="text" class="mw-100" nbInput placeholder="Enter font name"
+                [(ngModel)]="fontDetails.font_name" valid-status="false" id="catInput">
+              <p id="catError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-group">
+              <button class="btn btn-primary w-100" id="catButton" (click)="addNewFont(fontDetails,'0')">Add
+                Font</button>
+            </div>
+          </div>
+          <div class="col-md-2 text-right">
+            <button class="btn btn-primary" (click)="moveToCorrupt()">Move to Corrupted</button>
+          </div>
+        </div>
+
+      </nb-card-header>
+    </nb-card> -->
+  </div>
+</div>
+<div class="row mt-2">
+  <div class="col-md-12">
+    <nb-card class="table-card table-card-font">
+      <nb-card-body class="pt-0 pl-0 pr-0 pb-0">
+        <ng2-smart-table #table [settings]="settings" [source]="dataSource" (edit)="editFont($event)"
+          (delete)="deleteFont($event)" (userRowSelect)="selectFonts($event)" >
+        </ng2-smart-table>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

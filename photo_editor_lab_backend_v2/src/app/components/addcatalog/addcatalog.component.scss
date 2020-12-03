@@ -1,0 +1,23 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : addcatalog.component.scss
+ * File Created  : Saturday, 17th October 2020 04:14:40 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:30:31 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+
+@import "../addsubcategory/addsubcategory.component.scss";
+.close-icon {
+    position: absolute;
+    right: 19px;
+    font-size: 23px;
+    top: 21px;
+    cursor: pointer;
+  }

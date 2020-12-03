@@ -1,0 +1,83 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : addsubcategoryimagesbyid.component.html
+File Created  : Thursday, 22nd October 2020 11:50:20 am
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 22nd October 2020 11:52:18 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+<nb-card class="json-img-card">
+  <nb-card-header class="header-text" style="position: relative;">
+    <p class="header-text text-center">Add Normal Images</p>
+    <i class="fa fa-times close-icon" title="Close" (click)="closeDialog()"></i>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="img-card-content" [ngClass]="{'height-img-card': errorList.length>0}">
+      <div class="add-images-label">
+        <label for="multipleFiles">
+          <p>Choose Normal Images - {{ totalFiles }} Files Selected</p>
+          <!-- <p>Selected Files: 4</p> -->
+        </label>
+      </div>
+      <input type="file" accept="image/*" onclick="this.value = null;" (change)="fileChange($event)" multiple id="multipleFiles"
+        style="display: none;">
+      <div class="upload-card-gallary  height-multi-image mt-2">
+        <div class="row">
+          <div class="col-md-2 up-card-item" *ngFor="let item of files;let i= index">
+            <div class="up-card-content">
+              <img [src]="item.compressed_img">
+              <i class="fa fa-times" (click)="deleteImage(i)"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="files-error-list" *ngIf="errorList.length>0">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="table-header-error">
+              <p>Invalid files, Please update files correct.</p>
+            </div>
+            <!-- <div class="table-header" style="background:#80808026;">
+              <table class="table mb-0">
+                <tr>
+                  <th class="w-105">Image</th>
+                  <th class="w-325">File Name</th>
+                  <th class="text-center">Error</th>
+                </tr>
+              </table>
+            </div> -->
+            <div class="table-body">
+              <table class="table table-responsive">
+                <thead>
+                  <tr style="background:#80808026;">
+                    <th class="w-105">Image</th>
+                    <th class="w-325">File Name</th>
+                    <th class="text-center">Error</th>
+                  </tr>
+                </thead>
+                <tr *ngFor="let item of errorList; let i = index;">
+                  <td class="w-105" class="img-td">
+                    <div *ngFor="let fileDetails of fileList; let j = index;" style="position: relative;">
+                      <img class="placeholder-img"  style="left: unset;height: 100%;" >
+                      <img *ngIf="fileDetails.name==item.file_name" [src]="fileDetails.compressed_img"  onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+                    </div>
+                  </td>
+                  <td class="w-325">{{item.file_name}}</td>
+                  <td class="text-center">{{item.error_message}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>  
+    <div class="button-area text-center">
+      <p id="imageFileError" style="color: red;margin-bottom: 4px;margin-top: 4px;text-align: center;height: 19px;"></p>
+      <button class="btn bg-primary text-light mr-2 w-25" (click)="addImages()">Save</button>
+    </div>
+  </nb-card-body>
+</nb-card>

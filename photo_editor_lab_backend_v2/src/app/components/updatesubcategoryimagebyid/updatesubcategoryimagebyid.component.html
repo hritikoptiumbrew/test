@@ -1,0 +1,56 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : updatesubcategoryimagebyid.component.html
+File Created  : Thursday, 22nd October 2020 10:39:47 am
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:29:05 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="update-image-card">
+  <nb-card-header style="position: relative;">
+    <h5 class="text-center header-text">Update Image</h5>
+    <i class="fa fa-times close-icon" title="Close" (click)="closeDialog()"></i>
+  </nb-card-header>
+  <nb-card-body class="pr-0 pl-0">
+    <div class="card-content pr-2 pl-2">
+      <div class="img-preview">
+        <img *ngIf="categoryData.thumbnail_img" class="placeholder-img">
+        <img *ngIf="categoryData.thumbnail_img" [src]="categoryData.thumbnail_img"
+          onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+        <label for="fileInput">
+          <i class="fa fa-camera" title="Click here to choose image"></i>
+        </label>
+      </div>
+      <input type="file" id="fileInput" autofocus="true" accept="image/*" style="display: none;"
+        (change)="fileChange($event)">
+      <div class="form-group mt-3">
+        <input nbInput (keyup.enter)="add($event)" type="text" class="mw-100 mb-1" [formControl]="searchINputControl"
+          placeholder="Select / Enter new tag" [nbAutocomplete]="auto">
+        <p id="tagInputError" style="color: red;margin-bottom: 3px;"></p>
+        <nb-autocomplete #auto (selectedChange)="add($event)">
+          <nb-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+            {{ option }}
+          </nb-option>
+        </nb-autocomplete>
+        <div class="tag-container">
+          <mat-chip-list #chipList aria-label="Fruit selection">
+            <mat-chip *ngFor="let fruit of selectedSearchTags">
+              {{fruit}}
+              <i class="fa fa-times" style="margin-top: 5px;color:red;cursor: pointer;" matChipRemove
+                (click)="remove(fruit)"></i>
+            </mat-chip>
+          </mat-chip-list>
+        </div>
+      </div>
+    </div>
+    <div class="button-area text-center">
+      <button class="btn bg-primary text-light w-50" (click)="updateCategory()">Update</button>
+    </div>
+  </nb-card-body>
+</nb-card>

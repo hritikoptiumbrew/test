@@ -1,0 +1,42 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : addvalidations.component.scss
+ * File Created  : Tuesday, 27th October 2020 05:39:32 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:20:29 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import '../editcategory/editcategory.component.scss';
+
+.validation-card {
+  width: 515px;
+  height: calc(100vh - 159px);
+}
+.close-icon {
+    position: absolute;
+    right: 19px;
+    font-size: 23px;
+    top: 21px;
+    cursor: pointer;
+  }
+.mw-100 {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.option-input-valid {
+  margin-right: 5px;
+  zoom: 1.7;
+  vertical-align: middle;
+}
+@media only screen and (max-width: 600px){
+  .validation-card{
+    width: 100%;
+  }
+}

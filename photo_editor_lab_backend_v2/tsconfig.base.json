@@ -1,0 +1,38 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : tsconfig.base.json
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 10:53:49 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "importHelpers": true,
+    "module": "es2020",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es2015",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
+    "plugins": [
+      { "name": "tslint-language-service"}
+    ]
+  }
+}

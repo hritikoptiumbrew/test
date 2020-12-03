@@ -1,0 +1,237 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : settings.component.html
+File Created  : Monday, 26th October 2020 02:26:52 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:08:13 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+<div class="row">
+  <div class="col-md-9 text-right">
+    <ol class="breadcrumb mb-0" style="background: #EDF1F7;">
+      <li class="breadcrumb-item active" aria-current="page">Settings</li>
+    </ol>
+  </div>
+</div>
+<div class="tab-settings" *ngIf="showTabs">
+  <nb-tabset>
+    <nb-tab tabTitle="Change Password" style="height: calc(100vh - 209px);overflow: hidden;">
+      <div class="row change-card" style="height: 100vh;">
+        <div class="col-md-6 change-card-content">
+          <nb-card>
+            <nb-card-header class="header-text">Change Password</nb-card-header>
+            <nb-card-body>
+              <div class="form-group">
+                <nb-form-field class="mw-100">
+                  <nb-icon nbSuffix [icon]="curPassType ? 'eye-off-2-outline' : 'eye-outline'" pack="eva"
+                    (click)="passwordToggle(1)"></nb-icon>
+                  <input [type]="curPassType ? 'text' : 'password'" id="curInput" valid-status="false"
+                    [(ngModel)]="curPass" placeholder="Enter current password" nbInput class="mw-100"
+                    (keyup)="checkValidation('curInput','','curPassError','','','blank')"
+                    (keyup.enter)="checkValidation('curInput','','curPassError',errormsg.CURR_PASSWORD,'','usual')">
+                </nb-form-field>
+                <p id="curPassError" class="text-danger mt-1" style="height: 14px;"></p>
+              </div>
+              <div class="form-group">
+                <nb-form-field class="mw-100">
+                  <nb-icon nbSuffix [icon]="newPassType ? 'eye-off-2-outline' : 'eye-outline'" pack="eva"
+                    (click)="passwordToggle(2)"></nb-icon>
+                  <input [type]="newPassType ? 'text' : 'password'" id="newInput" valid-status="false"
+                    [(ngModel)]="newPass" placeholder="Enter New password" nbInput class="mw-100"
+                    (keyup)="checkValidation('newInput','password','newPassError','','','blank')"
+                    (keyup.enter)="checkValidation('newInput','password','newPassError',errormsg.NEW_PASSWORD,errormsg. INVALIDCHANGE_PASS,'usual')">
+                </nb-form-field>
+                <p id="newPassError" class="text-danger mt-1" style="height: 14px;"></p>
+              </div>
+              <div class="form-group">
+                <nb-form-field class="mw-100">
+                  <nb-icon nbSuffix [icon]="cnewPassType ? 'eye-off-2-outline' : 'eye-outline'" pack="eva"
+                    (click)="passwordToggle(3)"></nb-icon>
+                  <input [type]="cnewPassType ? 'text' : 'password'" id="cnewInput" valid-status="false"
+                    [(ngModel)]="cnewPass" placeholder="Re-enter your new password" nbInput class="mw-100"
+                    (keyup)="checkValidation('cnewInput','password','cnewPassError','','','blank')"
+                    (keyup.enter)="checkValidation('cnewInput','password','cnewPassError',errormsg.RE_PASSWORD,errormsg. INVALIDCHANGE_PASS,'usual')">
+                </nb-form-field>
+                <p id="cnewPassError" class="text-danger mt-1 mb-0" style="height: 14px;"></p>
+              </div>
+              <div class="form-group mt-2">
+                <p id="changePassError" class="text-danger mt-1 mb-1 text-center" style="height: 27px;"></p>
+                <button class="btn bg-primary text-light w-100" id="btnChaPass"
+                  (click)="changePassword()">Save</button>
+              </div>
+            </nb-card-body>
+          </nb-card>
+        </div>
+      </div>
+    </nb-tab>
+    <nb-tab tabTitle="2FA" style="height: calc(100vh - 209px);overflow: hidden;">
+      <div class="row change-card" style="height: 100vh;">
+        <div class="col-md-6 change-card-content">
+          <nb-card>
+            <nb-card-header class="header-text">2-Factor Authentication</nb-card-header>
+            <nb-card-body>
+              <div class="toggle-radio">
+                <input type="radio" name="rdo" id="yes" value="yes" [(ngModel)]="enableChecked"
+                  (change)="twoFaOPeration('yes')">
+                <input type="radio" name="rdo" id="no" value="no" [(ngModel)]="enableChecked"
+                  (change)="twoFaOPeration('no')">
+                <div class="switch">
+                  <label for="yes">Enabled</label>
+                  <label for="no">Disabled</label>
+                  <span></span>
+                </div>
+              </div>
+            </nb-card-body>
+          </nb-card>
+        </div>
+      </div>
+    </nb-tab>
+    <nb-tab tabTitle="Server List">
+      <div class="row">
+        <div class="col-md-12 mb-2 text-right">
+          <nb-select [(selected)]="serverSelectedPageSize" (selectedChange)="setserverPageSize($event)">
+            <nb-option *ngFor="let item of serverPageSize" value="{{item}}">{{ item }}</nb-option>
+          </nb-select>
+          <button class="btn bg-primary ml-2 text-light" (click)="addServerUrl()">Add New Server URL</button>
+        </div>
+        <div class="col-md-12">
+          <nb-card class="server-card mb-0">
+            <nb-card-header class="header-text">
+              Statistics Server List
+            </nb-card-header>
+            <nb-card-body class="server-table p-0">
+              <ng2-smart-table [settings]="settings" [source]="serverDataSource" (edit)="editServerUrl($event)"
+                (delete)="deleteServerURl($event)" (rowSelect)="getserverRows($event)">
+              </ng2-smart-table>
+            </nb-card-body>
+          </nb-card>
+        </div>
+      </div>
+    </nb-tab>
+    <nb-tab tabTitle="Validation configs" > 
+      <div class="row mb-2">
+        <div class="col-md-12 text-right">
+          <!-- <nb-select [(selected)]="validSelectedPageSize" (selectedChange)="setValidPageSize($event)">
+            <nb-option *ngFor="let item of validPageSize" value="{{item}}">{{ item }}</nb-option>
+          </nb-select> -->
+          <button class="btn bg-primary text-light ml-3" (click)="addValidations()">Add Validation</button>
+        </div>
+      </div>
+      <nb-card class="validation-config-card mb-0">
+        <nb-card-body class="pt-0 pl-0 pr-0">
+          <div class="table-header">
+            <table class="table mb-0">
+              <thead>
+                <tr class="table-inverse table-body-td">
+                  <th>#</th>
+                  <th>
+                    <span nbTooltip="The category on which the validation should be applied."
+                    nbTooltipPlacement="bottom" nbTooltipStatus="primary" >Category
+                      ID</span>
+                  </th>
+                  <th>
+                    <span nbTooltip="Name of the validation(only for admin's knowledge)" nbTooltipPlacement="bottom" nbTooltipStatus="primary">Validation Name</span>
+                  </th>
+                  <th>
+                    <span nbTooltip="Maximum value for validation in KB" nbTooltipPlacement="bottom" nbTooltipStatus="primary">Value(KB)</span>
+                  </th>
+                  <ng-template #validationTooltip>
+                    <div class="text-left " style="background: #3366FF;padding: 10px;">
+                      <p class="m-0" style="border-bottom:1px solid #f7f7f7;color:#fff">
+                        if <span style="font-weight: 500">"For Featured Catalog = false" & "For Catalog Cover Image" =
+                          false</span>
+                      </p>
+                      <p class="m-0" style="color:#fff">&nbsp;-<span style="font-weight: 500;">"For Featured Catalog" = false</span>: Will be
+                        applied on the
+                        content of the
+                        normal
+                        catalog of this category</p>
+                      <p class="mb-1" style="color:#fff">&nbsp;-<span style="font-weight: 500">"For Catalog Cover Image" = false</span>: Will not apply on
+                        the cover image of
+                        the
+                        catalog.</p>
+                    </div>
+                    <div class="text-left " style="background: #3366FF;padding: 10px;">
+                      <p class="m-0" style="border-bottom:1px solid #f7f7f7;color:#fff">
+                        if <span style="font-weight: 500">"For Featured Catalog = false" & "For Catalog Cover Image" =
+                          true</span>
+                      </p>
+                      <p class="m-0" style="color:#fff">&nbsp;-<span style="font-weight: 500;">"For Featured Catalog" = false</span>: Will be
+                        applied on the cover
+                        image of the normal catalog of this category</p>
+                        <p class="m-0" style="color:#fff">&nbsp;-<span style="font-weight: 500;">"For Catalog Cover Image" = true</span>: Will be applied on
+                        the cover image
+                        of the catalog</p>
+                    </div>
+                    <div class="text-left " style="background: #3366FF;padding: 10px;">
+                      <p class="m-0" style="border-bottom:1px solid #f7f7f7;color:#fff">
+                        if <span style="font-weight: 500">"For Featured Catalog" = true & "For Catalog Cover Image" =
+                          false</span>
+                      </p>
+                      <p class="m-0" style="color:#fff">&nbsp;-<span style="font-weight: 500;">"For Featured Catalog" = true</span>: Will be
+                        applied on the content of the
+                        featured catalog of this category</p>
+                        <p class="m-0" style="color:#fff">&nbsp;-<span style="font-weight: 500;">"For Catalog Cover Image" = false</span>: Will not apply on
+                        the
+                        cover image of the catalog
+                      </p>
+                    </div>
+                    <div class="text-left " style="background: #3366FF;padding: 10px;">
+                      <p class="m-0" style="border-bottom:1px solid #f7f7f7;color:#fff">
+                        if <span style="font-weight: 500">"For Featured Catalog = true" & "For Catalog Cover Image =
+                          true"</span>
+                      </p>
+                      <p class="m-0" style="color:#fff">&nbsp;-<span style="font-weight: 500;">"For Featured Catalog" = true</span>: Will be
+                        applied on the cover image of the
+                        featured catalog of this category</p>
+                        <p class="m-0" style="color:#fff">&nbsp;-<span style="font-weight: 500;">"For Catalog Cover Image" = true</span>: Will be applied on
+                        the cover image
+                        of the catalog
+                      </p>
+                    </div>
+                  </ng-template>
+                  <th class="text-center" [nbPopover]="validationTooltip" nbPopoverTrigger="hover" nbTooltipPlacement="bottom" nbTooltipStatus="primary">For Featured Catalog?</th>
+                  <th class="text-center" [nbPopover]="validationTooltip" nbPopoverTrigger="hover" nbTooltipStatus="primary">For Catalog Cover Image?</th>
+                  <th nbTooltip="Description of validation(only for admin's knowledge)" nbTooltipPlacement="bottom" nbTooltipStatus="primary">Description</th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let validationDetails of validationsList; let i = index;" class="table-body-td">
+                  <td>{{i+1}}</td>
+                  <td>{{validationDetails.category_id}}</td>
+                  <td>{{validationDetails.validation_name}}</td>
+                  <td>
+                    {{validationDetails.max_value_of_validation}} KB
+                  </td>
+                  <td class="text-center">
+                    <input type="checkbox" style="height:29px;width: 66px;" [(ngModel)]="validationDetails.is_featured" disabled/>
+                  </td>
+                  <td class="text-center">
+                    <input type="checkbox" style="height:29px;width: 66px;" [(ngModel)]="validationDetails.is_catalog" disabled/>
+                  </td>
+                  <td>{{validationDetails.description}}
+                  </td>
+                  <td class="text-center valid-action-icon p-2">
+                    <i class="nb-edit" title="Edit" (click)="editValidation(validationDetails)"></i>
+                    <i class="nb-trash" title="Delete" (click)="deleteValidation(validationDetails)"></i>
+                  </td>
+                </tr>
+                <tr *ngIf="validationsList">
+                  <td colspan="8" *ngIf="validationsList.length==0">
+                    <h6 class="m-0 font-weight-bold text-center">No data found</h6>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </nb-card-body>
+      </nb-card>
+    </nb-tab>
+  </nb-tabset>
+</div>

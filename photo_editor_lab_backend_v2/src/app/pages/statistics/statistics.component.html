@@ -1,0 +1,62 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : statistics.component.html
+File Created  : Friday, 23rd October 2020 01:09:15 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Friday, 23rd October 2020 01:13:59 pm
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+<div class="row  statistics-header h-50">
+  <div class="col-md-6">
+    <div class="row">
+      <div class="col-md-12 ">
+        <ol class="breadcrumb mb-0" style="background: #EDF1F7;">
+          <li class="breadcrumb-item active" aria-current="page">Statistics</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 text-right">
+    <nb-card class="w-355 ml-auto ">
+      <nb-card-header class="text-center fs-17 fw-700 p-7">
+        NO. OF SERVERS : {{ totalRecord }}
+      </nb-card-header>
+    </nb-card>
+  </div>
+</div>
+<div class="server-data">
+  <div class="row">
+    <div class="col-md-12">
+      <nb-accordion multi>
+        <nb-accordion-item *ngFor="let item of serverData; let i = index;"
+          (collapsedChange)="viewServerDetails($event,item)">
+          <nb-accordion-item-header>
+            <div class="row w-100 accord-header">
+              <div class="col-md-9 col-xs-12">
+                <p class="mb-0">
+                  {{i+1}}.{{item.server_url}}
+                </p>
+              </div>
+              <div class="col-md-3 col-xs-12 text-right" *ngIf="item.result">
+                <p class="total-static-cnt">
+                Total count: {{item.result.length}}
+                </p>
+              </div>
+            </div>
+          </nb-accordion-item-header>
+          <nb-accordion-item-body class="statistics-body">
+              <div class="table-statistics">
+                <ng2-smart-table [settings]="settings" [source]="item.result"
+                (edit)="openDateRangePicker($event,item,'date')" (delete)="openDateRangePicker($event,item,'catalog')">
+              </ng2-smart-table>
+              </div>
+          </nb-accordion-item-body>
+        </nb-accordion-item>
+      </nb-accordion>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : editcategory.component.html
+File Created  : Saturday, 17th October 2020 11:08:43 am
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:21:33 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+
+<nb-card>
+  <nb-card-header class="header-text" style="position: relative;">
+    <h5 *ngIf="categoryData" class="text-center">Update Category</h5>
+    <h5 *ngIf="!categoryData" class="text-center">Add Category</h5>
+    <i class="fa fa-times close-icon" title="Close" (click)="closedialog()"></i>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row">
+      <div class="col-md-3 pr-0">
+        <label class="d-block form-label">Category</label>
+      </div>
+      <div class="col-md-9 pl-0">
+        <div class="form-group">
+          <input type="text" autofocus="false" nbInput placeholder="Enter category name" class="w-100"
+            [(ngModel)]="catName" id="editCatInput" [attr.valid-status]="categoryData?true:false"
+            (keyup)="checkValidation('editCatInput','','inputCatError','','','blank')"
+            (keyup.enter)="checkValidation('editCatInput','','inputCatError',errormsg.CAT_NAME_EMPTY,'','usual')">
+          <p id="inputCatError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 30px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="form-group text-center">
+      <button *ngIf="!categoryData" class="btn btn-primary w-50 mr-2" id="Catedit" (click)="editCategory()">Add</button>
+      <button *ngIf="categoryData" class="btn btn-primary w-50 mr-2" id="Catedit" (click)="editCategory()">Update</button>
+    </div>
+  </nb-card-body>
+</nb-card>

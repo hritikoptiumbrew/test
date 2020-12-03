@@ -1,0 +1,59 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : existingimageslist.component.html
+File Created  : Wednesday, 21st October 2020 10:15:14 am
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:24:57 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="existing-image-card">
+  <nb-card-header style="position: relative;">
+    <h5>Existing Images List</h5>
+    <i class="fa fa-times close-icon" title="Close" (click)="closeDialog()"></i>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="table-body">
+      <div class="table-header-content" style="background:#80808026;">
+        <table class="table mb-0">
+          <tr>
+            <th class="w-45">#</th>
+            <th class="w-226">Image Name</th>
+            <th class="text-center w-220">Existing Image</th>
+            <th class="text-center w-220">New Image</th>
+            <th class="text-center">Replace<input type="checkbox" [(ngModel)]="isAllChecked"
+                (change)="selectAll(isAllChecked)" style="vertical-align: middle;margin-left: 5px;"></th>
+          </tr>
+        </table>
+      </div>
+      <div class="table-body-content">
+        <table class="table">
+          <tr *ngFor="let item of imageFiles; let i = index;">
+            <td class="w-45">{{i+1}}</td>
+            <td class="w-226">{{item.name}}</td>
+            <td class="text-center w-220" style="position: relative;">
+              <img class="placeholder-img" style="left: unset;">
+              <img [src]="item.url" onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+            </td>
+            <td class="text-center w-220" style="position: relative;">
+              <img class="placeholder-img"  style="left: unset;">
+              <img [src]="item.new_image.compressed_img" onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+            </td>
+            <td class="text-center"><input type="checkbox" [(ngModel)]="item.is_checked" (change)="valueChanged(item)">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="button-area text-center">
+        <p id="imageExtError" style="color: red;margin-bottom: 4px;margin-top: 4px;text-align: center;height: 19px;">
+        </p>
+        <button class="btn bg-primary text-light mr-2 w-25" (click)="replaceImages(imageFiles)">Replace</button>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

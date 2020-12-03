@@ -1,0 +1,78 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : addsearchtags.component.html
+File Created  : Thursday, 15th October 2020 01:12:03 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:17:49 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="searchtags-card">
+  <nb-card-header class="header-text" style="position: relative;">
+    <h5 class="text-center">{{titleHeader}}</h5>
+    <i class="fa fa-times close-icon" title="close" (click)="closeDialog()"></i>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row mb-2">
+      <div class="col-md-9 pr-0">
+        <input type="text" nbInput class="mw-100" id="tagInput" valid-status="false" [(ngModel)]="tagName"
+          placeholder="Enter new tag name here"
+          (keyup)="checkValidation('tagInput','','tagError','','','blank')"
+          (keyup.enter)="checkValidation('tagInput','','tagError',errormsg.TAG_EMPTY_NAME,'','usual')">
+        <p id="tagError" style="color: red;margin-bottom: 0px;margin-top: 2px;height: 14px;"></p>
+      </div>
+      <div class="col-md-3">
+        <button class="btn btn-primary w-100" id="addTag" (click)="addSearchTag()">Add Tag</button>
+      </div>
+    </div>
+    <div class="table-data">
+      <!-- <div class="table-header">
+        <table class="table mb-0 table-responsive w-100">
+         
+        </table>
+      </div> -->
+      <div class="table-body">
+        <table class="table">
+          <tr style="background: #edf1f7;">
+            <th class="width-75">#</th>
+            <th style="width: 309px;">Tag Name</th>
+            <th class="text-center">Templates</th>
+            <th class="text-center">Actions</th>
+          </tr>
+          
+          <tr *ngFor="let item of searchTagList; let i = index;"
+            [ngStyle]="{color : item.total_template==0 ? 'red' : 'black'}">
+            <td class="width-75">{{ i+1 }}</td>
+            <td *ngIf="item.is_update==false">{{item.tag_name}}</td>
+            <td *ngIf="item.is_update==true">
+              <input type="text" class="mw-100" nbInput placeholder="Enter tag name" [(ngModel)]="item.tag_name" (keyup.enter)="updateSearchTag(item)">
+              <p id="editInputTag" style="color: red;margin-bottom: 0px;margin-top: 2px;height: 14px;"></p>
+            </td>
+            <td class="text-center">{{item.total_template}}</td>
+            <td class=" text-center text-dark">
+              <div class="ml-4" *ngIf="item.is_update==false">
+                <nb-icon icon="edit-2-outline" title="Edit" (click)="showUpdate(item)"></nb-icon>
+                <nb-icon icon="trash-2-outline" title="Delete" (click)="deleteSearchTag(item)"></nb-icon>
+                <nb-icon icon="upload-outline" title="Move To First" (click)="moveToFirst(item,i)"></nb-icon>
+              </div>
+              <div class="button-area text-center" *ngIf="item.is_update==true">
+                <button class="btn bg-primary text-light mr-1" (click)="updateSearchTag(item)">Save</button>
+                <button class="btn bg-danger text-light" (click)="resetRow(item, i)">Cancel</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="totalRecord == 0">
+            <td colspan="3">
+              <h6 class="mb-0">No data found</h6>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

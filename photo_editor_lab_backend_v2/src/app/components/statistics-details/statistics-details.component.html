@@ -1,0 +1,89 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : statistics-details.component.html
+File Created  : Saturday, 24th October 2020 11:19:12 am
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:27:59 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+<span *ngFor="let item of contentDetails | paginate : {
+  itemsPerPage: selectedPageSize,
+  currentPage: currentPage,
+  totalItems: totalRecords
+};"></span>
+<nb-card class="static-detail-card" [class]="selectType=='date'?'w-626':'w-822'">
+  <nb-card-header style="position: relative;">
+    <h5 class="text-center static-card-header">{{ contentData.name }}</h5>
+    <i class="fa fa-times close-icon" (click)="closeDialog()"></i>
+  </nb-card-header>
+  <nb-card-body class="pb-0">
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <button class="btn btn-refresh mr-2" nbTooltip="Refresh" nbTooltipPlacement="bottom" nbTooltipStatus="default"
+          nbTooltipTrigger="hint" (click)="refreshPage()"><i class="fas fa-sync-alt"></i></button>
+        <nb-select [(selected)]="selectedPageSize" (selectedChange)="setPageSize($event)">
+          <nb-option *ngFor="let item of pageSize" value="{{item}}">{{ item }}</nb-option>
+        </nb-select>
+      </div>
+      <div class="col-md-6 col-xs-12 text-right">
+        <p class="text-total">
+          Total Records : {{ totalRecords }}
+        </p>
+      </div>
+    </div>
+    <div class="row mt-2" style="position: relative;">
+      <div class="col-md-8">
+        <input type="text" autofocus="false" class="form-control" name="daterangeInput" daterangepicker
+          [options]="pickerOptions" (selected)="updateRange($event)" />
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-success w-100" (click)="getDataByRange()">View Info</button>
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-md-12">
+        <div class="table-data">
+          <ng2-smart-table [settings]="settings" [source]="dataSource" *ngIf="selectType != 'date'">
+          </ng2-smart-table>
+          <div class="table-body-state" *ngIf="selectType == 'date'">
+            <table class="table mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th class="text-center" (click)="sortBy('uploaded_content_count', order_type == true ? 'ASC' : 'DESC')">Uploaded Content</th>
+                  <th class="text-center" (click)="sortBy('date', order_type == true ? 'ASC' : 'DESC')">Last Uploaded on</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of contentDetails | paginate : {
+                  itemsPerPage: selectedPageSize,
+                  currentPage: currentPage,
+                  totalItems: totalRecords
+                };let i = index;">
+                <td>{{i+1+(selectedPageSize * (currentPage-1))}}</td>
+                <td class="text-center">{{item.uploaded_content_count}}</td>
+                <td class="text-center">{{item.date}}</td>
+                </tr>
+                <tr *ngIf="totalRecords == 0">
+                  <td colspan="3">
+                    <p class="mb-0">No data found</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pegination-area text-center pt-2 pb-2" *ngIf="selectType == 'date'">
+            <pagination-controls previousLabel="Prev" nextLabel="Next" responsive="true"
+            (pageChange)="handlePageChange($event)" (pageBoundsCorrection)="pageChanged($event)" [previousLabel]="previousLabel" [nextLabel]="nextLabel"
+            autoHide="true"></pagination-controls>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

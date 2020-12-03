@@ -1,0 +1,82 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : addsubcategory.component.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:19:04 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import '~@nebular/theme/styles/theming';
+
+nb-card {
+  width: 455px;
+}
+.close-icon {
+    position: absolute;
+    right: 19px;
+    font-size: 23px;
+    top: 21px;
+    cursor: pointer;
+  }
+.header-text {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.img-preview {
+  background: #e4e1e1;
+  height: 130px;
+  width: 130px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+
+  label {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: #000;
+    opacity: 0.1;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.6;
+    }
+  }
+
+  i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: #fff;
+    transform: translate(-50%, -50%);
+    font-size: 33px;
+  }
+
+  img {
+    height: 130px;
+    width: 130px;
+  }
+}
+
+nb-radio-group {
+  display: flex;
+}
+
+.form-label {
+  margin-top: 9px;
+  font-weight: 600;
+}
+@media only screen and (max-width: 600px){
+  nb-card {
+    width: 100%;
+  }
+}

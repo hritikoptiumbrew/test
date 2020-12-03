@@ -1,0 +1,85 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : editfont.component.html
+File Created  : Thursday, 22nd October 2020 04:11:05 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 22nd October 2020 04:11:41 pm
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="edit-font-card">
+  <nb-card-header class="header-text" style="position: relative;">
+    <h5 *ngIf="fontData" class="text-center">Update Font</h5>
+    <h5 *ngIf="!fontData" class="text-center">Add New Font</h5>
+    <i class="fa fa-times close-icon" title="Close" (click)="closedialog()"></i>
+  </nb-card-header>
+  <nb-card-body *ngIf="fontData">
+    <div class="row">
+      <div class="col-md-4 pr-0">
+        <label class="d-block form-label">Font Name(ios)</label>
+      </div>
+      <div class="col-md-8 pl-0">
+        <div class="form-group">
+          <input type="text" autofocus="false" nbInput placeholder="Enter font name" class="w-100"
+            [(ngModel)]="iosFontName" id="editIosInput" valid-status="true"
+            (keyup)="checkValidation('editIosInput','','inputIosError','','','blank')"
+            (keyup.enter)="checkValidation('editIosInput','','inputIosError',errormsg.FONT_NAME_EMPTY,'','usual')">
+          <p id="inputIosError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 14px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4 pr-0">
+        <label class="d-block form-label">Font Path(Android)</label>
+      </div>
+      <div class="col-md-8 pl-0">
+        <div class="form-group">
+          <input type="text" autofocus="false" nbInput placeholder="Enter font path" class="w-100"
+            [(ngModel)]="androidFontName" id="editandroidInput" valid-status="true"
+            (keyup)="checkValidation('editandroidInput','','inputAndroidError','','','blank')"
+            (keyup.enter)="checkValidation('editandroidInput','','inputAndroidError',errormsg.FONT_PATH_EMPTY,'','usual')">
+          <p id="inputAndroidError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 14px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="form-group text-center">
+      <p id="fontAddError" style="color: red;margin-bottom: 2px;"></p>
+      <button class="btn bg-primary text-light w-50 mr-2" id="fontedit" (click)="editCategory()">Update</button>
+    </div>
+  </nb-card-body>
+  <nb-card-body *ngIf="!fontData">
+    <div class="row">
+      <div class="col-md-4 pr-0">
+        <label class="d-block form-label">Font File</label>
+      </div>
+      <div class="col-md-8 pl-0">
+        <div class="form-group">
+          <input type="file" class="form-control height-45" id="fontFile" (change)="fileChange($event)" style="overflow: hidden;">
+          <p id="fontFileError" style="color: red;margin-bottom: 3px;margin-top: 4px;height: 14px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4 pr-0">
+        <label class="d-block form-label">Font Name</label>
+      </div>
+      <div class="col-md-8 pl-0">
+        <div class="form-group">
+          <input type="text" class="w-100" nbInput placeholder="Enter font name" [(ngModel)]="fontDetails.font_name" valid-status="false" id="addFontInput"
+          (keyup)="checkValidation('addFontInput','','inputFontError','','','blank')"
+            (keyup.enter)="checkValidation('addFontInput','','inputFontError',errormsg.FONT_NAME_EMPTY,'','usual')">
+          <p id="inputFontError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 32px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="form-group text-center">
+      <p id="fontAddError" style="color: red;margin-bottom: 3px;"></p>
+      <button class="btn bg-primary text-light w-50 mr-2" id="fontedit" (click)="addNewFont(fontDetails,'0')">Add</button>
+    </div>
+  </nb-card-body>
+</nb-card>

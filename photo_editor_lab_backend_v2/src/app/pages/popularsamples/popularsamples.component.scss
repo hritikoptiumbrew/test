@@ -1,0 +1,50 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : popularsamples.component.scss
+ * File Created  : Thursday, 22nd October 2020 04:54:48 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 22nd October 2020 06:41:58 pm
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import '../viewcategories/viewcategories.component.scss';
+
+.va-middle {
+  vertical-align: middle;
+}
+.card-gallary-view{
+  padding: 10px 5px;
+  max-height: calc(100vh - 216px);
+  background: #fff;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #E4E9F2;
+  }
+}
+::ng-deep .card-gallary-view {
+  nb-card {
+    margin-right: 5px !important;
+    margin-left: 5px !important;
+  }
+
+  nb-card-footer {
+    margin-top: 0px !important;
+  }
+}

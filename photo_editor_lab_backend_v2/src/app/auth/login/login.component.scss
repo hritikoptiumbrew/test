@@ -1,0 +1,242 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : login.component.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:37:37 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+mat-form-field {
+  width: 100%;
+  height: 80px;
+  display: block;
+
+  i {
+    vertical-align: super;
+    // padding-right: 10px;
+    color: #43BCC8;
+  }
+
+  i.fa-eye {
+    font-size: 18px;
+  }
+
+  i.fa-eye-slash {
+    font-size: 18px;
+  }
+}
+::ng-deep mat-icon{
+  color: #43BCC8 !important;
+}
+mat-error {
+  font-size: 15px;
+}
+
+mat-label {
+  font-size: 18px;
+  font-weight: 500;
+  color: #000000b4;
+}
+
+.btn-login {
+  background-color: #43BCC8;
+  border-color: #43BCC8;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 18px;
+  height: 55px;
+  font-weight: 600;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
+  color: #43BCC8 !important;
+}
+
+// ::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background,
+// .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+// .mat-accent .mat-pseudo-checkbox-checked,
+// .mat-accent .mat-pseudo-checkbox-indeterminate,
+// .mat-pseudo-checkbox-checked,
+// .mat-pseudo-checkbox-indeterminate {
+//   background-color: #43BCC8 !important;
+//   /* Red background for example */
+// }
+
+
+$bg-color: #26333D;
+$primary-color: #B6B9BB;
+$btn-bg : #6EDAA1;
+$color-footer: #49A486;
+
+
+footer {
+  text-align: center;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  color: #000;
+  font-size: 13px;
+
+  a {
+    color: #43BCC8;
+    font-weight: 500;
+    font-size: 15px;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+      color: #43BCC8;
+    }
+  }
+}
+
+.login-form {
+  width: 700px;
+  height: 300px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+}
+
+.logo-div {
+  width: 45%;
+  height: 100%;
+  position: relative;
+  margin-top: 20px;
+
+  img {
+    max-width: 65%;
+    width: 100%;
+    margin-bottom: 15px;
+    // position: absolute;
+    // top: 52%;
+    // left: 55%;
+    // transform: translate(-50%,-50%);
+  }
+}
+
+.div-line {
+  width: 10%;
+  height: 100%;
+
+  .verticle-line {
+    margin-left: auto;
+    margin-right: auto;
+    height: 100%;
+    width: 2px;
+    background: $primary-color;
+  }
+}
+
+.div-form {
+  width: 45%;
+  height: 100%;
+  position: relative;
+
+  .loginform {
+    top: 55%;
+    left: 65%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    bottom: 10px;
+  }
+
+  .eye-icon {
+    cursor: pointer;
+  }
+}
+
+::ng-deep .mat-form-field-wrapper {
+  margin-bottom: 3px !important;
+}
+
+// ::ng-deep .mat-form-field-label-wrapper {
+//   left: -4px !important;
+// }
+// .input-icn {
+//   display: table-caption;
+//   color  : white;
+//   padding: 0px 4px 2px 4px;
+// }
+
+// .custom-form-controls {
+//   width  : 100%;
+//   display: block !important;
+
+//   input {
+//       caret-color: #000;
+//   }
+// }
+// ::ng-deep {
+//   .mat-form-field-appearance-outline .mat-form-field-outline {
+//       color: #8a8a8a;
+//   }
+
+//   mat-form-field {
+
+//       .mat-hint,
+//       input,
+//       ::placeholder,
+//       .mat-form-field-label {
+//           color: #8a8a8a;
+//       }
+//   }
+// }
+
+// ::ng-deep .custom-form-controls.mat-form-field.mat-focused .mat-form-field-label {
+//   color: #6edaa1 !important;
+// }
+
+// ::ng-deep .custom-form-controls.mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+//   color: #6edaa1 !important;
+// }
+
+// .input-icn {
+//   display: table-caption;
+//   color  : #000;
+//   padding: 0px 4px 2px 4px;
+// }
+@media only screen and (max-width: 600px) {
+  .login-form{
+    width: 100%; 
+    display: block;
+    transform: unset;
+    position: unset;
+    top: unset;
+    left: unset;
+    .logo-div{
+      width: 100%;
+      height: unset;
+      margin-top: 0px;
+      img{
+        max-width: 54%;
+      }
+    }
+    .div-line{
+      display: none;
+    }
+    .div-form{
+      width: 100%;
+      margin-top: 21px;
+      .loginform{
+        top: unset; 
+        left: unset; 
+        transform: unset; 
+         position: unset;
+        }
+      }
+  }
+  footer{
+    left: 0;
+  }
+}

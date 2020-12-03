@@ -1,0 +1,131 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : addjsondata.component.html
+File Created  : Wednesday, 21st October 2020 02:07:08 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:16:19 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="add-json-data-card">
+  <nb-card-header style="position: relative;">
+    <h5 *ngIf="!upJSonData" class="text-center header-text">Add JSON Data</h5>
+    <h5 *ngIf="upJSonData" class="text-center header-text">Update JSON Data</h5>
+    <i class="fa fa-times close-icon" title="Close" (click)="closeDialog()"></i>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row json-form-data">
+      <div class="col-md-5 ">
+        <div class="img-preview" id="jsonImage" [attr.valid-status]="upJSonData?true:false">
+          <img *ngIf="jsonImage" class="placeholder-img">
+          <img *ngIf="jsonImage" [src]="jsonImage"
+            onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+          <label for="fileInput">
+            <i class="fa fa-camera" title="Click here to choose image"></i>
+          </label>
+        </div>
+        <input type="file" id="fileInput" autofocus="true" style="display: none;" (change)="fileChange($event)">
+        <p id="imageError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
+        <div class="row mt-4">
+          <div class="col-md-4 pr-0">
+            <label class="d-block form-label">Pricing</label>
+          </div>
+          <div class="col-md-8 pl-0">
+            <div class="form-group">
+              <nb-radio-group [(ngModel)]="selectedPrice" [attr.valid-status]="upJSonData?true:false"
+                id="radioCalogPriInput" name="my-radio-group1">
+                <nb-radio value="1">Free
+                </nb-radio>
+                <nb-radio value="0">Paid
+                </nb-radio>
+              </nb-radio-group>
+              <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 pr-0">
+            <label class="d-block form-label">Type</label>
+          </div>
+          <div class="col-md-8 pl-0">
+            <div class="form-group">
+              <nb-radio-group [attr.valid-status]="upJSonData?true:false" id="radioCalogtypeInput"
+                [(ngModel)]="selectedType" name="my-radio-group2">
+                <nb-radio value="1">
+                  Featured</nb-radio>
+                <nb-radio value="0">
+                  Normal</nb-radio>
+              </nb-radio-group>
+              <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+            </div>
+          </div>
+        </div>
+        <div class="row ">
+          <div class="col-md-4 pr-0">
+            <label class="d-block form-label">Orientation</label>
+          </div>
+          <div class="col-md-8 pl-0">
+            <div class="form-group">
+              <nb-radio-group [(ngModel)]="selectedStyle" [attr.valid-status]="upJSonData?true:false"
+                id="radioCalogstyleInput" name="my-radio-group3">
+                <nb-radio value="1">
+                  Portrait</nb-radio>
+                <nb-radio value="0">
+                  Landscape</nb-radio>
+              </nb-radio-group>
+              <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <input nbInput (keyup.enter)="add($event)" type="text" class="mw-100 mb-1"
+                [formControl]="searchINputControl" placeholder="Select / Enter new tag" [nbAutocomplete]="auto">
+              <p id="tagInputError" style="color: red;margin-bottom: 3px;"></p>
+              <nb-autocomplete #auto (selectedChange)="add($event)">
+                <nb-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+                  {{ option }}
+                </nb-option>
+              </nb-autocomplete>
+              <mat-chip-list #chipList aria-label="Fruit selection">
+                <mat-chip *ngFor="let fruit of selectedSearchTags">
+                  {{fruit}}
+                  <i class="fa fa-times" style="margin-top: 5px;color:red;cursor: pointer;" matChipRemove
+                    (click)="remove(fruit)"></i>
+                </mat-chip>
+              </mat-chip-list>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-7">
+        <div class="form-group mb-0">
+          <input type="file" accept='text/plain' title="Choose JSON File" class="form-control height-45"
+            (change)="openFile($event)">
+          <p id="jsonFileError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 14px;"></p>
+        </div>
+        <h6 class="mb-3">-- OR --</h6>
+        <div class="form-group">
+          <textarea nbInput class="mw-100" [(ngModel)]="jsonData" style="height: 418px;"
+            placeholder="Enter JSON data" (keyup)="removeError()"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-12 text-center">
+        <p id="jsonAddError" style="color: red;margin-bottom: 4px;margin-top: 4px;text-align: center;height: 19px;">
+        </p>
+        <button *ngIf="!upJSonData" class="btn bg-primary w-25 text-light mr-1" id="saveJson"
+          (click)="saveJson()">Save</button>
+        <button *ngIf="upJSonData" class="btn bg-primary w-25 text-light mr-1" id="saveJson"
+          (click)="saveJson()">Update</button>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

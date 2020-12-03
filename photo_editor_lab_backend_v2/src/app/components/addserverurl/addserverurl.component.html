@@ -1,0 +1,40 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : addserverurl.component.html
+File Created  : Saturday, 31st October 2020 11:49:27 am
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Saturday, 31st October 2020 11:49:47 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+<nb-card class="server-add-card">
+    <nb-card-header class="header-text" style="position: relative;">
+      <h5 *ngIf="serverData" class="text-center">Update Server URL</h5>
+      <h5 *ngIf="!serverData" class="text-center">Add New Server URL</h5>
+      <i class="fa fa-times close-icon" title="Close" (click)="closedialog()"></i>
+    </nb-card-header>
+    <nb-card-body>
+      <div class="row">
+        <div class="col-md-3 pr-0">
+          <label class="d-block form-label">Server Url</label>
+        </div>
+        <div class="col-md-9 pl-0">
+          <div class="form-group">
+            <input type="text" autofocus="false" nbInput placeholder="Enter new server URL here" class="w-100"
+              [(ngModel)]="urlName" id="editUrlInput" [attr.valid-status]="serverData?true:false"
+              (keyup)="checkValidation('editUrlInput','alpha','inputUrlError','','','blank')"
+              (keyup.enter)="checkValidation('editUrlInput','alpha','inputUrlError',errormsg.SERVER_URL_EMPTY,'','usual')">
+            <p id="inputUrlError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 30px;"></p>
+          </div>
+        </div>
+      </div>
+      <div class="form-group text-center">
+        <button *ngIf="!serverData" class="btn btn-primary w-50 mr-2" id="Catedit" (click)="addUrl()">Add</button>
+        <button *ngIf="serverData" class="btn btn-primary w-50 mr-2" id="Catedit" (click)="addUrl()">Update</button>
+      </div>
+    </nb-card-body>
+  </nb-card>

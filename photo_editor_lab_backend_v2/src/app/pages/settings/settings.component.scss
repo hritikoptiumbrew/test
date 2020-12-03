@@ -1,0 +1,328 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : settings.component.scss
+ * File Created  : Monday, 26th October 2020 02:26:52 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:08:32 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+// @import 'assets/css/style.scss';
+
+// ::ng-deep .validation-config-card ng2-smart-table table thead tr {
+//   &:last-child {
+//     display: none !important;
+//   }
+// }
+::ng-deep ng2-smart-table-pager{
+  position: sticky !important;
+  bottom: 0 !important;
+  background: #fff !important;
+  padding: 1px !important;
+}
+.validation-config-card{
+  height: calc(100vh - 275px);
+}
+.server-card{
+  height: calc(100vh - 275px);
+}
+.mw-100 {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+::ng-deep .change-card {
+  position: relative;
+  height: 350px;
+
+  nb-icon {
+    cursor: pointer;
+    font-size: 24px !important;
+  }
+}
+
+.change-card-content {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.toggle-radio {
+  margin-top: 84px;
+}
+
+.switch {
+  position: absolute;
+  top: 50%;
+  left: 40%;
+  width: 270px;
+  height: 50px;
+  text-align: center;
+  margin: -30px 0 0 -75px;
+  background: #00bc9c;
+  transition: all 0.2s ease;
+  border-radius: 25px;
+}
+
+.switch span {
+  position: absolute;
+  width: 20px;
+  height: 4px;
+  top: 50%;
+  left: 50%;
+  margin: -2px 0px 0px -4px;
+  background: #fff;
+  display: block;
+  transform: rotate(-45deg);
+  transition: all 0.2s ease;
+}
+
+.switch span:after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 4px;
+  height: 12px;
+  margin-top: -8px;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+input[type=radio] {
+  display: none;
+}
+
+.switch label {
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.2);
+  width: 60px;
+  line-height: 50px;
+  transition: all 0.2s ease;
+}
+
+label[for=yes] {
+  position: absolute;
+  left: 20px;
+  height: 20px;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+label[for=no] {
+  position: absolute;
+  right: 39px;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+#no:checked~.switch {
+  background: #eb4f37;
+}
+
+#no:checked~.switch span {
+  background: #fff;
+  margin-left: -8px;
+}
+
+#no:checked~.switch span:after {
+  background: #fff;
+  height: 20px;
+  margin-top: -8px;
+  margin-left: 8px;
+}
+
+#yes:checked~.switch label[for=yes] {
+  color: #fff;
+}
+
+#no:checked~.switch label[for=no] {
+  color: #fff;
+}
+
+.header-text {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.option-input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+  top: 3.33333px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 26px;
+  width: 26px;
+  transition: all .15s ease-out 0s;
+  background: #cbd1d8;
+  border: 1px solid gray;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  margin-right: .5rem;
+  outline: none;
+  position: relative;
+  z-index: 10;
+}
+
+.option-input:checked {
+  background: red !important;
+}
+::ng-deep ng2-smart-table-pager .ng2-smart-pagination-nav ul li{
+  &:first-child{
+    display: none !important;
+  }
+  &:last-child{
+    display: none !important;
+  }
+}
+::ng-deep .server-table ng2-smart-table tbody tr.selected{
+  background: #fff !important;
+  &:hover{
+    background: #EDF1F7 !important;
+  }
+}
+::ng-deep .validation-config-card ng2-smart-table tbody tr.selected{
+  background: #fff !important;
+  &:hover{
+    background: #EDF1F7 !important;
+  }
+}
+::ng-deep .server-table ng2-smart-table table thead tr{
+  th{
+      ng2-smart-table-title{
+          a{
+              font-weight: 700 !important;
+          }
+       
+      }
+  }
+      &:first-child{
+          th{
+              position: sticky !important;
+              top: -2px !important;
+              background: #fff;
+              z-index: 1;
+              font-weight: 700 !important;
+          }
+      }
+}
+::ng-deep .validation-config-card ng2-smart-table table thead tr{
+  th{
+      ng2-smart-table-title{
+          a{
+              font-weight: 700 !important;
+          }
+       
+      }
+  }
+      &:first-child{
+          th{
+              height: 109px;
+              position: sticky !important;
+              top: -2px !important;
+              background: #fff;
+              z-index: 1;
+              font-weight: 700 !important;
+          }
+      }
+}
+::ng-deep .validation-config-card table thead tr{
+      &:first-child{
+          th{
+              position: sticky !important;
+              top: -2px !important;
+              background: #fff;
+              z-index: 1;
+              font-weight: 700 !important;
+          }
+      }
+}
+.valid-action-icon{
+  height: 100%;
+  font-size: 2rem;
+  i{
+    &:first-child{
+      margin-right: 10px;
+    }
+    cursor: pointer;
+  }
+}
+.table-body-td th,td{
+  vertical-align: middle;
+  padding: 14px 20px;
+  border-right: 1px solid #EDF1F7;
+}
+::ng-deep .table-body-td{
+  td,th{
+    &:nth-child(1){
+      width: 65px;
+    }
+    &:nth-child(2),&:nth-child(5){
+     width: 117px;
+    }
+    &:nth-child(3){
+      width: 280px;
+    }
+    &:nth-child(4){
+      width: 122px;
+    }
+    &:nth-child(6){
+      width: 107px;
+    }
+    &:nth-child(7){
+      width: 287px;
+    }
+    &:nth-child(8){
+      width: 105px;
+    }
+  }
+}
+::ng-deep .nb-theme-corporate nb-popover .arrow::after {
+  border-bottom: 0.6875rem solid #3366FF !important;
+}
+.width-75px{
+  width: 75px;
+}
+@media only screen and (max-width: 600px){
+  nb-tab{
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+  .switch{
+    left: 33%;
+  }
+  :host /deep/ .table-body-td{
+    &:nth-child(1){
+      width: 65px;
+    }
+    &:nth-child(2),&:nth-child(5){
+     width: 117px;
+    }
+    &:nth-child(3){
+      width: 280px;
+    }
+    &:nth-child(4){
+      width: 122px;
+    }
+    &:nth-child(6){
+      width: 107px;
+    }
+    &:nth-child(7){
+      width: 287px;
+    }
+    &:nth-child(8){
+      width: 105px;
+    }
+  }
+}

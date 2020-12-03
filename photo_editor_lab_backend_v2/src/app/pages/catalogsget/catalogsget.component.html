@@ -1,0 +1,196 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : catalogsget.component.html
+File Created  : Friday, 16th October 2020 11:08:55 am
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:01:20 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="row">
+      <div class="col-md-12 pl-0">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item main-home" nbTooltip="Go to categories" nbTooltipPlacement="bottom"
+            nbTooltipStatus="primary" (click)="gotoCategories()">Categories</li>
+          <li class="breadcrumb-item main-home" nbTooltip="Go to {{ broadHome }}" nbTooltipPlacement="bottom"
+            nbTooltipStatus="primary" (click)="gotoSubCategory()">{{ broadHome }}</li>
+          <li class="breadcrumb-item active" aria-current="page">{{ broadItem }}</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 text-right">
+    <nb-card class="w-355 ml-auto">
+      <nb-card-header class="text-center fs-17 fw-700 p-7">
+        TOTAL CATALOGS : {{ totalRecords }}
+      </nb-card-header>
+    </nb-card>
+
+  </div>
+</div>
+<div class="row card-summary mb-2">
+  <div class="col-md-12">
+    <!-- <nb-card>
+      <nb-card-header>
+      
+      </nb-card-header>
+    </nb-card> -->
+    <div class="row">
+      <div class="col-md-5">
+        <div class="form-group">
+          <input type="text" style="background:#fff"nbInput placeholder="Search catalog name here" valid-status="false" id="calogSearchInput"
+            [(ngModel)]="searchQuery"
+            (keyup)="checkValidation('calogSearchInput','','catCalogError','','','blank')"
+            (keyup.enter)="checkValidation('calogSearchInput','','catCalogError',errormsg.SEARCH_QUERY_EMPTY,'','usual')">
+          <p id="catCalogError" style="color: red;margin-bottom: 0px;height: 14px;"></p>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+          <button id="subCalogButton" class="btn btn-primary w-100" (click)="searchCategory()">Search</button>
+        </div>
+      </div>
+      <div class="col-md-2 col-3" (click)="refreshPage()">
+        <button class="btn btn-refresh" nbTooltip="Refresh" nbTooltipPlacement="bottom" nbTooltipStatus="default"><i
+            class="fas fa-sync-alt"></i></button>
+      </div>
+      <div class="col-md-3 col-9 text-right pr-0">
+        <button class="btn btn-primary btn-add-cat mr-3" (click)="addCatalog();">Add Catalog</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="catalog-data">
+  <div class="row">
+    <div class="col-md-12">
+      <nb-accordion multi>
+        <nb-accordion-item expanded="true">
+          <nb-accordion-item-header>
+            <div class="row w-100">
+              <div class="col-md-9 col-6">
+                Templates
+              </div>
+              <div class="col-md-3 col-6 text-right">
+                Total count: {{ featuredCatalogList.length }}
+              </div>
+            </div>
+          </nb-accordion-item-header>
+          <nb-accordion-item-body>
+            <div class="row">
+
+              <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" *ngFor="let item of featuredCatalogList ; let i = index">
+                <nb-card class="card-content">
+                  <div class="picture text-center" style="position: relative;overflow: hidden;"
+                    (click)="viewCatalog(item)">
+                    <img class="placeholder-img">
+                    <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img" [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
+                    <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
+                      <div class="ribbon-yellow">PRO</div>
+                    </div>
+                  </div>
+                  <div class="details">
+                    <div>{{item.catalog_id}}. {{item.name}}</div>
+                  </div>
+                  <nb-card-footer style="background: #e1e8f3;padding: 10px !important;">
+                    <a nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                      (click)="viewCatalog(item)">
+                      <nb-icon icon="folder" pack="eva"></nb-icon>
+                    </a>
+                    <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                      (click)="editCatalog(item)">
+                      <nb-icon icon="edit-2" pack="eva"></nb-icon>
+                    </a>
+                    <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                      (click)="deleteCatalog(item.catalog_id)">
+                      <nb-icon icon="trash-2" pack="eva"></nb-icon>
+                    </a>
+                    <a nbTooltip="LInk this catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                      nbTooltipTrigger="hint" (click)="linkCatalog(item)">
+                      <nb-icon icon="link-2" pack="eva"></nb-icon>
+                    </a>
+                    <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                      nbTooltipTrigger="hint" (click)="moveToFirst(item,'feature',i)">
+                      <nb-icon icon="upload" pack="eva"></nb-icon>
+                    </a>
+                  </nb-card-footer>
+                </nb-card>
+                <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
+
+              </div>
+              <div class="col-md-12 text-center" *ngIf="featuredCatalogList.length == 0">
+                <img  src="./assets/data-not-found.png" style="width:180px">
+                <h2 >No data found</h2>
+              </div>
+            </div>
+          </nb-accordion-item-body>
+        </nb-accordion-item>
+
+        <nb-accordion-item>
+          <nb-accordion-item-header>
+            <div class="row w-100">
+              <div class="col-md-9 col-6">
+                Collections
+              </div>
+              <div class="col-md-3 col-6 text-right">
+                Total count: {{ normalCatalogList.length }}
+              </div>
+            </div>
+          </nb-accordion-item-header>
+          <nb-accordion-item-body>
+            <div class="row">
+              <div class="col-md-12 text-center" *ngIf="normalCatalogList.length == 0">
+                <img src="./assets/data-not-found.png" style="width:180px">
+                <h2>No data found</h2>
+              </div>
+              <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" *ngFor="let item of normalCatalogList;let i = index;">
+                <nb-card class="card-content">
+                  <div class="picture text-center" style="position: relative;overflow: hidden;"
+                    (click)="viewCatalog(item)">
+                    <img class="placeholder-img">
+                    <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img" [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
+                    <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
+                      <div class="ribbon-yellow">PRO</div>
+                    </div>
+                  </div>
+                  <div class="details">
+                    <div>{{item.catalog_id}}. {{item.name}}</div>
+                  </div>
+                  <nb-card-footer style="background: #e1e8f3;padding: 10px !important;">
+                    <a nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                      (click)="viewCatalog(item)">
+                      <nb-icon icon="folder" pack="eva"></nb-icon>
+                    </a>
+                    <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                      (click)="editCatalog(item)">
+                      <nb-icon icon="edit-2" pack="eva"></nb-icon>
+                    </a>
+                    <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                      (click)="deleteCatalog(item.catalog_id)">
+                      <nb-icon icon="trash-2" pack="eva"></nb-icon>
+                    </a>
+                    <a nbTooltip="Link this catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                      nbTooltipTrigger="hint" (click)="linkCatalog(item)">
+                      <nb-icon icon="link-2" pack="eva"></nb-icon>
+                    </a>
+                    <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                      nbTooltipTrigger="hint"  (click)="moveToFirst(item,'normal',i)">
+                      <nb-icon icon="upload" pack="eva"></nb-icon>
+                    </a>
+                  </nb-card-footer>
+                </nb-card>
+                <img src="./assets/featured_img.png"  *ngIf="item.is_featured==1"  class="label-img">
+              </div>
+            </div>
+          </nb-accordion-item-body>
+        </nb-accordion-item>
+      </nb-accordion>
+    </div>
+  </div>
+</div>

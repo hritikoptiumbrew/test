@@ -1,0 +1,61 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : addblogs.component.scss
+ * File Created  : Monday, 19th October 2020 02:03:07 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:15:22 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+
+ @import "../addsubcategory/addsubcategory.component.scss";
+.blog-form-card {
+  width: 1107px;
+  height: calc(100vh - 50px);
+  #subCatAdd{
+    width: 25%;
+    margin-right: 3rem;
+  }
+}
+.close-icon {
+    position: absolute;
+    right: 19px;
+    font-size: 23px;
+    top: 21px;
+    cursor: pointer;
+  }
+  
+.content-block-blog {
+  position: relative;
+
+  .text-overlay {
+    position: absolute;
+    top: 0;
+  }
+}
+::ng-deep .note-modal-backdrop{
+  display: none !important;
+  background: rgba(0,0,0,0.2);
+}
+::ng-deep .note-editable{
+  background: #fff !important;
+}
+::ng-deep .note-modal-footer{
+  height: 54px !important;
+}
+@media only screen and (max-width: 600px){
+  .blog-form-card {
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+    #subCatAdd{
+      width: 75%;
+    }
+  }
+  
+}

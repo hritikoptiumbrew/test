@@ -1,0 +1,284 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : one-column.layout.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:40:07 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import '../../styles/themes';
+@import '~bootstrap/scss/mixins/breakpoints';
+@import '~@nebular/theme/styles/global/breakpoints';
+$bar-color: #fff;
+$ball-color: #fff;
+@include nb-install-component() {
+  .menu-sidebar ::ng-deep .scrollable {
+    padding-top: nb-theme(layout-padding-top);
+  }
+}
+.new-loader{
+  padding: 7px 31px;
+  height: 100%;
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  left: 0;
+    p{
+      text-align: center;
+      margin-bottom: 0px !important;
+      font-weight: 700;
+      color: #fff;
+    }
+    .pageloader-content{
+      height: 100%;
+      width: 100%;
+      position: relative;
+      .page-loader{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate((-50%,-50%));
+        background: #fff;
+    /* height: 124px; */
+    text-align: center;
+    padding: 28px 51px;
+      }
+    }
+    .loading-bar {
+      margin-right: 4px !important;
+    }
+    
+    .loader {
+  
+      position: relative;
+      width: 75px;
+      height: 100px;
+      
+      &__bar {
+        position: absolute;
+        bottom: 0;
+        width: 10px;
+        height: 50%;
+        background: $bar-color;
+        transform-origin: center bottom;
+        box-shadow: 1px 1px 0 rgba(0,0,0,.2);
+        
+        @for $i from 1 through 5 { 
+           &:nth-child(#{$i}) {
+             left: ($i - 1) * 15px;
+             transform: scale(1,$i*.2);
+             animation: barUp#{$i} 4s infinite;
+            }
+        }
+        
+      }
+      
+      &__ball {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        width: 10px;
+        height: 10px;
+        background: $ball-color;
+        border-radius: 50%;
+        animation: ball 4s infinite;
+      }
+    }
+}
+.new-loader[loading-visible="false"]{
+  display: none !important;
+}
+@keyframes ball {
+  0% {
+    transform: translate(0, 0);
+  }
+  5% {
+    transform: translate(8px, -14px);
+  }
+  10% {
+    transform: translate(15px, -10px)
+  }
+  17% {
+    transform: translate(23px, -24px)
+  }
+  20% {
+    transform: translate(30px, -20px)
+  }
+  27% {
+    transform: translate(38px, -34px)
+  }
+  30% {
+    transform: translate(45px, -30px)
+  }
+  37% {
+    transform: translate(53px, -44px)
+  }
+  40% {
+    transform: translate(60px, -40px)
+  }
+  50% {
+    transform: translate(60px, 0)
+  }
+  57% {
+    transform: translate(53px, -14px)
+  }
+  60% {
+    transform: translate(45px, -10px)
+  }
+  67% {
+    transform: translate(37px, -24px)
+  }
+  70% {
+    transform: translate(30px, -20px)
+  }
+  77% {
+    transform: translate(22px, -34px)
+  }
+  80% {
+    transform: translate(15px, -30px)
+  }
+  87% {
+    transform: translate(7px, -44px)
+  }
+  90% {
+    transform: translate(0, -40px)
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes barUp1 { 
+  0% {
+    transform: scale(1, .2);
+  }
+  40%{
+    transform: scale(1, .2);
+  }
+  50% {
+    transform: scale(1, 1);
+  }
+  90% {
+    transform: scale(1,1);
+  }
+  100% {
+    transform: scale(1,.2);
+  }
+}
+@keyframes barUp2 { 
+  0% {
+    transform: scale(1, .4);
+  }
+  40% {
+    transform: scale(1, .4);
+  }
+  50% {
+    transform: scale(1, .8);
+  }
+  90% {
+    transform: scale(1, .8);
+  }
+  100% {
+    transform: scale(1, .4);
+  }
+}
+@keyframes barUp3 { 
+  0% {
+    transform: scale(1, .6);
+  }
+  100% {
+    transform: scale(1, .6);
+  }
+}
+@keyframes barUp4 { 
+  0% {
+    transform: scale(1, .8);
+  }
+  40% {
+    transform: scale(1, .8);
+  }
+  50% {
+    transform: scale(1, .4);
+  }
+  90% {
+    transform: scale(1, .4);
+  }
+  100% {
+    transform: scale(1, .8);
+  }
+}
+@keyframes barUp5 { 
+  0% {
+    transform: scale(1, 1);
+  }
+  40% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1, .2);
+  }
+  90% {
+    transform: scale(1, .2);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+// ::ng-deep .dark-mode-layout{
+//   background: #151A30 !important;
+//   .breadcrumb-item.active {
+//     color: #fff !important;
+//   }
+//   .breadcrumb{
+//     li{
+//       color: gray !important;
+//     }
+//   }
+//   .card-gallary{
+//     background: #222B45!important;
+//     nb-card-footer {
+//       background: #151A30!important;
+//     }
+//   }
+// }
+// ::ng-deep .dark-layout-content{
+//   background: #222B45 !important;
+//   ngx-header{
+//     span{
+//       color:#fff !important;
+//     }
+//     .logo-container{
+//       .logo{
+//         border-left: 1px solid #151a30 !important;
+//       }
+//     }
+//     .user-name{
+//       color:#fff !important;
+//     }
+//     nb-user .user-picture{
+//       border: unset !important;
+//     }
+//   }
+//   nb-menu {
+//     .menu-item {
+//       border-bottom: 1px solid #151a30 !important;
+//     }
+//     a.active {
+//       color: #3366ff !important;
+//     }
+//     a{
+//       color: #fff !important;
+//     }
+    
+//   }
+
+// }
+

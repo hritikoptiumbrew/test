@@ -1,0 +1,21 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : addserverurl.component.scss
+ * File Created  : Saturday, 31st October 2020 11:49:27 am
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Saturday, 31st October 2020 11:49:51 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+ @import "../addsubcategory/addsubcategory.component.scss";
+ .server-add-card{
+    width: 413px !important;
+ }
+@media only screen and (max-width: 600px){
+   .server-add-card{
+      width: 100% !important;
+   }
+}

@@ -1,0 +1,113 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : fontlist.component.scss
+ * File Created  : Thursday, 22nd October 2020 12:16:53 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 22nd October 2020 12:27:42 pm
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+@import '../viewsubcategories/viewsubcategories.component.scss';
+@import '../statistics/statistics.component.scss';
+// @import '../categories/categories.component.scss';
+
+.w-272 {
+  width: 272px;
+}
+
+.height-45 {
+  height: 45px !important;
+}
+
+.w-280 {
+  width: 280px;
+}
+
+.w-98 {
+  width: 98px;
+}
+
+.mw-100 {
+  max-width: 100% !important;
+  width: 100%;
+}
+
+.bg-none {
+  background: unset !important;
+}
+
+.table-card-font {
+  height: calc(100vh - 212px);
+  // overflow-y: scroll;
+  // overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #E4E9F2;
+  }
+}
+::ng-deep .table-td-th td{
+  &:nth-child(1){
+    width: 75px !important;
+  }
+  &:nth-child(5){
+    width: 274px !important;
+  }
+}
+
+::ng-deep .table-card-font .ng2-smart-filters {
+  display: none;
+}
+
+:host /deep/ .ng2-smart-action-multiple-select>input {
+  width: 25px;
+  height: 25px;
+  display: unset;
+}
+
+:host /deep/ .ng2-smart-titles th>input {
+  width: 25px;
+  height: 25px;
+  display: unset;
+}
+
+:host /deep/ .table-card-font .ng2-smart-titles th {
+  &:first-child {
+    text-align: center;
+    width: 75px !important;
+  }
+  &:nth-child(5){
+    width: 274px !important;
+  }
+}
+ ::ng-deep .table-card-font ng2-smart-table table thead tr{
+  th{
+      ng2-smart-table-title{
+          a{
+              font-weight: 700 !important;
+          }
+       
+      }
+  }
+      &:first-child{
+          th{
+              position: sticky !important;
+              top: -4px !important;
+              background: #fff;
+              z-index: 1;
+              font-weight: 700 !important;
+          }
+      }
+}

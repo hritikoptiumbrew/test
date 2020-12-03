@@ -1,0 +1,30 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : pace.theme.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:38:24 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+
+@mixin ngx-pace-theme() {
+
+  .pace .pace-progress {
+    background: nb-theme(color-primary-default);
+  }
+
+  .pace .pace-progress-inner {
+    box-shadow: 0 0 10px nb-theme(color-primary-default), 0 0 5px nb-theme(color-primary-default);
+  }
+
+  .pace .pace-activity {
+    display: none;
+  }
+
+}

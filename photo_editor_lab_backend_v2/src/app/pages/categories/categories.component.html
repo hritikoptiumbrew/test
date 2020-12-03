@@ -1,0 +1,56 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : categories.component.html
+File Created  : Thursday, 15th October 2020 01:12:03 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:34:31 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<span *ngFor="let item of categoryData | paginate : {
+  itemsPerPage: selectedPageSize,
+  currentPage: currentPage,
+  totalItems: totalRecords
+};"></span>
+<div class="row card-summary">
+  <div class="col-md-9 text-right">
+    <ol class="breadcrumb mb-0" style="background: transparent;">
+      <li class="breadcrumb-item active" aria-current="page">Categories</li>
+    </ol>
+  </div>
+  <div class="col-md-3">
+    <nb-card>
+      <nb-card-header class="text-center p-7">
+        <div class="total-cat">
+          TOTAL CATEGORIES : {{ totalRecords }}
+        </div>
+      </nb-card-header>
+    </nb-card>
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col-md-12 text-right">
+    <button class="btn bg-primary ml-2 text-light" (click)="addCategory()">Add Category</button>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <nb-card class="table-card categories-card-table p-0">
+      <nb-card-body class=" p-0">
+        <ng2-smart-table [settings]="settings" [source]="datasource" (edit)="editCategory($event)"
+          (userRowSelect)="getRow($event)" (delete)="getRow($event)">
+        </ng2-smart-table>
+        <div class="pegination-area text-center p-2">
+          <pagination-controls previousLabel="Prev" nextLabel="Next" responsive="true"
+            (pageChange)="handlePageChange($event)" [previousLabel]="previousLabel" [nextLabel]="nextLabel"
+            autoHide="true"></pagination-controls>
+        </div>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>
