@@ -1,0 +1,55 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : viewcorruptedfonts.component.html
+File Created  : Wednesday, 11th November 2020 06:09:44 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Wednesday, 11th November 2020 06:26:50 pm
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="currupt-font-card">
+    <nb-card-header class="header-text" style="position: relative;">
+      <h5 class="text-center">Corrupted Fonts List</h5>
+      <i class="fa fa-times close-icon" title="close" (click)="closeDialog()"></i>
+    </nb-card-header>
+    <nb-card-body>
+      <div class="table-data">
+        <div class="table-body">
+          <h6 class="mt-2 ml-3" *ngIf="totalRecord==0">No data found</h6>
+          <table class="table table-responsive">
+            <thead>
+            <tr>
+              <th class="width-75">#</th>
+              <th class="w-194">Font Name</th>
+              <th class="w-260">Font Name(iOS)</th>
+              <th class="w-260">Font Path(Android)</th>
+              <th class="text-center w-163">Status</th>
+            </tr>
+          </thead>
+            <tbody *ngFor="let item of fontList;">
+              <tr>
+                <td class=" font-weight-bold " colspan='5'
+                  style="background-color: rgb(252, 243, 240); padding: 5px; border-bottom: 1px solid #c2c8ce ; ">{{item.name}}</td>
+              </tr>
+              <tr *ngFor="let font of item.font_list; let i = index;" style="width: 100%;">
+                <td class="width-75">{{i+1}}</td>
+                <td class="w-194">{{font.font_name}}</td>
+                <td class="w-260">{{font.ios_font_name}}</td>
+                <td class="w-260">{{font.font_file}}</td>
+                <td class="text-center w-163">
+                  <span *ngIf="item.is_removed==0">In-Active</span>
+                  <span *ngIf="item.is_removed==1">Active</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </nb-card-body>
+  </nb-card>
+  

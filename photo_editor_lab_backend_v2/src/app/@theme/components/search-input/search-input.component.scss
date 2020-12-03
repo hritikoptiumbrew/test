@@ -1,0 +1,47 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : search-input.component.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:41:14 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+:host {
+  display: flex;
+  align-items: center;
+
+  i.control-icon {
+    &::before {
+      font-size: 2.3rem;
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  input {
+    border: none;
+    outline: none;
+    margin-left: 1rem;
+    width: 15rem;
+    transition: width 0.2s ease;
+
+    &.hidden {
+      width: 0;
+      margin: 0;
+    }
+  }
+
+  ::ng-deep search-input {
+    input {
+      background: transparent;
+    }
+  }
+}

@@ -1,0 +1,88 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : catalogsget.component.scss
+ * File Created  : Friday, 16th October 2020 11:08:55 am
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:01:27 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import '~@nebular/theme/styles/theming';
+@import '../viewcategories/viewcategories.component.scss';
+
+::ng-deep .catalog-data {
+  nb-card-footer {
+    margin-top: 0px !important;
+  }
+
+  nb-card {
+    margin-right: 5px !important;
+    margin-left: 5px !important;
+  }
+}
+
+.catalog-data {
+  height: calc(100vh - 216px);
+  overflow-x: hidden;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #E4E9F2;
+  }
+}
+
+.ribbon-wrapper-yellow {
+  width: 88px;
+  height: 88px;
+  overflow: hidden;
+  position: absolute;
+  bottom: -19px;
+  right: -19px;
+  z-index: 999;
+}
+
+.ribbon-yellow {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  text-shadow: hsla(0, 0%, 100%, .5) 0 1px 0;
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  position: relative;
+  padding: 6px 0 15px;
+  left: -4px;
+  top: 32px;
+  width: 120px;
+  background-color: #fbc913;
+  color: #6a6340;
+  box-shadow: 15px 0 8px 0 rgba(0, 0, 0, .5);
+}
+::ng-deep nb-accordion nb-accordion-item-body .item-body {
+  padding: 10px 21px !important;
+}
+@media only screen and (max-width: 600px){
+  .btn-refresh{
+    margin-top: 10px;
+  }
+  .btn-add-cat{
+    margin-top: 10px;
+  }
+}

@@ -1,0 +1,54 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : addjsondata.component.scss
+ * File Created  : Wednesday, 21st October 2020 02:07:08 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:16:42 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import '../addsubcategory/addsubcategory.component.scss';
+
+.close-icon {
+  position: absolute;
+  right: 19px;
+  font-size: 23px;
+  top: 21px;
+  cursor: pointer;
+}
+
+.add-json-data-card {
+  width: calc(100vw - 500px);
+  height: calc(100vh - 87px);
+
+  .json-form-data {
+    height: calc(100vh - 267px);
+    overflow-x: hidden;
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+.height-45 {
+  height: 45px !important;
+}
+
+.mw-100 {
+  max-width: 100% !important;
+  width: 100%;
+}
+@media only screen and (max-width: 600px){
+  .add-json-data-card {
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+  }  
+}

@@ -1,0 +1,28 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : enterotp.component.html
+File Created  : Monday, 26th October 2020 06:20:35 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:22:51 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="qr-card">
+    <nb-card-header class="header-text" style="position: relative;">
+        OTP Verification
+        <i class="fa fa-times close-icon" title="Close" (click)="closeDialog()"></i>
+    </nb-card-header>
+    <nb-card-body class="text-center">
+        <img src="./assets/verification.png" class="mb-3">
+        <h6 class="mb-3">Enter OTP For verify</h6>
+        <ng-otp-input [config]="{length:6,allowNumbersOnly:true,inputStyles: {'width': '40px','height': '40px','font-size': '22px','font-weight': '700'}}" (onInputChange)="setOtpCode($event)"></ng-otp-input>
+        <!-- <div class="button-area mt-3">
+            <button class="btn bg-danger text-light" (click)="closeDialog()">Cancel</button>
+        </div> -->
+    </nb-card-body>
+</nb-card>

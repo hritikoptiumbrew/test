@@ -1,0 +1,96 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : imagedetails.component.scss
+ * File Created  : Saturday, 24th October 2020 03:56:00 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Saturday, 24th October 2020 04:06:31 pm
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+@import '../categories/categories.component.scss';
+
+.imgae-details-card {
+  height: calc(100vh - 210px);
+}
+.table-bordered{
+  border: 1px solid #edf1f7 !important;
+}
+::ng-deep table thead tr {
+  &:first-child {
+    th {
+      position: sticky !important;
+      top: -2px !important;
+      background: #fff;
+      z-index: 1;
+      font-weight: 700 !important;
+    }
+  }
+}
+
+.p-7{
+  padding: 7px 0px !important;
+}
+.total-cat {
+  font-size: 17px;
+  font-weight: 700;
+}
+.h-53{
+  height: 49px;
+}
+::ng-deep{
+  .table-header-new{
+    border: none !important;
+    height: 50px !important;
+    th{
+      border-right: 1px solid #dee2e6;
+      border-left: 1px solid #dee2e6;
+      
+    }
+  }
+  .width-90{
+    width: 90px !important;
+  }
+  .table-body-new{
+    td,th{
+      border-right: 1px solid #dee2e6;
+      border-left: 1px solid #dee2e6; 
+      &:first-child{
+        border-left: none !important;
+        cursor: default !important;
+      }
+      &:nth-child(2){
+        cursor: default !important;
+      }
+      &:last-child{
+        border-right: none !important;
+      }
+    }
+    th{
+      border-bottom: none !important;
+      cursor: pointer;
+    }
+    td{
+      vertical-align: middle !important;
+    }
+    tbody tr{
+      &:hover{
+        background: #edf1f7;
+      }
+    }
+  }
+}
+@media only screen and (max-width: 600px){
+  .img-det-card{
+    height: 94px;
+  }
+  :host /deep/ table thead tr {
+    &:first-child {
+      th {
+        top: -5px !important;
+      }
+    }
+  }
+}

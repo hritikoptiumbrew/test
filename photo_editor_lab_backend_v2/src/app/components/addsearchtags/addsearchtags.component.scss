@@ -1,0 +1,128 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : addsearchtags.component.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:18:00 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import '~@nebular/theme/styles/theming';
+
+.header-title {
+  font-size: 21px;
+  font-weight: 700;
+  position: relative;
+
+  i {
+    position: absolute;
+    right: 0;
+    cursor: pointer;
+  }
+}
+
+.searchtags-card {
+  width: 750px;
+  overflow: auto;
+}
+
+.header-text {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.mw-100 {
+  max-width: unset !important;
+  width: 100%;
+}
+
+.w-100 {
+  width: 100% !important;
+}
+
+.width-75 {
+  width: 75px;
+}
+
+.w-194 {
+  width: 194px;
+}
+
+.w-260 {
+  width: 260px;
+}
+
+.w-163 {
+  width: 163px;
+}
+
+.close-icon {
+  position: absolute;
+  right: 21px;
+  top: 23px;
+  cursor: pointer;
+  font-size: 23px;
+}
+
+.table-data {
+
+
+  .table-body {
+    height: calc(100vh - 300px);
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    /* Track */
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    /* Handle */
+    &::-webkit-scrollbar-thumb {
+      background: #E4E9F2;
+    }
+    th{
+      background:  #edf1f7;
+      position: sticky;
+      top: -2px;
+    }
+    td,th {
+      padding: 14px 20px;
+      vertical-align: middle !important;
+    }
+  }
+
+  nb-icon {
+    font-size: 23px !important;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+}
+@media only screen and (max-width: 600px){
+  .searchtags-card {
+    width: 395px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  // .table-data .table-body{
+  //   height: calc(100vh - 462px);
+  // }
+  .header-text{
+    h5{
+      width: 93%;
+    }
+  }
+}
+@media only screen and (max-width: 400px){
+  .searchtags-card {
+    width: 347px;
+  }
+}

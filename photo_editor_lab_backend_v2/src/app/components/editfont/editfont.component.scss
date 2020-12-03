@@ -1,0 +1,28 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : editfont.component.scss
+ * File Created  : Thursday, 22nd October 2020 04:11:05 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 22nd October 2020 04:11:46 pm
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+@import '../editcategory/editcategory.component.scss';
+
+::ng-deep .edit-font-card {
+  width: 520px;
+}
+.height-45{
+  height: 45px !important;
+}
+@media only screen and (max-width: 600px){
+  .edit-font-card {
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

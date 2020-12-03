@@ -1,0 +1,66 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : viewsubcategories.component.scss
+ * File Created  : Monday, 19th October 2020 11:58:13 am
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:12:55 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import '~@nebular/theme/styles/theming';
+@import '../viewcategories/viewcategories.component.scss';
+@import '../catalogsget/catalogsget.component.scss';
+
+.code-icon {
+  background: #007bff;
+  color: #fff;
+  padding: 10px 8px;
+  border-radius: 50%;
+  font-size: 18px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.card-gallary-view{
+  padding: 10px 5px;
+  max-height: calc(100vh - 216px);
+  background: #fff;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #E4E9F2;
+  }
+}
+::ng-deep .card-gallary-view {
+  nb-card {
+    margin-right: 5px !important;
+    margin-left: 5px !important;
+  }
+
+  nb-card-footer {
+    margin-top: 0px !important;
+  }
+}
+@media only screen and (max-width: 600px){
+  .normal-img-btn{
+    margin-top: 5px;
+    margin-right: 9px;
+  }
+}

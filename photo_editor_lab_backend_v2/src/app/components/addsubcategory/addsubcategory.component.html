@@ -1,0 +1,65 @@
+<!--
+Optimumbrew Technology
+Project       : Photo Editor Lab
+File          : addsubcategory.component.html
+File Created  : Thursday, 15th October 2020 01:12:03 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Saturday, 17th October 2020 05:17:17 pm
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card>
+  <nb-card-header class="header-text" style="position: relative;">
+    <h5 *ngIf="!subCatData" class="text-center">Add Sub Category</h5>
+    <h5 *ngIf="subCatData" class="text-center">Update Sub Category</h5>
+    <i class="fa fa-times close-icon" title="Close" (click)="closedialog()"></i>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="img-preview" id="subImage" [attr.valid-status]="subCatData?true:false">
+      <img *ngIf="subImage" class="placeholder-img" >
+      <img *ngIf="subImage" [src]="subImage" onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+      <label for="fileInput" class="placeholder-img">
+        <i class="fa fa-camera" title="Click here to choose image"></i>
+      </label>
+    </div>
+    <p id="imageError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
+    <input type="file" id="fileInput" accept="image/*" autofocus="true" style="display: none;"
+      (change)="fileChange($event)">
+    <div class="row mt-4">
+      <div class="col-md-3 pr-0">
+        <label class="d-block form-label">Category</label>
+      </div>
+      <div class="col-md-9 pl-0">
+        <div class="form-group">
+          <input type="text" tabindex="-1" autofocus="false" nbInput placeholder="Enter sub category name" class="w-100"
+            [(ngModel)]="subName" id="addSubInput" [attr.valid-status]="subCatData?true:false"
+            (keyup)="checkValidation('addSubInput','','inputError','','','blank')"
+            (keyup.enter)="checkValidation('addSubInput','','inputError',errormsg.SUB_CAT_NAME_EMPTY,'','usual')">
+          <p id="inputError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 20px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-1">
+      <div class="col-md-3 pr-0">
+        <label class="d-block form-label">Type</label>
+      </div>
+      <div class="col-md-9 pl-0">
+        <div class="form-group">
+          <nb-radio-group [(ngModel)]="selectType" id="radioInput" [attr.valid-status]="subCatData?true:false">
+            <nb-radio value="1">Featured</nb-radio>
+            <nb-radio value="0">Normal</nb-radio>
+          </nb-radio-group>
+          <p id="subCatAddError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 14px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="form-group text-center">
+      <button *ngIf="!subCatData" class="btn btn-primary w-50 mr-2" id="subCatAdd" (click)="addSubCategory()">Add</button>
+      <button *ngIf="subCatData" class="btn btn-primary w-50 mr-2" id="subCatAdd"
+        (click)="addSubCategory()">Update</button>
+    </div>
+  </nb-card-body>
+</nb-card>

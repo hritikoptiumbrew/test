@@ -1,0 +1,138 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : addblogs.component.html
+File Created  : Monday, 19th October 2020 02:03:07 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:14:46 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="blog-form-card">
+  <nb-card-header style="position: relative;">
+    <div class="row">
+      <div class="col-md-7 col-6">
+        <h5 *ngIf="!upBlogData" class="header-text text-center">Add Blog Data</h5>
+        <h5 *ngIf="upBlogData" class="header-text text-center">Update Blog Data</h5>
+        
+      </div>
+      <div class="col-md-5 col-6 text-right">
+        <button *ngIf="!upBlogData" class="btn btn-primary" id="subCatAdd"
+          (click)="uploadBlog()">Upload</button>
+        <button *ngIf="upBlogData" class="btn btn-primary" id="subCatAdd"
+          (click)="uploadBlog()">Update</button>
+      </div>
+    </div>
+    <i class="fa fa-times close-icon" (click)="closeDialog()" title="Close"></i>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row">
+      <div class="col-md-2 col-12">
+        <div class="img-preview">
+          <img *ngIf="blogImg" class="placeholder-img" >
+          <img *ngIf="blogImg" [src]="blogImg" onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+          <label for="fileInput">
+            <i class="fa fa-camera" title="Click here to choose image"></i>
+          </label>
+        </div>
+        <p id="blogimagError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;"></p>
+        <input type="file" id="fileInput" accept="image/*" autofocus="true" style="display: none;"
+          (change)="fileChange($event)">
+      </div>
+      <div class="col-md-6 col-12">
+        <div class="form-group">
+          <div class="row">
+            <div class="col-md-4 pr-1">
+              <label class="d-block form-label">Blog Appear In</label>
+            </div>
+            <div class="col-md-8 pl-0">
+              <nb-radio-group id="radioInput" [(ngModel)]="selectDevice">
+                <nb-radio value="1" (valueChange)="changePlatform('1')">Android</nb-radio>
+                <nb-radio value="2" (valueChange)="changePlatform('2')">IOS</nb-radio>
+                <nb-radio value="3" (valueChange)="changePlatform('3')">Both</nb-radio>
+              </nb-radio-group>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="row">
+            <div class="col-md-2 col-12 pr-1">
+              <label class="d-block form-label">Title</label>
+            </div>
+            <div class="col-md-10 col-12">
+              <div class="row">
+                <div class="col-md-7 col-12">
+                  <textarea style="height: 40px;" nbInput placeholder="Enter Title" [(ngModel)]="blogTitle" (keyup)="removeTextMsg('blogTitleError')"></textarea>
+
+                </div>
+                <div class="col-md-2 col-4">
+                  <input type="color" style="height: 40px;" [(ngModel)]="titleCol">
+                </div>
+                <div class="col-md-3 col-8">
+                  <input type="number" nbInput class="w-100" min="0" max="100" [(ngModel)]="titleSize" (keyup)="blankTitle()">
+                </div>
+              </div>
+              <p id="blogTitleError" style="color: red;margin-bottom: 0px;margin-top: 4px;margin-left: 16px;height:16px">
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="row">
+            <div class="col-md-2 col-12 pr-1">
+              <label class="d-block form-label">Sub Title</label>
+            </div>
+            <div class="col-md-10 col-12">
+              <div class="row">
+                <div class="col-md-7 col-12">
+                  <textarea style="height: 40px;" nbInput placeholder="Enter Sub Title" [(ngModel)]="blogSubTitle"></textarea>
+                </div>
+                <div class="col-md-2 col-4">
+                  <input type="color" style="height: 40px;"  [(ngModel)]="subTitleCol">
+                </div>
+                <div class="col-md-3 col-8">
+                  <input type="number" nbInput class="w-100" min="0" max="100" [(ngModel)]="subTitleSize">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group">
+          <label class="d-block form-label">Open Template Button</label>
+          <textarea nbInput class="w-100" style="resize: none;" [(ngModel)]="openTmpltBtn"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="d-block form-label">Search Template Button</label>
+          <textarea nbInput class="w-100" style="resize: none;" [(ngModel)]="srcTmpltBtn"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-8">
+        <p id="blogContentError" style="color: red;margin-bottom: 10px;height:16px"></p>
+        <div id="summernote"></div>
+        <!-- <summernote config="options" ng-model="text"></summernote> -->
+        <!-- <div [ngxSummernote]></div> -->
+      </div>
+      <div class="col-md-4 mt-3">
+        <div class="content-block-blog">
+          <img *ngIf="blogImg" [src]="blogImg" style="max-width: 100%;">
+          <div class="text-overlay">
+            <p class="m-0" [ngStyle]="{'color':titleCol, 'font-size.px': titleSize }"
+              style="white-space: pre-line; line-height: 1.1; word-break: break-word;">
+              {{blogTitle}}</p>
+            <p [ngStyle]="{'color':subTitleCol, 'font-size.px': subTitleSize }"
+              style="white-space: pre-line; line-height: 1.1; margin: 0px; word-break: break-word;">
+              {{blogSubTitle}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

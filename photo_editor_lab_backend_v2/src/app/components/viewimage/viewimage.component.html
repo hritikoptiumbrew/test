@@ -1,0 +1,24 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : viewimage.component.html
+File Created  : Thursday, 15th October 2020 01:12:03 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:29:40 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="qr-card">
+  <nb-card-header class="header-text">
+    <span *ngIf="typeImg == 'otp'">Scan QR Code</span>
+    <span *ngIf="typeImg != 'otp'">Image Preview</span>
+    <i class="fa fa-times close-icon" title="Close" (click)="closeDialog()"></i>
+  </nb-card-header>
+  <nb-card-body class="text-center">
+    <img [src]="imgSrc"  onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" [ngClass]="{'imageHeightView':  typeImg != 'otp'}">
+  </nb-card-body>
+</nb-card>

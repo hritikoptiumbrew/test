@@ -1,0 +1,82 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : movetocatalog.component.scss
+ * File Created  : Monday, 19th October 2020 05:10:28 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:26:51 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+.header-text {
+  font-weight: 700;
+  font-size: 20px;
+}
+.close-icon {
+    position: absolute;
+    right: 19px;
+    font-size: 23px;
+    top: 21px;
+    cursor: pointer;
+  }
+::ng-deep .move-catalog-card {
+  width: 700px;
+
+  .item-body {
+    padding: 0px !important;
+  }
+
+  td {
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  input {
+    zoom: 1.9;
+    vertical-align: middle;
+  }
+
+  .move-accord {
+    height: calc(100vh - 350px);
+    overflow-x: hidden;
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    /* Track */
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    /* Handle */
+    &::-webkit-scrollbar-thumb {
+      background: #E4E9F2;
+    }
+  }
+}
+
+.clog-header {
+  div {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+}
+@media only screen and (max-width: 600px){
+  .move-catalog-card{
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .move-accord{
+    nb-accordion-item-header{
+      height: unset !important;
+    }
+  }
+}

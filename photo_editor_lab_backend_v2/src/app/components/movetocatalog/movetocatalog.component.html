@@ -1,0 +1,65 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : movetocatalog.component.html
+File Created  : Monday, 19th October 2020 05:10:28 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:26:43 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="move-catalog-card">
+  <nb-card-header style="position: relative;">
+    <h5 class="header-text text-center">Move Template To Catalog</h5>
+    <i class="fa fa-times close-icon" (click)="closeDialog()" title="Close"></i>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row" *ngIf="totalRecords == 0">
+      <div class="col-md-12 text-center">
+        <img src="./assets/data-not-found.png" style="width:180px">
+        <h2>No data found</h2>
+      </div>
+    </div>
+    <div class="move-accord" *ngIf="totalRecords>0">
+      <nb-accordion>
+        <nb-accordion-item *ngFor="let item of subCategoryList; let i = index;">
+          <nb-accordion-item-header [style.background]="item.has_tplt==true ? '#b1efb1' : '#d2cccc61'"
+            style="background: #d2cccc61;height:51px;">
+            <div class="row w-100 clog-header">
+              <div class="col-md-8 col-7">
+                {{i+1}}. {{item.sub_category_name}}
+              </div>
+              <div class="col-md-4 text-right col-5">
+                Total Catalogs: {{item.catalog_list.length}}
+              </div>
+            </div>
+          </nb-accordion-item-header>
+          <nb-accordion-item-body>
+            <div class="clog-table">
+              <table class="table table-hover mb-1">
+                <tbody>
+                  <tr *ngFor="let catItem of item.catalog_list; let i = index;">
+                    <td class="text-right">{{i+1}}.</td>
+                    <td>{{catItem.catalog_name}}</td>
+                    <td class="text-right pr-5"><input type="checkbox" [(ngModel)]="catItem.is_linked" name="group1"
+                        (change)="checkboxSelect(catItem,$event)"></td>
+                  </tr>
+                </tbody>
+              </table>
+              <p *ngIf="item.catalog_list.length==0" class="ml-3" style="font-weight: 700;text-align: center;">No Data
+                Found</p>
+            </div>
+          </nb-accordion-item-body>
+        </nb-accordion-item>
+      </nb-accordion>
+    </div>
+    <div class="move-buttons text-center mt-2">
+      <p style="height: 17px;color:red">{{ errormsg }}</p>
+      <button class="btn bg-primary text-light mr-2 w-50" *ngIf="totalRecords>0" (click)="moveTemplate()">Move</button>
+    </div>
+  </nb-card-body>
+</nb-card>

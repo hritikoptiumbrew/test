@@ -1,0 +1,87 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : bloglist.component.html
+File Created  : Thursday, 22nd October 2020 06:40:00 pm
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 22nd October 2020 06:42:19 pm
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="row">
+      <div class="col-md-12 pl-0">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item main-home" nbTooltip="Go to categories" nbTooltipPlacement="bottom"
+            nbTooltipStatus="primary" (click)="gotoCategories()">Categories</li>
+          <li class="breadcrumb-item main-home" nbTooltip="Go to {{ broadHome }}" nbTooltipPlacement="bottom"
+            nbTooltipStatus="primary" (click)="gotoSubCategories()">{{ broadHome }}</li>
+          <li class="breadcrumb-item main-home" nbTooltip="Go to {{ broadSubHome }}" nbTooltipPlacement="bottom"
+            nbTooltipStatus="primary" (click)="gotoCatalog()">{{ broadSubHome }}</li>
+          <li class="breadcrumb-item active" aria-current="page">{{ broadItem }}</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 text-right pr-0">
+    <nb-card class="w-355 ml-auto">
+      <nb-card-header class="text-center fs-17 fw-700 p-7">
+        TOTAL RECORDS : {{ totalRecords }}
+      </nb-card-header>
+    </nb-card>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12 text-right pr-0">
+    <nb-select class="va-middle mr-2" [(selected)]="selectedPageSize" (selectedChange)="setPageSize($event)">
+      <nb-option *ngFor="let item of pageSize" value="{{item}}">{{ item }}</nb-option>
+    </nb-select>
+    <button class="btn btn-primary" (click)="uploadBlogs('')">Add Blog</button>
+  </div>
+</div>
+<div class="card-gallary-content row mt-2">
+  <div class="col-md-12">
+    <div class="card-gallary row">
+      <div class="col-md-12 text-center mt-3" *ngIf="totalRecords == 0">
+        <img src="./assets/data-not-found.png" style="width:180px">
+        <h2>No data found</h2>
+      </div>
+      <div class="col-xl-2 col-md-3 col-sm-3  pr-0 pl-0" *ngFor="let item of BlogData | paginate : {
+            itemsPerPage: selectedPageSize,
+            currentPage: currentPage,
+            totalItems: totalRecords
+          }; let i = index;">
+        <nb-card class="card-content">
+          <div class="picture text-center" style="position: relative;overflow: hidden;" (click)=" viewImage(item.original_img)">
+            <img class="placeholder-img">
+            <img [lazyLoad]="item.webp_thumbnail_img?item.webp_thumbnail_img:item.thumbnail_img" [errorImage]="utils.errorImg" alt="{item.name}} thumbnail image" (load)="imageLoad($event)">
+          </div>
+          <nb-card-footer class="mt-3">
+            <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="uploadBlogs(item)">
+              <nb-icon icon="edit-2" pack="eva"></nb-icon>
+            </a>
+            <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+              (click)="deleteBlogContent(item)">
+              <nb-icon icon="trash-2" pack="eva"></nb-icon>
+            </a>
+            <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+              (click)="moveToFirst(item,i)">
+              <nb-icon icon="upload" pack="eva"></nb-icon>
+            </a>
+          </nb-card-footer>
+        </nb-card>
+      </div>
+    </div>
+    <div class="row pt-3">
+      <div class="col-md-12 text-center pegin">
+        <pagination-controls previousLabel="Prev" nextLabel="Next" responsive="true"
+          (pageChange)="handlePageChange($event)" [previousLabel]="previousLabel" autoHide = "true" [nextLabel]="nextLabel">
+        </pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>

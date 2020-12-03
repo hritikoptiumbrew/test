@@ -1,0 +1,58 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : pages.component.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:36:07 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import '../@theme/styles/themes';
+
+@include nb-install-component() {
+  ::ng-deep router-outlet+* {
+    display: block;
+    animation: fade 1s;
+
+    @keyframes fade {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+::ng-deep .nb-theme-corporate nb-layout-header nav {
+  height: 3.75rem !important;
+  box-shadow: 0 0.5rem 1rem 0 rgba(44, 51, 73, .1);
+}
+
+::ng-deep .nb-theme-corporate nb-layout-header.fixed~.layout-container {
+  padding-top: 3.75px !important;
+}
+
+::ng-deep nb-theme-corporate .menu-sidebar .scrollable {
+  padding-top: 0px !important;
+}
+
+::ng-deep nb-layout-column {
+  margin-top: 50px !important;
+}
+
+::ng-deep nb-sidebar .scrollable {
+  padding-top: 0px !important;
+}
+
+::ng-deep .nb-theme-corporate nb-layout .layout .layout-container nb-sidebar.fixed,
+.nb-theme-corporate nb-layout .layout .layout-container nb-sidebar .main-container-fixed {
+  top: 3.75rem !important;
+}

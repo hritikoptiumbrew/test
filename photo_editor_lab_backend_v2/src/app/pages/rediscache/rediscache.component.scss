@@ -1,0 +1,116 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : rediscache.component.scss
+ * File Created  : Monday, 26th October 2020 10:58:28 am
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Monday, 26th October 2020 11:02:06 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+@import '../statistics/statistics.component.scss';
+
+// :ng-deep ng2-smart-table{
+//     .ng2-smart-actions{
+//         input[type="checkbox"]{
+//             height: 23px !important;
+//         }
+//     }
+// }
+.table-redis-data {
+  height: calc(100vh - 220px);
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #E4E9F2;
+  }
+}
+
+:host /deep/ .ng2-smart-action-multiple-select>input {
+  width: 25px;
+  height: 25px;
+  display: unset;
+}
+
+:host /deep/ .ng2-smart-titles th>input {
+  width: 25px;
+  height: 25px;
+  display: unset;
+}
+
+:host /deep/ .ng2-smart-titles th {
+  &:first-child {
+    text-align: center;
+  }
+}
+
+.btn-delete {
+  background: red;
+  border-radius: 50%;
+  color: #fff;
+  padding: 10px 12px;
+
+  nb-icon {
+    font-size: 27px !important;
+  }
+}
+::ng-deep .table-redis-data ng2-smart-table  table thead tr{
+  th{
+      ng2-smart-table-title{
+          a{
+              font-weight: 700 !important;
+          }
+       
+      }
+  }
+      &:first-child{
+          th{
+            &:first-child{
+              width: 89px !important;
+            }
+              position: sticky !important;
+              top: -2px !important;
+              background: #fff;
+              z-index: 1;
+              font-weight: 700 !important;
+          }
+      }
+      &:last-child{
+          th{
+              position: sticky !important;
+              top: 55px !important;
+              background: #fff;
+              z-index: 1;
+          }
+      }
+}
+.p-0{
+  padding: 0px !important;
+}
+.p-7{
+  padding: 7px 0px !important;
+}
+.total-cat {
+  font-size: 17px;
+  font-weight: 700;
+}
+.h-53{
+  height: 49px !important;
+}
+@media only screen and (max-width: 600px){
+  .table-redis-data{
+    margin-top: 44px;
+  }
+}

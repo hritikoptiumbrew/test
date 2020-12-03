@@ -1,0 +1,48 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : viewimage.component.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:29:45 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+.qr-card {
+  min-width: 500px;
+
+  nb-card-header {
+    position: relative;
+  }
+
+}
+.close-icon {
+    position: absolute;
+    right: 21px;
+    cursor: pointer;
+    font-size: 23px;
+  }
+.header-text {
+  font-weight: 700;
+  font-size: 20px;
+}
+.imageHeightView{
+  max-height: 80vh;
+  max-width: 100%;
+}
+@media only screen and (max-width: 600px){
+  .qr-card {
+    width: 96%;
+    min-width: unset;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .imageHeightView{
+    max-height: unset;
+    max-width: 100%;
+  }
+}

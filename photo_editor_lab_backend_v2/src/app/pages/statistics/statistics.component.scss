@@ -1,0 +1,156 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : statistics.component.scss
+ * File Created  : Friday, 23rd October 2020 01:09:15 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Friday, 23rd October 2020 01:14:03 pm
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+ ::ng-deep ng2-smart-table-pager{
+  position: sticky !important;
+  bottom: 0 !important;
+  background: #fff !important;
+  padding: 1px !important;
+}
+ ::ng-deep .table-statistics ng2-smart-table table thead tr{
+    th{
+        ng2-smart-table-title{
+            a{
+                font-weight: 700 !important;
+            }
+         
+        }
+    }
+        &:first-child{
+            th{
+              height: 91px !important;
+                position: sticky !important;
+                top: -2px !important;
+                background: #fff;
+                z-index: 1;
+                font-weight: 700 !important;
+            }
+        }
+        &:last-child{
+            th{
+                position: sticky !important;
+                top: 86px !important;
+                background: #fff;
+                z-index: 1;
+            }
+        }
+}
+::ng-deep nb-accordion-item-body .item-body{
+    padding:0px !important;
+} 
+.accord-header {
+  p{
+    font-size: 15px;
+    font-weight: 700;
+  }
+}
+
+.w-355 {
+  width: 355px;
+}
+
+.card-total-text {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+:ng-deep ng2-smart-table {
+  tr {
+    cursor: none !important;
+  }
+}
+
+.table-statistics{
+    height: calc(100vh - 300px);
+    overflow-x: auto;
+    overflow-y: scroll;  
+    &::-webkit-scrollbar {
+        width: 5px;
+      }
+    
+      /* Track */
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        width: 2px;
+      }
+    
+      /* Handle */
+      &::-webkit-scrollbar-thumb {
+        background: #E4E9F2;
+      }
+}
+.server-data {
+  height: calc(100vh - 170px);
+  overflow-x: hidden;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #E4E9F2;
+  }
+}
+
+::ng-deep ng2-smart-table .ng2-smart-action {
+  &:hover {
+    color: unset !important;
+  }
+
+  i {
+    font-size: 21px !important;
+    font-weight: 500 !important;
+    color: #222b45b3 !important;
+
+    &:hover {
+      color: #6291FF;
+    }
+  }
+}
+.p-7{
+  padding: 7px 0px !important;
+}
+.fs-17 {
+  font-size: 17px;
+}
+
+.fw-700 {
+  font-weight: 700;
+}
+.h-50{
+  height: 50px !important;
+}
+@media only screen and (max-width: 600px){
+  .statistics-header{
+    height: 100px !important;
+    nb-card{
+      width: 100%;
+    }
+  }
+  .accord-header {
+    p{
+      // font-size: 15px;
+      // font-weight: 700;
+      word-break: break-word;
+    }
+  }
+  .total-static-cnt{
+    text-align: center !important;
+  }
+}

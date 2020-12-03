@@ -1,0 +1,47 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : rediscache.component.html
+File Created  : Monday, 26th October 2020 10:58:28 am
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Monday, 26th October 2020 11:02:02 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+<div class="row h-53">
+  <div class="col-md-9 text-right">
+    <ol class="breadcrumb mb-0" style="background: #EDF1F7;">
+      <li class="breadcrumb-item active" aria-current="page">Redis Cache</li>
+    </ol>
+  </div>
+  <div class="col-md-3">
+    <nb-card>
+      <nb-card-header class="text-center p-7">
+        <div class="total-cat">
+          KEYS: {{ totalRecord }}
+        </div>
+      </nb-card-header>
+    </nb-card>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <div class="table-redis-data">
+      <nb-card class="mb-0">
+        <ng2-smart-table #table [settings]="settings" [source]="dataSource" (click)="getRows($event)"
+          (userRowSelect)="selectKeys($event)" (keydown)="keyupEvent($event)">
+        </ng2-smart-table>
+      </nb-card>
+    </div>
+  </div>
+</div>
+<div class="row mt-2">
+  <div class="col-md-12 text-right">
+    <button class="btn btn-delete"  (click)="removeKeys()">
+      <nb-icon icon="trash-2-outline"></nb-icon>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<!--
+Optimumbrew Technology
+
+Project       : Photo Editor Lab
+File          : linkcatalog.component.html
+File Created  : Monday, 19th October 2020 09:32:59 am
+Author        : Optimumbrew
+Auther Email  : info@optimumbrew.com
+Last Modified : Thursday, 29th October 2020 11:25:29 am
+-----
+Copyright 2018 - 2020 Optimumbrew Technology
+-->
+
+
+<nb-card class="catalog-link">
+  <nb-card-header>
+    <div class="row">
+      <div class="col-md-12 text-center header-text">
+        <h5>Link Catalog</h5>
+        <i title="Close dialog" class="fa fa-times icon-close text-dark" (click)="closeDialog()"></i>
+      </div>
+    </div>
+  </nb-card-header>
+  <nb-card-body>
+    <table class="table">
+      <tr *ngFor="let item of catalogList; let i = index;">
+        <td>{{ i+1 }}</td>
+        <td>{{ item.name }}</td>
+        <td class="text-right"><i class="fa fa-check-circle fa-1x" *ngIf="item.linked==1"></i></td>
+        <td class="text-right">
+          <button class="btn btn-link" title="Click here to link" *ngIf="item.linked==0"
+            (click)="linkCatalogStatus(item,'linkCatalog',i)"><i class="fa fa-link text-light"></i></button>
+          <button class="btn btn-link bg-danger" title="Click here to unlink" *ngIf="item.linked==1"
+            (click)="linkCatalogStatus(item,'deleteLinkedCatalog',i)"><i class="fa fa-unlink text-light"></i></button>
+        </td>
+      </tr>
+    </table>
+  </nb-card-body>
+</nb-card>

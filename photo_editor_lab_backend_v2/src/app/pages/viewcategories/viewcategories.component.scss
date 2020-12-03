@@ -1,0 +1,219 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : viewcategories.component.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:11:47 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+@import '~@nebular/theme/styles/theming';
+@import '../categories/categories.component.scss';
+// @import '../catalogsget/catalogsget.component.scss';
+.back-icon {
+  font-size: 17px;
+  color: gray;
+  cursor: pointer;
+  vertical-align: initial;
+}
+
+.btn-refresh {
+  background: #dee3ea;
+}
+
+.breadcrumb {
+  background-color: unset !important;
+
+  .main-home {
+    cursor: pointer;
+  }
+
+  .main-home:hover {
+    color: #3366ff;
+  }
+}
+
+.w-355 {
+  width: 355px !important;
+}
+.p-7{
+  padding: 7px 0px !important;
+}
+.fs-17 {
+  font-size: 17px;
+}
+
+.fw-700 {
+  font-weight: 700;
+}
+
+.card-gallary-content {
+  height: calc(100vh - 216px);
+  background: #fff;
+  overflow-y: hidden;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #E4E9F2;
+  }
+}
+.card-gallary{
+  padding: 10px 5px;
+  height: calc(100vh - 280px);
+  background: #fff;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #E4E9F2;
+  }
+}
+.picture {
+  height: 118px;
+  width: 100%;
+
+  img {
+    max-width: 100%;
+    height: 130px;
+  }
+
+  cursor: pointer;
+}
+
+.details {
+  margin-top: 10px;
+  padding: 10px;
+  height: 65px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 25px;
+  overflow: hidden;
+  div{
+    overflow: hidden;
+    height: 100%;
+    text-overflow: ellipsis;
+  }
+}
+.description {
+  text-align: justify;
+}
+
+nb-card-footer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 20px;
+
+  a {
+    color: #1247c1d9;
+
+    &:hover {
+      color: #598BFF;
+    }
+  }
+}
+
+.link-icon {
+  font-size: 1.75rem;
+}
+
+nb-icon {
+  font-size: 1.55rem;
+
+  ::ng-deep svg {
+    vertical-align: top;
+  }
+}
+
+.label-img {
+  position: absolute;
+  top: 0;
+  width: 85px;
+  left: 5px;
+}
+
+::ng-deep .ngx-pagination a {
+  text-decoration: none !important;
+}
+
+.pegin[pagin-status="false"] {
+  display: none;
+}
+
+::ng-deep .card-gallary {
+  nb-card {
+    margin-right: 5px !important;
+    margin-left: 5px !important;
+  }
+
+  nb-card-footer {
+    margin-top: 0px !important;
+  }
+}
+@media only screen and (max-width: 600px){
+  .btn-refresh{
+    margin-top: 3px;
+  }
+  .w-355{
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+.catalog-data {
+  height: calc(100vh - 216px);
+  overflow-x: hidden;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #E4E9F2;
+  }
+}
+::ng-deep .catalog-data {
+  nb-card-footer {
+    margin-top: 0px !important;
+  }
+
+  nb-card {
+    margin-right: 5px !important;
+    margin-left: 5px !important;
+  }
+}
+::ng-deep nb-accordion nb-accordion-item-body .item-body {
+  padding: 10px 21px !important;
+}

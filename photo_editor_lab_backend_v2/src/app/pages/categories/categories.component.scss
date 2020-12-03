@@ -1,0 +1,279 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : categories.component.scss
+ * File Created  : Thursday, 15th October 2020 01:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:34:35 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+/*
+ * Project       : Photo Editor Lab
+ * File          : categories.component.scss
+ * File Created  : Thursday, 15th October 2020 1:12:03 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Saturday, 17th October 2020 11:18:20 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+ ::ng-deep .categories-card-table ng2-smart-table table thead tr{
+  th{
+      ng2-smart-table-title{
+          a{
+              font-weight: 700 !important;
+          }
+       
+      }
+  }
+      &:first-child{
+          th{
+              position: sticky !important;
+              top: -4px !important;
+              background: #fff;
+              z-index: 1;
+              font-weight: 700 !important;
+          }
+      }
+}
+
+nb-card {
+  margin-bottom: 10px !important;
+}
+
+.w-75 {
+  width: 75px !important;
+}
+
+.w-150 {
+  width: 150px !important;
+}
+
+nb-icon {
+  font-size: 22px !important;
+  cursor: pointer;
+}
+
+th {
+  position: sticky;
+}
+
+.table-card {
+  height: calc(100vh - 220px);
+}
+
+.p-0 {
+  padding: 0px !important;
+}
+
+::ng-deep .card-summary {
+  nb-card-header {
+    font-size: 17px;
+    padding: 11px 19px !important;
+
+  }
+
+  h3 {
+    margin-bottom: 0px !important;
+  }
+
+  input {
+    max-width: 100% !important;
+    width: 100%;
+
+    // &:hover {
+    //   background-color: #fff !important;
+    // }
+  }
+
+  .form-group {
+    margin-bottom: 0px !important;
+  }
+}
+
+:host ::ng-deep tr.ng2-smart-row {
+  cursor: pointer !important;
+}
+
+// :host ::ng-deep ng2-st-tbody-edit-delete {display: flex !important;
+//     height: 0 !important;
+//   }
+
+//   :host ::ng-deep ng2-st-tbody-custom a.ng2-smart-action.ng2-smart-action-custom-custom {
+//     display: inline-block;
+//     width: 50px;
+//     text-align: center;
+//     font-size: 2px !important;
+//     margin-top: 25px;
+//   }
+
+//   :host ::ng-deep ng2-st-tbody-custom a.ng2-smart-action.ng2-smart-action-custom-custom:hover {
+//     color: #5dcfe3;
+//   }
+:host ::ng-deep .ng2-smart-actions {
+  width: 150px !important;
+  text-align: center;
+}
+
+::ng-deep .header-height nb-card-header {
+  height: 92px !important;
+}
+
+::ng-deep .table-card {
+  nb-card-header {
+    border-bottom: none !important;
+  }
+}
+
+.mt-23 {
+  margin-top: 23px;
+}
+
+.total-cat {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+// ::ng-deep .table-card ng2-smart-table thead tr{
+//     &:first-child{
+//         background: red !important;
+//         display: none;
+//     }
+// }
+::ng-deep ng2-smart-table tbody td {
+  &:first-child {
+    width: 75px !important;
+  }
+}
+
+::ng-deep .table-card {
+  nb-card-body {
+    padding-top: 0px !important;
+  }
+
+  nb-card-header {
+    padding-bottom: 0px !important;
+    padding-right: 29px !important;
+  }
+
+  ng2-smart-table .ng2-smart-action {
+    &:hover {
+      color: unset !important;
+    }
+
+    i {
+      font-size: 21px !important;
+      font-weight: 500 !important;
+      color: #222b45b3 !important;
+
+      &:hover {
+        color: #6291FF;
+      }
+    }
+  }
+}
+
+nb-card-header {
+  th {
+    padding: 14px 20px;
+  }
+
+  tr {
+    background: #edf1f7;
+  }
+}
+::ng-deep ng2-smart-table-pager .ng2-smart-pagination-nav ul li{
+  &:first-child{
+    display: none !important;
+  }
+  &:last-child{
+    display: none !important;
+  }
+}
+   
+.p-7{
+  padding: 7px 0px !important;
+}
+
+::ng-deep ng2-smart-table tbody tr.selected{
+  background: #fff !important;
+  // &:hover{
+  //   background: #EDF1F7 !important;
+  // }
+}
+::ng-deep .nb-theme-corporate ng2-smart-table tbody tr.selected, .nb-theme-corporate ng2-smart-table tbody tr:hover{
+  background: #fff !important;
+}
+
+:host /deep/ .ngx-pagination li a{
+  padding: 0.75rem 1.25rem !important;
+  border: #edf1f7 solid 1px !important;
+  margin-right: 0px !important;
+  color: #3366FF !important;
+  // background: red !important;
+}
+:host /deep/ .ngx-pagination .pagination-previous::before{
+content: unset !important;
+}
+:host /deep/ .ngx-pagination .pagination-next.disabled::after{
+content: unset !important;
+}
+:host /deep/ .ngx-pagination .pagination-previous a::before{
+content: unset !important;
+}
+:host /deep/ .ngx-pagination .pagination-next a::after{
+content: unset !important;
+}
+:host /deep/ .ngx-pagination li{
+  margin-right: 0px !important;
+}
+:host /deep/ .ngx-pagination li a{
+color: #3366FF;
+text-decoration: none !important;
+&:hover{
+  background: #fff !important;
+  color: #3366FF !important;
+}
+&:focus{
+  border: none !important;
+  outline: none !important;
+}
+}
+:host /deep/ .ngx-pagination{
+  margin-bottom: 0px !important;
+}
+:host /deep/ .ngx-pagination .current {
+  padding: 0.75rem 1.25rem !important;
+  border: #edf1f7 solid 1px !important;
+background: #3366FF !important;
+color: #fff !important;
+}
+:host /deep/ .ngx-pagination .disabled {
+// padding: 0.1875rem 0.625rem;
+color: #cacaca !important;
+// cursor: default;
+}
+.pegination-area{
+  position: sticky;
+  background: #fff;
+  bottom: 0;
+}
+:host /deep/ .ngx-pagination li.pagination-previous{
+  padding: 0.75rem 1.25rem !important;
+  border: #edf1f7 solid 1px !important;
+}
+:host /deep/ .ngx-pagination li.pagination-next{
+  padding: 0.75rem 1.25rem !important;
+  border: #edf1f7 solid 1px !important;
+}
+:host /deep/ .ngx-pagination li.pagination-previous a{
+  padding: 0px !important;
+}
+:host /deep/ .ngx-pagination li.pagination-next a{
+  padding: 0px !important;
+}

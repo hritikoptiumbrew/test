@@ -1,0 +1,63 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : linkcatalog.component.scss
+ * File Created  : Monday, 19th October 2020 09:32:59 am
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Thursday, 29th October 2020 11:25:36 am
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+
+::ng-deep .catalog-link {
+  width: 749px;
+  height: calc(100vh - 200px);
+
+  nb-card-body {
+    padding: 0px 10px !important;
+  }
+
+  nb-card-header {
+    position: relative;
+  }
+
+  .icon-close {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    font-size: 23px;
+    cursor: pointer;
+  }
+
+  i {
+    font-size: 20px;
+    color: green;
+    vertical-align: middle;
+  }
+
+  td {
+    vertical-align: middle !important;
+  }
+
+  .btn-link {
+    background: green;
+
+    i {
+      font-size: 16px !important;
+    }
+  }
+
+}
+
+.header-text {
+  font-weight: 700;
+  font-size: 20px;
+}
+@media only screen and (max-width: 600px){
+  .catalog-link {
+    width: 100%;
+  }
+}

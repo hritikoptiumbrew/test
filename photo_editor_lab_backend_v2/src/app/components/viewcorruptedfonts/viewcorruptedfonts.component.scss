@@ -1,0 +1,27 @@
+/*
+ * Optimumbrew Technology
+
+ * Project       : Photo Editor Lab
+ * File          : viewcorruptedfonts.component.scss
+ * File Created  : Wednesday, 11th November 2020 06:09:44 pm
+ * Author        : Optimumbrew
+ * Auther Email  : info@optimumbrew.com
+ * Last Modified : Wednesday, 11th November 2020 06:26:53 pm
+ * -----
+ * Copyright 2018 - 2020 Optimumbrew Technology
+ */
+
+@import '../addsearchtags/addsearchtags.component.scss';
+
+@media only screen and (max-width: 600px){
+    .currupt-font-card{
+        width: calc(100vh - 337px);
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+@media only screen and (max-width: 400px){
+    .currupt-font-card{
+      width: 347px;
+    }
+}
