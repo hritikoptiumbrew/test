@@ -8821,4 +8821,361 @@ class AdminController extends Controller
         return $response;
     }
 
+    /*=================================Auto Upload Template from other server =======================================  */
+    public function getCatalogBySubCategoryIdForAutoUpload(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+
+            if (!Cache::has("pel:getCatalogBySubCategoryIdForAutoUpload$this->sub_category_id")) {
+                $result = Cache::rememberforever("getCatalogBySubCategoryIdForAutoUpload$this->sub_category_id", function () {
+                    return DB::select('SELECT
+                                        ct.id as catalog_id,
+                                        ct.name,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                        ct.is_free,
+                                        ct.is_featured
+                                      FROM
+                                        catalog_master as ct,
+                                        sub_category_catalog as sct
+                                      WHERE
+                                        sct.sub_category_id = ? AND
+                                        sct.catalog_id=ct.id AND
+                                        ct.is_featured = 1 AND 
+                                        sct.is_active=1
+                                      order by ct.updated_at DESC', [$this->sub_category_id]);
+                });
+            }
+
+            $redis_result = Cache::get("getCatalogBySubCategoryIdForAutoUpload$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'category_list' => $redis_result]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getCatalogBySubCategoryIdForAutoUpload : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function getAllValidationsForAdminForAutoUpload(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+
+            if (!Cache::has("pel:getAllValidationsForAdminForAutoUpload")) {
+                $result = Cache::rememberforever("getAllValidationsForAdminForAutoUpload", function () {
+
+                    $category_detail = DB::select('SELECT
+                                                     category_id
+                                                   FROM
+                                                     sub_category
+                                                   WHERE is_active = ? AND id =?', [1,$this->sub_category_id]);
+                    if(count($category_detail) > 0){
+                        $category_id = $category_detail[0]->category_id;
+                    }else{
+                        $category_id ="";
+                    }
+
+                    $list_of_validations = DB::select('SELECT
+                                        id AS setting_id,
+                                        category_id,
+                                        validation_name,
+                                        max_value_of_validation,
+                                        is_featured,
+                                        is_catalog,
+                                        description,
+                                        update_time
+                                        FROM
+                                        settings_master
+                                        WHERE is_active = ? 
+                                        ORDER BY update_time DESC', [1]);
+
+                    return array('result' => $list_of_validations, 'category_id' => $category_id);
+                });
+            }
+
+            $redis_result = Cache::get("getAllValidationsForAdminForAutoUpload");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'All validations fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllValidationsForAdminForAutoUpload : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all validations.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function autoUploadTemplate(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'catalog_id', 'is_featured', 'is_free', 'search_category','category_id'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $category_id =$request->category_id;
+            $is_featured_catalog = 1; //Here we are passed 1 bcz resource images always uploaded from featured catalogs
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is template images
+            $is_free = $request->is_free;
+            $zip_url = $request->zip_url;
+            $zip_name = $request->zip_name;
+            $is_featured = $request->is_featured;
+            $is_portrait = $request->is_portrait;
+            $search_category = strtolower($request->search_category);
+            $created_at = date('Y-m-d H:i:s');
+            $resource_video_name = "";
+            $json_data = "";
+            $json_file_name = "";
+            //$video_file_array = array();
+            $json_file_array = array();
+            $resource_image_array = array();
+            $error_msg = "";
+
+            /*Download zip file */
+//            if (Config::get('constant.APP_ENV') != 'local') {
+            $zip_store_path = '../..' . Config::get('constant.TEMP_FILE_DIRECTORY') . $zip_name;
+            set_time_limit(0);
+            $fp = fopen($zip_store_path, 'w+');
+            $ch = curl_init($zip_url);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+            curl_setopt($ch, CURLOPT_FILE, $fp);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_exec($ch);
+            curl_close($ch);
+            fclose($fp);
+//            }
+
+            $zip_file_info = pathinfo($zip_name);
+            $folder_name = $zip_file_info['filename'];
+
+            $extracted_dir = '../..' . Config::get('constant.TEMP_FILE_DIRECTORY') . $folder_name;
+
+            $validations = (New ImageController())->getValidationFromCache($category_id, $is_featured_catalog, $is_catalog);
+            $IMAGE_MAXIMUM_FILESIZE = $validations * 1024;
+
+            /* validate file data and extract zip file */
+            $zip = new \ZipArchive;
+
+            if ($zip->open($zip_store_path) === true) {
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $filename = $zip->getNameIndex($i);
+                    $filesize = $zip->statIndex($i)['size'];
+                    if ($filesize > 0) {
+                        $fileinfo = pathinfo($filename);
+                        $basename = $fileinfo['basename'];
+                        $extension = $fileinfo['extension'];
+                        if (($extension == "jpg" || $extension == "png" || $extension == "jpeg") && $error_msg == "") {
+                            $resource_image_name = $basename;
+                            array_push($resource_image_array, $resource_image_name);
+                            if ($filesize >= $IMAGE_MAXIMUM_FILESIZE) {
+                                $error_msg = "Resource image file size is greater than $validations KB.";
+                            }
+                        } elseif (($extension == "json" || $extension == "txt") && $error_msg == "") {
+                            array_push($json_file_array, $basename);
+                        }
+                    }
+                }
+                $zip->extractTo('../..' . Config::get('constant.TEMP_FILE_DIRECTORY'));
+                $zip->close();
+            }
+
+            /** Delete file if any error in zip data */
+            if (empty($json_file_array) || $error_msg != '') {
+                (New ImageController())->rrmdir($extracted_dir);
+                (new ImageController())->unlinkFileFromLocalStorage($zip_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
+            }
+            if ($error_msg != '') {
+                return Response::json(array('code' => 201, 'message' => $error_msg, 'cause' => '', 'data' => json_decode("{}")));
+            }
+            if (empty($json_file_array)) {
+                return Response::json(array('code' => 201, 'message' => 'Required file json/txt is missing in zip file.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
+            if (is_dir($extracted_dir)) {
+                foreach (glob($extracted_dir . "/*") as $filename) {
+                    $fileinfo = pathinfo($filename);
+                    $extension = $fileinfo['extension'];
+                    $file_name = $fileinfo['basename'];
+                    if ($extension == "jpg" || $extension == "png" || $extension == "jpeg") {
+                        copy($filename, '../..' . Config::get('constant.RESOURCE_IMAGES_DIRECTORY') . $file_name);
+                    } elseif ($extension == "json" || $extension == "txt") {
+                        $json_file_name = uniqid() . "_json_file_" . time() . "." . $extension;
+                        copy($filename, '../..' . Config::get('constant.TEMP_FILE_DIRECTORY') . $json_file_name);
+                        $json_data = json_decode(file_get_contents('../..' . Config::get('constant.TEMP_FILE_DIRECTORY') . $json_file_name));
+                    }
+                }
+            }
+            /** Validate font */
+            if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                return $response;
+
+            /* sample image*/
+            $sample_image = $json_data->sample_image;
+            $fileData = pathinfo(basename($sample_image));
+            $catalog_image = uniqid() . '_json_image_' . time() . '.' . $fileData['extension'];
+            copy($extracted_dir . "/" . $sample_image, '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $catalog_image);
+
+
+            /* check resource image/video exist */
+            if (count($resource_image_array) > 0) {
+                $exist_files_array = array();
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    foreach ($resource_image_array as $image_name) {
+                        if (($response = (new ImageController())->checkFileExistInS3("resource", $image_name)) == 1 ) {
+                            array_push($exist_files_array, $image_name);
+                        }
+                    }
+                }
+                /* Delete file*/
+                if (count($exist_files_array) > 0) {
+
+                    (New ImageController())->rrmdir($extracted_dir);
+                    (new ImageController())->unlinkFileFromLocalStorage($zip_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
+
+//                    if ($resource_video_name != '') {
+//                        (new ImageController())->unlinkFileFromLocalStorage($resource_video_name, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'));
+//                    }
+                    if (count($resource_image_array) > 0) {
+                        foreach ($resource_image_array as $image_name) {
+                            (new ImageController())->unlinkFileFromLocalStorage($image_name, Config::get('constant.RESOURCE_IMAGES_DIRECTORY'));
+                        }
+                    }
+                    if ($json_file_name != '') {
+                        (new ImageController())->unlinkFileFromLocalStorage($json_file_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
+                    }
+                    $array = array('existing_files' => $exist_files_array);
+                    $result = json_decode(json_encode($array), true);
+                    return $response = Response::json(array('code' => 420, 'message' => 'Resource image already exists.', 'cause' => '', 'data' => $result));
+                }
+            }
+//            if (Config::get('constant.APP_ENV') != 'local') {
+//                if (($response =(new ImageController())->checkFileExistInS3("video", $resource_video_name)) == 1) {
+
+//                    (New ImageController())->rrmdir($extracted_dir);
+//                    (new ImageController())->unlinkFileFromLocalStorage($zip_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
+
+//                    if ($resource_video_name != '') {
+//                        (new ImageController())->unlinkFileFromLocalStorage($resource_video_name, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'));
+//                    }
+//                    if (count($resource_image_array) > 0) {
+//                        foreach ($resource_image_array as $image_name) {
+//                            (new ImageController())->unlinkFileFromLocalStorage($image_name, Config::get('constant.RESOURCE_IMAGES_DIRECTORY'));
+//                        }
+//                    }
+//                    if ($json_file_name != '') {
+//                        (new ImageController())->unlinkFileFromLocalStorage($json_file_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
+//                    }
+
+//                    return $response = Response::json(array('code' => 420, 'message' => 'Resource video already exist. File name : ' . $resource_video_name, 'cause' => '', 'data' => json_decode("{}")));
+//                }
+//            }
+            DB::beginTransaction();
+
+
+            (new ImageController())->saveCompressedImage($catalog_image);
+            (new ImageController())->saveThumbnailImage($catalog_image);
+            $file_name = (new ImageController())->saveWebpOriginalImage($catalog_image);
+            $dimension = (new ImageController())->saveWebpThumbnailImage($catalog_image);
+
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                (new ImageController())->saveImageInToS3($catalog_image);
+                (new ImageController())->saveWebpImageInToS3($file_name);
+
+                /* resource video*/
+//                (new ImageController())->saveJsonVideoInToS3($resource_video_name);
+
+                /* resource image */
+                if (count($resource_image_array) > 0) {
+                    foreach ($resource_image_array as $image_name) {
+                        (new ImageController())->saveResourceImageInToS3($image_name);
+                    }
+                }
+            }
+
+            DB::insert('INSERT
+                                INTO
+                                  images(catalog_id,image,json_data,is_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                $catalog_id,
+                $catalog_image,
+                json_encode($json_data),
+                $is_free,
+                $is_featured,
+                $is_portrait,
+                $search_category,
+                $dimension['height'],
+                $dimension['width'],
+                $dimension['org_img_height'],
+                $dimension['org_img_width'],
+                $created_at,
+                $file_name,
+                1
+            ]);
+
+            DB::commit();
+
+            if (strstr($file_name, '.webp')) {
+                $response = Response::json(array('code' => 200, 'message' => 'Template uploaded successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+            } else {
+                $response = Response::json(array('code' => 200, 'message' => 'Template uploaded successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' =>json_decode('{}')));
+            }
+
+            /** Delete json file from temp folder */
+            (new ImageController())->unlinkFileFromLocalStorage($json_file_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
+            (New ImageController())->rrmdir($extracted_dir);
+            (new ImageController())->unlinkFileFromLocalStorage($zip_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
+
+
+        } catch (Exception $e) {
+            Log::error("autoUploadTemplate : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' upload template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            /** Delete json file from temp folder */
+            if (isset($json_file_name) && $json_file_name != '') {
+                (new ImageController())->unlinkFileFromLocalStorage($json_file_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
+            }
+            if(isset($extracted_dir) && $extracted_dir !='') {
+                (New ImageController())->rrmdir($extracted_dir);
+                (new ImageController())->unlinkFileFromLocalStorage($zip_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
+            }
+            DB::rollBack();
+        }
+        return $response;
+    }
+
 }

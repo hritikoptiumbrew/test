@@ -21,6 +21,9 @@ use Illuminate\Http\Request;
 Route::get('logs/{user_name}/{password}', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 
 //User login
+Route::post('doLoginForContentUploader_v2', 'LoginController@doLoginForContentUploader_v2');
+
+//User login
 Route::post('doLoginForGuest', 'LoginController@doLoginForGuest');
 
 //Register user device
@@ -367,6 +370,16 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getBlogContentByIdForUser', 'BlogController@getBlogContentByIdForUser');
 
     Route::post('addCategoryNameAsTag', 'UserController@addCategoryNameAsTag');
+
+});
+
+//API for auto upload template
+Route::middleware(['ability:image_uploader,image_uploader_permission'])->group(function () {
+
+    //For auto upload module
+    Route::post('getCatalogBySubCategoryIdForAutoUpload', 'AdminController@getCatalogBySubCategoryIdForAutoUpload');
+    Route::post('getAllValidationsForAdminForAutoUpload', 'AdminController@getAllValidationsForAdminForAutoUpload');
+    Route::post('autoUploadTemplate', 'AdminController@autoUploadTemplate');
 
 });
 
