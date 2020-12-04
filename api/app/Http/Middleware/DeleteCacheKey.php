@@ -113,6 +113,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getCatalogBySubCategoryIdForAutoUpload
+                $keys = Redis::keys('vf:getCatalogBySubCategoryIdForAutoUpload*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
                 //getCatalogBySubCategoryId_v2
                 $keys = Redis::keys('pel:getCatalogBySubCategoryId_v2*');
                 foreach ($keys as $key) {
@@ -649,6 +655,12 @@ class DeleteCacheKey
 
                 //getAllValidationsForAdmin
                 $keys = Redis::keys('pel:getAllValidationsForAdmin*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getAllValidationsForAdminForAutoUpload
+                $keys = Redis::keys('pel:getAllValidationsForAdminForAutoUpload*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
