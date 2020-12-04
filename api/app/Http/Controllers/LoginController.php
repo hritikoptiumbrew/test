@@ -66,6 +66,47 @@ class LoginController extends Controller
         return $response;
     }
 
+    public function doLoginForContentUploader_v2(Request $request_body)
+    {
+        try {
+            $request = json_decode($request_body->getContent());
+
+            //Mandatory Field
+            if (($response = (new VerificationController())->validateRequiredParameter(array(
+                    'email_id',
+                    'password'), $request)) != ''
+            )
+                return $response;
+
+            $email_id = $request->email_id;
+            $password = $request->password;
+//            $role_name = Config::get('constant.ROLE_FOR_CONTENT_UPLOADER');
+
+            $credential = ['email_id' => $email_id, 'password' => $password];
+            if (!$token = JWTAuth::attempt($credential))
+                return Response::json(array('code' => 201, 'message' => 'Invalid email or password.', 'cause' => '', 'data' => json_decode("{}")));
+
+//            if (($response = (new VerificationController())->verifyUser($email_id, $role_name)) != '')
+//                return $response;
+
+            if (($response = (new VerificationController())->checkIfUserIsActive($email_id)) != '')
+                return $response;
+
+            $response = Response::json(array('code' => 200, 'message' => 'Login successfully.', 'cause' => '', 'data' => ['token' => $token]));
+
+            //Log::info("Login token",["token :" => $token,"time" => date('H:m:s')]);
+
+        } catch (JWTException $e) {
+            Log::error("doLoginForContentUploader_v2(JWTException) : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => 'Could not create token.' . $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
+        } catch (Exception $e) {
+            Log::error("doLoginForContentUploader_v2 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'login.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     /**
      * @api {post} doLogin  doLogin
      * @apiName doLogin

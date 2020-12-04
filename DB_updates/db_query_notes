@@ -137,3 +137,17 @@ ALTER TABLE `blog_master` ADD `platform` TINYINT(1) NOT NULL COMMENT '\"1=Androi
 10) Photo_editor_lab : perform following query on database (14 March, 2020) For store store platform type
 -------------------------------------------------------------------------------------------------
 ALTER TABLE `blog_master` CHANGE `platform` `platform` TINYINT(1) NOT NULL COMMENT '\"1=Android,2=IOS,3=Both\"';
+
+11) Photo_editor_lab : perform following query on database (04 December, 2020) For define new role.
+-------------------------------------------------------------------------------------------------
+INSERT INTO `roles` (``name`, `display_name`, `description`, `created_at`, `updated_at`) VALUES ('image_uploader', 'image_uploader', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `user_master` (`id`, `user_name`, `email_id`, `password`, `google2fa_enable`, `google2fa_secret`, `social_uid`, `signup_type`, `profile_setup`, `is_active`, `create_time`, `update_time`, `attribute1`, `attribute2`, `attribute3`, `attribute4`) VALUES (NULL, 'image_uploader', 'imageuploader@gmail.com', '$2y$10$ljHi8SGvuYokI0MV7TgoQeVvxrKUl4duXB0x3CKsD4JIMCykZuklG', '0', NULL, NULL, NULL, '0', '1', NULL, CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL);
+
+INSERT INTO `role_user` (`user_id`, `role_id`) VALUES ('3', '3');
+
+INSERT INTO `permissions` (`id`, `name`, `display_name`, `description`, `created_at`, `updated_at`) VALUES (NULL, 'image_uploader_permission', NULL, NULL, NULL, NULL);
+
+INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES ('3', '3');
+
+ALTER TABLE `images` ADD `is_auto_upload` TINYINT(1) NULL DEFAULT 0 COMMENT '0=no,1=yes' AFTER `zip_file`;
