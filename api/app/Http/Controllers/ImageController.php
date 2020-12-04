@@ -176,14 +176,14 @@ class ImageController extends Controller
         $fileData = pathinfo(basename($file_array->getClientOriginalName()));
         $file_name = str_replace(" ", "", strtolower($fileData['filename']));
         $string_array = str_split($file_name);
-//        foreach ($string_array as $key)
-//        {
-//            $is_valid = preg_match ('/[[:alpha:]_]+/', $key);
-//            if($is_valid == 0)
-//            {
-//                return $response = Response::json(array('code' => 201, 'message' => 'Special characters (except underscore) & numeric value are not allowed into the file name.', 'cause' => '', 'data' => json_decode("{}")));
-//            }
-//        }
+        foreach ($string_array as $key)
+        {
+            $is_valid = preg_match ('/[[:alpha:]_]+/', $key);
+            if($is_valid == 0)
+            {
+                return $response = Response::json(array('code' => 201, 'message' => 'Special characters (except underscore) & numeric value are not allowed into the file name.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+        }
 
         /* there is no specific mimetype for otf & ttf so here we used 2 popular type */
 
