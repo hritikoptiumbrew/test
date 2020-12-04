@@ -1571,6 +1571,25 @@ class ImageController extends Controller
         }
     }
 
+    //For check file exist in s3 bucket
+    public function checkFileExistInS3($folder_name,$file_name)
+    {
+        try {
+            $aws_bucket = Config::get('constant.AWS_BUCKET');
+            $disk = Storage::disk('s3');
+            $value = "$aws_bucket/$folder_name/$file_name";
+            if ($disk->exists($value)) {
+                $response = 1;
+            }else {
+                $response = 0;
+            }
+        } catch (Exception $e) {
+            $response = 0;
+            Log::debug("checkFileExistInS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+        return $response;
+    }
+
     //check file is exist
     public function checkFileExist($file_path)
     {

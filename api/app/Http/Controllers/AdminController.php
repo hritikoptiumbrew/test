@@ -9045,7 +9045,7 @@ class AdminController extends Controller
             /* check resource image/video exist */
             if (count($resource_image_array) > 0) {
                 $exist_files_array = array();
-                if (Config::get('constant.APP_ENV') != 'local') {
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                     foreach ($resource_image_array as $image_name) {
                         if (($response = (new ImageController())->checkFileExistInS3("resource", $image_name)) == 1 ) {
                             array_push($exist_files_array, $image_name);
@@ -9103,7 +9103,7 @@ class AdminController extends Controller
             $file_name = (new ImageController())->saveWebpOriginalImage($catalog_image);
             $dimension = (new ImageController())->saveWebpThumbnailImage($catalog_image);
 
-            if (Config::get('constant.APP_ENV') != 'local') {
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                 (new ImageController())->saveImageInToS3($catalog_image);
                 (new ImageController())->saveWebpImageInToS3($file_name);
 
