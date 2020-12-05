@@ -140,14 +140,14 @@ ALTER TABLE `blog_master` CHANGE `platform` `platform` TINYINT(1) NOT NULL COMME
 
 11) Photo_editor_lab : perform following query on database (04 December, 2020) For define new role.
 -------------------------------------------------------------------------------------------------
-INSERT INTO `roles` (``name`, `display_name`, `description`, `created_at`, `updated_at`) VALUES ('image_uploader', 'image_uploader', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `roles` (`name`, `display_name`, `description`, `created_at`, `updated_at`) VALUES ('image_uploader', 'image_uploader', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-INSERT INTO `user_master` (`id`, `user_name`, `email_id`, `password`, `google2fa_enable`, `google2fa_secret`, `social_uid`, `signup_type`, `profile_setup`, `is_active`, `create_time`, `update_time`, `attribute1`, `attribute2`, `attribute3`, `attribute4`) VALUES (NULL, 'image_uploader', 'imageuploader@gmail.com', '$2y$10$ljHi8SGvuYokI0MV7TgoQeVvxrKUl4duXB0x3CKsD4JIMCykZuklG', '0', NULL, NULL, NULL, '0', '1', NULL, CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL);
+INSERT INTO `user_master` (`user_name`, `email_id`, `password`, `signup_type`,`is_active`,`is_verify` `create_time`, `update_time`) VALUES ('image_uploader', 'imageuploader@gmail.com', '$2y$10$HbZRyNfcTUaf6HRnkLDiP.NRj4NmWhYd0Ya/VgRPIvE5/f4KyflE6', '1','1','1',CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO `role_user` (`user_id`, `role_id`) VALUES ('3', '3');
 
-INSERT INTO `permissions` (`id`, `name`, `display_name`, `description`, `created_at`, `updated_at`) VALUES (NULL, 'image_uploader_permission', NULL, NULL, NULL, NULL);
+INSERT INTO `permissions` (`name`, `display_name`, `description`, `created_at`, `updated_at`) VALUES ('image_uploader_permission', NULL, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES ('3', '3');
 
-ALTER TABLE `images` ADD `is_auto_upload` TINYINT(1) NULL DEFAULT 0 COMMENT '0=no,1=yes' AFTER `zip_file`;
+ALTER TABLE `images` ADD `is_auto_upload` TINYINT(1) NULL DEFAULT NULL COMMENT '0=no,1=yes' AFTER `zip_file`;
