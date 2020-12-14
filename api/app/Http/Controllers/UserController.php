@@ -2193,7 +2193,7 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_JSON');
+            $this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_CATALOGS_AND_TEMPLATES');
             $this->offset = 0;
 
             //Log::info('request_data', ['request_data' => $request]);
