@@ -7200,4 +7200,95 @@ class UserController extends Controller
     }
 
 
+
+    //Get Searching tag by subcategory id
+    /**
+     * @api {post} getSearchTagBySubCategoryId   getSearchTagBySubCategoryId
+     * @apiName getSearchTagBySubCategoryId
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     *  "sub_category_id" : 66,     //compulsory
+     *  "item_count" : 5,      //compulsory
+     *  "page" : 1      //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "search tags fetched successfully.",
+     * "cause": "",
+     * "data": {
+     *      "total_record": 11,
+     *      "is_next_page": true,
+     *      "search_tag_list": [
+     *      {
+     *          "id": 12,
+     *          "tag_name": "Rangoli",
+     *          "total": 0
+     *      },
+     *      {
+     *          "id": 11,
+     *          "tag_name": "Dipawali",
+     *          "total": 0
+     *      }
+     *     ]
+     *  }
+     * }
+     */
+    public function getSearchTagBySubCategoryId(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','item_count','page'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->item_count_of_search_tag = $request->item_count;
+            $this->page = $request->page;
+            $this->offset = ($this->page - 1) * $this->item_count_of_search_tag;
+
+            if (!Cache::has("pel:getSearchTagBySubCategoryId$this->sub_category_id:$this->item_count_of_search_tag:$this->page")) {
+                Cache::rememberforever("getSearchTagBySubCategoryId$this->sub_category_id:$this->item_count_of_search_tag:$this->page", function () {
+
+                    $search_tag_list = DB::select('SELECT
+                                        id,
+                                        tag_name
+                                        FROM
+                                        sub_category_tag_master
+                                         WHERE sub_category_id = ? AND is_active = ? ORDER BY update_time DESC LIMIT ?,?' ,[$this->sub_category_id, 1,$this->offset,$this->item_count_of_search_tag]);
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM sub_category_tag_master WHERE is_active=? and sub_category_id = ?', [1, $this->sub_category_id]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count_of_search_tag)) ? true : false;
+
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'tag_list' => $search_tag_list);
+                });
+            }
+
+            $redis_result = Cache::get("getSearchTagBySubCategoryId$this->sub_category_id:$this->item_count_of_search_tag:$this->page");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'search tags fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getSearchTagBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get search tags.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
 }

@@ -80,6 +80,7 @@ class BlogController extends Controller
      *        @SWG\Schema(
      *          @SWG\Property(property="Sample Response",  type="object", example={"code":200,"message":"Blog content added successfully.","cause":"","data":"{}"}),),
      *        ),
+     *     ),
      *      @SWG\Response(
      *            response=201,
      *            description="Error",
@@ -235,8 +236,10 @@ class BlogController extends Controller
      *      @SWG\Response(
      *            response=201,
      *            description="Error",
-     *      )
+     *      ),
+     *    )
      */
+
     /**
      * @api {post} updateBlogContent updateBlogContent
      * @apiName updateBlogContent
@@ -488,7 +491,7 @@ class BlogController extends Controller
      *            response=200,
      *            description="Success",
      *        @SWG\Schema(
-     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Blog content fetched successfully.","cause":"","data":{"total_record":5,"is_next_page":true,"result":[{"blog_id":5,"fg_image":"5d12078922b96_blog_image_1561462665.png","thumbnail_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/thumbnail/5d12078922b96_blog_image_1561462665.png","compressed_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5d12078922b96_blog_image_1561462665.png","original_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/original/5d12078922b96_blog_image_1561462665.png","blog_json":"{\"title\":\"Content Data\",\"subtitle\":\"Description\",\"blog_data\":\"<div><\\/div>\"}","is_active":1}]}}, description=""),),
+     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Blog content fetched successfully.","cause":"","data":{"total_record":5,"is_next_page":true,"result":{{"blog_id":5,"fg_image":"5d12078922b96_blog_image_1561462665.png","thumbnail_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/thumbnail/5d12078922b96_blog_image_1561462665.png","compressed_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5d12078922b96_blog_image_1561462665.png","original_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/original/5d12078922b96_blog_image_1561462665.png","blog_json":{"title":"Content Data","subtitle":"Description","blog_data":"<div><\/div>"},"is_active":1}}}}, description=""),),
      *        ),
      * 		@SWG\Response(
      *            response=201,
@@ -740,7 +743,7 @@ class BlogController extends Controller
      *            response=200,
      *            description="Success",
      *        @SWG\Schema(
-     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Blog content fetched successfully.","cause":"","data":{"total_record":9,"is_next_page":false,"result":{{"blog_id":23,"thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","compressed_img":"http://192.168.0.114/videoflyer_backend/image_bucket/compressed/5d1b4e68c98e2_blog_image_1562070632.jpg","original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","title":"{\"text_color\":\"#ff8040\",\"text_size\":16,\"text_value\":\"CONTENT OF THE WEEK | JUNE 28, 2019 \"}","subtitle":"{\"text_color\":\"#000000\",\"text_size\":36,\"text_value\":\"Share the love with the Beth Ellen font\"}","catalog_id":895,"is_active":1}}}}, description=""),),
+     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Blog content fetched successfully.","cause":"","data":{"total_record":9,"is_next_page":false,"result":{{"blog_id":23,"thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","compressed_img":"http://192.168.0.114/videoflyer_backend/image_bucket/compressed/5d1b4e68c98e2_blog_image_1562070632.jpg","original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","title":{"text_color":"#ff8040","text_size":16,"text_value":"CONTENT OF THE WEEK | JUNE 28, 2019 "},"subtitle":{"text_color":"#000000\","text_size":36,"text_value":"Share the love with the Beth Ellen font"},"catalog_id":895,"is_active":1}}}}, description=""),),
      *        ),
      * 		@SWG\Response(
      *            response=201,
@@ -891,7 +894,7 @@ class BlogController extends Controller
      *            response=200,
      *            description="Success",
      *        @SWG\Schema(
-     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Blog content fetched successfully.","cause":"","data":{"total_record":9,"is_next_page":false,"result":{{"blog_id":23,"thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","compressed_img":"http://192.168.0.114/videoflyer_backend/image_bucket/compressed/5d1b4e68c98e2_blog_image_1562070632.jpg","original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","title":"{\"text_color\":\"#ff8040\",\"text_size\":16,\"text_value\":\"CONTENT OF THE WEEK | JUNE 28, 2019 \"}","subtitle":"{\"text_color\":\"#000000\",\"text_size\":36,\"text_value\":\"Share the love with the Beth Ellen font\"}","is_active":1}}}}, description=""),),
+     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Blog content fetched successfully.","cause":"","data":{"total_record":9,"is_next_page":false,"result":{{"blog_id":23,"thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","compressed_img":"http://192.168.0.114/videoflyer_backend/image_bucket/compressed/5d1b4e68c98e2_blog_image_1562070632.jpg","original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_original_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_original/5d1b4e68c98e2_blog_image_1562070632.jpg","webp_thumbnail_img":"http://192.168.0.114/videoflyer_backend/image_bucket/webp_thumbnail/5d1b4e68c98e2_blog_image_1562070632.jpg","title":{"text_color":"#ff8040","text_size":16,"text_value":"CONTENT OF THE WEEK | JUNE 28, 2019 "},"subtitle":{"text_color":"#000000","text_size":36,"text_value":"Share the love with the Beth Ellen font"},"is_active":1}}}}, description=""),),
      *        ),
      * 		@SWG\Response(
      *            response=201,
@@ -1023,7 +1026,7 @@ class BlogController extends Controller
      *            response=200,
      *            description="Success",
      *        @SWG\Schema(
-     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Blog content fetched successfully.","cause":"","data":{"total_record":5,"is_next_page":true,"result":[{"blog_id":5,"fg_image":"5d12078922b96_blog_image_1561462665.png","thumbnail_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/thumbnail/5d12078922b96_blog_image_1561462665.png","compressed_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5d12078922b96_blog_image_1561462665.png","original_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/original/5d12078922b96_blog_image_1561462665.png","blog_json":"{\"title\":\"Content Data\",\"subtitle\":\"Description\",\"blog_data\":\"<div><\\/div>\"}","is_active":1}]}}, description=""),),
+     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Blog content fetched successfully.","cause":"","data":{"total_record":5,"is_next_page":true,"result":{{"blog_id":5,"fg_image":"5d12078922b96_blog_image_1561462665.png","thumbnail_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/thumbnail/5d12078922b96_blog_image_1561462665.png","compressed_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/compressed/5d12078922b96_blog_image_1561462665.png","original_img":"http://192.168.0.114/photo_editor_lab_backend/image_bucket/original/5d12078922b96_blog_image_1561462665.png","blog_json":{"title":"Content Data","subtitle":"Description","blog_data":"<div><\/div>"},"is_active":1}}}}, description=""),),
      *        ),
      * 		@SWG\Response(
      *            response=201,
