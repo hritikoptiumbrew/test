@@ -25,6 +25,7 @@ use Image;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Support\Facades\Storage;
 use Aws\CloudFront\CloudFrontClient;
+use ZipArchive;
 
 class AdminController extends Controller
 {
@@ -8986,7 +8987,7 @@ class AdminController extends Controller
             $IMAGE_MAXIMUM_FILESIZE = $validations * 1024;
 
             /* validate file data and extract zip file */
-            $zip = new \ZipArchive;
+            $zip = new ZipArchive;
 
             if ($zip->open($zip_store_path) === true) {
                 for ($i = 0; $i < $zip->numFiles; $i++) {
