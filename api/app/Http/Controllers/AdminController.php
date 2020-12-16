@@ -6219,6 +6219,7 @@ class AdminController extends Controller
     public function removeInvalidFont(Request $request_body)
     {
         try {
+
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
@@ -6240,7 +6241,6 @@ class AdminController extends Controller
             }else{
                 $is_catalog_update = 0;
             }
-            DB::statement("SET sql_mode = '' ");
             $catalog_result = DB::select('SELECT cm.id, cm.image, cm.name, cm.is_free, cm.is_featured, count(fm.id) AS total_font 
                                       FROM catalog_master AS cm,
                                       font_master AS fm 
@@ -6257,21 +6257,23 @@ class AdminController extends Controller
             $is_featured = $catalog_result[0]->is_featured;
             $total_font = $catalog_result[0]->total_font;
 
+
+
             if(count($font_array) == $total_font){
                 if($is_catalog_update == 1){
                     DB::beginTransaction();
-                    DB::update('UPDATE corrupt_font_catalog_master SET is_removed = 0 , create_time = ? WHERE catalog_id = ? ',[$create_time,$catalog_id]);
+                    DB::update('UPDATE corrupt_font_catalog_master SET is_removed = 1 , create_time = ? WHERE catalog_id = ? ',[$create_time,$catalog_id]);
                     DB::commit();
                 }else{
                     DB::beginTransaction();
                     DB::insert('INSERT
                                 INTO
                                   corrupt_font_catalog_master(catalog_id, name, is_removed, is_free, is_featured, is_active)
-                                VALUES(?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_name, 0, $is_free, $is_featured, 1]);
+                                VALUES(?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_name, 1, $is_free, $is_featured, 1]);
                     DB::commit();
                 }
-                foreach ($font_array AS $font)
-                {
+                foreach ($font_array AS $font){
+
                     $font_result = DB::select('SELECT id,font_name, font_file, ios_font_name, android_font_name FROM font_master WHERE id = ? AND catalog_id = ?',[$font,$catalog_id]);
                     $font_id = $font_result[0]->id;
                     $font_name = $font_result[0]->font_name;
@@ -6294,18 +6296,19 @@ class AdminController extends Controller
                     DB::commit();
                 }
                 DB::beginTransaction();
-                DB::update('update catalog_master set is_featured= ?  where id = ? ', [0, $catalog_id]);
+                DB::update('update catalog_master set is_active=?, is_featured= ?  where id = ? ', [0, 0, $catalog_id]);
                 DB::update('update sub_category_catalog set is_active=? where catalog_id = ? ', [0, $catalog_id]);
                 DB::commit();
                 if ($catalog_image) {
                     //Image Delete in image_bucket
                     (new ImageController())->deleteImage($catalog_image);
                 }
+
             }else {
 
                 if($is_catalog_update == 1){
                     DB::beginTransaction();
-                    DB::update('UPDATE corrupt_font_catalog_master SET is_removed = ? , create_time = ? WHERE catalog_id = ? ',[0,$create_time,$catalog_id]);
+                    DB::update('UPDATE corrupt_font_catalog_master SET is_removed = 0 , create_time = ? WHERE catalog_id = ? ',[$create_time,$catalog_id]);
                     DB::commit();
                 }else{
                     DB::beginTransaction();
