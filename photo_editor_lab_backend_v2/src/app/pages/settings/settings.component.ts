@@ -221,6 +221,7 @@ export class SettingsComponent implements OnInit {
       if (result.res == "add") {
         this.showTabs = true;
         this.getServerStatistics();
+        this.getValidationList();
       }
       else {
         this.enableChecked = "yes";
