@@ -67,7 +67,6 @@ import { AuthModule } from './auth/auth.module';
 import { AddserverurlComponent } from './components/addserverurl/addserverurl.component';
 import { ViewcorruptedfontsComponent } from './components/viewcorruptedfonts/viewcorruptedfonts.component';
 import { NgxPaginationModule } from 'ngx-pagination';
-
 @NgModule({
   declarations: [AppComponent, LoadingComponent, ViewimageComponent, AddsearchtagsComponent, AddsubcategoryComponent, EditcategoryComponent, AddcatalogComponent, LinkcatalogComponent, AddblogsComponent, MovetocatalogComponent, AddjsonimagesComponent, ExistingimageslistComponent, AddjsondataComponent, UpdatesubcategoryimagebyidComponent, AddsubcategoryimagesbyidComponent, EditfontComponent, PopularsampleaddComponent, StatisticsDetailsComponent, EnterotpComponent, AddvalidationsComponent, AddserverurlComponent, ViewcorruptedfontsComponent],
   imports: [

@@ -18,6 +18,7 @@ export class LoginComponent {
   admin_detail: any = JSON.parse(localStorage.getItem("admin_detail"));
 
   constructor(private dataService: DataService, private router: Router, public dialog: MdDialog, public snackBar: MdSnackBar) {
+   
     if (this.router.url == "/admin" || this.router.url == "/") {
       if (localStorage.getItem('photoArtsAdminToken')) {
         this.router.navigate(['/admin/categories']);
