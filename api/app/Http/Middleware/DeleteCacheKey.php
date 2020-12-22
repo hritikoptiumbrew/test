@@ -626,6 +626,12 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                //getCatalogBySubCategoryId
+                $keys = Redis::keys('pel:getCatalogBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Search Category Tags
