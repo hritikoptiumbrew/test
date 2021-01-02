@@ -17,6 +17,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NbDialogService } from '@nebular/theme';
 import { AddcatalogComponent } from 'app/components/addcatalog/addcatalog.component';
 import { LinkcatalogComponent } from 'app/components/linkcatalog/linkcatalog.component';
+import { ViewimageComponent } from 'app/components/viewimage/viewimage.component';
 import { DataService } from 'app/data.service';
 import { UtilService } from 'app/util.service';
 import { ValidationsService } from 'app/validations.service';
@@ -112,6 +113,13 @@ export class CatalogsgetComponent implements OnInit {
         this.utils.showError(ERROR.SERVER_ERR, 4000);
       });
     }
+  }
+  viewImage(imgUrl){
+    this.dialog.open(ViewimageComponent, { context: {
+        imgSrc: imgUrl,
+        typeImg: 'cat'
+      }
+    })
   }
   checkValidation(id, type, catId, blankMsg, typeMsg, validType) {
     var validObj = {

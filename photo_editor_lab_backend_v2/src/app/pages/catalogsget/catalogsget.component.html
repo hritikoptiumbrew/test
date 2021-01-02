@@ -96,7 +96,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
                     </div>
                   </div>
                   <div class="details">
-                    <div>{{item.catalog_id}}. {{item.name}}</div>
+                    <div  [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom" nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
                   </div>
                   <nb-card-footer style="background: #e1e8f3;padding: 10px !important;">
                     <a nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
@@ -122,7 +122,9 @@ Copyright 2018 - 2020 Optimumbrew Technology
                   </nb-card-footer>
                 </nb-card>
                 <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
-
+                <div class="fullscreen-icon" style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;" (click)="viewImage(item.original_img)">
+                  <img src="./assets/expand.png" style="width: 25px">
+                </div>
               </div>
               <div class="col-md-12 text-center" *ngIf="featuredCatalogList.length == 0">
                 <img  src="./assets/data-not-found.png" style="width:180px">
@@ -160,7 +162,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
                     </div>
                   </div>
                   <div class="details">
-                    <div>{{item.catalog_id}}. {{item.name}}</div>
+                    <div [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom" nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
                   </div>
                   <nb-card-footer style="background: #e1e8f3;padding: 10px !important;">
                     <a nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
@@ -186,6 +188,9 @@ Copyright 2018 - 2020 Optimumbrew Technology
                   </nb-card-footer>
                 </nb-card>
                 <img src="./assets/featured_img.png"  *ngIf="item.is_featured==1"  class="label-img">
+                <div class="fullscreen-icon" style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;" (click)="viewImage(item.original_img)">
+                  <img src="./assets/expand.png" style="width: 25px">
+                </div>
               </div>
             </div>
           </nb-accordion-item-body>
