@@ -57,69 +57,69 @@ export class ViewsubcategoriesComponent implements OnInit {
     window.setInterval(function () {
       localStorage.removeItem("search_tag_list");
     },720000);
-    this.setSearchTags();
+    // this.setSearchTags();
   }
 
   ngOnInit(): void {
     this.getAllCategories();
   }
-  setSearchTags(){
-    if(localStorage.getItem("timestamp_tags"))
-    {
-      var date = new Date();
-      // date.setHours( date.getHours() + 2 );
-      var timestamp = date.getTime();
-      var curTime = timestamp;
-      var oldTime = parseInt(localStorage.getItem("timestamp_tags"));
-      if(curTime > oldTime)
-      {
-        localStorage.removeItem("search_tag_list");
-        localStorage.removeItem("timestamp_tags")
-      }
-    }
-    if(!localStorage.getItem("search_tag_list"))
-    {
-      this.getAllSearchTags();
-    }
-  }
-  getAllSearchTags() {
-    this.dataService.postData('getAllTags',
-      {}, {
-      headers: {
-        'Authorization': 'Bearer ' + this.token
-      }
-    }).then(results => {
-      if (results.code == 200) {
-        this.searchTagList = results.data.result;
-        var date = new Date();
-        date.setHours( date.getHours() + 2 );
-        var timestamp = date.getTime();
-        localStorage.setItem("search_tag_list", JSON.stringify(this.searchTagList));
-        localStorage.setItem("timestamp_tags",timestamp.toString());
-        this.utils.hideLoader();
-      }
-      else if (results.code == 201) {
-        this.utils.showError(results.message, 4000);
-        this.utils.hideLoader();
-      }
-      else if (results.status || results.status == 0) {
-        this.utils.showError(ERROR.SERVER_ERR, 4000);
-        this.utils.hideLoader();
-      }
-      else {
-        this.utils.showError(results.message, 4000);
-        this.utils.hideLoader();
-      }
-    }, (error: any) => {
-      console.log(error);
-      this.utils.hideLoader();
-      this.utils.showError(ERROR.SERVER_ERR, 4000);
-    }).catch((error: any) => {
-      console.log(error);
-      this.utils.hideLoader();
-      this.utils.showError(ERROR.SERVER_ERR, 4000);
-    });
-  }
+  // setSearchTags(){
+  //   if(localStorage.getItem("timestamp_tags"))
+  //   {
+  //     var date = new Date();
+  //     // date.setHours( date.getHours() + 2 );
+  //     var timestamp = date.getTime();
+  //     var curTime = timestamp;
+  //     var oldTime = parseInt(localStorage.getItem("timestamp_tags"));
+  //     if(curTime > oldTime)
+  //     {
+  //       localStorage.removeItem("search_tag_list");
+  //       localStorage.removeItem("timestamp_tags")
+  //     }
+  //   }
+  //   if(!localStorage.getItem("search_tag_list"))
+  //   {
+  //     this.getAllSearchTags();
+  //   }
+  // }
+  // getAllSearchTags() {
+  //   this.dataService.postData('getAllTags',
+  //     {}, {
+  //     headers: {
+  //       'Authorization': 'Bearer ' + this.token
+  //     }
+  //   }).then(results => {
+  //     if (results.code == 200) {
+  //       this.searchTagList = results.data.result;
+  //       var date = new Date();
+  //       date.setHours( date.getHours() + 2 );
+  //       var timestamp = date.getTime();
+  //       localStorage.setItem("search_tag_list", JSON.stringify(this.searchTagList));
+  //       localStorage.setItem("timestamp_tags",timestamp.toString());
+  //       this.utils.hideLoader();
+  //     }
+  //     else if (results.code == 201) {
+  //       this.utils.showError(results.message, 4000);
+  //       this.utils.hideLoader();
+  //     }
+  //     else if (results.status || results.status == 0) {
+  //       this.utils.showError(ERROR.SERVER_ERR, 4000);
+  //       this.utils.hideLoader();
+  //     }
+  //     else {
+  //       this.utils.showError(results.message, 4000);
+  //       this.utils.hideLoader();
+  //     }
+  //   }, (error: any) => {
+  //     console.log(error);
+  //     this.utils.hideLoader();
+  //     this.utils.showError(ERROR.SERVER_ERR, 4000);
+  //   }).catch((error: any) => {
+  //     console.log(error);
+  //     this.utils.hideLoader();
+  //     this.utils.showError(ERROR.SERVER_ERR, 4000);
+  //   });
+  // }
   gotoCategories() {
     this.route.navigate(['/admin/categories']);
   }
@@ -143,9 +143,10 @@ export class ViewsubcategoriesComponent implements OnInit {
       if (results.code == 200) {
         this.utils.showSuccess(results.message, 4000);
         this.utils.hideLoader();
-        var element = this.viewCatdata[indexItem];
-        this.viewCatdata.splice(indexItem, 1);
-        this.viewCatdata.splice(0, 0, element);
+        this.getAllCategories();
+        // var element = this.viewCatdata[indexItem];
+        // this.viewCatdata.splice(indexItem, 1);
+        // this.viewCatdata.splice(0, 0, element);
       }
       else if (results.code == 201) {
         this.utils.showError(results.message, 4000);
@@ -268,7 +269,7 @@ export class ViewsubcategoriesComponent implements OnInit {
     this.dialog.open(AddjsonimagesComponent, { closeOnBackdropClick,closeOnEsc: false });
   }
   addJsonData() {
-    this.setSearchTags();
+    // this.setSearchTags();
     this.openJsonData(false);
   }
   protected openJsonData(closeOnBackdropClick) {
@@ -283,7 +284,7 @@ export class ViewsubcategoriesComponent implements OnInit {
     });
   }
   editSubCategory(item) {
-    this.setSearchTags();
+    // this.setSearchTags();
     if (item.is_json_data == 1 || item.is_json_data == "1") {
       this.openUpdateJson(false, item);
     }
@@ -315,7 +316,7 @@ export class ViewsubcategoriesComponent implements OnInit {
     });
   }
   addNormalImages() {
-    this.setSearchTags();
+    // this.setSearchTags();
     this.openAddSubCategoryImage(false);
   }
   protected openAddSubCategoryImage(closeOnBackdropClick) {

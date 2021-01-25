@@ -73,14 +73,14 @@ export class UpdatesubcategoryimagebyidComponent implements OnInit {
     return this.options.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
   validateString(str) {
-    var regex = /^[a-z0-9&, ]+$/i.test(str);
+    var regex = /^[a-z0-9&,# ]+$/i.test(str);
     return regex;
   }
   add(event) {
     if (typeof event == "object") {
       if (event.target.value.trim() != "") {
         if (!this.validateString(event.target.value)) {
-          document.getElementById("tagInputError").innerHTML = "Special characters not allowed, only alphanumeric, '&' is allowed in tag name.";
+          document.getElementById("tagInputError").innerHTML = "Special characters not allowed, only alphanumeric, '& , #' is allowed in tag name.";
           return;
         }
         else {

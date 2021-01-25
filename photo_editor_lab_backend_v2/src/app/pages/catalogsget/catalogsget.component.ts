@@ -223,8 +223,8 @@ export class CatalogsgetComponent implements OnInit {
     }).then((results: any) => {
 
       if (results.code == 200) {
-        // this.getAllCatalogs();
-        this.setRank(type,indexItem);
+        this.getAllCatalogs();
+        // this.setRank(type,indexItem);
         this.utils.showSuccess(results.message, 4000);
         this.utils.hideLoader();
        
