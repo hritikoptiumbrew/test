@@ -86,13 +86,8 @@ Copyright 2018 - 2020 Optimumbrew Technology
           <div class="col-md-12">
             <div class="form-group">
               <input nbInput (keyup.enter)="add($event)" type="text" class="mw-100 mb-1"
-                [formControl]="searchINputControl" placeholder="Select / Enter new tag" [nbAutocomplete]="auto">
+                [formControl]="searchINputControl" placeholder="Select / Enter new tag">
               <p id="tagInputError" style="color: red;margin-bottom: 3px;"></p>
-              <nb-autocomplete #auto (selectedChange)="add($event)">
-                <nb-option *ngFor="let option of filteredOptions$ | async" [value]="option">
-                  {{ option }}
-                </nb-option>
-              </nb-autocomplete>
               <mat-chip-list #chipList aria-label="Fruit selection">
                 <mat-chip *ngFor="let fruit of selectedSearchTags">
                   {{fruit}}
