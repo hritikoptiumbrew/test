@@ -1759,6 +1759,16 @@ class AdminController extends Controller
                         (new ImageController())->saveImageInToS3($normal_image);
                     }
 
+                    /* add catalog name as search tag  */
+                    $catalog_detail = DB::select('SELECT name from catalog_master WHERE id = ?', [$catalog_id]);
+                    $new_tag = str_replace(' ', ',', strtolower(preg_replace('/[^A-Za-z ]/', '', $catalog_detail[0]->name)));
+                    if ($tag_list != '') {
+                        $tag_list .= "," . $new_tag;
+                    } else {
+                        $tag_list .= $new_tag;
+                    }
+                    $tag_list = implode(',', array_unique(array_filter(explode(',', $tag_list))));
+
                     DB::beginTransaction();
                     DB::insert('INSERT
                                 INTO
