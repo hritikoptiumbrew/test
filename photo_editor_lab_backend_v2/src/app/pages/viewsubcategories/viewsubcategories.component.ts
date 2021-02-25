@@ -12,9 +12,9 @@
  */
 
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NbDialogService } from '@nebular/theme';
+import { NbDialogService, NbMenuService } from '@nebular/theme';
 import { AddjsondataComponent } from 'app/components/addjsondata/addjsondata.component';
 import { AddjsonimagesComponent } from 'app/components/addjsonimages/addjsonimages.component';
 import { AddsubcategoryimagesbyidComponent } from 'app/components/addsubcategoryimagesbyid/addsubcategoryimagesbyid.component';
@@ -31,7 +31,6 @@ import { ERROR, ENV_CONFIG } from '../../app.constants';
   styleUrls: ['./viewsubcategories.component.scss']
 })
 export class ViewsubcategoriesComponent implements OnInit {
-
   token: any;
   broadHome: any;
   broadSubHome: any;
@@ -45,7 +44,12 @@ export class ViewsubcategoriesComponent implements OnInit {
   viewCatdata: any;
   totalImages:any;
   loadedImages:any;
-  constructor(private dialog: NbDialogService, private route: Router, private actRoute: ActivatedRoute, private dataService: DataService, private utils: UtilService) {
+  copyURLS = [
+    { title: 'Copy Thumbnail Image URL', img_url: 'hello', img_type: 'Thumbnail Image' },
+    { title: 'Copy Compressed Image URL', img_url: 'hello', img_type: 'Compressed Image' },
+    { title: 'Copy Original Image URL', img_url: 'hello', img_type: 'Original Image' }
+  ];
+  constructor(private menuService: NbMenuService,private dialog: NbDialogService, private route: Router, private actRoute: ActivatedRoute, private dataService: DataService, private utils: UtilService) {
     this.token = localStorage.getItem('at');
     this.broadHome = JSON.parse(localStorage.getItem('selected_category')).name;
     this.broadSubHome = JSON.parse(localStorage.getItem('selected_sub_category')).name;
@@ -61,6 +65,9 @@ export class ViewsubcategoriesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.menuService.onItemClick().subscribe((event) => {
+      this.copyUrl(event.item);
+    })
     this.getAllCategories();
   }
   // setSearchTags(){
@@ -342,5 +349,24 @@ export class ViewsubcategoriesComponent implements OnInit {
     {
       event.target.previousElementSibling.classList.remove('placeholder-img');
     }
+  }
+  setUrls(thumbnail_img,compressed_img,original_img){
+    this.copyURLS[0].img_url = thumbnail_img;
+    this.copyURLS[1].img_url = compressed_img;
+    this.copyURLS[2].img_url = original_img;
+  }
+  copyUrl(url_item){
+    let selBox = document.createElement('textarea');
+    selBox.style.position = 'fixed';
+    selBox.style.left = '0';
+    selBox.style.top = '0';
+    selBox.style.opacity = '0';
+    selBox.value = url_item.img_url;
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand('copy');
+    document.body.removeChild(selBox);
+    this.utils.showSuccess("Copied the URL for " + url_item.img_type, 2000);
   }
 }

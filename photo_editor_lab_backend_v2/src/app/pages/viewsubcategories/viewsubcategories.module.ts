@@ -15,7 +15,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ViewsubcategoriesComponent } from './viewsubcategories.component';
-import { NbCardModule, NbIconModule, NbTooltipModule } from '@nebular/theme';
+import { NbCardModule, NbContextMenuModule, NbIconModule, NbPopoverModule, NbTooltipModule } from '@nebular/theme';
 import { LazyLoadImageModule } from 'ng-lazyload-image';
 
 @NgModule({
@@ -25,7 +25,8 @@ import { LazyLoadImageModule } from 'ng-lazyload-image';
     NbCardModule,
     NbTooltipModule,
     NbIconModule,
-    LazyLoadImageModule
+    LazyLoadImageModule,
+    NbContextMenuModule
   ]
 })
 export class ViewsubcategoriesModule { }
