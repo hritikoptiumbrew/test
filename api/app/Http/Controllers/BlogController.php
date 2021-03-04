@@ -7,8 +7,8 @@
 // File:             BlogController.php                                     //
 // Since:            26-June-2019                                           //
 //                                                                          //
-// Author:           Pooja Jadav                                            //
-// Email:            pooja.optimumbrew@gmail.com                            //
+// Author:           Optimumbrew                                            //
+// Email:            info@optimumbrew.com                                   //
 //                                                                          //
 //////////////////////////////////////////////////////////////////////////////
 

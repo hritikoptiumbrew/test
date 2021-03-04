@@ -7,8 +7,8 @@
 // File:             VerificationController.php                             //
 // Modified:         17-June-2019                                           //
 //                                                                          //
-// Author:           Pinal Patel                                            //
-// Email:            pinal.optimumbrew@gmail.com                            //
+// Author:           Optimumbrew                                            //
+// Email:            info@optimumbrew.com                                   //
 //                                                                          //
 //////////////////////////////////////////////////////////////////////////////
 

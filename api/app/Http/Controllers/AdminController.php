@@ -8679,8 +8679,8 @@ class AdminController extends Controller
     {
         try {
 
-            $from_email_id = 'alagiyanirav@gmail.com';
-            $to_email_id = 'pinal.optimumbrew@gmail.com';
+            $from_email_id = Config::get('constant.ADMIN_EMAIL_ID');
+            $to_email_id = Config::get('constant.SUB_ADMIN_EMAIL_ID');
             $template = 'simple';
             $subject = 'PhotoEditorLab: Test Mail';
             $message_body = array(

@@ -80,7 +80,7 @@ class UnsplashController extends Controller
      * "twitter_username": null,
      * "portfolio_url": null,
      * "bio": "The sunny side of life.",
-     * "location": "Malé, Maldives",
+     * "location": "Malï¿½, Maldives",
      * "links": {
      * "self": "https://api.unsplash.com/users/maldives",
      * "html": "https://unsplash.com/@maldives",
@@ -115,7 +115,7 @@ class UnsplashController extends Controller
      * "last_name": "@seefromthesky",
      * "twitter_username": "SeefromtheSky",
      * "portfolio_url": "http://www.instagram.com/seefromthesky",
-     * "bio": "??? ?????? ????? ?????? ????????? ??????? ??????\r\n ••• \r\nPeace and love. ?? #seefromthesky\r\n? ishan@seefromthesky.com\r\n",
+     * "bio": "??? ?????? ????? ?????? ????????? ??????? ??????\r\n ï¿½ï¿½ï¿½ \r\nPeace and love. ?? #seefromthesky\r\n? ishan@seefromthesky.com\r\n",
      * "location": "maldives",
      * "links": {
      * "self": "https://api.unsplash.com/users/seefromthesky",
@@ -273,7 +273,7 @@ class UnsplashController extends Controller
                 );
                 $api_name = 'getImageByUnsplash';
                 $api_description = 'Get images from unsplash for user.';
-                $email_id = 'pooja.optimumbrew@gmail.com';
+                $email_id = Config::get('constant.SUB_ADMIN_EMAIL_ID');
                 $this->dispatch(new EmailJob(1, $email_id, $subject, $message_body, $template, $api_name, $api_description));
 
                 return Response::json(array('code' => 201, 'message' => 'The server is unable to load images. Please try again after 10-20 minutes.', 'cause' => '', 'data' => json_decode('{}')));
@@ -400,7 +400,7 @@ class UnsplashController extends Controller
                             );
                             $api_name = 'getUnsplashImageForUser';
                             $api_description = 'Get Unsplash image for user.';
-                            $email_id = 'pooja.optimumbrew@gmail.com';
+                            $email_id = Config::get('constant.SUB_ADMIN_EMAIL_ID');
                             $this->dispatch(new EmailJob(1, $email_id, $subject, $message_body, $template, $api_name, $api_description));
 
                         }

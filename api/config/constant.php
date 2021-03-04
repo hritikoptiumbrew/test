@@ -18,14 +18,9 @@ return [
     'EXCEPTION_ERROR' => 'PhotoEditorLab is unable to ',
     'DATE_FORMAT' => 'Y-m-d H:i:s',
 
-    /* For local server */
-    //'ADMIN_EMAIL_ID' => 'pinal.optimumbrew@gmail.com',
-
     /* For live server */
-    'ADMIN_EMAIL_ID' => 'alagiyanirav@gmail.com',
-
-    'SYSADMIN_EMAIL_ID' => 'alagiyanirav@gmail.com',
-
+    'ADMIN_EMAIL_ID' => env('ADMIN_EMAIL_ID'),
+    'SUB_ADMIN_EMAIL_ID' => env('SUB_ADMIN_EMAIL_ID'),
 
     'RESPONSE_HEADER_CACHE' => 'max-age=2592000',
     'ROLE_FOR_ADMIN' => 'admin',
