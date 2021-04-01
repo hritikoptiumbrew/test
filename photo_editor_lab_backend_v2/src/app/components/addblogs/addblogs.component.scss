@@ -11,8 +11,6 @@
  * Copyright 2018 - 2020 Optimumbrew Technology
  */
 
-
-
  @import "../addsubcategory/addsubcategory.component.scss";
 .blog-form-card {
   width: 1107px;
@@ -48,6 +46,15 @@
 ::ng-deep .note-modal-footer{
   height: 54px !important;
 }
+::ng-deep .note-editor .dropdown-toggle::after{
+  display: none !important;
+}
+::ng-deep .note-dropdown-menu {
+  min-width: 234px !important;
+  .note-align{
+    margin-right: 4px !important;
+  }
+}
 @media only screen and (max-width: 600px){
   .blog-form-card {
     width: 96%;
@@ -57,5 +64,4 @@
       width: 75%;
     }
   }
-  
 }

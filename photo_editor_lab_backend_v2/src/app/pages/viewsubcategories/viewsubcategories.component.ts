@@ -42,14 +42,18 @@ export class ViewsubcategoriesComponent implements OnInit {
   SubCategoryName: any;
   totalRecords: any;
   viewCatdata: any;
-  totalImages:any;
-  loadedImages:any;
+  totalImages: any;
+  loadedImages: any;
+  //This variable is store multiple ids in array which is use for set multirank and move multuiple templates 
+  templatesArr: any = [];
+  //this variable is use for check multi selction is on or not
+  multiselectFlag: any = false;
   copyURLS = [
     { title: 'Copy Thumbnail Image URL', img_url: 'hello', img_type: 'Thumbnail Image' },
     { title: 'Copy Compressed Image URL', img_url: 'hello', img_type: 'Compressed Image' },
     { title: 'Copy Original Image URL', img_url: 'hello', img_type: 'Original Image' }
   ];
-  constructor(private menuService: NbMenuService,private dialog: NbDialogService, private route: Router, private actRoute: ActivatedRoute, private dataService: DataService, private utils: UtilService) {
+  constructor(private menuService: NbMenuService, private dialog: NbDialogService, private route: Router, private actRoute: ActivatedRoute, private dataService: DataService, private utils: UtilService) {
     this.token = localStorage.getItem('at');
     this.broadHome = JSON.parse(localStorage.getItem('selected_category')).name;
     this.broadSubHome = JSON.parse(localStorage.getItem('selected_sub_category')).name;
@@ -60,7 +64,7 @@ export class ViewsubcategoriesComponent implements OnInit {
     this.loadedImages = 0;
     window.setInterval(function () {
       localStorage.removeItem("search_tag_list");
-    },720000);
+    }, 720000);
     // this.setSearchTags();
   }
 
@@ -68,6 +72,9 @@ export class ViewsubcategoriesComponent implements OnInit {
     this.menuService.onItemClick().subscribe((event) => {
       this.copyUrl(event.item);
     })
+    // setTimeout(function () {
+    //   window.dispatchEvent(new Event('resize'))
+    // }, 1)
     this.getAllCategories();
   }
   // setSearchTags(){
@@ -137,7 +144,7 @@ export class ViewsubcategoriesComponent implements OnInit {
     this.SubCategoryName = this.broadSubHome.replace(/ /g, '');
     this.route.navigate(['/admin/categories/', this.categoryId, this.SubCategoryName, this.subCategoryId]);
   }
-  moveToFirst(data,indexItem) {
+  moveToFirst(data, indexItem) {
     this.utils.showLoader();
     this.dataService.postData('setContentRankOnTheTopByAdmin', {
       "img_id": data.img_id
@@ -231,7 +238,8 @@ export class ViewsubcategoriesComponent implements OnInit {
         this.viewCatdata = results.data.image_list;
         this.totalRecords = this.viewCatdata.length;
         // this.sub_category_name = results.data.category_name;
-          this.utils.hidePageLoader();
+        this.utils.hidePageLoader();
+        window.dispatchEvent(new Event('resize'))
       }
       else if (results.code == 201) {
         this.utils.showError(results.message, 4000);
@@ -256,15 +264,28 @@ export class ViewsubcategoriesComponent implements OnInit {
     });
   }
   moveToCatalog(data) {
-    this.openMove(false, data);
+    this.openMove(false, data, []);
   }
-  protected openMove(closeOnBackdropClick: boolean, data) {
+  //this gfunction is use for move multiple templates into another catalog
+  moveMutipleTemplate(){
+    if (this.templatesArr.length == 0) {
+      this.utils.showError("Please select templates for move", 6000);
+    }
+    else
+    {
+      this.openMove(false, this.viewCatdata[0], this.templatesArr);
+    }
+  }
+
+  protected openMove(closeOnBackdropClick: boolean, data, ids_arr) {
     this.dialog.open(MovetocatalogComponent, {
-      closeOnBackdropClick,closeOnEsc: false,autoFocus: false, context: {
-        catalogData: data
+      closeOnBackdropClick, closeOnEsc: false, autoFocus: false, context: {
+        catalogData: data,
+        imgIds: ids_arr
       }
     }).onClose.subscribe((result) => {
       if (result && result.res == "add") {
+        this.multiselectFlag = false;
         this.getAllCategories();
       }
     });
@@ -273,7 +294,7 @@ export class ViewsubcategoriesComponent implements OnInit {
     this.openJsonImages(false);
   }
   protected openJsonImages(closeOnBackdropClick) {
-    this.dialog.open(AddjsonimagesComponent, { closeOnBackdropClick,closeOnEsc: false });
+    this.dialog.open(AddjsonimagesComponent, { closeOnBackdropClick, closeOnEsc: false });
   }
   addJsonData() {
     // this.setSearchTags();
@@ -281,7 +302,7 @@ export class ViewsubcategoriesComponent implements OnInit {
   }
   protected openJsonData(closeOnBackdropClick) {
     this.dialog.open(AddjsondataComponent, {
-      closeOnBackdropClick,closeOnEsc: false, autoFocus: false, context: {
+      closeOnBackdropClick, closeOnEsc: false, autoFocus: false, context: {
         catalogId: this.catalogId
       }
     }).onClose.subscribe((result) => {
@@ -301,7 +322,7 @@ export class ViewsubcategoriesComponent implements OnInit {
   }
   protected openUpdateJson(closeOnBackdropClick, data) {
     this.dialog.open(AddjsondataComponent, {
-      closeOnBackdropClick,closeOnEsc: false, autoFocus: false, context: {
+      closeOnBackdropClick, closeOnEsc: false, autoFocus: false, context: {
         upJSonData: JSON.parse(JSON.stringify(data)),
         catalogId: this.categoryId
       }
@@ -313,7 +334,7 @@ export class ViewsubcategoriesComponent implements OnInit {
   }
   protected openUpdateJsonImage(closeOnBackdropClick, data) {
     this.dialog.open(UpdatesubcategoryimagebyidComponent, {
-      closeOnBackdropClick,closeOnEsc: false, context: {
+      closeOnBackdropClick, closeOnEsc: false, context: {
         categoryData: JSON.parse(JSON.stringify(data))
       }
     }).onClose.subscribe((result) => {
@@ -328,7 +349,7 @@ export class ViewsubcategoriesComponent implements OnInit {
   }
   protected openAddSubCategoryImage(closeOnBackdropClick) {
     this.dialog.open(AddsubcategoryimagesbyidComponent, {
-      closeOnBackdropClick,closeOnEsc: false, context: {
+      closeOnBackdropClick, closeOnEsc: false, context: {
         catalogId: this.catalogId
       }
     }).onClose.subscribe((result) => {
@@ -337,36 +358,104 @@ export class ViewsubcategoriesComponent implements OnInit {
       }
     });
   }
-  viewImage(imgUrl){
-    this.dialog.open(ViewimageComponent, { context: {
+  viewImage(imgUrl, type) {
+    console.log(type);
+    this.dialog.open(ViewimageComponent, {
+      context: {
         imgSrc: imgUrl,
         typeImg: 'cat'
       }
     })
   }
-  imageLoad(event){
-    if(event.target.previousElementSibling != null)
-    {
+  imageLoad(event) {
+    if (event.target.previousElementSibling != null) {
       event.target.previousElementSibling.classList.remove('placeholder-img');
     }
   }
-  setUrls(thumbnail_img,compressed_img,original_img){
+  setUrls(thumbnail_img, compressed_img, original_img) {
     this.copyURLS[0].img_url = thumbnail_img;
     this.copyURLS[1].img_url = compressed_img;
     this.copyURLS[2].img_url = original_img;
   }
-  copyUrl(url_item){
-    let selBox = document.createElement('textarea');
-    selBox.style.position = 'fixed';
-    selBox.style.left = '0';
-    selBox.style.top = '0';
-    selBox.style.opacity = '0';
-    selBox.value = url_item.img_url;
-    document.body.appendChild(selBox);
-    selBox.focus();
-    selBox.select();
-    document.execCommand('copy');
-    document.body.removeChild(selBox);
-    this.utils.showSuccess("Copied the URL for " + url_item.img_type, 2000);
+  copyUrl(url_item) {
+    if (url_item.img_type == "Thumbnail Image" || url_item.img_type == "Compressed Image" || url_item.img_type == "Original Image") {
+      let selBox = document.createElement('textarea');
+      selBox.style.position = 'fixed';
+      selBox.style.left = '0';
+      selBox.style.top = '0';
+      selBox.style.opacity = '0';
+      selBox.value = url_item.img_url;
+      document.body.appendChild(selBox);
+      selBox.focus();
+      selBox.select();
+      document.execCommand('copy');
+      document.body.removeChild(selBox);
+      this.utils.showSuccess("Copied the URL for " + url_item.img_type, 2000);
+    }
+  }
+  addTemplateRank(event, temp_index) {
+    if (this.templatesArr.length > 19) {
+      if (!this.templatesArr.includes(temp_index)) {
+        this.utils.showError("Maximum 20 templates are allow for select", 6000);
+      }
+      else {
+        this.templatesArr.splice(this.templatesArr.indexOf(temp_index), 1);
+      }
+    }
+    else {
+      if (!this.templatesArr.includes(temp_index)) {
+        this.templatesArr.push(temp_index);
+      }
+      else {
+        this.templatesArr.splice(this.templatesArr.indexOf(temp_index), 1);
+      }
+    }
+  }
+  uploadTemplateRankArr() {
+    if (this.templatesArr.length == 0) {
+      this.utils.showError("Please select templates for set rank", 6000);
+    }
+    else {
+      this.utils.showLoader();
+      this.dataService.postData('setMultipleContentRankByAdmin', {
+        "img_ids": this.templatesArr
+      }, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).then((results: any) => {
+
+        if (results.code == 200) {
+          this.utils.showSuccess(results.message, 4000);
+          this.utils.hideLoader();
+          this.templatesArr = []
+          this.multiselectFlag = false;
+          this.getAllCategories();
+          // var element = this.viewCatdata[indexItem];
+          // this.viewCatdata.splice(indexItem, 1);
+          // this.viewCatdata.splice(0, 0, element);
+        }
+        else if (results.code == 201) {
+          this.utils.showError(results.message, 4000);
+          this.utils.hideLoader();
+        }
+        else if (results.status || results.status == 0) {
+          this.utils.showError(ERROR.SERVER_ERR, 4000);
+          this.utils.hideLoader();
+        }
+        else {
+          this.utils.showError(results.message, 4000);
+          this.utils.hideLoader();
+        }
+      }, (error: any) => {
+        console.log(error);
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 4000);
+      }).catch((error: any) => {
+        console.log(error);
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 4000);
+      });
+    }
   }
 }

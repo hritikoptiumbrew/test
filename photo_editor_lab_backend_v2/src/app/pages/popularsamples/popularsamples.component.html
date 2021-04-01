@@ -48,7 +48,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
   </div>
   <div class="col-xl-2 col-md-3 col-sm-3  pr-0 pl-0" *ngFor="let item of sampleData">
     <nb-card class="card-content">
-      <div class="picture text-center" style="position: relative;overflow: hidden;" (click)="viewImage(item.display_original_img)">
+      <div class="picture text-center" style="position: relative;overflow: hidden;" (click)="viewImage(item.display_compressed_img)">
         <img class="placeholder-img">
         <img [lazyLoad]="item.display_thumbnail_img" [errorImage]="utils.errorImg" onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" alt="Thumbnail image" (load)="imageLoad($event)">
       </div>

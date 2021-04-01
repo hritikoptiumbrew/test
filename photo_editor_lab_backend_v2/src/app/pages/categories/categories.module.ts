@@ -19,7 +19,6 @@ import { NbCardModule, NbInputModule, NbIconModule, NbTooltipModule, NbSelectMod
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { FormsModule } from '@angular/forms'
-import { NgxPaginateModule } from 'ngx-paginate';
 import { NgxPaginationModule } from 'ngx-pagination';
 
 

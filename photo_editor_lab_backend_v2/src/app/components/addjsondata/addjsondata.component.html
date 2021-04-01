@@ -111,6 +111,55 @@ Copyright 2018 - 2020 Optimumbrew Technology
             placeholder="Enter JSON data" (keyup)="removeError()"></textarea>
         </div>
       </div>
+      <div class="col-md-12 post-table-div pr-0" *ngIf="incorrect_fonts.length > 0">
+        <table class="table">
+          <thead style="background: #edf1f7;">
+            <tr class="table-inverse">
+              <th class="pt-1 pb-1 text-center" colspan="4">Incorrect fonts, Please update fonts in red color.</th>
+            </tr>
+            <tr>
+              <th class="pt-1 pb-1">Your font name</th>
+              <th class="pt-1 pb-1">Correct font name</th>
+              <th class="pt-1 pb-1">Your font path</th>
+              <th class="pt-1 pb-1">Correct font path</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let font_details of incorrect_fonts; let i = index;">
+              <td [ngClass]="font_details.is_correct_name==0 ? 'text-danger' : 'text-success'">{{font_details.font_name}}
+              </td>
+              <td>{{font_details.correct_font_name}}</td>
+              <td [ngClass]="font_details.is_correct_path==0 ? 'text-danger' : 'text-success'">{{font_details.font_path}}
+              </td>
+              <td>{{font_details.correct_font_path}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-12 post-table-div pr-0" *ngIf="mismatch_fonts.length > 0">
+        <table class="table">
+          <thead style="background: #edf1f7;">
+            <tr class="table-inverse">
+              <th class="pt-1 pb-1 text-center" colspan="4">Mismatched fonts, please ask designer to make corrections in
+                JSON.</th>
+            </tr>
+            <tr>
+              <th class="pt-1 pb-1">Your font name</th>
+              <th class="pt-1 pb-1">Suggested font path</th>
+              <th class="pt-1 pb-1">Your font path</th>
+              <th class="pt-1 pb-1">Suggested font name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let font_details of mismatch_fonts; let i = index;">
+              <td>{{font_details.font_name}}</td>
+              <td>{{font_details.correct_font_path}}</td>
+              <td>{{font_details.font_path}}</td>
+              <td>{{font_details.correct_font_name}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <div class="row mt-3">
       <div class="col-md-12 text-center">

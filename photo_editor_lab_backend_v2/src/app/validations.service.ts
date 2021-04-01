@@ -24,7 +24,8 @@ export class ValidationsService {
   checkValid(validObj) {
     var elem = document.getElementById(validObj.id);
     var errorelem = document.getElementById(validObj.errorId);
-    var elemVal = $('#' + validObj.id).val();
+    var inputelem = document.getElementById(validObj.id) as HTMLInputElement
+    var elemVal = inputelem.value;
 
     if (validObj.type == "radio" || validObj.type == "image") {
       errorelem.innerHTML = "";

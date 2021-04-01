@@ -47,6 +47,8 @@ export class AddjsondataComponent implements OnInit {
   file: any;
   jsonData: any;
   token: any;
+  incorrect_fonts = [];
+  mismatch_fonts = [];
   constructor(private validService: ValidationsService, private dialogRef: NbDialogRef<AddjsondataComponent>, private utils: UtilService, private dataService: DataService) {
     this.token = localStorage.getItem("at");
     this.utils.dialogref = this.dialogRef;
@@ -266,6 +268,8 @@ export class AddjsondataComponent implements OnInit {
           }
         }).then((results: any) => {
           if (results.code == 200) {
+            this.incorrect_fonts = [];
+            this.mismatch_fonts = [];
             this.utils.hideLoader();
             this.dialogRef.close({ res: "add" });
             this.utils.showSuccess(results.message, 4000);
@@ -273,6 +277,12 @@ export class AddjsondataComponent implements OnInit {
           else if (results.code == 201) {
             document.getElementById("jsonAddError").innerHTML = results.message;
             // this.utils.showError(results.message, 4000);
+            this.utils.hideLoader();
+          }
+          else if (results.code == 433) {
+            document.getElementById("jsonAddError").innerHTML = results.message;
+            this.incorrect_fonts = results.data.incorrect_fonts;
+            this.mismatch_fonts = results.data.mismatch_fonts;
             this.utils.hideLoader();
           }
           else if (results.status || results.status == 0) {
