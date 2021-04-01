@@ -236,7 +236,7 @@ class DeleteCacheKey
             }
 
             //Sub Category Images
-            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages' or $api == '/api/moveTemplate' or $api == '/api/addTemplateByZip' or $api == '/api/addCategoryNameAsTag'  or $api == '/api/autoUploadTemplate') {
+            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/setMultipleContentRankByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages' or $api == '/api/moveTemplate' or $api == '/api/addTemplateByZip' or $api == '/api/addCategoryNameAsTag' or $api == '/api/autoUploadTemplate') {
 
                 //Category Wise Images Key
                 $keys = Redis::keys('pel:getImagesByCatalogId*');

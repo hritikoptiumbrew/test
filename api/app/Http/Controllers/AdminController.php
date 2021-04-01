@@ -1498,7 +1498,6 @@ class AdminController extends Controller
                                         ct.name,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                         IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
                                         IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
                                         ct.is_free,
@@ -1575,7 +1574,6 @@ class AdminController extends Controller
                                         ct.name,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                         IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
                                         IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
                                         ct.is_free,
@@ -1662,7 +1660,7 @@ class AdminController extends Controller
                                     cm.name,
                                     IF(cm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as thumbnail_img,
                                     IF(cm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as compressed_img,
-                                    IF(cm.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as original_img,
+                                    IF(cm.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.attribute1),"") as webp_original_img,
                                     cm.is_free,
                                     cm.is_featured
                                    FROM
@@ -2355,6 +2353,7 @@ class AdminController extends Controller
                                               IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
                                               IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
                                               IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                              IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as webp_original_img,
                                               IF(im.json_data IS NOT NULL,1,0) as is_json_data,
                                               coalesce(im.json_data,"") as json_data,
                                               coalesce(im.is_featured,"") as is_featured,
@@ -2705,9 +2704,11 @@ class AdminController extends Controller
                     $search_category = $tag;
                 }
                 $search_category = implode(',', array_unique(array_filter(explode(',', $search_category))));
+                $update_time = date('Y-m-d H:i:s', time() + 5);
                 DB::beginTransaction();
-                DB::update('UPDATE images SET catalog_id = ?,search_category =? where id = ?', [$catalog_id,$search_category, $key]);
+                DB::update('UPDATE images SET catalog_id = ?,search_category =?,updated_at =? where id = ?', [$catalog_id, $search_category, $update_time, $key]);
                 DB::commit();
+                sleep(1);
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Template moved successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -7366,6 +7367,62 @@ class AdminController extends Controller
         return $response;
     }
 
+
+    /**
+     * @api {post} setMultipleContentRankByAdmin setMultipleContentRankByAdmin
+     * @apiName setMultipleContentRankByAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "img_ids":[1963,1964] //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Rank set successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function setMultipleContentRankByAdmin(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('img_ids'), $request)) != '')
+                return $response;
+
+            $img_ids = $request->img_ids;
+            foreach ($img_ids as $img_id) {
+                $create_time = date('Y-m-d H:i:s', time() + 5);
+                DB::beginTransaction();
+                DB::update('UPDATE
+                            images
+                            SET updated_at = ?
+                            WHERE
+                            id = ?', [$create_time, $img_id]);
+                DB::commit();
+                sleep(1);
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("setMultipleContentRankByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'set content rank.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /* =================| Set search tags of samples by sub_category |=================================*/
 
     /**
@@ -8853,7 +8910,7 @@ class AdminController extends Controller
                                         ct.name,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                        IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                        IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
                                         ct.is_free,
                                         ct.is_featured
                                       FROM

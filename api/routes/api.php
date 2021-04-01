@@ -185,6 +185,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     //Set rank of catalogs & templates
     Route::post('setCatalogRankOnTheTopByAdmin', 'AdminController@setCatalogRankOnTheTopByAdmin');
     Route::post('setContentRankOnTheTopByAdmin', 'AdminController@setContentRankOnTheTopByAdmin');
+    Route::post('setMultipleContentRankByAdmin', 'AdminController@setMultipleContentRankByAdmin');
 
     /*API to add search tags via image_url by sub_category_id with pagination
     Note: Don't use this API in live server because it will must effect on live cards*/

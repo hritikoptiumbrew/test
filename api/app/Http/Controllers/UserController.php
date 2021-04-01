@@ -4259,7 +4259,7 @@ class UserController extends Controller
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
-            if (!Cache::has("vf:getTemplateWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count:$this->is_get_data_for_1st_catalog")) {
+            if (!Cache::has("pel:getTemplateWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count:$this->is_get_data_for_1st_catalog")) {
                 $result = Cache::rememberforever("getTemplateWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count:$this->is_get_data_for_1st_catalog", function () {
 
                     $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
