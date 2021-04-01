@@ -59,7 +59,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
       <nb-card class="card-content">
         <div class="picture text-center" style="position: relative;overflow: hidden;height: 130px;" (click)="!multiselectFlag?viewImage(item.compressed_img):addTemplateRank($event,item.img_id)" >
           <img class="placeholder-img">
-          <img [lazyLoad]="item.webp_original_img" [errorImage]="utils.errorImg" alt="{{item.name}} Webp image" (load)="imageLoad($event)">
+          <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img" [errorImage]="utils.errorImg" alt="{{item.name}} image" (load)="imageLoad($event)">
           <div *ngIf="item.is_free==0 && item.is_json_data==1" class="ribbon-wrapper-yellow">
             <div class="ribbon-yellow">PRO</div>
           </div>
