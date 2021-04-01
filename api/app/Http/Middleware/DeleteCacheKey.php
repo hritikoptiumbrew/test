@@ -114,7 +114,7 @@ class DeleteCacheKey
                 }
 
                 //getCatalogBySubCategoryIdForAutoUpload
-                $keys = Redis::keys('vf:getCatalogBySubCategoryIdForAutoUpload*');
+                $keys = Redis::keys('pel:getCatalogBySubCategoryIdForAutoUpload*');
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
