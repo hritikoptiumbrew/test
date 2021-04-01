@@ -142,7 +142,7 @@ ALTER TABLE `blog_master` CHANGE `platform` `platform` TINYINT(1) NOT NULL COMME
 -------------------------------------------------------------------------------------------------
 INSERT INTO `roles` (`name`, `display_name`, `description`, `created_at`, `updated_at`) VALUES ('image_uploader', 'image_uploader', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-INSERT INTO `user_master` (`user_name`, `email_id`, `password`, `signup_type`,`is_active`,`is_verify` `create_time`, `update_time`) VALUES ('image_uploader', 'imageuploader@gmail.com', '$2y$10$HbZRyNfcTUaf6HRnkLDiP.NRj4NmWhYd0Ya/VgRPIvE5/f4KyflE6', '1','1','1',CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `user_master` (`user_name`, `email_id`, `password`, `signup_type`,`is_active`, `create_time`, `update_time`) VALUES ('image_uploader', 'imageuploader@gmail.com', '$2y$10$HbZRyNfcTUaf6HRnkLDiP.NRj4NmWhYd0Ya/VgRPIvE5/f4KyflE6', '1','1',CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO `role_user` (`user_id`, `role_id`) VALUES ('3', '3');
 

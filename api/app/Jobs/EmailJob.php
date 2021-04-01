@@ -56,10 +56,8 @@ class EmailJob extends Job implements ShouldQueue
 
         Mail::send($data['template'], $data, function($message) use ($data) {
             $message->to($data['email'])->subject($data['subject']);
-            $message->bcc('pinal.optimumbrew@gmail.com')->subject($data['subject']);
-            $message->bcc('pooja.optimumbrew@gmail.com')->subject($data['subject']);
-            $message->bcc('alagiyanirav@gmail.com')->subject($data['subject']);
-
+            $message->bcc(Config::get('constant.ADMIN_EMAIL_ID'))->subject($data['subject']);
+            $message->bcc(Config::get('constant.SUB_ADMIN_EMAIL_ID'))->subject($data['subject']);
         });
 
 
@@ -101,9 +99,8 @@ class EmailJob extends Job implements ShouldQueue
             $data = array('template' => $template, 'email' => $email_id, 'subject' => $subject, 'message_body' => $message_body);
             Mail::send($data['template'], $data, function ($message) use ($data) {
                 $message->to($data['email'])->subject($data['subject']);
-                $message->bcc('alagiyanirav@gmail.com')->subject($data['subject']);
-                $message->bcc('pinal.optimumbrew@gmail.com')->subject($data['subject']);
-//            $message->to($data['email'])->subject($data['subject']);
+                $message->bcc(Config::get('constant.ADMIN_EMAIL_ID'))->subject($data['subject']);
+                $message->bcc(Config::get('constant.SUB_ADMIN_EMAIL_ID'))->subject($data['subject']);
             });
         }
 

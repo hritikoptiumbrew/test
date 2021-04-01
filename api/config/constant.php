@@ -18,14 +18,9 @@ return [
     'EXCEPTION_ERROR' => 'PhotoEditorLab is unable to ',
     'DATE_FORMAT' => 'Y-m-d H:i:s',
 
-    /* For local server */
-    //'ADMIN_EMAIL_ID' => 'pinal.optimumbrew@gmail.com',
-
     /* For live server */
-    'ADMIN_EMAIL_ID' => 'alagiyanirav@gmail.com',
-
-    'SYSADMIN_EMAIL_ID' => 'alagiyanirav@gmail.com',
-
+    'ADMIN_EMAIL_ID' => env('ADMIN_EMAIL_ID'),
+    'SUB_ADMIN_EMAIL_ID' => env('SUB_ADMIN_EMAIL_ID'),
 
     'RESPONSE_HEADER_CACHE' => 'max-age=2592000',
     'ROLE_FOR_ADMIN' => 'admin',
@@ -58,6 +53,7 @@ return [
     'RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.co.in/photo_editor_lab_backend/image_bucket/resource/',*/
 
     /*live server*/
+    'AWS_BUCKET_PATH_PHOTO_EDITOR_LAB' => env('AWS_BUCKET_PATH_PHOTO_EDITOR_LAB'),
     'COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
     'ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
     'THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),

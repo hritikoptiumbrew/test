@@ -67,7 +67,7 @@ class TagDetectController extends Controller
                 );
                 $api_name = 'getTagInImageByViaURL';
                 $api_description = $result['description'];
-                $email_id = 'pooja.optimumbrew@gmail.com';
+                $email_id = Config::get('constant.SUB_ADMIN_EMAIL_ID');
                 $this->dispatch(new EmailJob(1, $email_id, $subject, $message_body, $template, $api_name, $api_description));
 
                 //return Response::json(array('code' => 201, 'message' => 'The server is unable to load images. Please try again after 10-20 minutes.', 'cause' => '', 'data' => json_decode('{}')));
@@ -93,56 +93,48 @@ class TagDetectController extends Controller
             if($keys != "")
             {
                 $key = explode(',', $keys);
-                $i = 0;
-                foreach ($key as $k) {
-                    $kt[$i] = $k;
-                    $i++;
-                }
-                $redis_keys = Redis::keys('pel:currentKeyForGetTag:*');
+                foreach ($key as $i => $kt) {
 
-                count($redis_keys) > 0 ? $this->currentKey = substr($redis_keys[0], -1) : $this->currentKey = 0;
-
-                /*return $kt[$this->currentKey];*/
-                //Log::info('Current Key :', ['API Key' => $kt[$this->currentKey]]);
-                $result = $this->getTagByImage($photo, $kt[$this->currentKey]);
-
-                if ($result['is_success'] == 0) {
-                    $redis_keys = Redis::keys('pel:currentKeyForGetTag*');
+                    $redis_keys = Redis::keys('pel:currentKeyForGetTag:*');
                     count($redis_keys) > 0 ? $this->currentKey = substr($redis_keys[0], -1) : $this->currentKey = 0;
-                    //Log::info('redis_keys :', ['redis_keys' => $this->currentKey]);
-                    if ($this->currentKey != 0) {
-                        //Log::info('deleteRedisKey');
-                        $this->deleteRedisKey($redis_keys[0]);
+
+                    /*return $kt[$this->currentKey];*/
+                    $result = $this->getTagByImage($photo, $key[$this->currentKey]);
+
+                    if ($result['is_success'] == 0) {
+                        $expire_key =  str_repeat('*', strlen($key[$this->currentKey]) - 4).substr($key[$this->currentKey], -4);  //get last 4 character
+
+                        if ($redis_keys) {
+                            $this->deleteRedisKey($redis_keys[0]);
+                        }
+                        $getKey = $this->increaseCurrentKey($this->currentKey);
+
+                        $currentKey = $getKey + 1;
+                        $template = 'simple';
+                        $host_name = request()->getHttpHost();
+                        $subject = "PhotoEditorLab: Clarifai account limit exceeded (host: $host_name)";
+                        //$message_body = "Error Code : " . $result['statusCode'] . "<br>" . $result['description'] . "<br>Now, Current key is $currentKey";
+                        $message_body = array(
+                            'message' => "Clarifai $result[description] .<br>Stauts code is $result[statusCode].<br> The expire key is <b> $expire_key </b>.<br>Now, The updated key is $currentKey",
+                            'user_name' => 'Admin'
+                        );
+                        $api_name = 'getTagInImageByViaBytes';
+                        $api_description = $result['description'];
+                        $email_id = Config::get('constant.SUB_ADMIN_EMAIL_ID');
+                        $this->dispatch(new EmailJob(1, $email_id, $subject, $message_body, $template, $api_name, $api_description));
+
+                        //return Response::json(array('code' => 201, 'message' => 'The server is unable to load images. Please try again after 10-20 minutes.', 'cause' => '', 'data' => json_decode('{}')));
+                        $tag = "";
+                        continue;
+                    } else {
+                        $tag = $result['tag'];
+                        break;
                     }
-                    $this->currentKey;
-                    //$this->deleteRedisKey($redis_keys);
-                    $getKey = $this->increaseCurrentKey($this->currentKey);
-
-
-
-                    $currentKey = $getKey + 1;
-                    $template = 'simple';
-                    $host_name = request()->getHttpHost();
-                    $subject = "PhotoEditorLab: Clarifai account limit exceeded (host: $host_name)";
-                    //$message_body = "Error Code : " . $result['statusCode'] . "<br>" . $result['description'] . "<br>Now, Current key is $currentKey";
-                    $message_body = array(
-                        'message' => "Clarifai $result[description] .<br>Stauts code is $result[statusCode].<br>Now, The updated key is $currentKey",
-                        'user_name' => 'Admin'
-                    );
-                    $api_name = 'getTagInImageByViaBytes';
-                    $api_description = $result['description'];
-                    $email_id = 'pooja.optimumbrew@gmail.com';
-                    $this->dispatch(new EmailJob(1, $email_id, $subject, $message_body, $template, $api_name, $api_description));
-
-                    //return Response::json(array('code' => 201, 'message' => 'The server is unable to load images. Please try again after 10-20 minutes.', 'cause' => '', 'data' => json_decode('{}')));
-                    return $tag = "";
-                } else {
-                    return $tag = $result['tag'];
                 }
             }
             else
             {
-                return $tag = "";
+                $tag = "";
             }
 
 
@@ -150,8 +142,9 @@ class TagDetectController extends Controller
         } catch (Exception $e) {
             //$response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'detect lable from image by amazon.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             Log::error("getTagInImageByBytes : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            return $tag = "";
+            $tag = "";
         }
+        return $tag;
 
     }
 
@@ -232,7 +225,7 @@ class TagDetectController extends Controller
             }
 
         } catch (Exception $e) {
-            $result = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'detect label from image by amazon.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $result = ['code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'detect label from image by amazon.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")];
             Log::error("getTagByImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
         return $result;
@@ -261,13 +254,9 @@ class TagDetectController extends Controller
     {
         try {
             $keys = Config::get('constant.CLARIFAI_API_KEY');
-            $key = explode(',', $keys);
-            $i = 0;
-            foreach ($key as $k) {
-                $kt[$i] = $k;
-                $i++;
-            }
-            $countKey = $i - 1;
+            $countKey = count(explode(',', $keys));
+            $countKey--;
+
             $this->currentKey = $currentKey;
             if ($this->currentKey == $countKey) {
                 //Log::info('$this->currentKey = 0');

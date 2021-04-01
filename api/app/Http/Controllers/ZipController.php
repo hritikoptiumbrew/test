@@ -7,8 +7,8 @@
 // File:             ZipController.php                                      //
 // Since:            21-May-2019                                            //
 //                                                                          //
-// Author:           Pooja Jadav                                            //
-// Email:            pooja.optimumbrew@gmail.com                            //
+// Author:           Optimumbrew                                            //
+// Email:            info@optimumbrew.com                                   //
 //                                                                          //
 //////////////////////////////////////////////////////////////////////////////
 

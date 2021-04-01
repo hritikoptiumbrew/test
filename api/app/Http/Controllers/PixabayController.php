@@ -176,7 +176,7 @@ class PixabayController extends Controller
                 );
                 $api_name = 'getImagesFromPixabay';
                 $api_description = 'Get images from pixabay for user.';
-                $email_id = 'pooja.optimumbrew@gmail.com';
+                $email_id = Config::get('constant.SUB_ADMIN_EMAIL_ID');
                 $this->dispatch(new EmailJob(1, $email_id, $subject, $message_body, $template, $api_name, $api_description));
 
                 return Response::json(array('code' => 201, 'message' => 'The server is unable to load images. Please try again after 10-20 minutes.', 'cause' => '', 'data' => json_decode('{}')));
@@ -301,7 +301,7 @@ class PixabayController extends Controller
                             );
                             $api_name = 'getPixabayImageForUser';
                             $api_description = 'Get pixabay image for user.';
-                            $email_id = 'pooja.optimumbrew@gmail.com';
+                            $email_id = Config::get('constant.SUB_ADMIN_EMAIL_ID');
                             $this->dispatch(new EmailJob(1, $email_id, $subject, $message_body, $template, $api_name, $api_description));
 
                         }
