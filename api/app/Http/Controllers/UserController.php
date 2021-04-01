@@ -879,7 +879,9 @@ class UserController extends Controller
                                                 id= ?
                                                 order by updated_at DESC', [$this->json_id_to_get_json_data]);
                     if (count($result) > 0) {
-                        return json_decode($result[0]->json_data);
+                        $json_data = json_decode($result[0]->json_data);
+                        $json_data->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
+                        return $json_data;
                     } else {
                         return json_decode("{}");
                     }
