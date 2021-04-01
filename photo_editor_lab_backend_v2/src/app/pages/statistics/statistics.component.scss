@@ -108,7 +108,7 @@
   }
 }
 
-::ng-deep ng2-smart-table .ng2-smart-action {
+::ng-deep .statistics-body ng2-smart-table .ng2-smart-action {
   &:hover {
     color: unset !important;
   }

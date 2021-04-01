@@ -32,6 +32,7 @@ export class MovetocatalogComponent implements OnInit {
   totalRecords: any = 0;
   token: any;
   errormsg: any;
+  imgIds:any = [];
   constructor(private dialog: NbDialogRef<MovetocatalogComponent>, private dataService: DataService, private utils: UtilService) {
     this.token = localStorage.getItem('at');
     this.utils.dialogref = this.dialog;
@@ -124,11 +125,12 @@ export class MovetocatalogComponent implements OnInit {
       return false;
     }
     else {
+      this.utils.showLoader();
       this.errormsg = "";
       this.dataService.postData('moveTemplate',
         {
           "catalog_id": this.selectedCatalog.catalog_id,
-          "template_list": [this.catalogData.img_id]
+          "template_list": this.imgIds.length == 0?[this.catalogData.img_id]:this.imgIds
         }, {
         headers: {
           'Authorization': 'Bearer ' + this.token

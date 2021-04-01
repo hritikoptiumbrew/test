@@ -116,10 +116,11 @@ export class RediscacheComponent implements OnInit {
     });
   }
   selectKeys(event) {
-    if (event.selected.length < this.totalRecord) {
+    var totalRecord = document.querySelectorAll('tbody .ng2-smart-row').length;
+    if (event.selected.length < totalRecord) {
       this.table.isAllSelected = false;
     }
-    else if (event.selected.length == this.totalRecord) {
+    else if (event.selected.length == totalRecord) {
       this.table.isAllSelected = true;
     }
     this.keys_list = [];

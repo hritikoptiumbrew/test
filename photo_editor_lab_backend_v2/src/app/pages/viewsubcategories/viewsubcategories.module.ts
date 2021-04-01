@@ -15,8 +15,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ViewsubcategoriesComponent } from './viewsubcategories.component';
-import { NbCardModule, NbContextMenuModule, NbIconModule, NbPopoverModule, NbTooltipModule } from '@nebular/theme';
+import { NbCardModule, NbContextMenuModule, NbIconModule, NbTooltipModule } from '@nebular/theme';
 import { LazyLoadImageModule } from 'ng-lazyload-image';
+import { VirtualScrollerModule } from 'ngx-virtual-scroller';
 
 @NgModule({
   declarations: [ViewsubcategoriesComponent],
@@ -26,7 +27,8 @@ import { LazyLoadImageModule } from 'ng-lazyload-image';
     NbTooltipModule,
     NbIconModule,
     LazyLoadImageModule,
-    NbContextMenuModule
+    NbContextMenuModule,
+    VirtualScrollerModule
   ]
 })
 export class ViewsubcategoriesModule { }

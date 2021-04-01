@@ -56,7 +56,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
             totalItems: totalRecords
           }; let i = index;">
         <nb-card class="card-content">
-          <div class="picture text-center" style="position: relative;overflow: hidden;" (click)=" viewImage(item.original_img)">
+          <div class="picture text-center" style="position: relative;overflow: hidden;" (click)=" viewImage(item.compressed_img)">
             <img class="placeholder-img">
             <img [lazyLoad]="item.webp_thumbnail_img?item.webp_thumbnail_img:item.thumbnail_img" [errorImage]="utils.errorImg" alt="{item.name}} thumbnail image" (load)="imageLoad($event)">
           </div>

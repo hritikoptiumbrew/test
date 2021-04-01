@@ -27,9 +27,9 @@
   right: 10px;
 }
 
-.card-gallary-view{
+.card-gallary-view {
   padding: 10px 5px;
-  max-height: calc(100vh - 216px);
+  // max-height: calc(100vh - 216px);
   background: #fff;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -48,6 +48,10 @@
     background: #E4E9F2;
   }
 }
+.virtual-scroll-cat{
+  overflow-y: hidden !important;
+}
+
 ::ng-deep .card-gallary-view {
   nb-card {
     margin-right: 5px !important;
@@ -58,8 +62,79 @@
     margin-top: 0px !important;
   }
 }
-@media only screen and (max-width: 600px){
-  .normal-img-btn{
+
+.w-10 {
+  width: 10%;
+}
+
+.template-card-footer {
+  background: #E1E8F3;
+  padding: 10px;
+  position: relative;
+}
+
+.overlay-action {
+  position: absolute;
+  background: #E1E8F3;
+  height: 100%;
+  width: 100%;
+  display: none;
+  a{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    &:hover{
+      color: #007BFF;
+    }
+  }
+}
+
+.rank-icon {
+  height: 40px;
+  width: 40px;
+  padding-top: 9px;
+  color: #fff;
+  background: #218838;
+  font-weight: 600;
+  border-radius: 50%;
+  font-size: 18px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+::ng-deep virtual-scroller{
+  max-height: calc(100vh - 228px) !important;
+}
+
+::ng-deep .scrollable-content{
+  position: unset !important;
+  // width: 100vw !important;
+  display: flex;
+    flex-wrap: wrap;
+}
+
+::ng-deep virtual-scroller{
+  width: 100vw;
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #E4E9F2;
+  }
+}
+@media only screen and (max-width: 600px) {
+  .normal-img-btn {
     margin-top: 5px;
     margin-right: 9px;
   }

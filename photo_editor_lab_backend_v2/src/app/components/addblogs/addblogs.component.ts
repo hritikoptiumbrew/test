@@ -138,7 +138,7 @@ export class AddblogsComponent implements OnInit {
     if (this.upBlogData) {
       var titleData = JSON.parse(this.upBlogData.title);
       var subTitleData = JSON.parse(this.upBlogData.subtitle);
-      this.blogImg = this.upBlogData.original_img;
+      this.blogImg = this.upBlogData.compressed_img;
       this.selectDevice = this.upBlogData.platform.toString();
       this.blogTitle = titleData.text_value;
       this.titleCol = titleData.text_color;

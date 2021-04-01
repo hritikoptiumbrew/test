@@ -25,13 +25,6 @@ import { NbDialogService } from '@nebular/theme';
 import { EnterotpComponent } from 'app/components/enterotp/enterotp.component';
 import { ViewimageComponent } from 'app/components/viewimage/viewimage.component';
 
-
-
-
-
-
-
-
 @Component({
   selector: 'ngx-login',
   templateUrl: './login.component.html',
@@ -39,6 +32,8 @@ import { ViewimageComponent } from 'app/components/viewimage/viewimage.component
 })
 export class LoginComponent implements OnInit {
 
+  d:any = new Date();
+  current_year = this.d.getFullYear();
   checked = false;
   admin_detail: any;
   errormsg: any = ERROR;
@@ -180,6 +175,7 @@ export class LoginComponent implements OnInit {
       if (result) {
       }
       else {
+        this.router.navigate(['/admin/categories']);
         localStorage.setItem("admin_detail", JSON.stringify(this.admin_detail));
       }
     });

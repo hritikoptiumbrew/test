@@ -37,50 +37,63 @@ Copyright 2018 - 2020 Optimumbrew Technology
   </div>
 </div>
 <div class="row card-summary pr-0 mt-2">
-  <div class="col-md-12 text-right pr-0">
+  <div class="col-md-12 text-right pr-0" *ngIf="!multiselectFlag">
+    <button class="btn btn-primary mr-2" (click)="multiselectFlag = true">Select Templates</button>
     <button class="btn btn-primary mr-2" (click)="addJsonImages()">Add JSON Images</button>
     <button class="btn btn-primary mr-2" (click)="addJsonData()">Add JSON Data</button>
     <button class="btn btn-primary normal-img-btn" (click)="addNormalImages()">Add Normal Images</button>
   </div>
+  <div class="col-md-12 text-right pr-0" *ngIf="multiselectFlag">
+    <button class="btn btn-success mr-2 w-10" (click)="uploadTemplateRankArr()">Set Rank</button>
+    <button class="btn btn-success mr-2" (click)="moveMutipleTemplate()">Move Templates</button>
+    <button class="btn btn-danger mr-2 w-10" (click)="templatesArr = [];multiselectFlag = false">Cancel</button>
+  </div>
 </div>
-<div class="card-gallary-view row mt-2">
+<div class="card-gallary-view virtual-scroll-cat row mt-2">
   <div class="col-md-12 text-center mt-3" *ngIf="totalRecords == 0">
     <img src="./assets/data-not-found.png" style="width:180px">
     <h2>No data found</h2>
   </div>
-  <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" *ngFor="let item of viewCatdata;let i = index">
-    <nb-card class="card-content">
-      <div class="picture text-center" style="position: relative;overflow: hidden;height: 130px;" (click)="viewImage(item.original_img)">
-        <img class="placeholder-img">
-        <img [lazyLoad]="item.thumbnail_img" [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
-        <div *ngIf="item.is_free==0 && item.is_json_data==1" class="ribbon-wrapper-yellow">
-          <div class="ribbon-yellow">PRO</div>
+  <virtual-scroller #scroll [items]="viewCatdata" enableUnequalChildrenSizes="true">
+    <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" *ngFor="let item of scroll.viewPortItems;let i = index" [id]="'div-'+i">
+      <nb-card class="card-content">
+        <div class="picture text-center" style="position: relative;overflow: hidden;height: 130px;" (click)="!multiselectFlag?viewImage(item.compressed_img):addTemplateRank($event,item.img_id)" >
+          <img class="placeholder-img">
+          <img [lazyLoad]="item.webp_original_img" [errorImage]="utils.errorImg" alt="{{item.name}} Webp image" (load)="imageLoad($event)">
+          <div *ngIf="item.is_free==0 && item.is_json_data==1" class="ribbon-wrapper-yellow">
+            <div class="ribbon-yellow">PRO</div>
+          </div>
+          <i class="fa fa-code font-26 code-icon" *ngIf="item.is_json_data && !templatesArr.includes(item.img_id)"></i>
+          <span class="rank-icon" *ngIf="templatesArr.indexOf(item.img_id) != -1">{{ templatesArr.indexOf(item.img_id) + 1 }}</span>
         </div>
-        <i class="fa fa-code font-26 code-icon" *ngIf="item.is_json_data"></i>
-      </div>
-      <div class="details" style="height: 30px;margin-top: 0px;">
-        <div>ID: {{ item.img_id }}</div>
-      </div>
-      <nb-card-footer class="mt-3" style="background: #E1E8F3;padding: 10px;">
-        <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="editSubCategory(item)">
-          <nb-icon icon="edit-2" pack="eva"></nb-icon>
-        </a>
-        <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="deleteTemplate(item)">
-          <nb-icon icon="trash-2" pack="eva"></nb-icon>
-        </a>
-        <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="moveToFirst(item,i)">
-          <nb-icon icon="upload" pack="eva"></nb-icon>
-        </a>
-        <a nbTooltip="Move to another catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
-          (click)="moveToCatalog(item)">
-          <nb-icon icon="external-link" pack="eva"></nb-icon>
-        </a>
-        <a nbTooltip="More Actions" nbTooltipPlacement="bottom" nbTooltipStatus="primary" 
-        nbContextMenuPlacement="right" [nbContextMenu]="copyURLS" (click)='setUrls(item.thumbnail_img,item.compressed_img,item.original_img)'>
-          <nb-icon icon="more-horizontal" pack="eva"></nb-icon>
-        </a>
-      </nb-card-footer>
-    </nb-card>
-    <img src="./assets/featured_img.png"  *ngIf="item.is_featured==1" class="label-img">
-  </div>
+        <div class="details" style="height: 30px;margin-top: 0px;">
+          <div>ID: {{ item.img_id }}</div>
+        </div>
+        <nb-card-footer class="mt-3 template-card-footer" style="position: relative;">
+          <div class="overlay-action" [ngClass]="{'d-block': multiselectFlag}">
+            <a (click)="viewImage(item.compressed_img)">View Image</a>
+          </div>
+          <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="editSubCategory(item)">
+            <nb-icon icon="edit-2" pack="eva"></nb-icon>
+          </a>
+          <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="deleteTemplate(item)">
+            <nb-icon icon="trash-2" pack="eva"></nb-icon>
+          </a>
+          <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="moveToFirst(item,i)">
+            <nb-icon icon="upload" pack="eva"></nb-icon>
+          </a>
+          <a nbTooltip="Move to another catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+            (click)="moveToCatalog(item)">
+            <nb-icon icon="external-link" pack="eva"></nb-icon>
+          </a>
+          <a nbTooltip="More Actions" nbTooltipPlacement="bottom" nbTooltipStatus="primary" 
+          nbContextMenuPlacement="right" [nbContextMenu]="copyURLS" (click)='setUrls(item.thumbnail_img,item.compressed_img,item.original_img)'>
+            <nb-icon icon="more-horizontal" pack="eva"></nb-icon>
+          </a>
+        </nb-card-footer>
+      </nb-card>
+      <img src="./assets/featured_img.png"  *ngIf="item.is_featured==1" class="label-img">
+    </div>
+  </virtual-scroller>
+  
 </div>

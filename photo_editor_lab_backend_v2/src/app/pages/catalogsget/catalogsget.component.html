@@ -57,8 +57,8 @@ Copyright 2018 - 2020 Optimumbrew Technology
           <button id="subCalogButton" class="btn btn-primary w-100" (click)="searchCategory()">Search</button>
         </div>
       </div>
-      <div class="col-md-2 col-3" (click)="refreshPage()">
-        <button class="btn btn-refresh" nbTooltip="Refresh" nbTooltipPlacement="bottom" nbTooltipStatus="default"><i
+      <div class="col-md-2 col-3">
+        <button class="btn btn-refresh" nbTooltip="Refresh" nbTooltipPlacement="bottom" nbTooltipStatus="default" (click)="refreshPage()"><i
             class="fas fa-sync-alt"></i></button>
       </div>
       <div class="col-md-3 col-9 text-right pr-0">
@@ -122,7 +122,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
                   </nb-card-footer>
                 </nb-card>
                 <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
-                <div class="fullscreen-icon" style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;" (click)="viewImage(item.original_img)">
+                <div class="fullscreen-icon" style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;" (click)="viewImage(item.compressed_img)">
                   <img src="./assets/expand.png" style="width: 25px">
                 </div>
               </div>
@@ -188,7 +188,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
                   </nb-card-footer>
                 </nb-card>
                 <img src="./assets/featured_img.png"  *ngIf="item.is_featured==1"  class="label-img">
-                <div class="fullscreen-icon" style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;" (click)="viewImage(item.original_img)">
+                <div class="fullscreen-icon" style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;" (click)="viewImage(item.compressed_img)">
                   <img src="./assets/expand.png" style="width: 25px">
                 </div>
               </div>
