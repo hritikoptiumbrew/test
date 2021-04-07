@@ -7260,7 +7260,7 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->item_count_of_search_tag = $request->item_count;
+            $this->item_count_of_search_tag = Config::get("constant.ITEM_COUNT_OF_GET_DYNAMIC_SEARCH_TAG");
             $this->page = $request->page;
             $this->offset = ($this->page - 1) * $this->item_count_of_search_tag;
 

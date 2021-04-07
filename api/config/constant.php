@@ -79,6 +79,7 @@ return [
     'ITEM_COUNT_OF_FEATURED_JSON' => '5',
     'ITEM_COUNT_OF_TEMPLATES' => '5', //It's used for only Brand Maker in API to get templates in templates screen
     'ITEM_COUNT_OF_FEATURED_CATALOGS_AND_TEMPLATES' => 10, //It's used for only in Flyer Maker's API to get feature templates and catalog for new layout module.
+    'ITEM_COUNT_OF_GET_DYNAMIC_SEARCH_TAG' => 100,
 
     'GCM_NOTIFICATION_URL' => 'https://fcm.googleapis.com/fcm/send',
 
