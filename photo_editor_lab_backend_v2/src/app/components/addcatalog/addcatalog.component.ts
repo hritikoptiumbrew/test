@@ -28,6 +28,7 @@ export class AddcatalogComponent implements OnInit {
 
   catalogData: any;
   calogImage: any;
+  iconImage:any;
   CalogName: any;
   formData = new FormData();
   fileList: any;
@@ -39,6 +40,29 @@ export class AddcatalogComponent implements OnInit {
   selectedCategory: any;
   subCategoryId: any;
   catalogId: any;
+  selectedCatalogType:any = '1';
+  catalogTypes:any = [
+    {
+      name: "Normal",
+      value: "1"
+    },
+    {
+      name: "Fix date",
+      value: "2"
+    },
+    {
+      name: "Non-fix",
+      value: "3"
+    },
+    {
+      name: "Non date",
+      value: "4"
+    },
+  ];
+  popularity:any;
+  eventDate:any;
+  fileList1: any;
+  file1: any;
   constructor(private validService: ValidationsService, private dialogref: NbDialogRef<AddcatalogComponent>, private dataService: DataService, private utils: UtilService, private route: Router) {
     this.token = localStorage.getItem('at');
     this.selectedCategory = JSON.parse(localStorage.getItem('selected_category')).category_id;
@@ -60,6 +84,18 @@ export class AddcatalogComponent implements OnInit {
       this.selectCalogType = this.catalogData.is_featured.toString();
       this.selectCalogPrice = this.catalogData.is_free.toString();
       this.catalogId = this.catalogData.catalog_id;
+      if(this.catalogData.catalog_type){
+        this.selectedCatalogType = ""+this.catalogData.catalog_type;
+      }
+      if(this.catalogData.popularity_rate && this.catalogData.popularity_rate != null){
+        this.popularity = this.catalogData.popularity_rate;
+      }
+      if(this.catalogData.event_date && this.catalogData.event_date != null){
+        this.eventDate = this.catalogData.event_date;
+      }
+      if(this.catalogData.icon && this.catalogData.icon != null){
+        this.iconImage = this.catalogData.icon;
+      }
     }
   }
 
@@ -86,6 +122,31 @@ export class AddcatalogComponent implements OnInit {
         document.getElementById("imageCalogError").innerHTML = "";
       }
       this.formData.append('file', this.file, this.file.name);
+    }
+  }
+  fileChangeicon(event) {
+    if (event.target.files && event.target.files[0]) {
+      var reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.iconImage = event.target.result;
+        this.checkIconValid();
+        // this.checkValidation('calogImage', 'image', 'imageCalogError', '', '');
+      }
+      reader.readAsDataURL(event.target.files[0]);
+    }
+    this.fileList1 = event.target.files;
+    if (this.fileList1.length > 0) {
+      this.file1 = this.fileList1[0];
+      var filesize = Math.round(this.file1.size/1024);
+      if(filesize > 50)
+      {
+        document.getElementById("iconCalogError").innerHTML = "Maximum 50Kb file allow to upload";
+      }
+      else
+      {
+        document.getElementById("iconCalogError").innerHTML = "";
+      }
+      this.formData.append('icon', this.file1, this.file1.name);
     }
   }
   closedialog() {
@@ -117,6 +178,32 @@ export class AddcatalogComponent implements OnInit {
       }
     }
   }
+  checkIconValid() {
+    document.getElementById("CalogAddError").innerHTML = "";
+    if (this.iconImage == undefined || this.iconImage == "none" || this.iconImage == "") {
+      document.getElementById("iconCalogError").innerHTML = ERROR.IMG_REQ;
+    }
+    else {
+      if(this.file1)
+      {
+        var filesize = Math.round(this.file1.size/1024);
+        if(filesize > 50)
+        {
+          document.getElementById("iconCalogError").innerHTML = "Maximum 50Kb file allow to upload";
+        }
+        else
+        {
+          document.getElementById("iconCalogError").innerHTML = "";
+          return true;
+        }
+      }
+      else
+      {
+        document.getElementById("iconCalogError").innerHTML = "";
+        return true;
+      }
+    }
+  }
   checkValidation(id, type, catId, blankMsg, typeMsg, validType) {
     var validObj = {
       "id": id,
@@ -134,6 +221,48 @@ export class AddcatalogComponent implements OnInit {
       this.addCatalog();
     }
   }
+  checkOtherStatus(){
+    if(this.selectedCatalogType == 1 || this.selectedCatalogType == 4){
+      if(this.selectedCatalogType == 4)
+      {
+        if(this.popularity == undefined || this.popularity == ""){
+          document.getElementById("inputPopulaError").innerHTML = "Please enter popularity rate";
+          return false;
+        }
+        else{
+          if(this.popularity < 1 || this.popularity > 5){
+            document.getElementById("inputPopulaError").innerHTML = "Please enter rate between 1-5";
+            return false;
+          }
+          else{
+            document.getElementById("inputPopulaError").innerHTML = "";
+            return true;
+          }
+        }
+      }
+      else
+      {
+        if(this.popularity < 1 || this.popularity > 5){
+          document.getElementById("inputPopulaError").innerHTML = "Please enter rate between 1-5";
+          return false;
+        }
+        else{
+          document.getElementById("inputPopulaError").innerHTML = "";
+          return true;
+        }
+      }
+    }
+    else{
+      if(this.eventDate == undefined || this.eventDate == ""){
+        document.getElementById("inputdateError").innerHTML = "Please enter event date";
+        return false;
+      }
+      else{
+        document.getElementById("inputdateError").innerHTML = "";
+        return true;
+      }
+    }
+  }
   addCatalog() {
     var validObj = [
       {
@@ -146,7 +275,9 @@ export class AddcatalogComponent implements OnInit {
     ]
     var addStatus = this.validService.checkAllValid(validObj);
     var imageStatus = this.checkImageValid();
-    if (addStatus && imageStatus) {
+    var iconStatus = this.checkIconValid();
+    var otherStatus = this.checkOtherStatus();
+    if (addStatus && imageStatus && iconStatus && otherStatus) {
       this.utils.showLoader();
       var catApliUrl;
       if (this.catalogData) {
@@ -161,6 +292,9 @@ export class AddcatalogComponent implements OnInit {
           "category_id": this.selectedCategory,
           "sub_category_id": this.subCategoryId,
           "is_free": this.selectCalogPrice,
+          "catalog_type": +this.selectedCatalogType,
+          "event_date": this.eventDate,
+          "popularity_rate": this.popularity,
           "is_featured": this.selectCalogType,
           "name": this.CalogName,
           "catalog_id": this.catalogId
@@ -171,6 +305,9 @@ export class AddcatalogComponent implements OnInit {
           "category_id": this.selectedCategory,
           "sub_category_id": this.subCategoryId,
           "is_free": this.selectCalogPrice,
+          "catalog_type": +this.selectedCatalogType,
+          "event_date": this.eventDate,
+          "popularity_rate": this.popularity,
           "is_featured": this.selectCalogType,
           "name": this.CalogName
         };

@@ -45,7 +45,15 @@
     background: #E4E9F2;
   }
 }
-
+.catalog-icon{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  img{
+    height: 30px;
+    width: 30px;
+  }
+}
 .ribbon-wrapper-yellow {
   width: 88px;
   height: 88px;

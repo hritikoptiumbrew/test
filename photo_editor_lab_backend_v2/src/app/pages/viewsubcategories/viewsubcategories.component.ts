@@ -286,6 +286,7 @@ export class ViewsubcategoriesComponent implements OnInit {
     }).onClose.subscribe((result) => {
       if (result && result.res == "add") {
         this.multiselectFlag = false;
+        this.templatesArr = [];
         this.getAllCategories();
       }
     });
