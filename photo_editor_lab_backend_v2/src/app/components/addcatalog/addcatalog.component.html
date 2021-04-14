@@ -105,7 +105,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
               <nb-select [(selected)]="selectedCatalogType" class="w-100 mw-100">
                 <nb-option *ngFor="let item of catalogTypes" value="{{item.value}}">{{ item.name }}</nb-option>
               </nb-select>
-              <p *ngIf="selectedCatalogType == 3" class="text-info"><b>Note:</b> For Non-Fix catalog you have to update date every year starting</p>
+              <p *ngIf="selectedCatalogType == 3" class="text-info"><b>Note:</b> For Non-Fix date catalog you have to update date every year starting</p>
             </div>
           </div>
           <div class="col-md-1 pl-0">
