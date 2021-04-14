@@ -24,3 +24,6 @@
   .catalog-card{
     width: 640px;
   }
+::ng-deep .catalog-card nb-card-body{
+    max-height: calc(100vh - 191px);
+  }
