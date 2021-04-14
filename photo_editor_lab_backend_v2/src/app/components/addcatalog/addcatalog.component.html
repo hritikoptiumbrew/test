@@ -109,9 +109,11 @@ Copyright 2018 - 2020 Optimumbrew Technology
             </div>
           </div>
           <div class="col-md-1 pl-0">
-            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 3 || selectedCatalogType == 4" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Ex : valentine,kites day,teacher's day" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 2" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Event which have fix date in every year.Ex kites day,valentine's day,teacher's day etc." nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
             nbTooltipTrigger="hint"></nb-icon>
-            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 2" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Ex : diwali,holi" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 3" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Event which have no fix date but it come in every year.Ex Diwali,Holi etc." nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+            nbTooltipTrigger="hint"></nb-icon>
+            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 4" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Event which have to any date but it's come.Ex birthday,anniversary etc." nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
             nbTooltipTrigger="hint"></nb-icon>
           </div>
         </div>
