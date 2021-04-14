@@ -94,6 +94,12 @@ Copyright 2018 - 2020 Optimumbrew Technology
                     <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
                       <div class="ribbon-yellow">PRO</div>
                     </div>
+                    <div class="catalog-icon" *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5" nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint">
+                      <img src="./assets/popular-icon.jpg">
+                    </div>
+                    <div class="catalog-icon" *ngIf="item.catalog_type && item.catalog_type != 1" nbTooltip="Event Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint">
+                      <img src="./assets/event-icon.jpg">
+                    </div>
                   </div>
                   <div class="details">
                     <div  [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom" nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
@@ -125,6 +131,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
                 <div class="fullscreen-icon" style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;" (click)="viewImage(item.compressed_img)">
                   <img src="./assets/expand.png" style="width: 25px">
                 </div>
+                
               </div>
               <div class="col-md-12 text-center" *ngIf="featuredCatalogList.length == 0">
                 <img  src="./assets/data-not-found.png" style="width:180px">
@@ -159,6 +166,12 @@ Copyright 2018 - 2020 Optimumbrew Technology
                     <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img" [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
                     <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
                       <div class="ribbon-yellow">PRO</div>
+                    </div>
+                    <div class="catalog-icon" *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5" nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint">
+                      <img src="./assets/popular-icon.jpg">
+                    </div>
+                    <div class="catalog-icon" *ngIf="item.catalog_type && item.catalog_type != 1" nbTooltip="Event Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint">
+                      <img src="./assets/event-icon.jpg">
                     </div>
                   </div>
                   <div class="details">
