@@ -52,10 +52,10 @@ export class SettingsComponent implements OnInit {
   newServerUrl: any;
   validationsList: any;
   categoryList: any;
-  validPageSize: any = [15, 30, 45, 60, 75, 90, 100];
-  serverPageSize: any = [15, 30, 45, 60, 75, 90, 100];
-  validSelectedPageSize = '15';
-  serverSelectedPageSize = '15';
+  validPageSize: any = [25,50,75,100];
+  serverPageSize: any = [25,50,75,100];
+  validSelectedPageSize = '50';
+  serverSelectedPageSize = '50';
   settings = {
     mode: 'external',
     edit: {
@@ -336,6 +336,7 @@ export class SettingsComponent implements OnInit {
         this.statisticsList = results.data.result;
         this.serverDataSource = new LocalDataSource(this.statisticsList);
         this.utils.hidePageLoader();
+        this.serverSelectedPageSize = '50';
       }
       else if (results.code == 201) {
         this.utils.showError(results.message, 4000);

@@ -38,8 +38,8 @@ export class BloglistComponent implements OnInit {
   catalogId: any;
   BlogData: any;
   SubCategoryName: any;
-  pageSize: any = [15, 30, 45, 60, 75, 90, 100];
-  selectedPageSize: any = '15';
+  pageSize: any = [25,50,75,100];
+  selectedPageSize: any = '50';
   token: any;
   constructor(private dialog: NbDialogService, private route: Router, private actRoute: ActivatedRoute, private dataService: DataService, private utils: UtilService) {
     this.token = localStorage.getItem("at");
