@@ -30,8 +30,8 @@ export class FontlistComponent implements OnInit {
   dataSource: LocalDataSource
   selectedCategory: any = JSON.parse(localStorage.getItem("selected_category"));
   selectedCatalog: any = JSON.parse(localStorage.getItem("selected_catalog"));
-  pageSize: any = [15, 30, 45, 60, 75, 90, 100];
-  selectedPageSize= '15';
+  pageSize: any = [25,50,75,100];
+  selectedPageSize= '50';
   broadHome: any;
   broadSubHome: any;
   broadItem: any;

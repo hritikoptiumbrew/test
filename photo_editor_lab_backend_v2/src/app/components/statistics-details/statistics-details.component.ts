@@ -54,8 +54,8 @@ export class StatisticsDetailsComponent implements OnInit {
   contentData: any;
   apiUrl: any;
   totalRecords: any = 0;
-  pageSize: any = [15, 30, 45, 60, 75, 90, 100];
-  selectedPageSize: any = '15';
+  pageSize: any = [25,50,75,100];
+  selectedPageSize: any = '50';
   currentPage: any = 1;
   token: any;
   previousLabel = "<";
@@ -130,7 +130,7 @@ export class StatisticsDetailsComponent implements OnInit {
     this.getDataByRange();
   }
   refreshPage(){
-    this.selectedPageSize = '15';
+    this.selectedPageSize = '50';
     this.getDataByRange();
   }
   updateRange(value: any) {

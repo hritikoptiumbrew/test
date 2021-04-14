@@ -31,8 +31,8 @@ export class ImagedetailsComponent implements OnInit {
   imageDetails: any;
   j: any = 1;
   currentPage:any = 1;
-  pageSize: any = [15,30,45,60,75,90,100];
-  selectedImageSize= '15';
+  pageSize: any = [25,50,75,100];
+  selectedImageSize= '50';
   sortByTagName: any;
   order_type: Boolean;
   order_type_val: any;
