@@ -46,6 +46,22 @@ class ImageController extends Controller
         return $response;
     }
 
+    public function verifyIcon($image_array)
+    {
+        $image_type = $image_array->getMimeType();
+        $image_size = $image_array->getSize();
+
+        $MAXIMUM_FILESIZE = 50 * 1024; //50kb
+
+        if (!($image_type == 'image/png'))
+            $response = Response::json(array('code' => 201, 'message' => 'Please select PNG icon file.', 'cause' => '', 'data' => json_decode("{}")));
+        elseif ($image_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => 201, 'message' => 'Icon file Size is greater then 50KB.', 'cause' => '', 'data' => json_decode("{}")));
+        else
+            $response = '';
+        return $response;
+    }
+
     //verify sample image of cards
     public function verifySampleImage($image_array, $category_id, $is_featured, $is_catalog)
     {
@@ -716,6 +732,30 @@ class ImageController extends Controller
             Log::error("deleteImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
             return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' delete image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+    }
+
+    //Delete Webp Images In Directory
+    public function deleteWebpImage($image_name)
+    {
+        try {
+
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+
+                $this->deleteObjectFromS3($image_name, 'webp_original');
+                $this->deleteObjectFromS3($image_name, 'webp_thumbnail');
+
+            } else {
+
+                $this->unlinkFileFromLocalStorage($image_name, Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY'));
+                $this->unlinkFileFromLocalStorage($image_name, Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY'));
+
+            }
+
+
+        } catch (Exception $e) {
+            Log::error("deleteWebpImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete webp image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
     }
 
@@ -1750,6 +1790,48 @@ class ImageController extends Controller
             }
             rmdir($dir);
         }
+    }
+
+    // Check height-width of sample image
+    public function verifyHeightWidthOfSampleImage($image_array, $type = 0)
+    {
+        /** Type
+         *0 = Square
+         *1 = landscape
+         *2 = portrait
+         */
+        // Open image as a string
+        $data = file_get_contents($image_array);
+
+        // getimagesizefromstring function accepts image data as string & return file info
+        $file_info = getimagesizefromstring($data);
+
+        // Display the image content
+        $width = $file_info[0];
+        $height = $file_info[1];
+
+        if ($type == 1) {
+            if ($height < $width) {
+                $response = '';
+            } else {
+                return $response = Response::json(array('code' => 201, 'message' => 'Please select landscape image.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+        } elseif ($type == 2) {
+            if ($height > $width) {
+                $response = '';
+            } else {
+                return $response = Response::json(array('code' => 201, 'message' => 'Please select portrait image.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+        } else {
+            if ($height == $width) {
+                $response = '';
+            } else {
+                return $response = Response::json(array('code' => 201, 'message' => 'Please select square image.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+        }
+
+
+        return $response;
     }
 
 }

@@ -6922,6 +6922,283 @@ class UserController extends Controller
         return $response;
     }
 
+    /*=============================| To popular and event catalog for poster maker App |=============================*/
+    /**
+     * @api {post} getPopularAndEventCatalogs  getPopularAndEventCatalogs
+     * @apiName getPopularAndEventCatalogs
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":182
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Categories fetched successfully.",
+     * "cause": "",
+     * "data": {
+     *"popular_category": [
+     *{
+     *"catalog_id": 909,
+     *"name": "catalog3",
+     *"compressed_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.jpg",
+     *"icon": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.png",
+     *"compressed_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"compressed_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"webp_original_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"is_free": 1,
+     *"is_featured": 1,
+     *"updated_at": "2020-11-03 09:02:05"
+     *},
+     *{
+     *"catalog_id": 908,
+     *"name": "catalog2",
+     *"compressed_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.jpg",
+     *"icon": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.png",
+     *"compressed_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"compressed_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"webp_original_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"is_free": 1,
+     * "is_featured": 1,
+     * "updated_at": "2020-11-03 09:01:43"
+     * }
+     * ],
+     *"event_category": [
+     *{
+     *"catalog_id": 909,
+     *"name": "catalog3",
+     *"compressed_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.jpg",
+     *"icon": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.png",
+     *"compressed_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"compressed_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"webp_original_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"is_free": 1,
+     *"is_featured": 1,
+     *"updated_at": "2020-11-03 09:02:05"
+     *},
+     *{
+     *"catalog_id": 908,
+     *"name": "catalog2",
+     *"compressed_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.jpg",
+     *"icon": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.png",
+     *"compressed_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"compressed_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"webp_original_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"is_free": 1,
+     * "is_featured": 1,
+     * "updated_at": "2020-11-03 09:01:43"
+     * }
+     * ],
+     *"all_category": [
+     *{
+     *"catalog_id": 909,
+     *"name": "catalog3",
+     *"compressed_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.jpg",
+     *"icon": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.png",
+     *"compressed_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"compressed_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"webp_original_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"is_free": 1,
+     *"is_featured": 1,
+     *"updated_at": "2020-11-03 09:02:05"
+     *},
+     *{
+     *"catalog_id": 908,
+     *"name": "catalog2",
+     *"compressed_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"icon": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.png",
+     *"compressed_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"compressed_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c765dcf0_catalog_img_1604394102.jpg",
+     *"webp_original_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_landscape_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"webp_original_portrait_img": "http://192.168.0.116/photo_editor_lab_backend/image_bucket/compressed/5fa11c8d37cc2_catalog_img_1604394125.webp",
+     *"is_free": 1,
+     * "is_featured": 1,
+     * "updated_at": "2020-11-03 09:01:43"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getPopularAndEventCatalogs(Request $request_body)
+    {
+
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+//            $this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_CATALOGS_AND_TEMPLATES');
+//            $this->offset = 0;
+
+            $this->time_of_expired_redis_key = Config::get('constant.EXPIRATION_TIME_OF_REDIS_KEY_TO_GET_ALL_FEATURED_TEMPLATES');
+
+            if (!Cache::has("pel:getPopularAndEventCatalogs$this->item_count:$this->sub_category_id")) {
+                $result = Cache::remember("getPopularAndEventCatalogs$this->item_count:$this->sub_category_id", $this->time_of_expired_redis_key, function () {
+
+                    $popular_catalogs = DB::select('SELECT
+                                                  ct.id as catalog_id,
+                                                  ct.name,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                  IF(ct.icon != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
+                                                  IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                                  IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                                  IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                                  IF(ct.landscape_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_webp),"") as webp_original_landscape_img,
+                                                  IF(ct.portrait_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_webp),"") as webp_original_portrait_img,
+                                                  ct.is_free,
+                                                  ct.is_featured,
+                                                  ct.updated_at
+                                                FROM
+                                                  catalog_master as ct,
+                                                  sub_category_catalog as sct
+                                                WHERE
+                                                  sct.sub_category_id = ? AND
+                                                  sct.catalog_id=ct.id AND
+                                                  sct.is_active=1 AND
+                                                  ct.catalog_type = ? AND
+                                                  ct.popularity_rate = ? AND
+                                                  ct.is_featured = 1
+                                                order by ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, 1, 5, 0, 5]);
+
+                    //query to get random records by 3:6 ratio on value of "is_free" column within current_date
+                    $event_catalogs = DB::select('SELECT
+                                                      id as catalog_id,
+                                                      name,
+                                                      IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as compressed_img,
+                                                      IF(icon != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",icon),"") as icon,
+                                                      IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as webp_original_img,
+                                                      IF(landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",landscape_image),"") as compressed_landscape_img,
+                                                      IF(portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",portrait_image),"") as compressed_portrait_img,
+                                                      IF(landscape_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",landscape_webp),"") as webp_original_landscape_img,
+                                                      IF(portrait_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",portrait_webp),"") as webp_original_portrait_img,
+                                                      is_free,
+                                                      event_date,
+                                                      is_featured,
+                                                      updated_at
+                                                    FROM (
+                                                              (SELECT
+                                                                   ct.*
+                                                                FROM
+                                                                   catalog_master as ct,
+                                                                   sub_category_catalog as sct
+                                                                WHERE
+                                                                   sct.sub_category_id = ? AND
+                                                                   sct.catalog_id=ct.id AND
+                                                                   sct.is_active=1 AND
+                                                                   ct.catalog_type = ? AND
+                                                                   ct.is_featured = 1 AND 
+                                                                   DATE_FORMAT(ct.event_date, "%m-%d") >= DATE_FORMAT(NOW(),"%m-%d") AND
+                                                                   DATE_FORMAT(ct.event_date, "%m-%d") <= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL +45 DAY),"%m-%d")
+                                                                ORDER BY ct.updated_at DESC)
+                                                           UNION
+                                                              (SELECT
+                                                                    ct.*
+                                                                    FROM
+                                                                      catalog_master as ct,
+                                                                      sub_category_catalog as sct
+                                                                    WHERE
+                                                                      sct.sub_category_id = ? AND
+                                                                      sct.catalog_id=ct.id AND
+                                                                      sct.is_active=1 AND
+                                                                      ct.catalog_type = ? AND
+                                                                      ct.event_date >= NOW() AND 
+                                                                      ct.event_date <=  NOW() + INTERVAL 45 DAY AND
+                                                                      ct.is_featured = 1
+                                                                    ORDER BY ct.updated_at DESC)
+                                                                ) derived_table
+                                                    ORDER BY catalog_type,DATE_FORMAT(event_date, "%m-%d"),updated_at DESC', [$this->sub_category_id, 2, $this->sub_category_id, 3]);
+
+                    $non_date_category = DB::select('SELECT
+                                                  ct.id as catalog_id,
+                                                  ct.name,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                  IF(ct.icon != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
+                                                  IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                                  IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                                  IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                                  IF(ct.landscape_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_webp),"") as webp_original_landscape_img,
+                                                  IF(ct.portrait_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_webp),"") as webp_original_portrait_img,
+                                                  ct.is_free,
+                                                  ct.is_featured,
+                                                  ct.updated_at
+                                                FROM
+                                                  catalog_master as ct,
+                                                  sub_category_catalog as sct
+                                                WHERE
+                                                  sct.sub_category_id = ? AND
+                                                  sct.catalog_id=ct.id AND
+                                                  sct.is_active = 1 AND
+                                                  ct.catalog_type = ? AND                                                  
+                                                  ct.is_featured = 1
+                                               ORDER BY ct.popularity_rate ASC', [$this->sub_category_id, 4]);
+
+                    $event_catalogs = array_merge($event_catalogs, $non_date_category);
+
+                    $all_category = DB::select('SELECT
+                                                  ct.id as catalog_id,
+                                                  ct.name,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                  IF(ct.icon != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
+                                                  IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                                  IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                                  IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                                  IF(ct.landscape_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_webp),"") as webp_original_landscape_img,
+                                                  IF(ct.portrait_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_webp),"") as webp_original_portrait_img,
+                                                  ct.is_free,
+                                                  ct.is_featured,
+                                                  ct.updated_at
+                                                FROM
+                                                  catalog_master as ct,
+                                                  sub_category_catalog as sct
+                                                WHERE
+                                                  sct.sub_category_id = ? AND
+                                                  sct.catalog_id=ct.id AND
+                                                  sct.is_active=1 AND
+                                                  ct.catalog_type = ? AND
+                                                  ct.is_featured = 1
+                                                order by ct.updated_at DESC', [$this->sub_category_id, 1]);
+
+                    return array("popular_category" => $popular_catalogs, 'event_category' => $event_catalogs, 'all_category' => $all_category);
+                });
+            }
+
+            $redis_result = Cache::get("getPopularAndEventCatalogs$this->item_count:$this->sub_category_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Categories fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+        } catch (Exception $e) {
+            Log::error("getPopularAndEventCatalogs : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get categories.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /*=============================| Sub functions |=============================*/
     //Get all feature template with shuffle
     public function getAllFeaturedTemplatesWithShuffling($sub_category_id)

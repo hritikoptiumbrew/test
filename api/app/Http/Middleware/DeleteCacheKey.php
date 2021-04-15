@@ -233,6 +233,16 @@ class DeleteCacheKey
                     Redis::del($key);
                 }
 
+                $keys = Redis::keys('pel:getFeaturedSampleAndCatalogWithWebp*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                $keys = Redis::keys('pel:getPopularAndEventCatalogs*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
             }
 
             //Sub Category Images
