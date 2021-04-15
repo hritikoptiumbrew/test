@@ -102,11 +102,11 @@ export class AddcatalogComponent implements OnInit {
       if(this.catalogData.icon && this.catalogData.icon != null){
         this.iconImage = this.catalogData.icon;
       }
-      if(this.catalogData.compressed_landscape_image && this.catalogData.compressed_landscape_image != null){
-        this.lanscapeImage = this.catalogData.compressed_landscape_image;
+      if(this.catalogData.compressed_landscape_img && this.catalogData.compressed_landscape_img != null){
+        this.lanscapeImage = this.catalogData.compressed_landscape_img;
       }
-      if(this.catalogData.compressed_portrait_image && this.catalogData.compressed_portrait_image != null){
-        this.portraitImage = this.catalogData.compressed_portrait_image;
+      if(this.catalogData.compressed_portrait_img && this.catalogData.compressed_portrait_img != null){
+        this.portraitImage = this.catalogData.compressed_portrait_img;
       }
     }
   }
