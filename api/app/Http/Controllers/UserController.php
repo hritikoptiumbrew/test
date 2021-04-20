@@ -220,7 +220,7 @@ class UserController extends Controller
             }
 
 
-            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
@@ -880,7 +880,8 @@ class UserController extends Controller
                                                 order by updated_at DESC', [$this->json_id_to_get_json_data]);
                     if (count($result) > 0) {
                         $json_data = json_decode($result[0]->json_data);
-                        $json_data->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
+                        if($result[0]->json_data)
+                            $json_data->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
                         return $json_data;
                     } else {
                         return json_decode("{}");
@@ -6114,7 +6115,7 @@ class UserController extends Controller
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
+                    return array('prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/', 'total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
 
                 });
             }
@@ -6320,7 +6321,7 @@ class UserController extends Controller
             }
 
 
-            $response = Response::json(array('code' => 200, 'message' => 'Images fetched successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Images fetched successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
@@ -6411,7 +6412,7 @@ class UserController extends Controller
                 $redis_result = [];
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Fonts fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Fonts fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
