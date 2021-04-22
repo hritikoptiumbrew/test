@@ -1175,9 +1175,6 @@ class AdminController extends Controller
             if (!$request_body->has('request_data'))
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
-            if (!$request_body->hasFile('icon'))
-                return Response::json(array('code' => 201, 'message' => 'Required field icon is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
-
             if (!$request_body->hasFile('file')) {
                 return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
             }
@@ -1249,11 +1246,7 @@ class AdminController extends Controller
             if (($response = (new ImageController())->verifyImage($file_array, $category_id, $is_featured, 1)) != '')
                 return $response;
 
-            if (($response = (new ImageController())->verifyHeightWidthOfSampleImage($file_array)) != '')
-                return $response;
-
             $file_name = (new ImageController())->generateNewFileName('catalog_img', $file_array);
-            $icon_name = (new ImageController())->generateNewFileName('catalog_icon', $icon_array);
             (new ImageController())->saveOriginalImage($file_name);
             (new ImageController())->saveCompressedImage($file_name);
             (new ImageController())->saveThumbnailImage($file_name);
