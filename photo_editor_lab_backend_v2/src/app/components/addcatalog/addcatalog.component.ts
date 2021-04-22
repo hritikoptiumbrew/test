@@ -284,10 +284,6 @@ export class AddcatalogComponent implements OnInit {
   }
   checkIconValid() {
     document.getElementById("CalogAddError").innerHTML = "";
-    if (this.iconImage == undefined || this.iconImage == "none" || this.iconImage == "") {
-      document.getElementById("iconCalogError").innerHTML = ERROR.IMG_REQ;
-    }
-    else {
       if(this.file1)
       {
         var filesize = Math.round(this.file1.size/1024);
@@ -306,7 +302,6 @@ export class AddcatalogComponent implements OnInit {
         document.getElementById("iconCalogError").innerHTML = "";
         return true;
       }
-    }
   }
   checkValidation(id, type, catId, blankMsg, typeMsg, validType) {
     var validObj = {
