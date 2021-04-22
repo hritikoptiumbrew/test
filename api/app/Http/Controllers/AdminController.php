@@ -1193,10 +1193,11 @@ class AdminController extends Controller
             $is_featured = $request->is_featured;
             $catalog_type = $request->catalog_type;
             $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
-            $landscape_image = "";
-            $portrait_image = "";
-            $landscape_webp = "";
-            $portrait_webp = "";
+            $landscape_image = NULL;
+            $portrait_image = NULL;
+            $landscape_webp = NULL;
+            $portrait_webp = NULL;
+            $icon_name = NULL;
             $create_at = date('Y-m-d H:i:s');
 
             if ($popularity_rate && $popularity_rate > 5) {
@@ -1235,11 +1236,14 @@ class AdminController extends Controller
                     return $response;
             }
 
-            $file_array = Input::file('file');
-            $icon_array = Input::file('icon');
+            if ($request_body->hasFile('icon')) {
+                $icon_array = Input::file('icon');
 
-            if (($response = (new ImageController())->verifyIcon($icon_array)) != '')
-                return $response;
+                if (($response = (new ImageController())->verifyIcon($icon_array)) != '')
+                    return $response;
+            }
+
+            $file_array = Input::file('file');
 
             /* Here we passes is_catalog=1 bcz this is a catalog image */
             if (($response = (new ImageController())->verifyImage($file_array, $category_id, $is_featured, 1)) != '')
@@ -1256,13 +1260,20 @@ class AdminController extends Controller
             $webp_file_name = (new ImageController())->saveWebpOriginalImage($file_name);
             (new ImageController())->saveWebpThumbnailImage($file_name);
 
-            /* save icon */
-            (new ImageController())->saveOriginalImageFromArray($icon_array, $icon_name);
 
             if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                 (new ImageController())->saveImageInToS3($file_name);
-                (new ImageController())->saveImageInToS3($icon_name);
                 (new ImageController())->saveWebpImageInToS3($webp_file_name);
+            }
+
+            if ($request_body->hasFile('icon')) {
+                $icon_array = Input::file('icon');
+                $icon_name = (new ImageController())->generateNewFileName('catalog_icon', $icon_array);
+                (new ImageController())->saveOriginalImageFromArray($icon_array, $icon_name);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($icon_name);
+                }
             }
 
             if ($request_body->hasFile('landscape')) {
@@ -1401,8 +1412,6 @@ class AdminController extends Controller
                 if (($response = (new ImageController())->verifyImage($file_array, $category_id, $is_featured, 1)) != '')
                     return $response;
 
-                if (($response = (new ImageController())->verifyHeightWidthOfSampleImage($file_array)) != '')
-                    return $response;
             }
 
             if ($request_body->hasFile('icon')) {
