@@ -7176,9 +7176,8 @@ class UserController extends Controller
                                                   sct.sub_category_id = ? AND
                                                   sct.catalog_id=ct.id AND
                                                   sct.is_active=1 AND
-                                                  ct.catalog_type = ? AND
                                                   ct.is_featured = 1
-                                                order by ct.updated_at DESC', [$this->sub_category_id, 1]);
+                                                order by ct.updated_at DESC', [$this->sub_category_id]);
 
                     return array("popular_category" => $popular_catalogs, 'event_category' => $event_catalogs, 'all_category' => $all_category);
                 });
