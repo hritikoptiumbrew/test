@@ -18,22 +18,22 @@ Copyright 2018 - 2020 Optimumbrew Technology
     <i class="fa fa-times close-icon" title="close" (click)="closeDialog()"></i>
   </nb-card-header>
   <nb-card-body>
-    <div class="row mb-2">
+    <div class="row mb-9">
       <div class="col-md-5 pr-0">
         <input type="text" nbInput class="mw-100" id="tagInput" valid-status="false" [(ngModel)]="tagName"
           placeholder="Enter new tag name here"
           (keyup)="checkValidation('tagInput','','tagError','','','blank')"
           (keyup.enter)="checkValidation('tagInput','','tagError',errormsg.TAG_EMPTY_NAME,'','usual')">
-        <p id="tagError" style="color: red;margin-bottom: 0px;margin-top: 2px;height: 14px;"></p>
-      </div>
-      <div class="col-md-4 text-center">
-        <nb-radio-group id="radioInput" class="d-flex" [(ngModel)]="is_template" *ngIf="is_update_tag == false">
-          <nb-radio value="1">Template</nb-radio>
-          <nb-radio value="0">Sticker</nb-radio>
-        </nb-radio-group>
+        <p id="tagError" style="color: red;margin-bottom: 0px;margin-top: 2px;height: 20px;"></p>
       </div>
       <div class="col-md-3">
         <button class="btn btn-primary w-100" id="addTag" (click)="addSearchTag()">Add Tag</button>
+      </div>
+      <div class="col-md-4 text-center">
+        <nb-radio-group id="radioInput" class="d-flex" [(ngModel)]="is_template">
+          <nb-radio value="1" (click)="is_template = '1';getAllCategorySearchTags()">Template</nb-radio>
+          <nb-radio value="0" (click)="is_template = '0';getAllCategorySearchTags()">Sticker</nb-radio>
+        </nb-radio-group>
       </div>
     </div>
     <div class="table-data">
@@ -58,10 +58,6 @@ Copyright 2018 - 2020 Optimumbrew Technology
             <td *ngIf="item.is_update==true">
               <input type="text" class="mw-100" nbInput placeholder="Enter tag name" [(ngModel)]="item.tag_name" (keyup.enter)="updateSearchTag(item)">
               <p id="editInputTag" style="color: red;margin-bottom: 0px;margin-top: 2px;height: 14px;"></p>
-              <nb-radio-group id="radioInput" class="d-flex" [(ngModel)]="is_template">
-                <nb-radio value="1">Template</nb-radio>
-                <nb-radio value="0">Sticker</nb-radio>
-              </nb-radio-group>
             </td>
             <td class="text-center">{{item.total_template}}</td>
             <td class=" text-center text-dark">
