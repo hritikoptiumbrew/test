@@ -41,13 +41,10 @@ export class AddsearchtagsComponent implements OnInit {
   titleHeader: any;
   totalRecord: any;
   is_template:string = "1";
-  is_update_tag:boolean = false;
   ngOnInit(): void {
     this.titleHeader = "Search tags of " + this.subCatData.name;
     this.getAllCategorySearchTags();
-   
   }
-
 
   checkValidation(id, type, catId, blankMsg, typeMsg,validType) {
     var validObj = {
@@ -126,8 +123,6 @@ export class AddsearchtagsComponent implements OnInit {
     this.dialogRef.close();
   }
   resetRow(category, i) {
-    this.is_template = "1";
-    this.is_update_tag = false;
     this.searchTagList[i].tag_name = this.tmpCategoryList[i].tag_name;
     category.is_update = false;
     category.tag_name = this.tmpCategoryList[i].tag_name;
@@ -137,7 +132,6 @@ export class AddsearchtagsComponent implements OnInit {
       this.resetRow(element, i);
     });
     searchTag.is_update = true;
-    this.is_update_tag = true;
   }
   updateSearchTag(item) {
     if (typeof item.tag_name == "undefined" || item.tag_name.trim() == "" || item.tag_name == null) {
@@ -146,7 +140,6 @@ export class AddsearchtagsComponent implements OnInit {
       return false;
     }
     else {
-      this.utils.showLoader();
       this.dataService.postData('updateSearchCategoryTag', {
         "tag_name": item.tag_name,
         "sub_category_tag_id": item.sub_category_tag_id,
@@ -159,8 +152,6 @@ export class AddsearchtagsComponent implements OnInit {
           }
         }).then((results: any) => {
           if (results.code == 200) {
-            this.is_update_tag = false;
-            this.is_template = "1";
             this.utils.hideLoader();
             this.utils.showSuccess(results.message, 4000);
             this.getAllCategorySearchTags();
