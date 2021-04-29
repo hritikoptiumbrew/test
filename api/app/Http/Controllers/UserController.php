@@ -7152,7 +7152,7 @@ class UserController extends Controller
                                                   sct.is_active = 1 AND
                                                   ct.catalog_type = ? AND                                                  
                                                   ct.is_featured = 1
-                                               ORDER BY ct.popularity_rate ASC', [$this->sub_category_id, 4]);
+                                               ORDER BY ct.popularity_rate ASC,ct.updated_at DESC', [$this->sub_category_id, 4]);
 
                     $event_catalogs = array_merge($event_catalogs, $non_date_category);
 
