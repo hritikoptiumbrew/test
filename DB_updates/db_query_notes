@@ -163,3 +163,7 @@ ALTER TABLE `catalog_master` ADD `event_date` DATE NULL AFTER `is_active`, ADD `
 ALTER TABLE `catalog_master` ADD `landscape_image` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `icon`, ADD `portrait_image` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `landscape_image`;
 
 ALTER TABLE `catalog_master` ADD `landscape_webp` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `portrait_image`, ADD `portrait_webp` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `landscape_webp`;
+
+13) Photo_editor_lab : perform following query on database (27 April, 2021) For popular search tag for graphics,shapes,text-art and bg.
+-------------------------------------------------------------------------------------------------
+ALTER TABLE `sub_category_tag_master` ADD `is_template` TINYINT(1) NOT NULL DEFAULT '1' COMMENT '1=tag of template,0=tag of graphics,text-art,shape,bg (Sticker)' AFTER `is_active`;

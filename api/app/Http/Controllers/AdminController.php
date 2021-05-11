@@ -8012,12 +8012,20 @@ class AdminController extends Controller
 
             $tag_name = trim($request->tag_name);
             $sub_category_id = $request->sub_category_id;
+            $is_template = isset($request->is_template) ? $request->is_template : 1;
             $create_time = date('Y-m-d H:i:s');
+
+            if ($is_template) {
+                $is_featured = 1;
+            } else {
+                $is_featured = 0;
+            }
 
             $result = DB::select('SELECT * FROM sub_category_tag_master 
                                       WHERE 
                                         tag_name = ? AND 
-                                        sub_category_id = ?', [$tag_name, $sub_category_id]);
+                                        is_template = ? AND
+                                        sub_category_id = ?', [$tag_name, $is_template, $sub_category_id]);
 
             if (count($result) > 0) {
                 return $response = Response::json(array('code' => 201, 'message' => 'Search category already exist.', 'cause' => '', 'data' => json_decode('{}')));
@@ -8029,16 +8037,16 @@ class AdminController extends Controller
                 return $response = Response::json(array('code' => 201, 'message' => 'Invalid tag name. Please enter valid tag name.', 'cause' => '', 'data' => json_decode('{}')));
 
             $total_row_result = DB::select('SELECT
-                                                              count(*) as total
-                                                            FROM
-                                                              images as im
-                                                              JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
-                                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1
-                                                            WHERE
-                                                              im.is_active = 1 AND
-                                                              isnull(im.original_img) AND
-                                                              isnull(im.display_img) AND
-                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)',[$sub_category_id]);
+                                              count(*) as total
+                                            FROM
+                                              images as im
+                                              JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
+                                            WHERE
+                                              im.is_active = 1 AND
+                                              isnull(im.original_img) AND
+                                              isnull(im.display_img) AND
+                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$sub_category_id, $is_featured]);
 
             $total_row = $total_row_result[0]->total;
 
@@ -8051,7 +8059,8 @@ class AdminController extends Controller
                             sub_category_id, 
                             tag_name, 
                             is_active, 
-                            create_time) VALUES(?, ?, ?, ?)', [$sub_category_id, $tag_name, 1, $create_time]);
+                            is_template, 
+                            create_time) VALUES(?, ?, ?, ?,?)', [$sub_category_id, $tag_name, 1, $is_template, $create_time]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Search category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -8100,7 +8109,14 @@ class AdminController extends Controller
 
             $sub_category_id = $request->sub_category_id;
             $sub_category_tag_id = $request->sub_category_tag_id;
+            $is_template = isset($request->is_template) ? $request->is_template : 1;
             $tag_name = trim($request->tag_name);
+
+            if ($is_template) {
+                $is_featured = 1;
+            } else {
+                $is_featured = 0;
+            }
 
             //validate search text
             if (($response = (new VerificationController())->verifySearchText($tag_name)) != 1)
@@ -8111,7 +8127,8 @@ class AdminController extends Controller
                                       WHERE 
                                         tag_name = ? AND 
                                         sub_category_id = ? AND 
-                                        id != ?', [$tag_name, $sub_category_id, $sub_category_tag_id]);
+                                        is_template = ? AND 
+                                        id != ?', [$tag_name, $sub_category_id, $is_template, $sub_category_tag_id]);
             if (count($result) > 0) {
                 return $response = Response::json(array('code' => 201, 'message' => 'Search category already exist.', 'cause' => '', 'data' => json_decode('{}')));
             }
@@ -8121,12 +8138,12 @@ class AdminController extends Controller
                                               FROM
                                                 images as im
                                                 JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
-                                                JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1
+                                                JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
                                               WHERE
                                                 im.is_active = 1 AND
                                                 isnull(im.original_img) AND
                                                 isnull(im.display_img) AND
-                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)',[$sub_category_id]);
+                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$sub_category_id, $is_featured]);
 
             $total_row = $total_row_result[0]->total;
 
@@ -8263,18 +8280,25 @@ class AdminController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
+            $this->is_template = isset($request->is_template) ? $request->is_template : 1;
             $this->order_by = isset($request->order_by) ? $request->order_by : 'update_time'; //field name
             $this->order_type = strtolower(isset($request->order_type) ? $request->order_type : 'DESC'); //asc or desc
 
-            if (!Cache::has("pel:getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type")) {
-                $result = Cache::rememberforever("getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type", function () {
+            if ($this->is_template) {
+                $this->is_featured = 1;
+            } else {
+                $this->is_featured = 0;
+            }
+
+            if (!Cache::has("pel:getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type:$this->is_featured")) {
+                $result = Cache::rememberforever("getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type:$this->is_featured", function () {
 
                     $tag_list = DB::select('SELECT
                                         id AS sub_category_tag_id,
                                         tag_name
                                         FROM
                                         sub_category_tag_master
-                                         WHERE sub_category_id = ? AND is_active = ? ORDER BY ' . $this->order_by . ' ' . $this->order_type, [$this->sub_category_id, 1]);
+                                         WHERE sub_category_id = ? AND is_active = ? AND is_template = ? ORDER BY ' . $this->order_by . ' ' . $this->order_type, [$this->sub_category_id, 1, $this->is_template]);
 
                     foreach ($tag_list as $key) {
                         $total_row_result = DB::select('SELECT
@@ -8282,12 +8306,12 @@ class AdminController extends Controller
                                                             FROM
                                                               images as im
                                                               JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
-                                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1
+                                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
                                                             WHERE
                                                               im.is_active = 1 AND
                                                               isnull(im.original_img) AND
                                                               isnull(im.display_img) AND
-                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)',[$this->sub_category_id]);
+                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$this->sub_category_id, $this->is_featured]);
 
                         $key->total_template = $total_row_result[0]->total;
                     }
@@ -8296,7 +8320,7 @@ class AdminController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type");
+            $redis_result = Cache::get("getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type:$this->is_featured");
 
             if (!$redis_result) {
                 $redis_result = [];
