@@ -7482,8 +7482,6 @@ class UserController extends Controller
         return $response;
     }
 
-
-
     //Get Searching tag by subcategory id
     /**
      * @api {post} getSearchTagBySubCategoryId   getSearchTagBySubCategoryId
@@ -7498,6 +7496,7 @@ class UserController extends Controller
      * @apiSuccessExample Request-Body:
      * {
      *  "sub_category_id" : 66,     //compulsory
+     *  "is_template" : 1,     //Optional pass 0 when get sticker tag,1 when get template tag
      *  "item_count" : 5,      //compulsory
      *  "page" : 1      //compulsory
      * }
@@ -7536,21 +7535,25 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
+            $this->is_template = isset($request->is_template) ? $request->is_template : 1;
             $this->item_count_of_search_tag = Config::get("constant.ITEM_COUNT_OF_GET_DYNAMIC_SEARCH_TAG");
             $this->page = $request->page;
             $this->offset = ($this->page - 1) * $this->item_count_of_search_tag;
 
-            if (!Cache::has("pel:getSearchTagBySubCategoryId$this->sub_category_id:$this->item_count_of_search_tag:$this->page")) {
-                Cache::rememberforever("getSearchTagBySubCategoryId$this->sub_category_id:$this->item_count_of_search_tag:$this->page", function () {
+            if (!Cache::has("pel:getSearchTagBySubCategoryId$this->sub_category_id:$this->is_template:$this->item_count_of_search_tag:$this->page")) {
+                Cache::rememberforever("getSearchTagBySubCategoryId$this->sub_category_id:$this->is_template:$this->item_count_of_search_tag:$this->page", function () {
 
                     $search_tag_list = DB::select('SELECT
-                                        id,
-                                        tag_name
-                                        FROM
-                                        sub_category_tag_master
-                                         WHERE sub_category_id = ? AND is_active = ? ORDER BY update_time DESC LIMIT ?,?' ,[$this->sub_category_id, 1,$this->offset,$this->item_count_of_search_tag]);
+                                                      id,
+                                                      tag_name
+                                                   FROM
+                                                       sub_category_tag_master
+                                                   WHERE sub_category_id = ? AND
+                                                         is_template=? AND 
+                                                         is_active = ? 
+                                                   ORDER BY update_time DESC LIMIT ?,?', [$this->sub_category_id, $this->is_template, 1, $this->offset, $this->item_count_of_search_tag]);
 
-                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM sub_category_tag_master WHERE is_active=? and sub_category_id = ?', [1, $this->sub_category_id]);
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM sub_category_tag_master WHERE is_active=? AND sub_category_id = ? AND is_template=?', [1, $this->sub_category_id, $this->is_template]);
                     $total_row = $total_row_result[0]->total;
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count_of_search_tag)) ? true : false;
@@ -7559,7 +7562,7 @@ class UserController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getSearchTagBySubCategoryId$this->sub_category_id:$this->item_count_of_search_tag:$this->page");
+            $redis_result = Cache::get("getSearchTagBySubCategoryId$this->sub_category_id:$this->is_template:$this->item_count_of_search_tag:$this->page");
 
             if (!$redis_result) {
                 $redis_result = [];
