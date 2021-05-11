@@ -1940,9 +1940,9 @@ class AdminController extends Controller
                                     IF(cm.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.icon),"") as icon,
                                     IF(cm.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.attribute1),"") as webp_original_img,
                                     cm.is_free,
-                                    ct.catalog_type,
-                                    ct.event_date,
-                                    ct.popularity_rate,
+                                    cm.catalog_type,
+                                    cm.event_date,
+                                    cm.popularity_rate,
                                     cm.is_featured
                                    FROM
                                       catalog_master AS cm,
