@@ -7577,4 +7577,195 @@ class UserController extends Controller
         }
         return $response;
     }
+
+
+    /**
+     *
+     * - Users ------------------------------------------------------
+     *
+     * @SWG\Post(
+     *        path="/getTemplateDetail",
+     *        tags={"Users"},
+     *        security={
+     *                  {"Bearer": {}},
+     *                 },
+     *        operationId="getTemplateDetail",
+     *        summary="getTemplateDetail",
+     *        produces={"application/json"},
+     * 		@SWG\Parameter(
+     *        in="header",
+     *        name="Authorization",
+     *        description="access token",
+     *        required=true,
+     *        type="string",
+     *      ),
+     * 		@SWG\Parameter(
+     *        in="body",
+     *        name="request_body",
+     *   	  @SWG\Schema(
+     *          required={"json_id"},
+     *          @SWG\Property(property="json_id",  type="integer", example=1, description=""),
+     *        ),
+     *      ),
+     * 		@SWG\Response(
+     *            response=200,
+     *            description="Success",
+     *        @SWG\Schema(
+     *          @SWG\Property(property="Sample Response",  type="string", example={"code":200,"message":"Template details fetched successfully.","cause":"","data":{}}, description=""),),
+     *        ),
+     * 		@SWG\Response(
+     *            response=201,
+     *            description="error",
+     *        ),
+     *    )
+     *
+     */
+    /**
+     * @api {post} getTemplateDetail   getTemplateDetail
+     * @apiName getTemplateDetail
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "json_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Template details fetch successfully.",
+     * "cause": "",
+     * "data": {
+     * "json_id": 10248,
+     * "sample_image": "http://192.168.0.113/videoflyer_backend/image_bucket/webp_original/5d314a352e9d3_json_image_1563511349.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "height": 400,
+     * "width": 325,
+     * "json_data": {
+     * "text_json": [
+     * {
+     * "xPos": 169,
+     * "yPos": 588,
+     * "color": "#000000",
+     * "text": "Happy",
+     * "size": 48,
+     * "fontName": "ScriptMTBold",
+     * "fontPath": "fonts/SCRIPTBL.ttf",
+     * "alignment": 1,
+     * "bg_image": "",
+     * "texture_image": "",
+     * "opacity": 100,
+     * "angle": 0,
+     * "shadowColor": "#000000",
+     * "shadowRadius": 0,
+     * "shadowDistance": 0
+     * }
+     * ],
+     * "sticker_json": [
+     * {
+     * "xPos": 0,
+     * "yPos": 560,
+     * "width": 650,
+     * "height": 240,
+     * "sticker_image": "video_flyer_fathersday_box_kgj4_e_1.png",
+     * "angle": 0,
+     * "is_round": 0
+     * },
+     * {
+     * "xPos": 333,
+     * "yPos": 614,
+     * "width": 230,
+     * "height": 10,
+     * "sticker_image": "video_flyer_fathersday_line_kgj4_e_1.png",
+     * "angle": 0,
+     * "is_round": 0
+     * }
+     * ],
+     * "image_sticker_json": [],
+     * "frame_json": {
+     * "frame_image": "",
+     * "frame_color": ""
+     * },
+     * "background_json": {
+     * "background_image": "video_flyer_fathersday_video_kgj4_e_1.mp4",
+     * "background_color": ""
+     * },
+     * "sample_image": "video_flyer_fathersday_sample_kgj4_e_1.jpg",
+     * "height": 800,
+     * "width": 650,
+     * "is_portrait": 1,
+     * "is_featured": 0
+     * }
+     * }
+     * }
+     * @apiSuccessExample Error-Response:
+     * {
+     * "code": 201,
+     * "message": "Template does not exist.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function getTemplateDetail(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_id'), $request)) != '')
+                return $response;
+
+            $this->json_id = $request->json_id;
+
+            if (!Cache::has("pel:getTemplateDetail$this->json_id")) {
+                $result = Cache::rememberforever("getTemplateDetail$this->json_id", function () {
+
+                    $template_details = DB::select('SELECT
+                                            id as json_id,
+                                            IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                            is_free,
+                                            is_featured,
+                                            is_portrait,
+                                            coalesce(height,0) AS height,
+                                            coalesce(width,0) AS width,
+                                            json_data
+                                           FROM
+                                            images
+                                           WHERE
+                                            id= ?', [$this->json_id]);
+
+                    if (count($template_details) > 0) {
+                        $template_details[0]->json_data = json_decode($template_details[0]->json_data);
+                        $template_details[0]->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB') . '/';
+                        $result = array('code' => 200, 'message' => 'Template details fetch successfully.', 'result' => $template_details[0]);
+                    } else {
+                        $result = array('code' => 201, 'message' => 'Template does not exist.', 'result' => json_decode("{}"));
+                    }
+                    return $result;
+
+                });
+            }
+
+            $redis_result = Cache::get("getTemplateDetail$this->json_id");
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getTemplateDetail : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
 }
