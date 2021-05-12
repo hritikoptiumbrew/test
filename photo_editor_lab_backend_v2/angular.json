@@ -53,12 +53,9 @@
               "node_modules/tinymce/plugins/link/plugin.min.js",
               "node_modules/tinymce/plugins/paste/plugin.min.js",
               "node_modules/tinymce/plugins/table/plugin.min.js",
-              "node_modules/echarts/dist/extension/bmap.min.js",
               "node_modules/sweetalert2/dist/sweetalert2.js"
             ],
             "allowedCommonJsDependencies": [
-              "angular2-chartjs",
-              "echarts",
               "lodash",
               "zrender/lib/svg/svg",
               "zrender/lib/vml/vml",
