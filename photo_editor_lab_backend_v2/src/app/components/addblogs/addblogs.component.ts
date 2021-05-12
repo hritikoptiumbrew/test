@@ -128,6 +128,7 @@ export class AddblogsComponent implements OnInit {
           $('#summernote').summernote('code', that.globalStyle + '<script> function OpenTemplate(templateID) { if(templateID){ window.location = "videoadking://?templateID="+ templateID } } function searchTemplate(searchTag) { window.location = "videoadking://?searchTag="+ searchTag} </script>');
         }
         else {
+          // $('#summernote').summernote('code', that.globalStyle + '<script>var userAgent = navigator.userAgent || navigator.vendor; function OpenTemplate(templateID) { if (templateID) {if (/android/i.test(userAgent)) {Android.moveToNextScreen(templateID);}if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {window.location = "videoadking://?templateID=" + templateID;}}}if (/android/i.test(userAgent)) {function searchTemplate(searchTag) { Android.goToSearchScreen(searchTag); }}if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) { function searchTemplate(searchTag) { window.location = "videoadking://?searchTag=" + searchTag }}</script>');
           $('#summernote').summernote('code', that.globalStyle + '<script> function OpenTemplate(templateID) { } function searchTemplate(searchTag) { } </script>');
         }
       }
@@ -188,7 +189,7 @@ export class AddblogsComponent implements OnInit {
     }
     else {
       $('#summernote').summernote('code', content + '<script> function OpenTemplate(templateID) { } function searchTemplate(searchTag) { } </script>');
-     
+      // $('#summernote').summernote('code', content + '<script>var userAgent = navigator.userAgent || navigator.vendor; function OpenTemplate(templateID) { if (templateID) {if (/android/i.test(userAgent)) {Android.moveToNextScreen(templateID);}if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {window.location = "videoadking://?templateID=" + templateID;}}}if (/android/i.test(userAgent)) {function searchTemplate(searchTag) { Android.goToSearchScreen(searchTag); }}if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) { function searchTemplate(searchTag) { window.location = "videoadking://?searchTag=" + searchTag }}</script>');
     }
   }
   closeDialog() {
