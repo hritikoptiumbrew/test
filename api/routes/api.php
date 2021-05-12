@@ -269,6 +269,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
     //Template APIs
     Route::post('getJsonData', 'UserController@getJsonData');
+    Route::post('getTemplateDetail', 'UserController@getTemplateDetail'); //get all details of template
     Route::post('getJsonSampleData', 'UserController@getJsonSampleData');
     Route::post('getContentByCatalogId', 'UserController@getContentByCatalogId');
     Route::post('getContentByCatalogId_v2', 'UserController@getContentByCatalogId_v2');
@@ -306,6 +307,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getJsonSampleDataWithLastSyncTime_webpIos', 'UserController@getJsonSampleDataWithLastSyncTime_webpIos');
     Route::post('getFeaturedJsonSampleData_webp', 'UserController@getFeaturedJsonSampleData_webp');
     Route::post('getFeaturedSampleAndCatalogWithWebp', 'UserController@getFeaturedSampleAndCatalogWithWebp');
+    Route::post('getPopularAndEventCatalogs', 'UserController@getPopularAndEventCatalogs');
     Route::post('getAllSamplesWithWebp', 'UserController@getAllSamplesWithWebp');
     Route::post('getTemplateWithCatalogs', 'UserController@getTemplateWithCatalogs');
 

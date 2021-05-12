@@ -28,6 +28,9 @@ export class AddcatalogComponent implements OnInit {
 
   catalogData: any;
   calogImage: any;
+  lanscapeImage:any;
+  portraitImage: any;
+  iconImage:any;
   CalogName: any;
   formData = new FormData();
   fileList: any;
@@ -39,6 +42,33 @@ export class AddcatalogComponent implements OnInit {
   selectedCategory: any;
   subCategoryId: any;
   catalogId: any;
+  selectedCatalogType:any = '1';
+  catalogTypes:any = [
+    {
+      name: "Normal",
+      value: "1"
+    },
+    {
+      name: "Fix date",
+      value: "2"
+    },
+    {
+      name: "Non-fix date",
+      value: "3"
+    },
+    {
+      name: "Non date",
+      value: "4"
+    },
+  ];
+  popularity:any = "1";
+  eventDate:any;
+  fileList1: any;
+  file1: any;
+  fileList2: any;
+  file2: any;
+  fileList3: any;
+  file3: any;
   constructor(private validService: ValidationsService, private dialogref: NbDialogRef<AddcatalogComponent>, private dataService: DataService, private utils: UtilService, private route: Router) {
     this.token = localStorage.getItem('at');
     this.selectedCategory = JSON.parse(localStorage.getItem('selected_category')).category_id;
@@ -60,6 +90,24 @@ export class AddcatalogComponent implements OnInit {
       this.selectCalogType = this.catalogData.is_featured.toString();
       this.selectCalogPrice = this.catalogData.is_free.toString();
       this.catalogId = this.catalogData.catalog_id;
+      if(this.catalogData.catalog_type){
+        this.selectedCatalogType = ""+this.catalogData.catalog_type;
+      }
+      if(this.catalogData.popularity_rate && this.catalogData.popularity_rate != null){
+        this.popularity = ""+this.catalogData.popularity_rate;
+      }
+      if(this.catalogData.event_date && this.catalogData.event_date != null){
+        this.eventDate = this.catalogData.event_date;
+      }
+      if(this.catalogData.icon && this.catalogData.icon != null){
+        this.iconImage = this.catalogData.icon;
+      }
+      if(this.catalogData.compressed_landscape_img && this.catalogData.compressed_landscape_img != null){
+        this.lanscapeImage = this.catalogData.compressed_landscape_img;
+      }
+      if(this.catalogData.compressed_portrait_img && this.catalogData.compressed_portrait_img != null){
+        this.portraitImage = this.catalogData.compressed_portrait_img;
+      }
     }
   }
 
@@ -79,13 +127,88 @@ export class AddcatalogComponent implements OnInit {
       var filesize = Math.round(this.file.size/1024);
       if(filesize > 100)
       {
-        document.getElementById("imageCalogError").innerHTML = "Maximum 100Kb file allow to upload";
+        document.getElementById("imageCalogError").innerHTML = "Maximum 100Kb file allow";
       }
       else
       {
         document.getElementById("imageCalogError").innerHTML = "";
       }
       this.formData.append('file', this.file, this.file.name);
+    }
+  }
+  fileChangeicon(event) {
+    if (event.target.files && event.target.files[0]) {
+      var reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.iconImage = event.target.result;
+        this.checkIconValid();
+        // this.checkValidation('calogImage', 'image', 'imageCalogError', '', '');
+      }
+      reader.readAsDataURL(event.target.files[0]);
+    }
+    this.fileList1 = event.target.files;
+    if (this.fileList1.length > 0) {
+      this.file1 = this.fileList1[0];
+      var filesize = Math.round(this.file1.size/1024);
+      if(filesize > 50)
+      {
+        document.getElementById("iconCalogError").innerHTML = "Maximum 50Kb file allow";
+      }
+      else
+      {
+        document.getElementById("iconCalogError").innerHTML = "";
+      }
+      this.formData.append('icon', this.file1, this.file1.name);
+    }
+  }
+  fileChangeLandscape(event) {
+    if (event.target.files && event.target.files[0]) {
+      var reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.lanscapeImage = event.target.result;
+        this.checkLandscapeValid();
+        // this.checkValidation('calogImage', 'image', 'imageCalogError', '', '');
+      }
+      reader.readAsDataURL(event.target.files[0]);
+    }
+    this.fileList2 = event.target.files;
+    if (this.fileList2.length > 0) {
+      this.file2 = this.fileList2[0];
+      var filesize = Math.round(this.file2.size/1024);
+      if(filesize > 100)
+      {
+        document.getElementById("lanscapeCalogError").innerHTML = "Maximum 100Kb file allow";
+      }
+      else
+      {
+        document.getElementById("lanscapeCalogError").innerHTML = "";
+      }
+      this.formData.append('landscape', this.file2, this.file2.name);
+    }
+  }
+  fileChangePortrait(event) {
+    if (event.target.files && event.target.files[0]) {
+      var reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.portraitImage = event.target.result;
+        this.checkPortraitValid();
+        // this.checkValidation('calogImage', 'image', 'imageCalogError', '', '');
+      }
+      reader.readAsDataURL(event.target.files[0]);
+    }
+    this.fileList3 = event.target.files;
+    if (this.fileList3.length > 0) {
+      this.file3 = this.fileList3[0];
+      var filesize = Math.round(this.file3.size/1024);
+      if(filesize > 100)
+      {
+        document.getElementById("portraitCalogError").innerHTML = "Maximum 100Kb file allow";
+      }
+      else
+      {
+        document.getElementById("portraitCalogError").innerHTML = "";
+      }
+      this.formData.append('portrait', this.file3, this.file3.name);
     }
   }
   closedialog() {
@@ -102,7 +225,7 @@ export class AddcatalogComponent implements OnInit {
         var filesize = Math.round(this.file.size/1024);
         if(filesize > 100)
         {
-          document.getElementById("imageCalogError").innerHTML = "Maximum 100Kb file allow to upload";
+          document.getElementById("imageCalogError").innerHTML = "Maximum 100Kb file allow";
         }
         else
         {
@@ -116,6 +239,69 @@ export class AddcatalogComponent implements OnInit {
         return true;
       }
     }
+  }
+  checkPortraitValid() {
+    document.getElementById("CalogAddError").innerHTML = "";
+      if(this.file3)
+      {
+        var filesize = Math.round(this.file3.size/1024);
+        if(filesize > 100)
+        {
+          document.getElementById("portraitCalogError").innerHTML = "Maximum 100Kb file allow";
+        }
+        else
+        {
+          document.getElementById("portraitCalogError").innerHTML = "";
+          return true;
+        }
+      }
+      else
+      {
+        document.getElementById("portraitCalogError").innerHTML = "";
+        return true;
+      }
+  }
+  checkLandscapeValid() {
+    document.getElementById("CalogAddError").innerHTML = "";
+      if(this.file2)
+      {
+        var filesize = Math.round(this.file2.size/1024);
+        if(filesize > 100)
+        {
+          document.getElementById("lanscapeCalogError").innerHTML = "Maximum 100Kb file allow";
+        }
+        else
+        {
+          document.getElementById("lanscapeCalogError").innerHTML = "";
+          return true;
+        }
+      }
+      else
+      {
+        document.getElementById("lanscapeCalogError").innerHTML = "";
+        return true;
+      }
+  }
+  checkIconValid() {
+    document.getElementById("CalogAddError").innerHTML = "";
+      if(this.file1)
+      {
+        var filesize = Math.round(this.file1.size/1024);
+        if(filesize > 50)
+        {
+          document.getElementById("iconCalogError").innerHTML = "Maximum 50Kb file allow";
+        }
+        else
+        {
+          document.getElementById("iconCalogError").innerHTML = "";
+          return true;
+        }
+      }
+      else
+      {
+        document.getElementById("iconCalogError").innerHTML = "";
+        return true;
+      }
   }
   checkValidation(id, type, catId, blankMsg, typeMsg, validType) {
     var validObj = {
@@ -134,6 +320,22 @@ export class AddcatalogComponent implements OnInit {
       this.addCatalog();
     }
   }
+  checkOtherStatus(){
+    if(this.selectedCatalogType == 2 || this.selectedCatalogType == 3){
+      if(this.eventDate == undefined || this.eventDate == ""){
+        document.getElementById("inputdateError").innerHTML = "Please enter event date";
+        return false;
+      }
+      else{
+        document.getElementById("inputdateError").innerHTML = "";
+        return true;
+      }
+    }
+    else{
+      // document.getElementById("inputdateError").innerHTML = "";
+      return true;
+    }
+  }
   addCatalog() {
     var validObj = [
       {
@@ -146,7 +348,11 @@ export class AddcatalogComponent implements OnInit {
     ]
     var addStatus = this.validService.checkAllValid(validObj);
     var imageStatus = this.checkImageValid();
-    if (addStatus && imageStatus) {
+    var iconStatus = this.checkIconValid();
+    var portraitStatus = this.checkPortraitValid();
+    var lanscapeStatus = this.checkLandscapeValid();
+    var otherStatus = this.checkOtherStatus();
+    if (addStatus && imageStatus && iconStatus && otherStatus && portraitStatus && lanscapeStatus) {
       this.utils.showLoader();
       var catApliUrl;
       if (this.catalogData) {
@@ -161,6 +367,9 @@ export class AddcatalogComponent implements OnInit {
           "category_id": this.selectedCategory,
           "sub_category_id": this.subCategoryId,
           "is_free": this.selectCalogPrice,
+          "catalog_type": +this.selectedCatalogType,
+          "event_date": this.eventDate,
+          "popularity_rate": this.popularity,
           "is_featured": this.selectCalogType,
           "name": this.CalogName,
           "catalog_id": this.catalogId
@@ -171,6 +380,9 @@ export class AddcatalogComponent implements OnInit {
           "category_id": this.selectedCategory,
           "sub_category_id": this.subCategoryId,
           "is_free": this.selectCalogPrice,
+          "catalog_type": +this.selectedCatalogType,
+          "event_date": this.eventDate,
+          "popularity_rate": this.popularity,
           "is_featured": this.selectCalogType,
           "name": this.CalogName
         };

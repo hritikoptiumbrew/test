@@ -151,3 +151,19 @@ INSERT INTO `permissions` (`name`, `display_name`, `description`, `created_at`, 
 INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES ('3', '3');
 
 ALTER TABLE `images` ADD `is_auto_upload` TINYINT(1) NULL DEFAULT NULL COMMENT '0=no,1=yes' AFTER `zip_file`;
+
+12) Photo_editor_lab : perform following query on database (08 April, 2021) For popular and event catalog.
+-------------------------------------------------------------------------------------------------
+ALTER TABLE `catalog_master` ADD `icon` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL AFTER `image`;
+
+ALTER TABLE `catalog_master` ADD `catalog_type` TINYINT NOT NULL DEFAULT '1' COMMENT '1=Normal, 2=Fix date (Event catalog), 3=Non-fix date (Event catalog) ,4=Non date (Event Catalog) ' AFTER `name`;
+
+ALTER TABLE `catalog_master` ADD `event_date` DATE NULL AFTER `is_active`, ADD `popularity_rate` INT(11) NULL COMMENT 'if catalog_type 1 and popularity_rate 5 then it popular category,if catalog_type 4 then set popularity 1 to 5' AFTER `event_date`;
+
+ALTER TABLE `catalog_master` ADD `landscape_image` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `icon`, ADD `portrait_image` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `landscape_image`;
+
+ALTER TABLE `catalog_master` ADD `landscape_webp` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `portrait_image`, ADD `portrait_webp` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `landscape_webp`;
+
+13) Photo_editor_lab : perform following query on database (27 April, 2021) For popular search tag for graphics,shapes,text-art and bg.
+-------------------------------------------------------------------------------------------------
+ALTER TABLE `sub_category_tag_master` ADD `is_template` TINYINT(1) NOT NULL DEFAULT '1' COMMENT '1=tag of template,0=tag of graphics,text-art,shape,bg (Sticker)' AFTER `is_active`;

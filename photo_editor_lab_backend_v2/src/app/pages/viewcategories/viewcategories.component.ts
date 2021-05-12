@@ -34,8 +34,8 @@ export class ViewcategoriesComponent implements OnInit {
   previousLabel = "<";
   nextLabel=">";
   broadItem: any;
-  pageSize: any = [15, 30, 45, 60, 75, 90, 100];
-  selectedPageSize: any = '15';
+  pageSize: any = [25,50,75,100];
+  selectedPageSize: any = '50';
   currentPage: any = 1;
   categoryId: any;
   dialogStatus: any;
@@ -86,7 +86,7 @@ export class ViewcategoriesComponent implements OnInit {
   refreshPage() {
     this.paginstatus = "true";
     this.searchQuery = "";
-    this.selectedPageSize = '15';
+    this.selectedPageSize = '50';
     this.currentPage = 1;
     document.getElementById("catError").innerHTML = "";
     this.getAllCategories(this.categoryId, this.currentPage, this.selectedPageSize);

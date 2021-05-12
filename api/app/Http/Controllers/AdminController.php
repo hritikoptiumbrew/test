@@ -1147,10 +1147,16 @@ class AdminController extends Controller
      * "category_id":1,
      * "sub_category_id":1,
      * "is_free":1,
+     * "catalog_type":1, //1=Normal,2=Fix date (Event catalog),3=Non-fix date (Event catalog), 4=Non date (Event Catalog)
+     * "event_date":1,
+     * "popularity_rate":1, //Set it 5 in popular catalog
      * "name":"Nature-2017",
      * "is_featured":1 //0=normal 1=featured
      * }
      * file:image.jpeg //compulsory
+     * icon:image.png //compulsory
+     * landscape:image.png //optional
+     * portrait:image.png //optional
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -1169,6 +1175,10 @@ class AdminController extends Controller
             if (!$request_body->has('request_data'))
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
+            if (!$request_body->hasFile('file')) {
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
             $request = json_decode($request_body->input('request_data'));
             if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'name', 'is_featured', 'is_free'), $request)) != '')
                 return $response;
@@ -1178,37 +1188,129 @@ class AdminController extends Controller
             $name = $request->name;
             $is_free = $request->is_free;
             $is_featured = $request->is_featured;
+            $catalog_type = $request->catalog_type;
+            $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
+            $landscape_image = NULL;
+            $portrait_image = NULL;
+            $landscape_webp = NULL;
+            $portrait_webp = NULL;
+            $icon_name = NULL;
             $create_at = date('Y-m-d H:i:s');
+
+            if ($popularity_rate && $popularity_rate > 5) {
+                return Response::json(array("code" => 201, "message" => "Popularity rate must be less then or equal 5", "cause" => "", "data" => json_encode("{}")));
+            }
+
+            if ($catalog_type == 1 || $catalog_type == 4) {
+                $event_date = NULL;
+            } else {
+                if (($response = (new VerificationController())->validateRequiredParameter(array('event_date'), $request)) != '')
+                    return $response;
+
+                $event_date = $request->event_date;
+            }
 
             if (($response = (new VerificationController())->checkIsCatalogExist($sub_category_id, $name, '')) != '')
                 return $response;
 
-            if (!$request_body->hasFile('file')) {
-                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
-                $file_array = Input::file('file');
-
+            if ($request_body->hasFile('landscape')) {
+                $landscape_file = Input::file('landscape');
                 /* Here we passes is_catalog=1 bcz this is a catalog image */
-                if (($response = (new ImageController())->verifyImage($file_array, $category_id, $is_featured, 1)) != '')
+                if (($response = (new ImageController())->verifyImage($landscape_file, $category_id, $is_featured, 1)) != '')
                     return $response;
 
-                $file_name = (new ImageController())->generateNewFileName('catalog_img', $file_array);
-                (new ImageController())->saveOriginalImage($file_name);
-                (new ImageController())->saveCompressedImage($file_name);
-                (new ImageController())->saveThumbnailImage($file_name);
-                $webp_file_name = (new ImageController())->saveWebpOriginalImage($file_name);
-                (new ImageController())->saveWebpThumbnailImage($file_name);
+                if (($response = (new ImageController())->verifyHeightWidthOfSampleImage($landscape_file, 1)) != '')
+                    return $response;
+            }
+
+            if ($request_body->hasFile('portrait')) {
+                $portrait_file = Input::file('portrait');
+                /* Here we passes is_catalog=1 bcz this is a catalog image */
+                if (($response = (new ImageController())->verifyImage($portrait_file, $category_id, $is_featured, 1)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->verifyHeightWidthOfSampleImage($portrait_file, 2)) != '')
+                    return $response;
+            }
+
+            if ($request_body->hasFile('icon')) {
+                $icon_array = Input::file('icon');
+
+                if (($response = (new ImageController())->verifyIcon($icon_array)) != '')
+                    return $response;
+            }
+
+            $file_array = Input::file('file');
+
+            /* Here we passes is_catalog=1 bcz this is a catalog image */
+            if (($response = (new ImageController())->verifyImage($file_array, $category_id, $is_featured, 1)) != '')
+                return $response;
+
+            $file_name = (new ImageController())->generateNewFileName('catalog_img', $file_array);
+            (new ImageController())->saveOriginalImage($file_name);
+            (new ImageController())->saveCompressedImage($file_name);
+            (new ImageController())->saveThumbnailImage($file_name);
+            $webp_file_name = (new ImageController())->saveWebpOriginalImage($file_name);
+            (new ImageController())->saveWebpThumbnailImage($file_name);
+
+
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                (new ImageController())->saveImageInToS3($file_name);
+                (new ImageController())->saveWebpImageInToS3($webp_file_name);
+            }
+
+            if ($request_body->hasFile('icon')) {
+                $icon_array = Input::file('icon');
+                $icon_name = (new ImageController())->generateNewFileName('catalog_icon', $icon_array);
+                (new ImageController())->saveOriginalImageFromArray($icon_array, $icon_name);
 
                 if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToS3($file_name);
-                    (new ImageController())->saveWebpImageInToS3($webp_file_name);
+                    (new ImageController())->saveImageInToS3($icon_name);
                 }
             }
 
+            if ($request_body->hasFile('landscape')) {
+                $landscape_file = Input::file('landscape');
+                $landscape_image = (new ImageController())->generateNewFileName('catalog_img', $landscape_file);
+                (new ImageController())->saveOriginalImageFromArray($landscape_file, $landscape_image);
+                (new ImageController())->saveCompressedImage($landscape_image);
+                (new ImageController())->saveThumbnailImage($landscape_image);
+                $landscape_webp = (new ImageController())->saveWebpOriginalImage($landscape_image);
+                (new ImageController())->saveWebpThumbnailImage($landscape_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($landscape_image);
+                    (new ImageController())->saveWebpImageInToS3($landscape_webp);
+                }
+            }
+            if ($request_body->hasFile('portrait')) {
+                $portrait_file = Input::file('portrait');
+                $portrait_image = (new ImageController())->generateNewFileName('catalog_img', $portrait_file);
+                (new ImageController())->saveOriginalImageFromArray($portrait_file, $portrait_image);
+                (new ImageController())->saveCompressedImage($portrait_image);
+                (new ImageController())->saveThumbnailImage($portrait_image);
+                $portrait_webp = (new ImageController())->saveWebpOriginalImage($portrait_image);
+                (new ImageController())->saveWebpThumbnailImage($portrait_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($portrait_image);
+                    (new ImageController())->saveWebpImageInToS3($portrait_webp);
+                }
+            }
+
+
             $data = array('name' => $name,
                 'image' => $file_name,
+                'icon' => $icon_name,
+                'landscape_image' => $landscape_image,
+                'portrait_image' => $portrait_image,
+                'landscape_webp' => $landscape_webp,
+                'portrait_webp' => $portrait_webp,
                 'is_free' => $is_free,
                 'is_featured' => $is_featured,
+                'catalog_type' => $catalog_type,
+                'event_date' => $event_date,
+                'popularity_rate' => $popularity_rate,
                 'created_at' => $create_at,
                 'attribute1' => $webp_file_name
             );
@@ -1244,10 +1346,14 @@ class AdminController extends Controller
      * "sub_category_id":66,
      * "catalog_id":1,
      * "name":"bg-catalog",
+     * "catalog_type":1, //1=Normal,2=Fix date (Event catalog),3=Non-fix date (Event catalog), 4=Non date (Event Catalog)
+     * "event_date":1,
+     * "popularity_rate":1, //Set it 5 in popular catalog
      * "is_free":1,
      * "is_featured":1 //0=normal 1=featured
      * }
      * file:image.png //optional
+     * icon:image.png //Optional
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
@@ -1276,6 +1382,18 @@ class AdminController extends Controller
             $name = trim($request->name);
             $is_free = $request->is_free;
             $is_featured = $request->is_featured;
+            $catalog_type = $request->catalog_type;
+            $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
+            $event_date = isset($request->event_date) ? $request->event_date : NULL;
+            $icon_name = NULL;
+            $landscape_image = NULL;
+            $portrait_image = NULL;
+            $landscape_webp = NULL;
+            $portrait_webp = NULL;
+
+            if ($popularity_rate && $popularity_rate > 5) {
+                return Response::json(array("code" => 201, "message" => "Popularity rate must be less then or equal 5", "cause" => "", "data" => json_encode("{}")));
+            }
 
             if (($response = (new VerificationController())->checkIsCatalogExist($sub_category_id, $name, $catalog_id)) != '')
                 return $response;
@@ -1286,6 +1404,48 @@ class AdminController extends Controller
                 /* Here we passes is_catalog=1 bcz this is a catalog image */
                 if (($response = (new ImageController())->verifyImage($file_array, $category_id, $is_featured, 1)) != '')
                     return $response;
+
+            }
+
+            if ($request_body->hasFile('icon')) {
+                $icon_array = Input::file('icon');
+
+                if (($response = (new ImageController())->verifyIcon($icon_array)) != '')
+                    return $response;
+            }
+
+            if ($request_body->hasFile('landscape')) {
+                $landscape_file = Input::file('landscape');
+                /* Here we passes is_catalog=1 bcz this is a catalog image */
+                if (($response = (new ImageController())->verifyImage($landscape_file, $category_id, $is_featured, 1)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->verifyHeightWidthOfSampleImage($landscape_file, 1)) != '')
+                    return $response;
+            }
+
+            if ($request_body->hasFile('portrait')) {
+                $portrait_file = Input::file('portrait');
+                /* Here we passes is_catalog=1 bcz this is a catalog image */
+                if (($response = (new ImageController())->verifyImage($portrait_file, $category_id, $is_featured, 1)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->verifyHeightWidthOfSampleImage($portrait_file, 2)) != '')
+                    return $response;
+            }
+
+            /* get old image for delete */
+            $result = DB::select('SELECT image,attribute1,icon,landscape_image,landscape_webp,portrait_image,portrait_webp FROM catalog_master WHERE id = ?', [$catalog_id]);
+            $image_name = $result[0]->image;
+            $webp_file = $result[0]->attribute1;
+            $icon = $result[0]->icon;
+            $old_landscape_image = $result[0]->landscape_image;
+            $old_landscape_webp = $result[0]->landscape_webp;
+            $old_portrait_image = $result[0]->portrait_image;
+            $old_portrait_webp = $result[0]->portrait_webp;
+
+            if ($request_body->hasFile('file')) {
+                $file_array = Input::file('file');
 
                 $catalog_img_name = (new ImageController())->generateNewFileName('catalog_img', $file_array);
                 (new ImageController())->saveOriginalImage($catalog_img_name);
@@ -1299,11 +1459,12 @@ class AdminController extends Controller
                     (new ImageController())->saveWebpImageInToS3($file_name);
                 }
 
-                $result = DB::select('SELECT image FROM catalog_master WHERE id = ?', [$catalog_id]);
-                $image_name = $result[0]->image;
                 if ($image_name) {
                     //Delete from image_bucket
                     (new ImageController())->deleteImage($image_name);
+                    if ($webp_file) {
+                        (new ImageController())->deleteWebpImage($webp_file);
+                    }
                 }
 
             } else {
@@ -1311,14 +1472,88 @@ class AdminController extends Controller
                 $file_name = NULL;
             }
 
+            if ($request_body->hasFile('icon')) {
+                $icon_array = Input::file('icon');
+
+                $icon_name = (new ImageController())->generateNewFileName('catalog_icon', $icon_array);
+
+                /* save icon */
+                (new ImageController())->saveOriginalImageFromArray($icon_array, $icon_name);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($icon_name);
+                }
+
+                if ($icon) {
+                    //Delete old file
+                    (new ImageController())->deleteImage($icon);
+                }
+            }
+
+            if ($request_body->hasFile('landscape')) {
+
+                $landscape_file = Input::file('landscape');
+                $landscape_image = (new ImageController())->generateNewFileName('catalog_img', $landscape_file);
+                (new ImageController())->saveOriginalImageFromArray($landscape_file, $landscape_image);
+                (new ImageController())->saveCompressedImage($landscape_image);
+                (new ImageController())->saveThumbnailImage($landscape_image);
+                $landscape_webp = (new ImageController())->saveWebpOriginalImage($landscape_image);
+                (new ImageController())->saveWebpThumbnailImage($landscape_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($landscape_image);
+                    (new ImageController())->saveWebpImageInToS3($landscape_webp);
+                }
+
+                if ($old_landscape_image) {
+                    //Delete from image_bucket
+                    (new ImageController())->deleteImage($old_landscape_image);
+                    if ($old_landscape_webp) {
+                        (new ImageController())->deleteWebpImage($old_landscape_webp);
+                    }
+                }
+            }
+
+            if ($request_body->hasFile('portrait')) {
+
+                $portrait_file = Input::file('portrait');
+                $portrait_image = (new ImageController())->generateNewFileName('catalog_img', $portrait_file);
+                (new ImageController())->saveOriginalImageFromArray($portrait_file, $portrait_image);
+                (new ImageController())->saveCompressedImage($portrait_image);
+                (new ImageController())->saveThumbnailImage($portrait_image);
+                $portrait_webp = (new ImageController())->saveWebpOriginalImage($portrait_image);
+                (new ImageController())->saveWebpThumbnailImage($portrait_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($portrait_image);
+                    (new ImageController())->saveWebpImageInToS3($portrait_webp);
+                }
+
+                if ($old_portrait_image) {
+                    //Delete from image_bucket
+                    (new ImageController())->deleteImage($old_portrait_image);
+                    if ($old_portrait_webp) {
+                        (new ImageController())->deleteWebpImage($old_portrait_webp);
+                    }
+                }
+            }
+
             DB::beginTransaction();
             DB::update('UPDATE catalog_master SET
                                 name = IF(? != "",?,name),
                                 image = IF(? != "",?,image),
+                                catalog_type = ?,
+                                icon = IF(? != "",?,icon),
+                                landscape_image = IF(? != "",?,landscape_image),
+                                portrait_image = IF(? != "",?,portrait_image),
+                                landscape_webp = IF(? != "",?,landscape_webp),
+                                portrait_webp = IF(? != "",?,portrait_webp),
                                 is_free = IF(? != is_free,?,is_free),
                                 is_featured = IF(? != is_featured,?,is_featured),
+                                event_date = IF(? != "",?,event_date),
+                                popularity_rate = IF(? != "",?,popularity_rate),
                                 attribute1 = IF(? != "",?,attribute1)
-                              WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $is_free, $is_free, $is_featured, $is_featured, $file_name, $file_name, $catalog_id]);
+                              WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $catalog_type, $icon_name, $icon_name, $landscape_image, $landscape_image, $portrait_image, $portrait_image, $landscape_webp, $landscape_webp, $portrait_webp, $portrait_webp, $is_free, $is_free, $is_featured, $is_featured, $event_date, $event_date, $popularity_rate, $popularity_rate, $file_name, $file_name, $catalog_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalog updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -1368,8 +1603,14 @@ class AdminController extends Controller
             $is_active = 0;
             DB::beginTransaction();
 
-            $result = DB::select('SELECT image FROM catalog_master WHERE id = ?', [$catalog_id]);
+            $result = DB::select('SELECT image,icon,landscape_image,portrait_image,attribute1,landscape_webp,portrait_webp FROM catalog_master WHERE id = ?', [$catalog_id]);
             $image_name = $result[0]->image;
+            $icon = $result[0]->icon;
+            $landscape_image = $result[0]->landscape_image;
+            $portrait_image = $result[0]->portrait_image;
+            $webp_file = $result[0]->attribute1;
+            $landscape_webp = $result[0]->landscape_webp;
+            $portrait_webp = $result[0]->portrait_webp;
 
             DB::update('UPDATE catalog_master SET is_active=?, is_featured= ? WHERE id = ? ', [$is_active, 0, $catalog_id]);
             DB::update('UPDATE sub_category_catalog SET is_active=? WHERE catalog_id = ? ', [$is_active, $catalog_id]);
@@ -1380,6 +1621,28 @@ class AdminController extends Controller
             if ($image_name) {
                 //Image Delete in image_bucket
                 (new ImageController())->deleteImage($image_name);
+                if ($webp_file) {
+                    (new ImageController())->deleteWebpImage($webp_file);
+                }
+            }
+
+            if ($icon) {
+                //Image Delete in image_bucket
+                (new ImageController())->deleteImage($icon);
+            }
+            if ($landscape_image) {
+                //Image Delete in image_bucket
+                (new ImageController())->deleteImage($landscape_image);
+                if ($landscape_webp) {
+                    (new ImageController())->deleteWebpImage($landscape_webp);
+                }
+            }
+            if ($portrait_image) {
+                //Image Delete in image_bucket
+                (new ImageController())->deleteImage($portrait_image);
+                if ($portrait_webp) {
+                    (new ImageController())->deleteWebpImage($portrait_webp);
+                }
             }
 
 //            Log::info("catalog_id:", [$image_name]);
@@ -1498,9 +1761,15 @@ class AdminController extends Controller
                                         ct.name,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                        IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                        IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                        IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
                                         IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
                                         IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
                                         ct.is_free,
+                                        ct.catalog_type,
+                                        ct.event_date,
+                                        ct.popularity_rate,
                                         ct.is_featured
                                       FROM
                                         catalog_master as ct,
@@ -1574,9 +1843,15 @@ class AdminController extends Controller
                                         ct.name,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
                                         IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                        IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                        IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                        IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
                                         IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
                                         IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
                                         ct.is_free,
+                                        ct.catalog_type,
+                                        ct.event_date,
+                                        ct.popularity_rate,
                                         ct.is_featured
                                       FROM
                                         catalog_master as ct,
@@ -1660,8 +1935,14 @@ class AdminController extends Controller
                                     cm.name,
                                     IF(cm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as thumbnail_img,
                                     IF(cm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as compressed_img,
+                                    IF(cm.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.landscape_image),"") as compressed_landscape_img,
+                                    IF(cm.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.portrait_image),"") as compressed_portrait_img,
+                                    IF(cm.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.icon),"") as icon,
                                     IF(cm.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.attribute1),"") as webp_original_img,
                                     cm.is_free,
+                                    cm.catalog_type,
+                                    cm.event_date,
+                                    cm.popularity_rate,
                                     cm.is_featured
                                    FROM
                                       catalog_master AS cm,
@@ -2269,7 +2550,7 @@ class AdminController extends Controller
 
             $img_id = $request->img_id;
 
-            $result = DB::select('SELECT image FROM images WHERE id = ?', [$img_id]);
+            $result = DB::select('SELECT image,attribute1 FROM images WHERE id = ?', [$img_id]);
 
 
             DB::beginTransaction();
@@ -2280,8 +2561,12 @@ class AdminController extends Controller
 
             if (count($result) > 0) {
                 $image_name = $result[0]->image;
+                $webp_image = $result[0]->attribute1;
                 //Image Delete in image_bucket
                 (new ImageController())->deleteImage($image_name);
+                if ($webp_image) {
+                    (new ImageController())->deleteWebpImage($webp_image);
+                }
 
             }
 
@@ -7727,12 +8012,20 @@ class AdminController extends Controller
 
             $tag_name = trim($request->tag_name);
             $sub_category_id = $request->sub_category_id;
+            $is_template = isset($request->is_template) ? $request->is_template : 1;
             $create_time = date('Y-m-d H:i:s');
+
+            if ($is_template) {
+                $is_featured = 1;
+            } else {
+                $is_featured = 0;
+            }
 
             $result = DB::select('SELECT * FROM sub_category_tag_master 
                                       WHERE 
                                         tag_name = ? AND 
-                                        sub_category_id = ?', [$tag_name, $sub_category_id]);
+                                        is_template = ? AND
+                                        sub_category_id = ?', [$tag_name, $is_template, $sub_category_id]);
 
             if (count($result) > 0) {
                 return $response = Response::json(array('code' => 201, 'message' => 'Search category already exist.', 'cause' => '', 'data' => json_decode('{}')));
@@ -7744,16 +8037,16 @@ class AdminController extends Controller
                 return $response = Response::json(array('code' => 201, 'message' => 'Invalid tag name. Please enter valid tag name.', 'cause' => '', 'data' => json_decode('{}')));
 
             $total_row_result = DB::select('SELECT
-                                                              count(*) as total
-                                                            FROM
-                                                              images as im
-                                                              JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
-                                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1
-                                                            WHERE
-                                                              im.is_active = 1 AND
-                                                              isnull(im.original_img) AND
-                                                              isnull(im.display_img) AND
-                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)',[$sub_category_id]);
+                                              count(*) as total
+                                            FROM
+                                              images as im
+                                              JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
+                                            WHERE
+                                              im.is_active = 1 AND
+                                              isnull(im.original_img) AND
+                                              isnull(im.display_img) AND
+                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$sub_category_id, $is_featured]);
 
             $total_row = $total_row_result[0]->total;
 
@@ -7766,7 +8059,8 @@ class AdminController extends Controller
                             sub_category_id, 
                             tag_name, 
                             is_active, 
-                            create_time) VALUES(?, ?, ?, ?)', [$sub_category_id, $tag_name, 1, $create_time]);
+                            is_template, 
+                            create_time) VALUES(?, ?, ?, ?,?)', [$sub_category_id, $tag_name, 1, $is_template, $create_time]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Search category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -7815,7 +8109,14 @@ class AdminController extends Controller
 
             $sub_category_id = $request->sub_category_id;
             $sub_category_tag_id = $request->sub_category_tag_id;
+            $is_template = isset($request->is_template) ? $request->is_template : 1;
             $tag_name = trim($request->tag_name);
+
+            if ($is_template) {
+                $is_featured = 1;
+            } else {
+                $is_featured = 0;
+            }
 
             //validate search text
             if (($response = (new VerificationController())->verifySearchText($tag_name)) != 1)
@@ -7826,7 +8127,8 @@ class AdminController extends Controller
                                       WHERE 
                                         tag_name = ? AND 
                                         sub_category_id = ? AND 
-                                        id != ?', [$tag_name, $sub_category_id, $sub_category_tag_id]);
+                                        is_template = ? AND 
+                                        id != ?', [$tag_name, $sub_category_id, $is_template, $sub_category_tag_id]);
             if (count($result) > 0) {
                 return $response = Response::json(array('code' => 201, 'message' => 'Search category already exist.', 'cause' => '', 'data' => json_decode('{}')));
             }
@@ -7836,12 +8138,12 @@ class AdminController extends Controller
                                               FROM
                                                 images as im
                                                 JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
-                                                JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1
+                                                JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
                                               WHERE
                                                 im.is_active = 1 AND
                                                 isnull(im.original_img) AND
                                                 isnull(im.display_img) AND
-                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)',[$sub_category_id]);
+                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$sub_category_id, $is_featured]);
 
             $total_row = $total_row_result[0]->total;
 
@@ -7978,18 +8280,25 @@ class AdminController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
+            $this->is_template = isset($request->is_template) ? $request->is_template : 1;
             $this->order_by = isset($request->order_by) ? $request->order_by : 'update_time'; //field name
             $this->order_type = strtolower(isset($request->order_type) ? $request->order_type : 'DESC'); //asc or desc
 
-            if (!Cache::has("pel:getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type")) {
-                $result = Cache::rememberforever("getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type", function () {
+            if ($this->is_template) {
+                $this->is_featured = 1;
+            } else {
+                $this->is_featured = 0;
+            }
+
+            if (!Cache::has("pel:getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type:$this->is_featured")) {
+                $result = Cache::rememberforever("getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type:$this->is_featured", function () {
 
                     $tag_list = DB::select('SELECT
                                         id AS sub_category_tag_id,
                                         tag_name
                                         FROM
                                         sub_category_tag_master
-                                         WHERE sub_category_id = ? AND is_active = ? ORDER BY ' . $this->order_by . ' ' . $this->order_type, [$this->sub_category_id, 1]);
+                                         WHERE sub_category_id = ? AND is_active = ? AND is_template = ? ORDER BY ' . $this->order_by . ' ' . $this->order_type, [$this->sub_category_id, 1, $this->is_template]);
 
                     foreach ($tag_list as $key) {
                         $total_row_result = DB::select('SELECT
@@ -7997,12 +8306,12 @@ class AdminController extends Controller
                                                             FROM
                                                               images as im
                                                               JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
-                                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = 1
+                                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
                                                             WHERE
                                                               im.is_active = 1 AND
                                                               isnull(im.original_img) AND
                                                               isnull(im.display_img) AND
-                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)',[$this->sub_category_id]);
+                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$this->sub_category_id, $this->is_featured]);
 
                         $key->total_template = $total_row_result[0]->total;
                     }
@@ -8011,7 +8320,7 @@ class AdminController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type");
+            $redis_result = Cache::get("getCategoryTagBySubCategoryId$this->sub_category_id:$this->order_by:$this->order_type:$this->is_featured");
 
             if (!$redis_result) {
                 $redis_result = [];

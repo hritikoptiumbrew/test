@@ -13,75 +13,183 @@ Copyright 2018 - 2020 Optimumbrew Technology
 
 
 
-<nb-card>
+<nb-card class="catalog-card">
   <nb-card-header class="header-text" style="position: relative;">
     <h5 *ngIf="!catalogData" class="text-center">Add Catalog</h5>
     <h5 *ngIf="catalogData" class="text-center">Update Catalog</h5>
     <i class="fa fa-times close-icon" (click)="closedialog()" title="Close"></i>
   </nb-card-header>
   <nb-card-body>
-    <div class="img-preview" id="calogImage" [attr.valid-status]="catalogData?true:false">
-      <img *ngIf="calogImage" class="placeholder-img">
-      <img *ngIf="calogImage" [src]="calogImage"
-        onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
-      <label for="fileInput">
-        <i class="fa fa-camera" title="Click here to choose image"></i>
-      </label>
-    </div>
-    <p id="imageCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
-    <input type="file" id="fileInput" autofocus="true" accept="image/*" style="display: none;"
-      (change)="fileChange($event)">
-    <div class="row mt-4">
-      <div class="col-md-3 pr-0">
-        <label class="d-block form-label">Catalog</label>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="row">
+          <div class="col-md-3">
+            <label class="d-block form-label text-center">Default</label>
+            <div class="img-preview" id="calogImage" [attr.valid-status]="catalogData?true:false">
+              <img *ngIf="calogImage" class="placeholder-img">
+              <img *ngIf="calogImage" [src]="calogImage"
+                onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+              <label for="fileInput1">
+                <i class="fa fa-camera" title="Click here to choose image"></i>
+              </label>
+            </div>
+            <p id="imageCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
+            <input type="file" id="fileInput1" autofocus="true" accept="image/*" style="display: none;"
+              (change)="fileChange($event)">
+          </div>
+          <div class="col-md-3">
+            <label class="d-block form-label text-center">Icon</label>
+            <div class="img-preview" id="calogImage1" [attr.valid-status]="catalogData?true:false">
+              <img *ngIf="iconImage" class="placeholder-img">
+              <img *ngIf="iconImage" [src]="iconImage"
+                onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+              <label for="fileInput2">
+                <i class="fa fa-camera" title="Click here to choose image"></i>
+              </label>
+            </div>
+            <p id="iconCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
+            <input type="file" id="fileInput2" autofocus="true" accept="image/png" style="display: none;"
+              (change)="fileChangeicon($event)">
+          </div>
+          <div class="col-md-3">
+            <label class="d-block form-label text-center">Landscape</label>
+            <div class="img-preview" id="calogImag2" [attr.valid-status]="catalogData?true:false">
+              <img *ngIf="lanscapeImage" class="placeholder-img">
+              <img *ngIf="lanscapeImage" [src]="lanscapeImage"
+                onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+              <label for="fileInput3">
+                <i class="fa fa-camera" title="Click here to choose image"></i>
+              </label>
+            </div>
+            <p id="lanscapeCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
+            <input type="file" id="fileInput3" autofocus="true" accept="image/*" style="display: none;"
+              (change)="fileChangeLandscape($event)">
+          </div>
+          <div class="col-md-3">
+            <label class="d-block form-label text-center">Portrait</label>
+            <div class="img-preview" id="calogImage3" [attr.valid-status]="catalogData?true:false">
+              <img *ngIf="portraitImage" class="placeholder-img">
+              <img *ngIf="portraitImage" [src]="portraitImage"
+                onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+              <label for="fileInput4">
+                <i class="fa fa-camera" title="Click here to choose image"></i>
+              </label>
+            </div>
+            <p id="portraitCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
+            <input type="file" id="fileInput4" autofocus="true" accept="image/*" style="display: none;"
+              (change)="fileChangePortrait($event)">
+          </div>
+        </div>
       </div>
-      <div class="col-md-9 pl-0">
-        <div class="form-group">
-          <input type="text" tabindex="-1" autofocus="false" nbInput placeholder="Enter catalog name" class="w-100"
-            [(ngModel)]="CalogName" id="addCalogInput" [attr.valid-status]="catalogData?true:false"
-            (keyup)="checkValidation('addCalogInput','','inputCalogError','','','blank')"
-            (keyup.enter)="checkValidation('addCalogInput','','inputCalogError',errormsg.CAT_LOG_EMPTY,'','usual')">
-          <p id="inputCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 20px;"></p>
+      <div class="col-md-12">
+        <div class="row mt-4">
+          <div class="col-md-3 pr-0">
+            <label class="d-block form-label">Catalog</label>
+          </div>
+          <div class="col-md-9 pl-0">
+            <div class="form-group">
+              <input type="text" tabindex="-1" autofocus="false" nbInput placeholder="Enter catalog name" class="w-100 mw-100"
+                [(ngModel)]="CalogName" id="addCalogInput" [attr.valid-status]="catalogData?true:false"
+                (keyup)="checkValidation('addCalogInput','','inputCalogError','','','blank')"
+                (keyup.enter)="checkValidation('addCalogInput','','inputCalogError',errormsg.CAT_LOG_EMPTY,'','usual')">
+              <p id="inputCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 20px;"></p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3 pr-0">
+            <label class="d-block form-label">Catalog Type 1</label>
+          </div>
+          <div class="col-md-8 pl-0">
+            <div class="form-group">
+              <nb-select [(selected)]="selectedCatalogType" class="w-100 mw-100">
+                <nb-option *ngFor="let item of catalogTypes" value="{{item.value}}">{{ item.name }}</nb-option>
+              </nb-select>
+              <p *ngIf="selectedCatalogType == 3" class="text-info"><b>Note:</b> For Non-Fix date catalog you have to update date every year starting</p>
+            </div>
+          </div>
+          <div class="col-md-1 pl-0">
+            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 2" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Event which have fix date in every year.Ex kites day,valentine's day,teacher's day etc." nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+            nbTooltipTrigger="hint"></nb-icon>
+            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 3" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Event which have no fix date but it come in every year.Ex Diwali,Holi etc." nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+            nbTooltipTrigger="hint"></nb-icon>
+            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 4" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Event which have no any date but it's come.Ex birthday,anniversary etc." nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+            nbTooltipTrigger="hint"></nb-icon>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3 pr-0">
+            <label class="d-block form-label">Popularity</label>
+          </div>
+          <div class="col-md-9 pl-0">
+            <div class="form-group">
+              <nb-radio-group [(ngModel)]="popularity" id="radioCalogPriInput" name="my-radio-group4">
+                <nb-radio value="1">1
+                </nb-radio>
+                <nb-radio value="2">2
+                </nb-radio>
+                <nb-radio value="3">3
+                </nb-radio>
+                <nb-radio value="4">4
+                </nb-radio>
+                <nb-radio value="5">5
+                </nb-radio>
+              </nb-radio-group>
+            </div>
+          </div>
+        </div>
+        <div class="row" *ngIf="selectedCatalogType == 2 || selectedCatalogType == 3">
+          <div class="col-md-3 pr-0">
+            <label class="d-block form-label">Event Date</label>
+          </div>
+          <div class="col-md-9 pl-0">
+            <div class="form-group">
+              <input type="date" nbInput class="w-100 mw-100" [(ngModel)]="eventDate" (change)="checkOtherStatus()">
+              <p id="inputdateError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 20px;"></p>
+            </div>
+          </div>
+        </div>
+    
+        <div class="row">
+          <div class="col-md-3 pr-0">
+            <label class="d-block form-label">Pricing</label>
+          </div>
+          <div class="col-md-9 pl-0">
+            <div class="form-group mb-0">
+              <nb-radio-group [(ngModel)]="selectCalogPrice" id="radioCalogPriInput"
+                [attr.valid-status]="catalogData?true:false" name="my-radio-group1">
+                <nb-radio value="1">Free
+                </nb-radio>
+                <nb-radio value="0">Paid
+                </nb-radio>
+              </nb-radio-group>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3 pr-0">
+            <label class="d-block form-label">Catalog Type 2</label>
+          </div>
+          <div class="col-md-9 pl-0">
+            <div class="form-group mb-0">
+              <nb-radio-group [(ngModel)]="selectCalogType" id="radioCalogInput"
+                [attr.valid-status]="catalogData?true:false" name="my-radio-group2">
+                <nb-radio value="1">Featured
+                </nb-radio>
+                <nb-radio value="0">Normal
+                </nb-radio>
+              </nb-radio-group>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="row mt-1">
-      <div class="col-md-3 pr-0">
-        <label class="d-block form-label">Pricing</label>
-      </div>
-      <div class="col-md-9 pl-0">
-        <div class="form-group">
-          <nb-radio-group [(ngModel)]="selectCalogPrice" id="radioCalogPriInput"
-            [attr.valid-status]="catalogData?true:false" name="my-radio-group1">
-            <nb-radio value="1">Free
-            </nb-radio>
-            <nb-radio value="0">Paid
-            </nb-radio>
-          </nb-radio-group>
-          <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
-        </div>
-      </div>
-    </div>
-    <div class="row mt-1">
-      <div class="col-md-3 pr-0">
-        <label class="d-block form-label">Type</label>
-      </div>
-      <div class="col-md-9 pl-0">
-        <div class="form-group">
-          <nb-radio-group [(ngModel)]="selectCalogType" id="radioCalogInput"
-            [attr.valid-status]="catalogData?true:false" name="my-radio-group2">
-            <nb-radio value="1">Featured
-            </nb-radio>
-            <nb-radio value="0">Normal
-            </nb-radio>
-          </nb-radio-group>
-          <p id="CalogAddError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 32px;"></p>
-        </div>
-      </div>
-    </div>
+  </nb-card-body>
+  <nb-card-footer class="pb-0">
     <div class="form-group text-center">
+      <p id="CalogAddError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;"></p>
       <button *ngIf="!catalogData" class="btn bg-primary text-light w-50" id="subCalogAdd" (click)="addCatalog()">Add</button>
       <button *ngIf="catalogData" class="btn bg-primary text-light w-50" id="subCalogAdd" (click)="addCatalog()">Update</button>
     </div>
-  </nb-card-body>
+  </nb-card-footer>
 </nb-card>

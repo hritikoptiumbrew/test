@@ -40,12 +40,11 @@ export class AddsearchtagsComponent implements OnInit {
   errormsg = ERROR;
   titleHeader: any;
   totalRecord: any;
+  is_template:string = "1";
   ngOnInit(): void {
     this.titleHeader = "Search tags of " + this.subCatData.name;
     this.getAllCategorySearchTags();
-   
   }
-
 
   checkValidation(id, type, catId, blankMsg, typeMsg,validType) {
     var validObj = {
@@ -81,7 +80,8 @@ export class AddsearchtagsComponent implements OnInit {
       this.utils.showLoader();
     this.dataService.postData('addSearchCategoryTag', {
       "tag_name": this.tagName,
-      "sub_category_id": this.subCatData.sub_category_id
+      "sub_category_id": this.subCatData.sub_category_id,
+      "is_template": +this.is_template
     },
       {
         headers: {
@@ -143,7 +143,8 @@ export class AddsearchtagsComponent implements OnInit {
       this.dataService.postData('updateSearchCategoryTag', {
         "tag_name": item.tag_name,
         "sub_category_tag_id": item.sub_category_tag_id,
-        "sub_category_id": this.subCatData.sub_category_id
+        "sub_category_id": this.subCatData.sub_category_id,
+        "is_template": +this.is_template
       },
         {
           headers: {
@@ -255,9 +256,11 @@ export class AddsearchtagsComponent implements OnInit {
     });
   }
   getAllCategorySearchTags() {
+    this.utils.showLoader();
     this.dataService.postData('getCategoryTagBySubCategoryId',
       {
         "sub_category_id": this.subCatData.sub_category_id,
+        "is_template": +this.is_template
       }, {
       headers: {
         'Authorization': 'Bearer ' + this.token
