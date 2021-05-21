@@ -34,7 +34,7 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
-        if($exception instanceof TokenBlacklistedExceptions){
+        if ($exception instanceof TokenBlacklistedException) {
             return Response::json(array('code' => $exception->getStatusCode(), 'message' => 'Refreshing the data. Please wait.', 'cause' => '', 'data' => json_decode('{}')));
         }
         parent::report($exception);
