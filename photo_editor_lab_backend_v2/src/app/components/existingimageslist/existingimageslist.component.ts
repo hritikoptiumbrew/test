@@ -29,7 +29,7 @@ export class ExistingimageslistComponent implements OnInit {
   formData = new FormData;
   token: any;
   requestData = {
-    "is_replace": 0,
+    "is_replace": 1,
     "category_id": JSON.parse(localStorage.getItem("selected_category")).category_id
   };
   constructor(private dialogRef: NbDialogRef<ExistingimageslistComponent>, private dataService: DataService, private utils: UtilService) {
@@ -72,7 +72,7 @@ export class ExistingimageslistComponent implements OnInit {
     for (let k = 0; k < existingFiles.length; k++) {
       if (existingFiles[k].is_checked == true) {
         j++;
-        this.formData.append('file[]', existingFiles[k].new_image.compressed_img);
+        this.formData.append('file[]', existingFiles[k].new_image);
       }
     }
     if (j <= 0) {
