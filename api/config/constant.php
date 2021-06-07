@@ -161,6 +161,7 @@ return [
     'APP_ENV' => env('APP_ENV'), //get app environment to store files into s3_bucket
     'AWS_BUCKET' => env('AWS_BUCKET'), //s3_bucket name from env to store/retrieve file from s3
     'STORAGE' => env('STORAGE'), //s3_bucket name from env to store/retrieve file from s3
+    'CDN_DISTRIBUTION_ID' => env('CDN_DISTRIBUTION_ID'),
 
     /* Non-commercial fonts */
     'OFFLINE_CATALOG_IDS_OF_FONT' => env('OFFLINE_CATALOG_IDS_OF_FONT'), //Misc catalog Id for old fonts(non-commercial)

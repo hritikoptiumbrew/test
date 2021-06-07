@@ -719,7 +719,7 @@ class ImageController extends Controller
 
            //create new invalidation for delete cache
             $result = $cloudFrontClient->createInvalidation([
-                'DistributionId' => "E15N40O6S39XA2",
+                'DistributionId' => Config::get('constant.CDN_DISTRIBUTION_ID'),
                 'InvalidationBatch' => [
                     'CallerReference' => time(),
                     'Paths' => [
