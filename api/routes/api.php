@@ -389,6 +389,7 @@ Route::middleware(['ability:image_uploader,image_uploader_permission'])->group(f
     Route::post('getCatalogBySubCategoryIdForAutoUpload', 'AdminController@getCatalogBySubCategoryIdForAutoUpload');
     Route::post('getAllValidationsForAdminForAutoUpload', 'AdminController@getAllValidationsForAdminForAutoUpload');
     Route::post('autoUploadTemplate', 'AdminController@autoUploadTemplate');
+    Route::post('autoUploadTemplateV2', 'AdminController@autoUploadTemplateV2');
 
 });
 

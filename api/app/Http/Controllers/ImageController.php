@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Cache;
 use File;
 use Log;
 use DB;
+use Aws\CloudFront\CloudFrontClient;
+use Aws\Exception\AwsException;
 
 class ImageController extends Controller
 {
@@ -698,6 +700,57 @@ class ImageController extends Controller
             Log::error("CompressImageCheck : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
 
+    }
+
+    // Delete json data From S3
+    public function deleteCDNCache($files_array)
+    {
+        try {
+
+            //verify credentials
+            $cloudFrontClient = CloudFrontClient::factory(array(
+                'version'=> 'latest',
+                'region' => 'us-east-1',
+                'credentials' => array(
+                    'key' => Config::get('constant.AWS_KEY'),
+                    'secret'  => Config::get('constant.AWS_SECRET'),
+                )
+            ));
+
+           //create new invalidation for delete cache
+            $result = $cloudFrontClient->createInvalidation([
+                'DistributionId' => "E15N40O6S39XA2",
+                'InvalidationBatch' => [
+                    'CallerReference' => time(),
+                    'Paths' => [
+                        'Items' => $files_array,
+                        'Quantity' => count($files_array),
+                    ],
+                ]
+            ]);
+
+        } catch (Exception $e) {
+            Log::error("deleteCDNCache Exception: ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $result = "";
+        } catch (AwsException $e) {
+            Log::error("deleteCDNCache AwsException: ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $result = "";
+        }
+        return $result;
+    }
+
+    // Delete json data From S3
+    public function deleteResourceImages($file_name)
+    {
+        try {
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                $this->deleteObjectFromS3($file_name, 'resource');
+            } else {
+                $this->unlinkFileFromLocalStorage($file_name, Config::get('constant.RESOURCE_IMAGES_DIRECTORY'));
+            }
+        } catch (Exception $e) {
+            Log::error("deleteResourceImages : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
     }
 
     //delete images from directory

@@ -150,7 +150,7 @@ INSERT INTO `permissions` (`name`, `display_name`, `description`, `created_at`, 
 
 INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES ('3', '3');
 
-ALTER TABLE `images` ADD `is_auto_upload` TINYINT(1) NULL DEFAULT NULL COMMENT '0=no,1=yes' AFTER `zip_file`;
+ALTER TABLE `images` ADD `is_auto_upload` TINYINT(1) NULL DEFAULT NULL COMMENT '0=no,1=yes' AFTER `attribute4`;
 
 12) Photo_editor_lab : perform following query on database (08 April, 2021) For popular and event catalog.
 -------------------------------------------------------------------------------------------------
