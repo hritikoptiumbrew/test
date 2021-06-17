@@ -9586,7 +9586,7 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'category_id', 'catalog_id', 'is_featured', 'is_portrait', 'is_free', 'search_category'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'category_id', 'catalog_id', 'is_featured', 'is_portrait', 'is_free', 'search_category', 'json_pages_sequence'), $request)) != '')
                 return $response;
 
             $catalog_id = $request->catalog_id;
@@ -9598,12 +9598,14 @@ class AdminController extends Controller
             $is_free = $request->is_free;
             $is_featured = $request->is_featured;
             $is_portrait = $request->is_portrait;
-            $search_category = strtolower($request->search_category);
+            $search_category = json_decode(json_encode($request->search_category),true);
+            $json_pages_sequence = explode(',',$request->json_pages_sequence);
             $created_at = date('Y-m-d H:i:s');
 
             $resource_image_array = array();
             $sample_image_array = array();
             $webp_image_array = array();
+            $error_detail = array();
             $error_msg = "";
             $all_json_data = "";
             $webp_warning = "";
@@ -9666,19 +9668,28 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Failed to validate Zip data.', 'cause' => '', 'data' => json_decode("{}")));
             }
 
-            foreach ($all_json_data AS $json_data) {
-                // check json font exists in this server
+            foreach ($all_json_data AS $i => $json_data) {
 
+                // check json font exists in this server
                 if (($response = (new ImageController())->validateFonts($json_data)) != ''){
-                    (New ImageController())->rrmdir($folder_path);
-                    return $response;
+                    $error_msg = json_decode(json_encode($response))->original;
+                    $error_msg->page_id = $i;
+                    $error_msg->pages_sequence = $json_pages_sequence;
+                    $error_detail[] = $error_msg;
                 }
 
                 //check height & width of sample image is same as in json
                 if (($response = (new ImageController())->validateHeightWidthOfSampleImage($folder_path . "/" . $json_data->sample_image, $json_data)) != '') {
-                    (New ImageController())->rrmdir($folder_path);
-                    return $response;
+                    $error_msg = json_decode(json_encode($response))->original;
+                    $error_msg->page_id = $i;
+                    $error_msg->pages_sequence = $json_pages_sequence;
+                    $error_detail[] = $error_msg;
                 }
+            }
+
+            if($error_detail){
+                (New ImageController())->rrmdir($folder_path);
+                return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'upload template.', 'data' => $error_detail));
             }
 
             $resource_image_directory = Config::get('constant.RESOURCE_IMAGES_DIRECTORY');
@@ -9721,7 +9732,7 @@ class AdminController extends Controller
             }
 
             DB::beginTransaction();
-            foreach ($all_json_data AS $json_data) {
+            foreach ($all_json_data AS $i => $json_data) {
 
                 unset($json_data->tool_json);
                 $sample_image = $json_data->sample_image;
@@ -9756,7 +9767,7 @@ class AdminController extends Controller
                     $is_free,
                     $is_featured,
                     $is_portrait,
-                    $search_category,
+                    strtolower($search_category[$i]),
                     $dimension['height'],
                     $dimension['width'],
                     $dimension['org_img_height'],
@@ -9780,7 +9791,7 @@ class AdminController extends Controller
 
         } catch (Exception $e) {
             Log::error("autoUploadTemplateV2 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' upload template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'upload template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             if(isset($folder_path)) {
                 (New ImageController())->rrmdir($folder_path);
             }
