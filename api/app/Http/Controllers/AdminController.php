@@ -3998,8 +3998,7 @@ class AdminController extends Controller
                         foreach ($images_array as $image_array) {
                             $image = $image_array->getClientOriginalName();
                             $image_directory = "resource";
-                            $bucket_name = Config::get('constant.AWS_BUCKET');
-                            array_push($invalidations_path,"/$bucket_name/$image_directory/$image");
+                            array_push($invalidations_path,"/imageflyer/$image_directory/$image");
                         }
 
                         if($invalidations_path) {
