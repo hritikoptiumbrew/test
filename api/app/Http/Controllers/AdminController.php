@@ -3993,7 +3993,7 @@ class AdminController extends Controller
                     if (($response = (new ImageController())->checkIsImageExist($images_array, 0)) != '')
                         return $response;
                 }else{
-                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET' && Config::get('constant.CDN_DISTRIBUTION_ID')) {
 
                         foreach ($images_array as $image_array) {
                             $image = $image_array->getClientOriginalName();
