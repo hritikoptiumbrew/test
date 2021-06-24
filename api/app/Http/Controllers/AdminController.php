@@ -9731,6 +9731,56 @@ class AdminController extends Controller
             }
 
             DB::beginTransaction();
+            $json_pages_sequence = array_reverse($json_pages_sequence);
+            foreach ($json_pages_sequence AS $i => $pages_sequence) {
+
+                unset($all_json_data->{$pages_sequence}->tool_json);
+                $updated_at = date('Y-m-d H:i:s',strtotime("+$i seconds",strtotime($created_at)));
+                $sample_image = $all_json_data->{$pages_sequence}->sample_image;
+                $fileData = pathinfo(basename($sample_image));
+                $catalog_image = uniqid() . '_json_image_' . time() . '.' . $fileData['extension'];
+                copy($folder_path . "/" . $sample_image, '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $catalog_image);
+
+                (new ImageController())->saveCompressedImage($catalog_image);
+                (new ImageController())->saveThumbnailImage($catalog_image);
+                $file_name = (new ImageController())->saveWebpOriginalImage($catalog_image);
+                $dimension = (new ImageController())->saveWebpThumbnailImage($catalog_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($catalog_image);
+                    (new ImageController())->saveWebpImageInToS3($file_name);
+
+                }
+                array_push($sample_image_array, $catalog_image);
+                array_push($webp_image_array,$file_name);
+
+                if (!(strstr($file_name, '.webp'))) {
+                    $webp_warning = "true";
+                }
+
+                DB::insert('INSERT
+                                INTO
+                                  images(catalog_id,image,json_data,is_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                    $catalog_id,
+                    $catalog_image,
+                    json_encode($all_json_data->{$pages_sequence}),
+                    $is_free,
+                    $is_featured,
+                    $is_portrait,
+                    strtolower($search_category[$pages_sequence]),
+                    $dimension['height'],
+                    $dimension['width'],
+                    $dimension['org_img_height'],
+                    $dimension['org_img_width'],
+                    $created_at,
+                    $updated_at,
+                    $file_name,
+                    1
+                ]);
+            }
+
+            /*
             foreach ($all_json_data AS $i => $json_data) {
 
                 unset($json_data->tool_json);
@@ -9776,6 +9826,7 @@ class AdminController extends Controller
                     1
                 ]);
             }
+            */
 
             DB::commit();
 
