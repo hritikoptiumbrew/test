@@ -2027,7 +2027,8 @@ class AdminController extends Controller
 
                     $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
                     if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
-                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+//                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+                        $tag_list = "sticker,resource";
                     }
 
                     $normal_image = (new ImageController())->generateNewFileName('normal_image', $image_array);
@@ -2128,7 +2129,8 @@ class AdminController extends Controller
 
                 $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
                 if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
-                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+//                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+                    $tag_list = "sticker,resource";
                 }
 
                 $catalog_img = (new ImageController())->generateNewFileName('catalog_img', $image_array);
