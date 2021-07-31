@@ -70,7 +70,8 @@ class TokenEntrustAbility extends BaseMiddleware
                 DB::delete('DELETE FROM user_session WHERE token = ?', [$token]);
                 DB::commit();
 
-                return Response::json(array('code' => 400, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
+//                return Response::json(array('code' => 400, 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 400, 'message' => "Your session has been expired.", 'cause' => '', 'data' => json_decode("{}")));
             } catch (JWTException $e) {
                 return Response::json(array('code' => $e->getStatusCode(), 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
             }

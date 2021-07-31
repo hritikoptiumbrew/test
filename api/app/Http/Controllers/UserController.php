@@ -6545,7 +6545,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getAllFontsByCatalogId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("getCorruptedFontList : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
