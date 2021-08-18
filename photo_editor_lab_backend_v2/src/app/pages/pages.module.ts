@@ -34,6 +34,7 @@ import { StatisticsModule } from './statistics/statistics.module';
 import { ImagedetailsModule } from './imagedetails/imagedetails.module';
 import { RediscacheModule } from './rediscache/rediscache.module';
 import { SettingsModule } from './settings/settings.module';
+import { SearchComponent } from './search/search.component';
 
 @NgModule({
   imports: [
@@ -59,6 +60,7 @@ import { SettingsModule } from './settings/settings.module';
   ],
   declarations: [
     PagesComponent,
+    SearchComponent,
   ],
 })
 export class PagesModule {
