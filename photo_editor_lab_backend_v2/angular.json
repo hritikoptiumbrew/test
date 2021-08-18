@@ -189,6 +189,9 @@
     },
     "@schematics/angular:directive": {
       "prefix": "ngx"
+    },
+    "@schematics/angular:application": {
+      "strict": false
     }
   },"cli": {
     "analytics": false
