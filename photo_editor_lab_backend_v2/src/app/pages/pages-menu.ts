@@ -37,6 +37,11 @@ export const MENU_ITEMS: NbMenuItem[] = [
     link: '/admin/image-details'
   },
   {
+    title: 'Search',
+    icon: 'search',
+    link: '/admin/search'
+  },
+  {
     title: 'Redis Cache',
     icon: 'hard-drive-outline',
     link: '/admin/redis-cache'

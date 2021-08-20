@@ -1,0 +1,55 @@
+<nb-card class="dialog mb-0" (keyup.enter)="onsubmit()">
+    <nb-card-header class="text-center position-relative">
+        <h5 class="mb-0">Upadate Template's Tag</h5>
+        <div class="bottom">
+            <button class="position-absolute close" (click)="close()">
+                <nb-icon icon="close"></nb-icon>
+            </button>
+        </div>
+    </nb-card-header>
+    <nb-card-body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <div class="d-flex align-items-center">
+                        <input type="text" class=" searchInput" nbInput [(ngModel)]="inputVal" status="basic"
+                            placeholder="Enter Tag">
+                        <button nbButton size="small" class="mx-2 border searchButton" shape="squer" (click)="searchByTags()">
+                            <nb-icon icon="search"></nb-icon>
+                        </button>
+                    </div>
+                    <div class="mt-2 height-30">
+                        <button nbButton shape="round" outline class="mx-2 my-1" *ngFor="let name of tagList" size="tiny"
+                            status="info">{{ name }} <nb-icon icon="close" status="danger" (click)="removeTags(name)"></nb-icon>
+                        </button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <div class="col-12">
+                            <span class="mb-0 my-1 tag">Selected Tags : </span>
+                            <button nbButton shape="round" class="mx-2 my-1" *ngFor="let data of dataFromPage"
+                                size="tiny" status="info">{{ data }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <nb-list class="container-fluid mt-4 dataCenter min-280" nbInfiniteList [threshold]="0.5"
+                (bottomThreshold)="loadNext()">
+                <nb-list-item class="row">
+                    <div class="col-lg-2 col-3 my-3 d-flex justify-content-center position-relative"
+                        *ngFor="let img of responseData">
+                        <img src="{{ img.sample_image }}" alt="" class="" width="100px">
+                        <input type="checkbox" class="positio-absolute check" (change)="addImgId(img.json_id)">
+                    </div>
+                </nb-list-item>
+            </nb-list>
+        </div>
+    </nb-card-body>
+    <nb-card-footer>
+        <div class="text-center ">
+            <button   class="my-1 w-25 btn btn-primary" status="Default"
+                (click)="updateTag()">SAVE</button>
+        </div>
+    </nb-card-footer>
+</nb-card>

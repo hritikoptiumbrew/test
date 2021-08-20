@@ -1,0 +1,68 @@
+.dialog {
+    width: 1000px;
+    max-height: 90vh;
+    overflow-y:hidden scroll;
+}
+.searchInput {
+    width: 350px;
+}
+.close {
+    right: 20px;
+    top: 20px;
+    position: absolute !important;
+    outline: none;
+}
+.check {
+    position: absolute;
+    height: 25px;
+    width: 25px;
+    right: 10px;
+    top: -10px;
+}
+.tag {
+    font-size: 18px;
+    font-weight: 700;
+}
+nb-card-header nb-icon {
+    font-size: 2rem;
+}
+.dataCenter {
+    max-height: 350px;
+    overflow-y: scroll;
+    ::-webkit-scrollbar{
+        width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+        width: 5px;
+      }
+}
+.save {
+    display: table-cell;
+    vertical-align: bottom;
+}
+.min-280{
+    min-height: 280px;
+}
+.height-30{
+    height: 30px;
+}
+.searchButton{
+    padding:11px 10px !important;
+}
+
+@media (max-width: 1024px) {
+    .searchInput {
+        width: 250px;
+    }
+    .dialog {
+        width: 700px;
+    }
+    .check {
+        position: absolute;
+        height: 25px;
+        width: 25px;
+        right: 10px;
+        top: -10px;
+    }
+}

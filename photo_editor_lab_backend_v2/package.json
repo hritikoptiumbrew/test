@@ -72,7 +72,7 @@
     "ng2-smart-table": "^1.6.0",
     "ngx-echarts": "^4.2.2",
     "ngx-paginate": "^2.0.1",
-    "ngx-pagination": "^5.0.0",
+    "ngx-pagination": "^5.1.1",
     "ngx-summernote": "^0.8.0",
     "ngx-virtual-scroller": "^4.0.3",
     "node-sass": "^4.12.0",

@@ -1,0 +1,42 @@
+.width-100 {
+    width: 100px;
+}
+.width-150 {
+    width: 150px;
+}
+.green {
+    color: green !important;
+}
+.red {
+    color: red;
+}
+tbody {
+    height: 250px !important;
+    overflow-y: scroll;
+    display: block;
+}
+thead,
+tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+::-webkit-scrollbar {
+    display: none;
+}
+.pointer {
+    cursor: pointer;
+}
+.check {
+    height: 20px;
+    width: 20px;
+}
+
+@media (max-width: 1025px) {
+    .width100 {
+        width: 60px;
+    }
+    .width150 {
+        width: 100px;
+    }
+}

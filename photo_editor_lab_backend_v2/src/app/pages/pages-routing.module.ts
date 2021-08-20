@@ -29,6 +29,7 @@ import { StatisticsComponent } from './statistics/statistics.component';
 import { ImagedetailsComponent } from './imagedetails/imagedetails.component';
 import { RediscacheComponent } from './rediscache/rediscache.component';
 import { SettingsComponent } from './settings/settings.component';
+import { SearchComponent } from './search/search.component';
 
 const routes: Routes = [{
   path: '',
@@ -86,6 +87,10 @@ const routes: Routes = [{
       path: 'settings',
       component: SettingsComponent
     },
+    {
+      path:'search',
+      component:SearchComponent
+    }
   ]
 }];
 

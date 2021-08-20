@@ -13,7 +13,7 @@
 
 
 import { NgModule } from '@angular/core';
-import { NbCardModule, NbMenuModule, NbWindowModule } from '@nebular/theme';
+import { NbAutocompleteModule, NbButtonModule, NbCardModule, NbIconModule, NbInputModule, NbListModule, NbMenuModule, NbRadioModule, NbSelectModule, NbWindowModule } from '@nebular/theme';
 
 import { ThemeModule } from '../@theme/theme.module';
 import { PagesComponent } from './pages.component';
@@ -35,6 +35,10 @@ import { ImagedetailsModule } from './imagedetails/imagedetails.module';
 import { RediscacheModule } from './rediscache/rediscache.module';
 import { SettingsModule } from './settings/settings.module';
 import { SearchComponent } from './search/search.component';
+import { FormsModule } from '@angular/forms';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { Daterangepicker } from 'ng2-daterangepicker';
+import { UpdateTagDialogComponent } from './search/update-tag-dialog/update-tag-dialog.component';
 
 @NgModule({
   imports: [
@@ -57,10 +61,21 @@ import { SearchComponent } from './search/search.component';
     ImagedetailsModule,
     RediscacheModule,
     SettingsModule, 
+    NbSelectModule,
+    NbRadioModule,
+    FormsModule,
+    NbInputModule,
+    NbAutocompleteModule,
+    NbIconModule,
+    Daterangepicker,
+    NbListModule,
+    NbButtonModule,
+    NgxPaginationModule
   ],
   declarations: [
     PagesComponent,
     SearchComponent,
+    UpdateTagDialogComponent,
   ],
 })
 export class PagesModule {

@@ -32,9 +32,9 @@ export class ImagedetailsComponent implements OnInit {
   j: any = 1;
   currentPage:any = 1;
   pageSize: any = [25,50,75,100];
-  selectedImageSize= '50';
+  selectedImageSize:any = '50';
   sortByTagName: any;
-  order_type: Boolean;
+  order_type: any;
   order_type_val: any;
   previousLabel = "<";
   nextLabel=">";
