@@ -81,6 +81,8 @@ export class AddcatalogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log(this.indexOfCatalog)
+
     if (this.catalogData) {
       if (this.catalogData.webp_original_img) {
         this.calogImage = this.catalogData.webp_original_img;
@@ -112,13 +114,20 @@ export class AddcatalogComponent implements OnInit {
       }
     }
 
-    let newList = this.catalogList[this.indexOfCatalog].search_category.split(',');
-    if (newList.length >= 0) {
-      for (let i = 0; i < newList.length; i++) {
+    // if(this.catalogList[this.indexOfCatalog].search_category !== null){
+    //   var newList = this.catalogList[this.indexOfCatalog].search_category.split(',');
+    //   if (newList.length >= 0) {
+    //     for (let i = 0; i < newList.length; i++) {
+    //       this.listOfTag.push(newList[i]);
+    //     }
+    //   }
+    // }
+    if(this.indexOfCatalog.search_category !== null){
+      let newList = this.indexOfCatalog.search_category.split(',')
+      for(let i = 0;i<newList.length;i++){
         this.listOfTag.push(newList[i]);
       }
     }
-
   }
 
   fileChange(event) {
@@ -323,6 +332,7 @@ export class AddcatalogComponent implements OnInit {
     }
   }
   addCatalog() {
+    console.log(this.listOfTag)
     var validObj = [
       {
         "id": 'addCalogInput',
@@ -374,7 +384,7 @@ export class AddcatalogComponent implements OnInit {
           "name": this.CalogName
         };
       }
-
+      
       this.formData.append('request_data', JSON.stringify(request_data));
       this.dataService.postData(catApliUrl, this.formData,
         {
@@ -422,7 +432,7 @@ export class AddcatalogComponent implements OnInit {
     }
   }
   addTag() {
-    let newName = this.tagName.split(',')
+    let newName = this.tagName.split(',');
     if (this.tagName == '') {
       return
     }
