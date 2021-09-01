@@ -21,8 +21,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
     <div class="row mb-9">
       <div class="col-md-5 pr-0">
         <input type="text" nbInput class="mw-100" id="tagInput" valid-status="false" [(ngModel)]="tagName"
-          placeholder="Enter new tag name here"
-          (keyup)="checkValidation('tagInput','','tagError','','','blank')"
+          placeholder="Enter new tag name here" (keyup)="checkValidation('tagInput','','tagError','','','blank')"
           (keyup.enter)="checkValidation('tagInput','','tagError',errormsg.TAG_EMPTY_NAME,'','usual')">
         <p id="tagError" style="color: red;margin-bottom: 0px;margin-top: 2px;height: 20px;"></p>
       </div>
@@ -50,13 +49,14 @@ Copyright 2018 - 2020 Optimumbrew Technology
             <th class="text-center">Templates</th>
             <th class="text-center">Actions</th>
           </tr>
-          
+
           <tr *ngFor="let item of searchTagList; let i = index;"
             [ngStyle]="{color : item.total_template==0 ? 'red' : 'black'}">
             <td class="width-75">{{ i+1 }}</td>
             <td *ngIf="item.is_update==false">{{item.tag_name}}</td>
             <td *ngIf="item.is_update==true">
-              <input type="text" class="mw-100" nbInput placeholder="Enter tag name" [(ngModel)]="item.tag_name" (keyup.enter)="updateSearchTag(item)">
+              <input type="text" class="mw-100" nbInput placeholder="Enter tag name" [(ngModel)]="item.tag_name"
+                (keyup.enter)="updateSearchTag(item)">
               <p id="editInputTag" style="color: red;margin-bottom: 0px;margin-top: 2px;height: 14px;"></p>
             </td>
             <td class="text-center">{{item.total_template}}</td>
