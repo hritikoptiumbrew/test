@@ -42,6 +42,8 @@ export class CatalogsgetComponent implements OnInit {
   searchQuery: any;
   errormsg = ERROR;
   totalImages:any;
+  listOfCatagory:any = [];
+  indexOfCatalog:any;
   constructor(private actRoute: ActivatedRoute, private validService: ValidationsService, private dialog: NbDialogService, private dataService: DataService, private utils: UtilService, private route: Router) {
     this.token = localStorage.getItem('at');
     this.broadHome = JSON.parse(localStorage.getItem('selected_category')).name;
@@ -181,13 +183,16 @@ export class CatalogsgetComponent implements OnInit {
   addCatalog() {
     this.open(false, "");
   }
-  editCatalog(data) {
+  editCatalog(data , i) {
+    this.indexOfCatalog = i;
     this.open(false, data);
   }
   protected open(closeOnBackdropClick: boolean, data) {
     this.dialog.open(AddcatalogComponent, {
       closeOnBackdropClick,closeOnEsc: false,autoFocus: false, context: {
-        catalogData: data
+        catalogData: data,
+        catalogList:this.catalogList,
+        indexOfCatalog: this.indexOfCatalog
       }
     }).onClose.subscribe((result) => {
       if (result.res == "add") {

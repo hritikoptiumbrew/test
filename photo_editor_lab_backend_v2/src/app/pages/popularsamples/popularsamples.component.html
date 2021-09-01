@@ -37,8 +37,15 @@ Copyright 2018 - 2020 Optimumbrew Technology
   </div>
 </div>
 <div class="row">
-  <div class="col-md-12 pr-0 text-right">
+  <div class="col-md-12 pr-0 text-right" *ngIf="!multiselectFlag">
+    <button class="btn btn-primary mr-2" (click)="templatesArr = [];multiselectFlag = true">Select background</button>
     <button class="btn btn-primary" (click)="uploadImages('')">Upload Images</button>
+  </div>
+  <div class="col-md-12 text-right pr-0" *ngIf="multiselectFlag">
+    <button class="btn btn-primary mr-2" (click)="SelectAllTemplate()" [disabled]='sampleData.length == 0'>Select All</button>
+    <button class="btn btn-primary mr-2" (click)="templatesArr = []" [disabled]='templatesArr.length == 0'>Remove All</button>
+    <button class="btn btn-success mr-2" (click)="moveMutipleTemplate()">Move Background</button>
+    <button class="btn btn-danger mr-2 w-10" (click)="templatesArr = [];multiselectFlag = false">Cancel</button>
   </div>
 </div>
 <div class="card-gallary-view row mt-2">
@@ -48,16 +55,23 @@ Copyright 2018 - 2020 Optimumbrew Technology
   </div>
   <div class="col-xl-2 col-md-3 col-sm-3  pr-0 pl-0" *ngFor="let item of sampleData">
     <nb-card class="card-content">
-      <div class="picture text-center" style="position: relative;overflow: hidden;" (click)="viewImage(item.display_compressed_img)">
+      <div class="picture text-center" style="position: relative;overflow: hidden;" (click)="!multiselectFlag?viewImage(item.display_compressed_img):addTemplateRank($event,item.img_id)">
         <img class="placeholder-img">
         <img [lazyLoad]="item.display_thumbnail_img" [errorImage]="utils.errorImg" onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" alt="Thumbnail image" (load)="imageLoad($event)">
+        <span class="rank-icon" *ngIf="templatesArr.indexOf(item.img_id) != -1">{{ templatesArr.indexOf(item.img_id) + 1 }}</span>
       </div>
-      <nb-card-footer class="mt-3" style="background: #E1E8F3;">
+      <nb-card-footer class="mt-3" style="background: #E1E8F3;" *ngIf='!multiselectFlag'>
         <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="uploadImages(item)">
           <nb-icon icon="edit-2" pack="eva"></nb-icon>
         </a>
         <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="deleteSampleImage(item)">
           <nb-icon icon="trash-2" pack="eva"></nb-icon>
+        </a>
+      </nb-card-footer>
+      <nb-card-footer  class="mt-3 " style="background: #E1E8F3; font-size: 17px;" *ngIf='multiselectFlag'>
+        <a  class="font-weight-bold" nbTooltipPlacement="bottom" type="button" nbTooltipStatus="primary" (click)="viewImage(item.display_compressed_img)">
+          <!-- <nb-icon icon="eye" pack="eva"></nb-icon> -->
+          View Image
         </a>
       </nb-card-footer>
     </nb-card>

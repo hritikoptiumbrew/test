@@ -53,7 +53,7 @@ export class ViewsubcategoriesComponent implements OnInit {
     { title: 'Copy Compressed Image URL', img_url: 'hello', img_type: 'Compressed Image' },
     { title: 'Copy Original Image URL', img_url: 'hello', img_type: 'Original Image' }
   ];
-  constructor(private menuService: NbMenuService, private dialog: NbDialogService, private route: Router, private actRoute: ActivatedRoute, private dataService: DataService, private utils: UtilService) {
+  constructor(private menuService: NbMenuService, private dialog: NbDialogService, private route: Router, private actRoute: ActivatedRoute, private dataService: DataService, public utils: UtilService) {
     this.token = localStorage.getItem('at');
     this.broadHome = JSON.parse(localStorage.getItem('selected_category')).name;
     this.broadSubHome = JSON.parse(localStorage.getItem('selected_sub_category')).name;
@@ -360,11 +360,11 @@ export class ViewsubcategoriesComponent implements OnInit {
     });
   }
   viewImage(imgUrl, type) {
-    console.log(type);
+    // console.log(type);
     this.dialog.open(ViewimageComponent, {
       context: {
         imgSrc: imgUrl,
-        typeImg: 'cat'
+        typeImg: 'cat',
       }
     })
   }
@@ -395,22 +395,22 @@ export class ViewsubcategoriesComponent implements OnInit {
     }
   }
   addTemplateRank(event, temp_index) {
-    if (this.templatesArr.length > 19) {
-      if (!this.templatesArr.includes(temp_index)) {
-        this.utils.showError("Maximum 20 templates are allow for select", 6000);
-      }
-      else {
-        this.templatesArr.splice(this.templatesArr.indexOf(temp_index), 1);
-      }
-    }
-    else {
+    // if (this.templatesArr.length > 19) {
+    //   if (!this.templatesArr.includes(temp_index)) {
+    //     this.utils.showError("Maximum 20 templates are allow for select", 6000);
+    //   }
+    //   else {
+    //     this.templatesArr.splice(this.templatesArr.indexOf(temp_index), 1);
+    //   }
+    // }
+    // else {
       if (!this.templatesArr.includes(temp_index)) {
         this.templatesArr.push(temp_index);
       }
       else {
         this.templatesArr.splice(this.templatesArr.indexOf(temp_index), 1);
       }
-    }
+    // }
   }
   uploadTemplateRankArr() {
     if (this.templatesArr.length == 0) {
@@ -457,6 +457,13 @@ export class ViewsubcategoriesComponent implements OnInit {
         this.utils.hideLoader();
         this.utils.showError(ERROR.SERVER_ERR, 4000);
       });
+    }
+  }
+
+  SelectAllTemplate() {
+    this.templatesArr = [];
+    for (let i = 0; i < this.viewCatdata.length; i++) {
+      this.templatesArr.push(this.viewCatdata[i].img_id);
     }
   }
 }

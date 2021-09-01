@@ -1,103 +1,99 @@
-<div>
-    <nb-card class="w-100">
-        <nb-card-body class="row">
-            <nb-select placeholder="Select Showcase" fullWidth [(selected)]="selectedItem" class="col px-2">
-                <nb-option value="">Search Type</nb-option>
-                <nb-option value="0">Status</nb-option>
-                <nb-option value="1">Tag</nb-option>
+<nb-card class="u_bar d-flex flex-sm-row flex-column justify-content-sm-between mb-3 align-items-sm-center">
+    <span class="details mb-2 mb-sm-0">Search Details</span>
+    <span class="total_data border">TOTAL TAGS : {{ total_data }} </span>
+</nb-card>
+<nb-card class="w-100 bg-lightgrey mb-0 main">
+    <nb-card-header class="row">
+        <button class="btn py-0 font-17" disabled><i class="fas fa-sliders-h"></i></button>
+        <nb-select placeholder="Select Showcase" fullWidth [(selected)]="selectedItem" class="col px-2">
+            <nb-option value="">
+                <nb-icon class="mr-3 mt-1" icon="options-2-outline"></nb-icon> Select Search Type
+            </nb-option>
+            <nb-option value="0">
+                <nb-icon class="mr-3 mt-1" icon="clipboard-outline"></nb-icon> Status
+            </nb-option>
+            <nb-option value="1">
+                <nb-icon class="mr-3 mt-1" icon="pricetags"></nb-icon> Tag
+            </nb-option>
+        </nb-select>
+        <div class="col " *ngIf="selectedItem == '0'">
+            <nb-radio-group class="d-flex justify-content-around" [(ngModel)]="selectedStauts">
+                <nb-radio value="1">Success</nb-radio>
+                <nb-radio value="2">Fail</nb-radio>
+            </nb-radio-group>
+        </div>
+        <div class="col" *ngIf="selectedItem == '1'">
+            <input type="text" nbInput fullWidth placeholder="Enter Tag Name" [(ngModel)]="selectedTag">
+        </div>
+        <div class="col px-0 mx-2">
+            <input #CatInput nbInput [(ngModel)]="inputValSub" type="text" (input)="onGetValue($event)" fullWidth
+                [nbAutocomplete]="auto" focusInputOnValueChange="false" />
+            <nb-autocomplete #auto (selectedChange)="SelectionChange($event)">
+                <nb-option *ngFor="let options of filterOptions$ | async" [value]="options">
+                    {{ options }}
+                </nb-option>
+            </nb-autocomplete>
+        </div>
+        <div class="col px-0 mx-2">
+            <input type="text" #date nbInput class="" fullWidth name="daterangeInput" daterangepicker
+                [options]="optionsD" (selected)="selectedDate($event, daterange)" value="{{ start }} - {{ end }}" />
+        </div>
+        <div class="">
+            <button class="btn border mx-1 bg-white" (click)="onSerchButton()">
+                <nb-icon icon="search"></nb-icon>
+            </button>
+            <button class="btn border ml-1 mr-2 py-2 bg-white" (click)="openDia()" [disabled]="!checked">
+                <b>ADD</b>
+            </button>
+            <nb-select placeholder="10" class="itemsOnPage" [(selected)]="selectedNumberOfItems"
+                (selectedChange)="typeChange()" class="">
+                <nb-option value="25">25</nb-option>
+                <nb-option value="50">50</nb-option>
+                <nb-option value="75">75</nb-option>
+                <nb-option value="100">100</nb-option>
             </nb-select>
-            <div class="col " *ngIf="selectedItem == '0'">
-                <nb-radio-group class="d-flex justify-content-around" [(ngModel)]="selectedStauts">
-                    <nb-radio value="1">Success</nb-radio>
-                    <nb-radio value="2">Fail</nb-radio>
-                </nb-radio-group>
-            </div>
-            <div class="col" *ngIf="selectedItem == '1'">
-                <input type="text" nbInput fullWidth placeholder="Tag Name" [(ngModel)]="selectedTag">
-            </div>
-            <div class="col px-0 mx-2">
-                <input #CatInput nbInput [(ngModel)]="inputValSub" type="text" (input)="onGetValue($event)" fullWidth
-                    (ngModelChange)="change()" [nbAutocomplete]="auto" focusInputOnValueChange="false" />
-                <nb-autocomplete #auto (selectedChange)="SelectionChange($event)">
-                    <nb-option *ngFor="let options of filterOptions$ | async" [value]="options">
-                        {{ options }}
-                    </nb-option>
-                </nb-autocomplete>
-            </div>
-
-            <div class="col px-0 mx-2">
-                <input type="text" #date nbInput class="" fullWidth name="daterangeInput" daterangepicker
-                    [options]="optionsD" (selected)="selectedDate($event, daterange)" value="{{ start }} - {{ end }}" />
-            </div>
-
-            <div class="">
-                <button class="btn border mx-1" (click)="onserch()">
-                    <nb-icon icon="search"></nb-icon>
-                </button>
-                <button class="btn border mx-1 py-2" (click)="openDia()" [disabled]="!checked">
-                    <b>ADD</b>
-                </button>
-                <nb-select placeholder="10" class="itemsOnPage" [(selected)]="selectedNumberOfItems"
-                        (selectedChange)="typeChange()" class="">
-                        <nb-option value="10">10</nb-option>
-                        <nb-option value="25">25</nb-option>
-                        <nb-option value="50">50</nb-option>
-                    </nb-select>
-            </div>
-
-        </nb-card-body>
-    </nb-card>
-
-    <nb-card>
-        <nb-card-body>
-            <table class="table text-center">
-                <thead class="">
-                    <tr class="mx-0 ">
-                        <th class="width-100">#</th>
-                        <th class="width-150">Check Box</th>
-                        <th scope="col">Tag Name</th>
-                        <th scope="col" class="pointer"
-                            (click)="sortBy('content_count', order_type == true ? 'ASC' : 'DESC')">Content Count</th>
-                        <th scope="col" class="pointer"
-                            (click)="sortBy('search_count', order_type == true ? 'ASC' : 'DESC')">Search Count</th>
-                        <th scope="col">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="w-100 mx-0" scope="row"
-                        *ngFor="let row of dataForTable | paginate:{itemsPerPage: selectedNumberOfItems, currentPage: pageNum, totalItems: total_data }  let i = index ">
-                        <td class="width-100">{{ (pageNum - 1) * numberOfItems + i + 1 }}</td>
-                        <td class="width-150"><input type="checkbox" class="check" (change)="checkBox($event ,i, row) ">
-                        </td>
-                        <td>{{row.tag}}</td>
-                        <td>{{ row.content_count }}
-                            <button class="btn ml-2" (click)="onRefresh(row.tag , row.id)">
-                                <nb-icon icon="refresh"></nb-icon>
-                            </button>
-                        </td>
-                        <td>{{ row.search_count }}</td>
-                        <td [ngClass]="row.is_success == 1? 'green':'red'">{{ row.is_success == 1? "Success": "Fail" }}
-                        </td>
-                    </tr>
-                    <h5 *ngIf="dataForTable.length == 0" class="pt-4">No Data Available</h5>
-                </tbody>
-            </table>
-            <!-- <ng2-smart-table [settings]="settings" [source]="sourse"></ng2-smart-table> -->
-        </nb-card-body>
-    </nb-card>
-</div>
-<!-- <nav aria-label="Page navigation example">
-          <ul class="pagination justify-content-center">
-            <li class="page-item disabled">
-              <a class="page-link" tabindex="-1" type="button">Previous</a>
-            </li>
-            <li class="page-item"><a class="page-link" type="button">{{ pageNum }}</a></li>
-            <li class="page-item" [ngClass]='!isNextPage? "disabled":""' (click)="onserch()"><a class="page-link" type="button">2</a></li>
-            <li class="page-item" [ngClass]='!isNextPage? "disabled":""'>
-              <a class="page-link" type="button">Next</a>
-            </li>
-          </ul>
-        </nav> -->
-<pagination-controls class="text-center paginate" (pageChange)="handlePageChange($event)" previousLabel="Prev"
-    nextLabel="Next" responsive="true" [previousLabel]="pre" [nextLabel]="next">
-</pagination-controls>
+        </div>
+    </nb-card-header>
+    <nb-card-body class="p-0">
+        <table class="text-center table-striped position-relative">
+            <thead class="">
+                <tr class="mx-0 ">
+                    <th class="width-100"><input type="text" type="checkbox" class="check pt-1 pointer" #master
+                            (change)="selectAllCheckBox($event)" [checked]="masterCheck"></th>
+                    <th class="width-100">#</th>
+                    <th scope="col">Tag Name</th>
+                    <th class="pointer width-200"
+                        (click)="sortBy('content_count', order_type == true ? 'ASC' : 'DESC')">Content Count</th>
+                    <th scope="col" class="pointer width-150"
+                        (click)="sortBy('search_count', order_type == true ? 'ASC' : 'DESC')">Search Count</th>
+                    <th scope="col" class="width-200">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="w-100 mx-0" scope="row"
+                    *ngFor="let row of dataForTable | paginate:{itemsPerPage: selectedNumberOfItems, currentPage: pageNum, totalItems: total_data }  let i = index ">
+                    <td class="width-100"><input type="checkbox" class="check pointer"
+                            (change)="checkBox($event ,i, row)" #checBoxes [checked]='masterCheck'>
+                    </td>
+                    <td class="width-100">{{ (pageNum - 1) * numberOfItems + i + 1 }}</td>
+                    <td class="min-300">{{row.tag}}</td>
+                    <td class="width-200">{{ row.content_count }}
+                        <button class="btn p-0 m-2 shadow-none" (click)="onRefresh(row.tag , row.id)">
+                            <nb-icon icon="refresh"></nb-icon>
+                        </button>
+                    </td>
+                    <td class="width-150">{{ row.search_count }}</td>
+                    <td class="width-200" [ngClass]="row.is_success == 1? 'green':'red'">{{ row.is_success == 1?
+                        "Success": "Fail" }}
+                    </td>
+                </tr>
+                <h5 *ngIf="dataForTable.length == 0" class="pt-4">No Data Available</h5>
+            </tbody>
+        </table>
+    </nb-card-body>
+    <nb-card-footer>
+        <pagination-controls class="text-center paginate mb-0" (pageChange)="handlePageChange($event)"
+            previousLabel="Prev" nextLabel="Next" responsive="true" [previousLabel]="pre" [nextLabel]="next">
+        </pagination-controls>
+    </nb-card-footer>
+</nb-card>

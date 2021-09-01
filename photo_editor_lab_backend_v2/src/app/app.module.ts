@@ -42,6 +42,7 @@ import {
   NbSelectModule,
   NbIconModule,
   NbTooltipModule,
+  NbButtonModule,
 } from '@nebular/theme';
 
 import { LoadingComponent } from './components/loading/loading.component';
@@ -103,7 +104,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
     NbIconModule,
     AuthModule,
     NbTooltipModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    NbButtonModule
   ],
   bootstrap: [AppComponent],
 })

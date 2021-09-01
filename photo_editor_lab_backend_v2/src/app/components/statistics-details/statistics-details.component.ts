@@ -60,7 +60,7 @@ export class StatisticsDetailsComponent implements OnInit {
   token: any;
   previousLabel = "<";
   nextLabel=">";
-  order_type: Boolean;
+  order_type: any;
   order_type_val: any;
   sortByTagName:any;
   constructor(private dialogRef: NbDialogRef<StatisticsDetailsComponent>, private dataService: DataService, private utils: UtilService) {

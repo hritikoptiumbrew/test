@@ -33,6 +33,7 @@ export class MovetocatalogComponent implements OnInit {
   token: any;
   errormsg: any;
   imgIds:any = [];
+  title:string = 'Template';
   constructor(private dialog: NbDialogRef<MovetocatalogComponent>, private dataService: DataService, private utils: UtilService) {
     this.token = localStorage.getItem('at');
     this.utils.dialogref = this.dialog;

@@ -26,11 +26,15 @@ export class ViewimageComponent implements OnInit {
 
   imgSrc: any;
   typeImg:any;
+  category_id:any;  
   constructor(private utils: UtilService,private dialogRef: NbDialogRef<ViewimageComponent>) { 
     this.utils.dialogref = this.dialogRef;
+    
   }
 
   ngOnInit(): void {
+    this.category_id = JSON.parse(localStorage.getItem('selected_category')).category_id;
+    
   }
 
   closeDialog() {

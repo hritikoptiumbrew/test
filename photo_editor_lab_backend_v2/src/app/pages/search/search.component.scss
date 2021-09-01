@@ -4,16 +4,56 @@
 .width-150 {
     width: 150px;
 }
+.width-200 {
+    width: 200px;
+}
+.width-250 {
+    width: 250px;
+}
 .green {
     color: green !important;
 }
 .red {
     color: red;
 }
-tbody {
-    height: 250px !important;
-    overflow-y: scroll;
-    display: block;
+.font-17 {
+    font-size: 17px !important;
+}
+.main {
+    height: calc(100vh - 165px);
+}
+table {
+    border-collapse: collapse;
+    tbody {
+        overflow: hidden;
+        overflow-y: scroll;
+        display: block;
+    }
+    thead {
+        z-index: 1;
+        background: white;
+        position: sticky;
+        top: 0px;
+    }
+    tr:nth-child(even) {
+        background-color: #f7f9fc;
+    }
+    tr:nth-child(odd) {
+        background-color: #fff;
+    }
+    tr:hover td {
+        background: #edf1f7;
+    }
+    td,
+    th {
+        border: 0.5px solid #dee2e6;
+        padding: 10px 0px;
+        border-bottom: none;
+        border-left: none;
+    }
+    td {
+        padding: 10px 0px 8px 0px;
+    }
 }
 thead,
 tbody tr {
@@ -28,15 +68,67 @@ tbody tr {
     cursor: pointer;
 }
 .check {
-    height: 20px;
-    width: 20px;
+    height: 25px;
+    width: 25px;
 }
-
-@media (max-width: 1025px) {
-    .width100 {
-        width: 60px;
+.bg-lightgrey {
+    background: rgb(237, 241, 247);
+}
+.min-300 {
+    min-width: 300px !important;
+}
+nb-card-footer {
+    background-color: white;
+}
+.u_bar {
+    background-color: transparent !important;
+    border: none !important;
+    .details {
+        font-size: 15px;
+        opacity: 0.8 !important;
     }
-    .width150 {
-        width: 100px;
+    .total_data {
+        width: 25%;
+        text-align: center;
+        padding: 8px 0px;
+        background-color: white;
+        font-size: 17px;
+        font-weight: bold;
+    }
+}
+@media (max-width: 1250px) {
+    .width-100 {
+        width: 80px !important;
+    }
+    .width-150 {
+        width: 120px !important;
+    }
+    .width-200 {
+        width: 170px !important;
+    }
+}
+@media (max-width: 1023px) {
+    .width-100 {
+        width: 50px !important;
+    }
+    .width-150 {
+        width: 110px !important;
+    }
+    .width-200 {
+        width: 120px !important;
+    }
+}
+@media (max-width: 750px) {
+    table {
+        width: 700px;
+        overflow-x: hidden scroll;
+    }
+    .total_data {
+        width: 35% !important;
+    }
+}
+@media (max-width: 575px) {
+    .total_data {
+        width: 100% !important;
     }
 }

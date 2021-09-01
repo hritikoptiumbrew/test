@@ -15,6 +15,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NbDialogService } from '@nebular/theme';
+import { MovetocatalogComponent } from 'app/components/movetocatalog/movetocatalog.component';
 import { PopularsampleaddComponent } from 'app/components/popularsampleadd/popularsampleadd.component';
 import { ViewimageComponent } from 'app/components/viewimage/viewimage.component';
 import { DataService } from 'app/data.service';
@@ -36,10 +37,13 @@ export class PopularsamplesComponent implements OnInit {
   catalogId: any;
   sampleData: any;
   SubCategoryName: any;
-  pageSize: any = [25,50,75,100];
+  pageSize: any = [25, 50, 75, 100];
   selectedPageSize: any = '50';
   token: any;
-  constructor(private dialog: NbDialogService, private route: Router, private actRoute: ActivatedRoute, private dataService: DataService, private utils: UtilService) {
+  templatesArr: any = [];
+  multiselectFlag: any = false;
+  viewCatdata: any;
+  constructor(private dialog: NbDialogService, private route: Router, private actRoute: ActivatedRoute, private dataService: DataService, public utils: UtilService) {
     this.token = localStorage.getItem("at");
   }
 
@@ -73,7 +77,7 @@ export class PopularsamplesComponent implements OnInit {
   }
   protected open(closeOnBackdropClick: boolean, data) {
     this.dialog.open(PopularsampleaddComponent, {
-      closeOnBackdropClick,closeOnEsc: false,autoFocus: false, context: {
+      closeOnBackdropClick, closeOnEsc: false, autoFocus: false, context: {
         sampleData: data,
         catalogId: this.catalogId
       }
@@ -135,6 +139,7 @@ export class PopularsamplesComponent implements OnInit {
     }).then((results: any) => {
       if (results.code == 200) {
         this.sampleData = results.data.image_list;
+        // console.log(this.sampleData)
         this.totalRecords = this.sampleData.length;
         this.utils.hidePageLoader();
       }
@@ -160,17 +165,59 @@ export class PopularsamplesComponent implements OnInit {
       this.utils.showError(ERROR.SERVER_ERR, 4000);
     });
   }
-  viewImage(imgUrl){
-    this.dialog.open(ViewimageComponent, { context: {
+  viewImage(imgUrl) {
+    this.dialog.open(ViewimageComponent, {
+      context: {
         imgSrc: imgUrl,
         typeImg: 'cat'
       }
     })
   }
-  imageLoad(event){
-    if(event.target.previousElementSibling != null)
-    {
+  imageLoad(event) {
+    if (event.target.previousElementSibling != null) {
       event.target.previousElementSibling.classList.remove('placeholder-img');
+    }
+  }
+
+  moveMutipleTemplate() {
+    if (this.templatesArr.length == 0) {
+      this.utils.showError("Please select templates for move", 6000);
+    }
+    else {
+      this.openMove(false, this.sampleData[0], this.templatesArr);
+    }
+  }
+
+  protected openMove(closeOnBackdropClick: boolean, data, ids_arr) {
+    this.dialog.open(MovetocatalogComponent, {
+      closeOnBackdropClick, closeOnEsc: false, autoFocus: false, context: {
+        catalogData: data,
+        imgIds: ids_arr,
+        title:'Background'
+      }
+    }).onClose.subscribe((result) => {
+      if (result && result.res == "add") {
+        this.multiselectFlag = false;
+        this.templatesArr = [];
+        this.getAllBackgroundCatogory(this.catalogId);
+      }
+    });
+  }
+
+  addTemplateRank(event, temp_index) {
+    if (!this.templatesArr.includes(temp_index)) {
+      this.templatesArr.push(temp_index);
+      // console.log(temp_index)
+    }
+    else {
+      this.templatesArr.splice(this.templatesArr.indexOf(temp_index), 1);
+    }
+  }
+
+  SelectAllTemplate() {
+    this.templatesArr = [];
+    for (let i = 0; i < this.sampleData.length; i++) {
+      this.templatesArr.push(this.sampleData[i].img_id);
     }
   }
 }

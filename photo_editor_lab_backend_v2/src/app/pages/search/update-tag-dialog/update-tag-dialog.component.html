@@ -1,55 +1,70 @@
 <nb-card class="dialog mb-0" (keyup.enter)="onsubmit()">
-    <nb-card-header class="text-center position-relative">
-        <h5 class="mb-0">Upadate Template's Tag</h5>
-        <div class="bottom">
-            <button class="position-absolute close" (click)="close()">
-                <nb-icon icon="close"></nb-icon>
-            </button>
-        </div>
-    </nb-card-header>
-    <nb-card-body>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col">
-                    <div class="d-flex align-items-center">
-                        <input type="text" class=" searchInput" nbInput [(ngModel)]="inputVal" status="basic"
-                            placeholder="Enter Tag">
-                        <button nbButton size="small" class="mx-2 border searchButton" shape="squer" (click)="searchByTags()">
-                            <nb-icon icon="search"></nb-icon>
-                        </button>
-                    </div>
-                    <div class="mt-2 height-30">
-                        <button nbButton shape="round" outline class="mx-2 my-1" *ngFor="let name of tagList" size="tiny"
-                            status="info">{{ name }} <nb-icon icon="close" status="danger" (click)="removeTags(name)"></nb-icon>
-                        </button>
-                    </div>
+    <nb-card-header class="position-relative">
+        <h5 class="mb-4 pb-2 text-center">Upadate Template's Tag</h5>
+        <i class="fa fa-times close-icon position-absolute close" title="Close" (click)="close()"></i>
+        <div class="row mr-2">
+            <div class="col-6">
+                <div class="d-flex align-items-center">
+                    <input type="text" class="searchInput" nbInput fullWidth [(ngModel)]="inputVal" status="basic"
+                        placeholder="Enter Tag to Search Template">
+                    <button nbButton size="small" class="mx-2 border searchButton" shape="squer"
+                        (click)="searchByTags()">
+                        <nb-icon icon="search"></nb-icon>
+                    </button>
                 </div>
-                <div class="col">
-                    <div class="row">
-                        <div class="col-12">
-                            <span class="mb-0 my-1 tag">Selected Tags : </span>
-                            <button nbButton shape="round" class="mx-2 my-1" *ngFor="let data of dataFromPage"
-                                size="tiny" status="info">{{ data }}</button>
-                        </div>
+                <div class="mt-2">
+                    <div class="height-30">
+                        <p class="text-danger font-12 mb-1" *ngIf="showInputError">Enter Valid Tag</p>
+                        <button nbButton shape="round" outline class="mr-1 mt-1" *ngFor="let name of tagList"
+                            size="tiny" status="info">{{ name }} <nb-icon icon="close" status="danger"
+                                (click)="removeTags(name)">
+                            </nb-icon>
+                        </button>
                     </div>
                 </div>
             </div>
-            <nb-list class="container-fluid mt-4 dataCenter min-280" nbInfiniteList [threshold]="0.5"
+            <div class="col-6">
+                <div class="row border py-2">
+                    <div class="col-12 text-center border-bottom mb-2 pb-1">
+                        <span class="mb-0 my-1 tag">Selected Tags </span>
+                    </div>
+                    <div class="col-12 height-30">
+                        <button nbButton shape="round" class="mx-1 my-1" *ngFor="let data of filterDataFromPage"
+                            size="tiny" status="info">{{ data }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nb-card-header>
+    <nb-card-body class="p-0">
+        <div class="container-fluid px-0 px-sm-2">
+            <nb-list class="container-fluid mt-2 dataCenter min-280 py-0 px-0 px-sm-2" nbInfiniteList [threshold]=".5"
                 (bottomThreshold)="loadNext()">
-                <nb-list-item class="row">
-                    <div class="col-lg-2 col-3 my-3 d-flex justify-content-center position-relative"
-                        *ngFor="let img of responseData">
-                        <img src="{{ img.sample_image }}" alt="" class="" width="100px">
-                        <input type="checkbox" class="positio-absolute check" (change)="addImgId(img.json_id)">
+                <nb-list-item class="row border-0 px-1 px-sm-2">
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 my-3 d-flex justify-content-center"
+                        *ngFor="let img of imgData">
+                        <div class="d-flex justify-content-center align-items-center border-box position-relative ">
+                            <img src="{{ img.sample_image }}" alt="img" class="img_temp">
+                            <input type="checkbox" class="positio-absolute check pointer"
+                                (change)="addImgId(img.json_id , $event)">
+                        </div>
                     </div>
                 </nb-list-item>
             </nb-list>
         </div>
     </nb-card-body>
-    <nb-card-footer>
-        <div class="text-center ">
-            <button   class="my-1 w-25 btn btn-primary" status="Default"
-                (click)="updateTag()">SAVE</button>
+    <nb-card-footer class="text-center">
+        <button class="my-1 w-25 btn btn-primary" status="Default" (click)="updateTag()">SAVE</button>
+        <div class="text-center position-relative" *ngIf='pageLoader'>
+            <div class="loadingio-spinner-ellipsis-ztq6y3y446e">
+                <div class="ldio-ws8dh47c09">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
         </div>
     </nb-card-footer>
 </nb-card>
