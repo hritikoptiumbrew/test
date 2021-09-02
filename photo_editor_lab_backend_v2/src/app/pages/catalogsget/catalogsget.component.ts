@@ -184,7 +184,8 @@ export class CatalogsgetComponent implements OnInit {
     this.open(false, "");
   }
   editCatalog(data , i) {
-    this.indexOfCatalog = i;
+    // console.log(data);
+    this.indexOfCatalog = data;
     this.open(false, data);
   }
   protected open(closeOnBackdropClick: boolean, data) {
