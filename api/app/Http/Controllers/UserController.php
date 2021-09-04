@@ -7579,6 +7579,123 @@ class UserController extends Controller
         return $response;
     }
 
+    /**
+     * @api {post} searchCatalogBySubCategoryId   searchCatalogBySubCategoryId
+     * @apiName searchCatalogBySubCategoryId
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     *  "sub_category_id":94,
+     *  "search_category":"Fog"
+     *  "is_featured":1 //1=featured catalog,0= normal catalog
+     *  "page":1
+     *  "item_count":10
+     * }
+     * @apiSuccessExample Success-Response:
+     * {"code":200,"message":"Catalog fetched successfully.","cause":"","data":{"total_record":1,"is_next_page":false,"result":[{"catalog_id":451,"name":"Fog Sans","thumbnail_img":"http:\/\/192.168.0.105\/photo_editor_lab_backend\/image_bucket\/thumbnail\/5c74d4b47ff01_catalog_img_1551160500.jpg","compressed_img":"http:\/\/192.168.0.105\/photo_editor_lab_backend\/image_bucket\/compressed\/5c74d4b47ff01_catalog_img_1551160500.jpg","original_img":"http:\/\/192.168.0.105\/photo_editor_lab_backend\/image_bucket\/original\/5c74d4b47ff01_catalog_img_1551160500.jpg","webp_thumbnail_img":"http:\/\/192.168.0.105\/photo_editor_lab_backend\/image_bucket\/webp_thumbnail\/5c74d4b47ff01_catalog_img_1551160500.webp","is_free":0,"is_featured":0,"search_text":16.369916915893555,"updated_at":"2021-08-25 09:54:34"}]}}
+     */
+    public function searchCatalogBySubCategoryId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'is_featured', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->is_featured = $request->is_featured;
+            $this->search_category = strtolower(trim($request->search_category));
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+            //validate search text
+            $this->is_verified = (new VerificationController())->verifySearchText($this->search_category);
+
+            $redis_result = Cache::rememberforever("searchCatalogBySubCategoryId$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
+
+                $search_category = $this->search_category;
+                $code = 200;
+                $message = "Catalog fetched successfully.";
+
+                if ($this->is_verified == 1) {
+                    $total_row_result = DB::select('SELECT
+                                                      count(*) AS total
+                                                    FROM
+                                                      catalog_master AS cm,
+                                                      sub_category_catalog as sct
+                                                    WHERE
+                                                      sct.sub_category_id = ? AND
+                                                      sct.catalog_id = cm.id AND
+                                                      cm.is_featured = ? AND
+                                                      sct.is_active = 1 AND
+                                                      (MATCH(cm.search_category) AGAINST("' . $search_category . '") OR 
+                                                        MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE))',
+                        [$this->sub_category_id,$this->is_featured]);
+
+                    $total_row = $total_row_result[0]->total;
+
+                    $search_result = DB::select('SELECT
+                                                    cm.id AS catalog_id,
+                                                    cm.name,
+                                                    IF(cm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as thumbnail_img,
+                                                    IF(cm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as compressed_img,
+                                                    IF(cm.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as original_img,
+                                                    IF(cm.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.attribute1),"") as webp_thumbnail_img,
+                                                    cm.is_free,
+                                                    cm.is_featured,
+                                                    MATCH(cm.search_category) AGAINST("' . $search_category . '") +
+                                                    MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text,
+                                                    cm.updated_at
+                                                FROM
+                                                   catalog_master AS cm,
+                                                   sub_category_catalog as sct
+                                                WHERE
+                                                    sct.sub_category_id = ? AND
+                                                    sct.catalog_id = cm.id AND
+                                                    cm.is_featured = ? AND
+                                                    sct.is_active = 1 AND
+                                                    (MATCH(cm.search_category) AGAINST("' . $search_category . '") OR 
+                                                    MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE))
+                                                ORDER BY search_text DESC,cm.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->is_featured, $this->offset, $this->item_count]);
+
+                } else {
+                    $search_result = [];
+                    $total_row = 0;
+                }
+
+                if($total_row <= 0){
+                    $message="Sorry, we couldn't find any catalog for '$search_category'";
+                }
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
+
+                $result = array('category_list' => $search_result, 'code' => $code, 'message' => $message);
+
+                return $result;
+            });
+
+            if (!$redis_result) {
+                $redis_result = array('category_list' => array(), 'code' => 200, 'message' => "Sorry,There are no any catalog.");
+            }
+
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['category_list']));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("searchCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
 
     /**
      *

@@ -374,11 +374,9 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
     Route::post('addCategoryNameAsTag', 'UserController@addCategoryNameAsTag');
 
-
-    /* ===================| (created by Sagar Surani) |=================== */
-    //Get Searching tag by subcategory id
-
+    //Get Searching tag by sub_category_id
     Route::post('getSearchTagBySubCategoryId', 'UserController@getSearchTagBySubCategoryId');
+    Route::post('searchCatalogBySubCategoryId', 'UserController@searchCatalogBySubCategoryId');
 
 });
 

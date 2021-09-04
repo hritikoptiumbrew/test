@@ -669,6 +669,11 @@ class DeleteCacheKey
                 foreach ($keys as $key) {
                     Redis::del($key);
                 }
+
+                $keys = Redis::keys('pel:searchCatalogBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
             }
 
             //Validations for file size

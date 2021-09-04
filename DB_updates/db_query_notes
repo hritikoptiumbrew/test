@@ -167,3 +167,8 @@ ALTER TABLE `catalog_master` ADD `landscape_webp` VARCHAR(255) CHARACTER SET utf
 13) Photo_editor_lab : perform following query on database (27 April, 2021) For popular search tag for graphics,shapes,text-art and bg.
 -------------------------------------------------------------------------------------------------
 ALTER TABLE `sub_category_tag_master` ADD `is_template` TINYINT(1) NOT NULL DEFAULT '1' COMMENT '1=tag of template,0=tag of graphics,text-art,shape,bg (Sticker)' AFTER `is_active`;
+
+14) Photo_editor_lab : perform following query on database (04 Sep, 2021) For font search module.
+-------------------------------------------------------------------------------------------------
+ALTER TABLE `catalog_master` ADD `search_category` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `popularity_rate`, ADD FULLTEXT `search_category` (`search_category`);
+ALTER TABLE `sub_category_tag_master` CHANGE `is_template` `is_template` TINYINT(1) NOT NULL DEFAULT '1' COMMENT '1=tag of template,0=tag of graphics,text-art,shape,bg (Sticker),2=catalog';
