@@ -99,6 +99,11 @@ class DeleteCacheKey
             //Catalog-Category
             if ($api == '/api/addCatalog' or $api == '/api/updateCatalog' or $api == '/api/deleteCatalog' or $api == '/api/linkCatalog' or $api == '/api/deleteLinkedCatalog' or $api == '/api/setCatalogRankOnTheTopByAdmin') {
 
+                //searchCatalogBySubCategoryId
+                $keys = Redis::keys('pel:searchCatalogBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
 
                 //getFeaturedCatalogBySubCategoryId
                 $keys = Redis::keys('pel:getFeaturedCatalogBySubCategoryId*');
