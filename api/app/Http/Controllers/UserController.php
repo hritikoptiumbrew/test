@@ -7615,12 +7615,13 @@ class UserController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
             $this->is_featured = $request->is_featured;
-            $this->search_category = strtolower(trim($request->search_category));
+            $this->search_category = mb_strtolower(trim($request->search_category));
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
             //validate search text
-            $this->is_verified = (new VerificationController())->verifySearchText($this->search_category);
+//            $this->is_verified = (new VerificationController())->verifySearchText($this->search_category);
+            $this->is_verified = 1;
 
             $redis_result = Cache::rememberforever("searchCatalogBySubCategoryId$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
 
