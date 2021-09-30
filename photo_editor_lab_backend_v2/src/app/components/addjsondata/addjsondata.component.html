@@ -33,12 +33,29 @@ Copyright 2018 - 2020 Optimumbrew Technology
         <p id="imageError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
         <div class="row mt-4">
           <div class="col-md-4 pr-0">
-            <label class="d-block form-label">Pricing</label>
+            <label class="d-block form-label">Android Pricing</label>
           </div>
           <div class="col-md-8 pl-0">
             <div class="form-group">
               <nb-radio-group [(ngModel)]="selectedPrice" [attr.valid-status]="upJSonData?true:false"
                 id="radioCalogPriInput" name="my-radio-group1">
+                <nb-radio value="1">Free
+                </nb-radio>
+                <nb-radio value="0">Paid
+                </nb-radio>
+              </nb-radio-group>
+              <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 pr-0">
+            <label class="d-block form-label">IOS Pricing</label>
+          </div>
+          <div class="col-md-8 pl-0">
+            <div class="form-group">
+              <nb-radio-group [(ngModel)]="selectedIOSPrice" [attr.valid-status]="upJSonData?true:false"
+                id="radioCalogPriInputIOS" name="my-radio-groupios">
                 <nb-radio value="1">Free
                 </nb-radio>
                 <nb-radio value="0">Paid
@@ -107,8 +124,8 @@ Copyright 2018 - 2020 Optimumbrew Technology
         </div>
         <h6 class="mb-3">-- OR --</h6>
         <div class="form-group">
-          <textarea nbInput class="mw-100" [(ngModel)]="jsonData" style="height: 418px;"
-            placeholder="Enter JSON data" (keyup)="removeError()"></textarea>
+          <textarea nbInput class="mw-100" [(ngModel)]="jsonData" style="height: 418px;" placeholder="Enter JSON data"
+            (keyup)="removeError()"></textarea>
         </div>
       </div>
       <div class="col-md-12 post-table-div pr-0" *ngIf="incorrect_fonts.length > 0">
@@ -126,10 +143,12 @@ Copyright 2018 - 2020 Optimumbrew Technology
           </thead>
           <tbody>
             <tr *ngFor="let font_details of incorrect_fonts; let i = index;">
-              <td [ngClass]="font_details.is_correct_name==0 ? 'text-danger' : 'text-success'">{{font_details.font_name}}
+              <td [ngClass]="font_details.is_correct_name==0 ? 'text-danger' : 'text-success'">
+                {{font_details.font_name}}
               </td>
               <td>{{font_details.correct_font_name}}</td>
-              <td [ngClass]="font_details.is_correct_path==0 ? 'text-danger' : 'text-success'">{{font_details.font_path}}
+              <td [ngClass]="font_details.is_correct_path==0 ? 'text-danger' : 'text-success'">
+                {{font_details.font_path}}
               </td>
               <td>{{font_details.correct_font_path}}</td>
             </tr>

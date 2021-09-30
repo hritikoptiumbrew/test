@@ -39,6 +39,7 @@ export class AddcatalogComponent implements OnInit {
   errormsg = ERROR;
   selectCalogType: any = '0';
   selectCalogPrice: any = '1';
+  selectCalogPriceIOS: any = '1';
   selectedCategory: any;
   subCategoryId: any;
   catalogId: any;
@@ -81,7 +82,6 @@ export class AddcatalogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.indexOfCatalog)
 
     if (this.catalogData) {
       if (this.catalogData.webp_original_img) {
@@ -93,6 +93,7 @@ export class AddcatalogComponent implements OnInit {
       this.CalogName = this.catalogData.name;
       this.selectCalogType = this.catalogData.is_featured.toString();
       this.selectCalogPrice = this.catalogData.is_free.toString();
+      this.selectCalogPriceIOS = this.catalogData.is_ios_free ? this.catalogData.is_ios_free.toString() : this.catalogData.is_free.toString();
       this.catalogId = this.catalogData.catalog_id;
       if (this.catalogData.catalog_type) {
         this.selectedCatalogType = "" + this.catalogData.catalog_type;
@@ -122,9 +123,9 @@ export class AddcatalogComponent implements OnInit {
     //     }
     //   }
     // }
-    if(this.indexOfCatalog.search_category !== null){
+    if (this.indexOfCatalog.search_category !== null) {
       let newList = this.indexOfCatalog.search_category.split(',')
-      for(let i = 0;i<newList.length;i++){
+      for (let i = 0; i < newList.length; i++) {
         this.listOfTag.push(newList[i]);
       }
     }
@@ -363,6 +364,7 @@ export class AddcatalogComponent implements OnInit {
           "category_id": this.selectedCategory,
           "sub_category_id": this.subCategoryId,
           "is_free": this.selectCalogPrice,
+          "is_ios_free": this.selectCalogPriceIOS,
           "catalog_type": +this.selectedCatalogType,
           "event_date": this.eventDate,
           "popularity_rate": this.popularity,
@@ -377,6 +379,7 @@ export class AddcatalogComponent implements OnInit {
           "category_id": this.selectedCategory,
           "sub_category_id": this.subCategoryId,
           "is_free": this.selectCalogPrice,
+          "is_ios_free": this.selectCalogPriceIOS,
           "catalog_type": +this.selectedCatalogType,
           "event_date": this.eventDate,
           "popularity_rate": this.popularity,
@@ -384,7 +387,7 @@ export class AddcatalogComponent implements OnInit {
           "name": this.CalogName
         };
       }
-      
+
       this.formData.append('request_data', JSON.stringify(request_data));
       this.dataService.postData(catApliUrl, this.formData,
         {
@@ -438,7 +441,7 @@ export class AddcatalogComponent implements OnInit {
     }
     else {
       for (let l = 0; l < newName.length; l++) {
-        if(this.listOfTag.indexOf(newName[l])){
+        if (this.listOfTag.indexOf(newName[l])) {
           this.listOfTag.push(newName[l]);
         }
       }
