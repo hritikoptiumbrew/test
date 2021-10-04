@@ -9396,7 +9396,7 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'catalog_id', 'is_featured', 'is_free', 'search_category','category_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'catalog_id', 'is_featured', 'is_free', 'is_ios_free', 'search_category','category_id'), $request)) != '')
                 return $response;
 
             $catalog_id = $request->catalog_id;
@@ -9404,6 +9404,7 @@ class AdminController extends Controller
             $is_featured_catalog = 1; //Here we are passed 1 bcz resource images always uploaded from featured catalogs
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is template images
             $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
             $zip_url = $request->zip_url;
             $zip_name = $request->zip_name;
             $is_featured = $request->is_featured;
@@ -9583,12 +9584,13 @@ class AdminController extends Controller
 
             DB::insert('INSERT
                                 INTO
-                                  images(catalog_id,image,json_data,is_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                                  images(catalog_id,image,json_data,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
                 $catalog_id,
                 $catalog_image,
                 json_encode($json_data),
                 $is_free,
+                $is_ios_free,
                 $is_featured,
                 $is_portrait,
                 $search_category,
@@ -9650,6 +9652,7 @@ class AdminController extends Controller
             $zip_url = $request->zip_url;
             $zip_name = $request->zip_name;
             $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
             $is_portrait = $request->is_portrait;
             $search_category = json_decode(json_encode($request->search_category),true);
@@ -9815,12 +9818,13 @@ class AdminController extends Controller
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id,image,json_data,is_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                                  images(catalog_id,image,json_data,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
                     $catalog_id,
                     $catalog_image,
                     json_encode($all_json_data->{$pages_sequence}),
                     $is_free,
+                    $is_ios_free,
                     $is_featured,
                     $is_portrait,
                     strtolower($search_category[$pages_sequence]),
