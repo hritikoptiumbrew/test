@@ -1180,13 +1180,14 @@ class AdminController extends Controller
             }
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'name', 'is_featured', 'is_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'name', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
             $sub_category_id = $request->sub_category_id;
             $name = $request->name;
             $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
             $catalog_type = $request->catalog_type;
             $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
@@ -1308,6 +1309,7 @@ class AdminController extends Controller
                 'landscape_webp' => $landscape_webp,
                 'portrait_webp' => $portrait_webp,
                 'is_free' => $is_free,
+                'is_ios_free' => $is_ios_free,
                 'is_featured' => $is_featured,
                 'catalog_type' => $catalog_type,
                 'event_date' => $event_date,
@@ -1375,7 +1377,7 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'catalog_id', 'name', 'is_free', 'is_featured'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'catalog_id', 'name', 'is_free', 'is_ios_free', 'is_featured'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
@@ -1383,6 +1385,7 @@ class AdminController extends Controller
             $catalog_id = $request->catalog_id;
             $name = trim($request->name);
             $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
             $catalog_type = $request->catalog_type;
             $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
@@ -1552,12 +1555,13 @@ class AdminController extends Controller
                                 landscape_webp = IF(? != "",?,landscape_webp),
                                 portrait_webp = IF(? != "",?,portrait_webp),
                                 is_free = IF(? != is_free,?,is_free),
+                                is_ios_free = IF(? != is_ios_free,?,is_ios_free),
                                 is_featured = IF(? != is_featured,?,is_featured),
                                 event_date = IF(? != "",?,event_date),
                                 popularity_rate = IF(? != "",?,popularity_rate),
                                 search_category = IF(? != "",?,search_category),
                                 attribute1 = IF(? != "",?,attribute1)
-                              WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $catalog_type, $icon_name, $icon_name, $landscape_image, $landscape_image, $portrait_image, $portrait_image, $landscape_webp, $landscape_webp, $portrait_webp, $portrait_webp, $is_free, $is_free, $is_featured, $is_featured, $event_date, $event_date, $popularity_rate, $popularity_rate, $search_category, $search_category, $file_name, $file_name, $catalog_id]);
+                              WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $catalog_type, $icon_name, $icon_name, $landscape_image, $landscape_image, $portrait_image, $portrait_image, $landscape_webp, $landscape_webp, $portrait_webp, $portrait_webp, $is_free, $is_free, $is_ios_free, $is_ios_free, $is_featured, $is_featured, $event_date, $event_date, $popularity_rate, $popularity_rate, $search_category, $search_category, $file_name, $file_name, $catalog_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalog updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -4133,13 +4137,14 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
             $catalog_id = $request->catalog_id;
             $json_data = $request->json_data;
             $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
             $is_featured_catalog = $request->is_featured_catalog;
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is template images
@@ -4201,13 +4206,13 @@ class AdminController extends Controller
                 DB::beginTransaction();
                 /*DB::insert('INSERT
                                 INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at, attribute1)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at, $file_name]);*/
+                                  images(catalog_id, image, json_data, is_free, is_ios_free, is_featured, is_portrait, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $created_at, $file_name]);*/
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, created_at, attribute1)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $tag_list, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
+                                  images(catalog_id, image, json_data, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $tag_list, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
 
                 DB::commit();
             }
@@ -4314,7 +4319,7 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
@@ -4322,6 +4327,7 @@ class AdminController extends Controller
             $is_catalog = 0;//Here we are passed 0 bcz this is not image of catalog, this is normal images
             $img_id = $request->img_id;
             $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
             $json_data = isset($request->json_data) ? $request->json_data : '';
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
@@ -4360,12 +4366,12 @@ class AdminController extends Controller
 
                 DB::beginTransaction();
                 /*DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
+                                images SET image = ?, json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
 
                 DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, original_img_height = ?, original_img_width = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $tag_list, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
+                                images SET image = ?, json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, original_img_height = ?, original_img_width = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $tag_list, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
                 DB::commit();
 
                 if (strstr($file_name, '.webp')) {
@@ -4418,8 +4424,8 @@ class AdminController extends Controller
 
                 DB::beginTransaction();
                 DB::update('UPDATE
-                                images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?
-                                WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $img_id]);
+                                images SET json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, search_category = ?
+                                WHERE id = ?', [json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $img_id]);
                 DB::commit();
 
                 $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
