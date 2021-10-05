@@ -93,7 +93,7 @@ export class AddcatalogComponent implements OnInit {
       this.CalogName = this.catalogData.name;
       this.selectCalogType = this.catalogData.is_featured.toString();
       this.selectCalogPrice = this.catalogData.is_free.toString();
-      this.selectCalogPriceIOS = this.catalogData.is_ios_free ? this.catalogData.is_ios_free.toString() : this.catalogData.is_free.toString();
+      this.selectCalogPriceIOS = this.catalogData.is_ios_free == 0 || this.catalogData.is_ios_free == 1 ? this.catalogData.is_ios_free.toString() : this.catalogData.is_free.toString();
       this.catalogId = this.catalogData.catalog_id;
       if (this.catalogData.catalog_type) {
         this.selectedCatalogType = "" + this.catalogData.catalog_type;
