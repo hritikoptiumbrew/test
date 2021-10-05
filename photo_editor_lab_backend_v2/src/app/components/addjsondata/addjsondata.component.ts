@@ -77,7 +77,7 @@ export class AddjsondataComponent implements OnInit {
       this.selectedType = this.upJSonData.is_featured;
       this.selectedStyle = this.upJSonData.is_portrait.toString();
       this.selectedPrice = this.upJSonData.is_free.toString();
-      this.selectedIOSPrice = this.upJSonData.is_ios_free ? this.upJSonData.is_ios_free.toString() : this.upJSonData.is_free.toString();
+      this.selectedIOSPrice = this.upJSonData.is_ios_free == 1 || this.upJSonData.is_ios_free == 0 ? this.upJSonData.is_ios_free.toString() : this.upJSonData.is_free.toString();
       if (typeof this.upJSonData.search_category == "undefined" || this.upJSonData.search_category.trim() == "" || this.upJSonData.search_category == null) {
         this.selectedSearchTags = [];
       }
