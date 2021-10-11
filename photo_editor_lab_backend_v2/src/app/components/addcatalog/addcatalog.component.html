@@ -33,7 +33,8 @@ Copyright 2018 - 2020 Optimumbrew Technology
                 <i class="fa fa-camera" title="Click here to choose image"></i>
               </label>
             </div>
-            <p id="imageCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
+            <p id="imageCalogError"
+              style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
             <input type="file" id="fileInput1" autofocus="true" accept="image/*" style="display: none;"
               (change)="fileChange($event)">
           </div>
@@ -47,7 +48,8 @@ Copyright 2018 - 2020 Optimumbrew Technology
                 <i class="fa fa-camera" title="Click here to choose image"></i>
               </label>
             </div>
-            <p id="iconCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
+            <p id="iconCalogError"
+              style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
             <input type="file" id="fileInput2" autofocus="true" accept="image/png" style="display: none;"
               (change)="fileChangeicon($event)">
           </div>
@@ -61,7 +63,8 @@ Copyright 2018 - 2020 Optimumbrew Technology
                 <i class="fa fa-camera" title="Click here to choose image"></i>
               </label>
             </div>
-            <p id="lanscapeCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
+            <p id="lanscapeCalogError"
+              style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
             <input type="file" id="fileInput3" autofocus="true" accept="image/*" style="display: none;"
               (change)="fileChangeLandscape($event)">
           </div>
@@ -75,7 +78,8 @@ Copyright 2018 - 2020 Optimumbrew Technology
                 <i class="fa fa-camera" title="Click here to choose image"></i>
               </label>
             </div>
-            <p id="portraitCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
+            <p id="portraitCalogError"
+              style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
             <input type="file" id="fileInput4" autofocus="true" accept="image/*" style="display: none;"
               (change)="fileChangePortrait($event)">
           </div>
@@ -88,8 +92,9 @@ Copyright 2018 - 2020 Optimumbrew Technology
           </div>
           <div class="col-md-9 pl-0">
             <div class="form-group">
-              <input type="text" tabindex="-1" autofocus="false" nbInput placeholder="Enter catalog name" class="w-100 mw-100"
-                [(ngModel)]="CalogName" id="addCalogInput" [attr.valid-status]="catalogData?true:false"
+              <input type="text" tabindex="-1" autofocus="false" nbInput placeholder="Enter catalog name"
+                class="w-100 mw-100" [(ngModel)]="CalogName" id="addCalogInput"
+                [attr.valid-status]="catalogData?true:false"
                 (keyup)="checkValidation('addCalogInput','','inputCalogError','','','blank')"
                 (keyup.enter)="checkValidation('addCalogInput','','inputCalogError',errormsg.CAT_LOG_EMPTY,'','usual')">
               <p id="inputCalogError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 20px;"></p>
@@ -102,8 +107,11 @@ Copyright 2018 - 2020 Optimumbrew Technology
           </div>
           <div class="col-md-9 pl-0">
             <div class="form-group">
-              <input type="text" placeholder="Enter New Tag" class="w-100 mw-100" nbInput fullWidth [(ngModel)]='tagName' (keyup.enter)="addTag()">
-              <p class="mt-1 mb-0"><button nbButton class="mr-1 mb-1" outline shape="round" size="tiny" status="info" *ngFor='let tag of listOfTag'>{{ tag }} <nb-icon icon="close" status='danger' (click)='removeTag(tag)'></nb-icon> </button></p>
+              <input type="text" placeholder="Enter New Tag" class="w-100 mw-100" nbInput fullWidth
+                [(ngModel)]='tagName' (keyup.enter)="addTag()">
+              <p class="mt-1 mb-0"><button nbButton class="mr-1 mb-1" outline shape="round" size="tiny" status="info"
+                  *ngFor='let tag of listOfTag'>{{ tag }} <nb-icon icon="close" status='danger'
+                    (click)='removeTag(tag)'></nb-icon> </button></p>
             </div>
           </div>
         </div>
@@ -116,16 +124,26 @@ Copyright 2018 - 2020 Optimumbrew Technology
               <nb-select [(selected)]="selectedCatalogType" class="w-100 mw-100">
                 <nb-option *ngFor="let item of catalogTypes" value="{{item.value}}">{{ item.name }}</nb-option>
               </nb-select>
-              <p *ngIf="selectedCatalogType == 3" class="text-info"><b>Note:</b> For Non-Fix date catalog you have to update date every year starting</p>
+              <p *ngIf="selectedCatalogType == 3" class="text-info"><b>Note:</b> For Non-Fix date catalog you have to
+                update date every year starting</p>
             </div>
           </div>
           <div class="col-md-1 pl-0">
-            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 2" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Event which have fix date in every year.Ex kites day,valentine's day,teacher's day etc." nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-            nbTooltipTrigger="hint"></nb-icon>
-            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 3" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Event which have no fix date but it come in every year.Ex Diwali,Holi etc." nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-            nbTooltipTrigger="hint"></nb-icon>
-            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 4" pack="eva" style="font-size: 26px;margin-top: 5px;" nbTooltip="Event which have no any date but it's come.Ex birthday,anniversary etc." nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-            nbTooltipTrigger="hint"></nb-icon>
+            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 2" pack="eva"
+              style="font-size: 26px;margin-top: 5px;"
+              nbTooltip="Event which have fix date in every year.Ex kites day,valentine's day,teacher's day etc."
+              nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint" nbTooltipTrigger="hint">
+            </nb-icon>
+            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 3" pack="eva"
+              style="font-size: 26px;margin-top: 5px;"
+              nbTooltip="Event which have no fix date but it come in every year.Ex Diwali,Holi etc."
+              nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint" nbTooltipTrigger="hint">
+            </nb-icon>
+            <nb-icon icon="info-outline" *ngIf="selectedCatalogType == 4" pack="eva"
+              style="font-size: 26px;margin-top: 5px;"
+              nbTooltip="Event which have no any date but it's come.Ex birthday,anniversary etc."
+              nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint" nbTooltipTrigger="hint">
+            </nb-icon>
           </div>
         </div>
         <div class="row">
@@ -160,15 +178,31 @@ Copyright 2018 - 2020 Optimumbrew Technology
             </div>
           </div>
         </div>
-    
+
         <div class="row">
           <div class="col-md-3 pr-0">
-            <label class="d-block form-label">Pricing</label>
+            <label class="d-block form-label">Android Pricing</label>
           </div>
           <div class="col-md-9 pl-0">
             <div class="form-group mb-0">
               <nb-radio-group [(ngModel)]="selectCalogPrice" id="radioCalogPriInput"
                 [attr.valid-status]="catalogData?true:false" name="my-radio-group1">
+                <nb-radio value="1">Free
+                </nb-radio>
+                <nb-radio value="0">Paid
+                </nb-radio>
+              </nb-radio-group>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3 pr-0">
+            <label class="d-block form-label">IOS Pricing</label>
+          </div>
+          <div class="col-md-9 pl-0">
+            <div class="form-group mb-0">
+              <nb-radio-group [(ngModel)]="selectCalogPriceIOS" id="radioCalogPriInputIOS"
+                [attr.valid-status]="catalogData?true:false" name="my-radio-groupios">
                 <nb-radio value="1">Free
                 </nb-radio>
                 <nb-radio value="0">Paid
@@ -199,8 +233,10 @@ Copyright 2018 - 2020 Optimumbrew Technology
   <nb-card-footer class="pb-0">
     <div class="form-group text-center">
       <p id="CalogAddError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;"></p>
-      <button *ngIf="!catalogData" class="btn bg-primary text-light w-50" id="subCalogAdd" (click)="addCatalog()">Add</button>
-      <button *ngIf="catalogData" class="btn bg-primary text-light w-50" id="subCalogAdd" (click)="addCatalog()">Update</button>
+      <button *ngIf="!catalogData" class="btn bg-primary text-light w-50" id="subCalogAdd"
+        (click)="addCatalog()">Add</button>
+      <button *ngIf="catalogData" class="btn bg-primary text-light w-50" id="subCalogAdd"
+        (click)="addCatalog()">Update</button>
     </div>
   </nb-card-footer>
 </nb-card>

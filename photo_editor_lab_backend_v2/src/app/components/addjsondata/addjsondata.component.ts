@@ -40,6 +40,7 @@ export class AddjsondataComponent implements OnInit {
   jsonImage: any;
   selectedType: any = '0';
   selectedPrice: any = '1';
+  selectedIOSPrice: any = '1';
   selectedStyle: any = '1';
   catalogId: any;
   formData = new FormData();
@@ -76,6 +77,7 @@ export class AddjsondataComponent implements OnInit {
       this.selectedType = this.upJSonData.is_featured;
       this.selectedStyle = this.upJSonData.is_portrait.toString();
       this.selectedPrice = this.upJSonData.is_free.toString();
+      this.selectedIOSPrice = this.upJSonData.is_ios_free == 1 || this.upJSonData.is_ios_free == 0 ? this.upJSonData.is_ios_free.toString() : this.upJSonData.is_free.toString();
       if (typeof this.upJSonData.search_category == "undefined" || this.upJSonData.search_category.trim() == "" || this.upJSonData.search_category == null) {
         this.selectedSearchTags = [];
       }
@@ -107,15 +109,15 @@ export class AddjsondataComponent implements OnInit {
           var newStr = event.target.value;
           var newArr = newStr.split(",");
           for (let i = 0; i < newArr.length; i++) {
-          if ((newArr[i] || '').trim()) {
-            this.selectedSearchTags.push(newArr[i].trim().toLowerCase());
+            if ((newArr[i] || '').trim()) {
+              this.selectedSearchTags.push(newArr[i].trim().toLowerCase());
+            }
           }
-        }
           document.getElementById("tagInputError").innerHTML = "";
           this.searchINputControl.setValue("");
         }
       }
-      else{
+      else {
         this.searchINputControl.setValue("");
       }
     }
@@ -135,9 +137,9 @@ export class AddjsondataComponent implements OnInit {
     const unique = (value, index, self) => {
       return self.indexOf(value) === index
     }
-    
+
     const uniqueTags = this.selectedSearchTags.filter(unique)
-    
+
     this.selectedSearchTags = uniqueTags;
   }
   remove(fruit) {
@@ -239,6 +241,7 @@ export class AddjsondataComponent implements OnInit {
           "is_featured_catalog": this.selectedCataLog.is_featured,
           "img_id": this.upJSonData.img_id,
           "is_free": this.selectedPrice,
+          "is_ios_free": this.selectedIOSPrice,
           "is_featured": this.selectedType,
           "is_portrait": this.selectedStyle,
           "catalog_id": this.catalogId,
@@ -252,6 +255,7 @@ export class AddjsondataComponent implements OnInit {
           "category_id": this.selectedCategory.category_id,
           "is_featured_catalog": this.selectedCataLog.is_featured,
           "is_free": this.selectedPrice,
+          "is_ios_free": this.selectedIOSPrice,
           "is_featured": this.selectedType,
           "is_portrait": this.selectedStyle,
           "catalog_id": this.catalogId,
@@ -304,9 +308,8 @@ export class AddjsondataComponent implements OnInit {
         });
     }
   }
-  imageLoad(event){
-    if(event.target.previousElementSibling != null)
-    {
+  imageLoad(event) {
+    if (event.target.previousElementSibling != null) {
       event.target.previousElementSibling.remove();
     }
   }
