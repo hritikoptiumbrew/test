@@ -9408,7 +9408,7 @@ class AdminController extends Controller
             $is_featured_catalog = 1; //Here we are passed 1 bcz resource images always uploaded from featured catalogs
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is template images
             $is_free = $request->is_free;
-            $is_ios_free = $request->is_ios_free;
+            $is_ios_free = isset($request->is_ios_free) ? $request->is_ios_free : 0;
             $zip_url = $request->zip_url;
             $zip_name = $request->zip_name;
             $is_featured = $request->is_featured;
@@ -9656,7 +9656,7 @@ class AdminController extends Controller
             $zip_url = $request->zip_url;
             $zip_name = $request->zip_name;
             $is_free = $request->is_free;
-            $is_ios_free = $request->is_ios_free;
+            $is_ios_free = isset($request->is_ios_free) ? $request->is_ios_free : 0;
             $is_featured = $request->is_featured;
             $is_portrait = $request->is_portrait;
             $search_category = json_decode(json_encode($request->search_category),true);
