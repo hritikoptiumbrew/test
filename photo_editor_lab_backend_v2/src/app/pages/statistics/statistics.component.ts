@@ -67,10 +67,16 @@ export class StatisticsComponent implements OnInit {
         title: "Total Templates"
       },
       free_content: {
-        title: "Free Templates"
+        title: "Android Free Templates"
       },
       paid_content: {
-        title: "Paid Templates"
+        title: "Android Paid Templates"
+      },
+      ios_free_content: {
+        title: "IOS Free Templates"
+      },
+      ios_paid_content: {
+        title: "IOS Paid Templates"
       },
       last_uploaded_count: {
         title: "Last Uploaded Count"
@@ -94,7 +100,7 @@ export class StatisticsComponent implements OnInit {
     this.getStatisticsData();
 
   }
-  
+
   viewServerDetails(event, item) {
     if (!event) {
       this.utils.showPageLoader();
@@ -181,7 +187,7 @@ export class StatisticsComponent implements OnInit {
   }
   protected open(closeOnBackdropClick: boolean, autoFocus: boolean, data, item, getType) {
     this.dialog.open(StatisticsDetailsComponent, {
-      closeOnBackdropClick,closeOnEsc: false, autoFocus, context: {
+      closeOnBackdropClick, closeOnEsc: false, autoFocus, context: {
         contentData: data,
         serverData: item,
         selectType: getType

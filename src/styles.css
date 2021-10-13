@@ -81,7 +81,7 @@ body {
 
 .table-style {
     background-color: white !important;
-   /*  max-height: 620px; */
+    /*  max-height: 620px; */
     max-height: calc(100% - 85px);
 }
 
