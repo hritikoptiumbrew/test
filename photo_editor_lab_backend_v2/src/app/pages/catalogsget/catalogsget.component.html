@@ -45,8 +45,8 @@ Copyright 2018 - 2020 Optimumbrew Technology
     <div class="row">
       <div class="col-md-5">
         <div class="form-group">
-          <input type="text" style="background:#fff"nbInput placeholder="Search catalog name here" valid-status="false" id="calogSearchInput"
-            [(ngModel)]="searchQuery"
+          <input type="text" style="background:#fff" nbInput placeholder="Search catalog name here" valid-status="false"
+            id="calogSearchInput" [(ngModel)]="searchQuery"
             (keyup)="checkValidation('calogSearchInput','','catCalogError','','','blank')"
             (keyup.enter)="checkValidation('calogSearchInput','','catCalogError',errormsg.SEARCH_QUERY_EMPTY,'','usual')">
           <p id="catCalogError" style="color: red;margin-bottom: 0px;height: 14px;"></p>
@@ -58,8 +58,8 @@ Copyright 2018 - 2020 Optimumbrew Technology
         </div>
       </div>
       <div class="col-md-2 col-3">
-        <button class="btn btn-refresh" nbTooltip="Refresh" nbTooltipPlacement="bottom" nbTooltipStatus="default" (click)="refreshPage()"><i
-            class="fas fa-sync-alt"></i></button>
+        <button class="btn btn-refresh" nbTooltip="Refresh" nbTooltipPlacement="bottom" nbTooltipStatus="default"
+          (click)="refreshPage()"><i class="fas fa-sync-alt"></i></button>
       </div>
       <div class="col-md-3 col-9 text-right pr-0">
         <button class="btn btn-primary btn-add-cat mr-3" (click)="addCatalog();">Add Catalog</button>
@@ -85,24 +85,35 @@ Copyright 2018 - 2020 Optimumbrew Technology
           <nb-accordion-item-body>
             <div class="row">
 
-              <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" *ngFor="let item of featuredCatalogList ; let i = index">
+              <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0"
+                *ngFor="let item of featuredCatalogList ; let i = index">
                 <nb-card class="card-content">
                   <div class="picture text-center" style="position: relative;overflow: hidden;"
                     (click)="viewCatalog(item)">
                     <img class="placeholder-img">
-                    <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img" [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
+                    <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
+                      [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
                     <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
-                      <div class="ribbon-yellow">PRO</div>
+                      <div class="ribbon-yellow">Android PRO</div>
                     </div>
-                    <div class="catalog-icon" *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5" nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint">
+                    <div *ngIf="item.is_ios_free==0" class="ribbon-wrapper-green">
+                      <div class="ribbon-green">IOS PRO</div>
+                    </div>
+                    <div class="catalog-icon"
+                      *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5"
+                      nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                      nbTooltipTrigger="hint">
                       <img src="./assets/popular-icon.jpg">
                     </div>
-                    <div class="catalog-icon" *ngIf="item.catalog_type && item.catalog_type != 1" nbTooltip="Event Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint">
+                    <div class="catalog-icon" *ngIf="item.catalog_type && item.catalog_type != 1"
+                      nbTooltip="Event Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                      nbTooltipTrigger="hint">
                       <img src="./assets/event-icon.jpg">
                     </div>
                   </div>
                   <div class="details">
-                    <div  [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom" nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
+                    <div [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom"
+                      nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
                   </div>
                   <nb-card-footer style="background: #e1e8f3;padding: 10px !important;">
                     <a nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
@@ -128,14 +139,16 @@ Copyright 2018 - 2020 Optimumbrew Technology
                   </nb-card-footer>
                 </nb-card>
                 <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
-                <div class="fullscreen-icon" style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;" (click)="viewImage(item.compressed_img)">
+                <div class="fullscreen-icon"
+                  style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;"
+                  (click)="viewImage(item.compressed_img)">
                   <img src="./assets/expand.png" style="width: 25px">
                 </div>
-                
+
               </div>
               <div class="col-md-12 text-center" *ngIf="featuredCatalogList.length == 0">
-                <img  src="./assets/data-not-found.png" style="width:180px">
-                <h2 >No data found</h2>
+                <img src="./assets/data-not-found.png" style="width:180px">
+                <h2>No data found</h2>
               </div>
             </div>
           </nb-accordion-item-body>
@@ -163,19 +176,26 @@ Copyright 2018 - 2020 Optimumbrew Technology
                   <div class="picture text-center" style="position: relative;overflow: hidden;"
                     (click)="viewCatalog(item)">
                     <img class="placeholder-img">
-                    <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img" [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
+                    <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
+                      [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
                     <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
                       <div class="ribbon-yellow">PRO</div>
                     </div>
-                    <div class="catalog-icon" *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5" nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint">
+                    <div class="catalog-icon"
+                      *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5"
+                      nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                      nbTooltipTrigger="hint">
                       <img src="./assets/popular-icon.jpg">
                     </div>
-                    <div class="catalog-icon" *ngIf="item.catalog_type && item.catalog_type != 1" nbTooltip="Event Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint">
+                    <div class="catalog-icon" *ngIf="item.catalog_type && item.catalog_type != 1"
+                      nbTooltip="Event Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                      nbTooltipTrigger="hint">
                       <img src="./assets/event-icon.jpg">
                     </div>
                   </div>
                   <div class="details">
-                    <div [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom" nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
+                    <div [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom"
+                      nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
                   </div>
                   <nb-card-footer style="background: #e1e8f3;padding: 10px !important;">
                     <a nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
@@ -195,13 +215,15 @@ Copyright 2018 - 2020 Optimumbrew Technology
                       <nb-icon icon="link-2" pack="eva"></nb-icon>
                     </a>
                     <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
-                      nbTooltipTrigger="hint"  (click)="moveToFirst(item,'normal',i)">
+                      nbTooltipTrigger="hint" (click)="moveToFirst(item,'normal',i)">
                       <nb-icon icon="upload" pack="eva"></nb-icon>
                     </a>
                   </nb-card-footer>
                 </nb-card>
-                <img src="./assets/featured_img.png"  *ngIf="item.is_featured==1"  class="label-img">
-                <div class="fullscreen-icon" style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;" (click)="viewImage(item.compressed_img)">
+                <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
+                <div class="fullscreen-icon"
+                  style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;"
+                  (click)="viewImage(item.compressed_img)">
                   <img src="./assets/expand.png" style="width: 25px">
                 </div>
               </div>

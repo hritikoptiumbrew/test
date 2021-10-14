@@ -45,8 +45,10 @@ Copyright 2018 - 2020 Optimumbrew Technology
   </div>
   <div class="col-md-12 text-right pr-0" *ngIf="multiselectFlag">
     <button class="btn btn-success mr-2 w-10" (click)="uploadTemplateRankArr()">Set Rank</button>
-    <button class="btn btn-primary mr-2" (click)="SelectAllTemplate()" [disabled]='viewCatdata.length == 0'>Select All</button>
-    <button class="btn btn-primary mr-2" (click)="templatesArr = []" [disabled]='templatesArr.length == 0'>Remove All</button>
+    <button class="btn btn-primary mr-2" (click)="SelectAllTemplate()" [disabled]='viewCatdata.length == 0'>Select
+      All</button>
+    <button class="btn btn-primary mr-2" (click)="templatesArr = []" [disabled]='templatesArr.length == 0'>Remove
+      All</button>
     <button class="btn btn-success mr-2" (click)="moveMutipleTemplate()">Move Templates</button>
     <button class="btn btn-danger mr-2 w-10" (click)="templatesArr = [];multiselectFlag = false">Cancel</button>
   </div>
@@ -57,16 +59,24 @@ Copyright 2018 - 2020 Optimumbrew Technology
     <h2>No data found</h2>
   </div>
   <virtual-scroller #scroll [items]="viewCatdata" enableUnequalChildrenSizes="true">
-    <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" *ngFor="let item of scroll.viewPortItems;let i = index" [id]="'div-'+i">
+    <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" *ngFor="let item of scroll.viewPortItems;let i = index"
+      [id]="'div-'+i">
       <nb-card class="card-content">
-        <div class="picture text-center" style="position: relative;overflow: hidden;height: 130px; background: #e5e5e5;" (click)="!multiselectFlag?viewImage(item.compressed_img):addTemplateRank($event,item.img_id)" >
+        <div class="picture text-center" style="position: relative;overflow: hidden;height: 130px; background: #e5e5e5;"
+          (click)="!multiselectFlag?viewImage(item.compressed_img):addTemplateRank($event,item.img_id)">
           <img class="placeholder-img">
-          <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img" [errorImage]="utils.errorImg" alt="{{item.name}} image" (load)="imageLoad($event)" [ngStyle]="categoryId == '5' ? {'filter': 'drop-shadow(0px 0px 3px rgba(0,0,0,0.3))','padding':'5px 0px'}:''">
+          <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
+            [errorImage]="utils.errorImg" alt="{{item.name}} image" (load)="imageLoad($event)"
+            [ngStyle]="categoryId == '5' ? {'filter': 'drop-shadow(0px 0px 3px rgba(0,0,0,0.3))','padding':'5px 0px'}:''">
           <div *ngIf="item.is_free==0 && item.is_json_data==1" class="ribbon-wrapper-yellow">
-            <div class="ribbon-yellow">PRO</div>
+            <div class="ribbon-yellow">Android PRO</div>
+          </div>
+          <div *ngIf="item.is_ios_free==0 && item.is_json_data==1" class="ribbon-wrapper-green">
+            <div class="ribbon-green">IOS PRO</div>
           </div>
           <i class="fa fa-code font-26 code-icon" *ngIf="item.is_json_data && !templatesArr.includes(item.img_id)"></i>
-          <span class="rank-icon" *ngIf="templatesArr.indexOf(item.img_id) != -1">{{ templatesArr.indexOf(item.img_id) + 1 }}</span>
+          <span class="rank-icon"
+            *ngIf="templatesArr.indexOf(item.img_id) != -1">{{ templatesArr.indexOf(item.img_id) + 1 }}</span>
         </div>
         <div class="details" style="height: 30px;margin-top: 0px;">
           <div>ID: {{ item.img_id }}</div>
@@ -81,21 +91,23 @@ Copyright 2018 - 2020 Optimumbrew Technology
           <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="deleteTemplate(item)">
             <nb-icon icon="trash-2" pack="eva"></nb-icon>
           </a>
-          <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary" (click)="moveToFirst(item,i)">
+          <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+            (click)="moveToFirst(item,i)">
             <nb-icon icon="upload" pack="eva"></nb-icon>
           </a>
           <a nbTooltip="Move to another catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
             (click)="moveToCatalog(item)">
             <nb-icon icon="external-link" pack="eva"></nb-icon>
           </a>
-          <a nbTooltip="More Actions" nbTooltipPlacement="bottom" nbTooltipStatus="primary" 
-          nbContextMenuPlacement="right" [nbContextMenu]="copyURLS" (click)='setUrls(item.thumbnail_img,item.compressed_img,item.original_img)'>
+          <a nbTooltip="More Actions" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+            nbContextMenuPlacement="right" [nbContextMenu]="copyURLS"
+            (click)='setUrls(item.thumbnail_img,item.compressed_img,item.original_img)'>
             <nb-icon icon="more-horizontal" pack="eva"></nb-icon>
           </a>
         </nb-card-footer>
       </nb-card>
-      <img src="./assets/featured_img.png"  *ngIf="item.is_featured==1" class="label-img">
+      <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
     </div>
   </virtual-scroller>
-  
+
 </div>
