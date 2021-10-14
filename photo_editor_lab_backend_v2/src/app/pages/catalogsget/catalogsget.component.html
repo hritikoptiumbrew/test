@@ -178,9 +178,12 @@ Copyright 2018 - 2020 Optimumbrew Technology
                     <img class="placeholder-img">
                     <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
                       [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
-                    <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
-                      <div class="ribbon-yellow">PRO</div>
-                    </div>
+                      <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
+                        <div class="ribbon-yellow">Android PRO</div>
+                      </div>
+                      <div *ngIf="item.is_ios_free==0" class="ribbon-wrapper-green">
+                        <div class="ribbon-green">IOS PRO</div>
+                      </div>
                     <div class="catalog-icon"
                       *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5"
                       nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
