@@ -158,5 +158,6 @@ Thumbs.db
 /not-in-install
 /sshpk-verify.cmd
 /nopt
+/image_bucket
 node_modules.zip
 /api/documentation/

@@ -7012,6 +7012,8 @@ class AdminController extends Controller
                                       count(cm.id) AS content_count,
                                       count(IF(cm.is_free=1,1, NULL)) AS free_content,
                                       count(IF(cm.is_free=0,1, NULL)) AS paid_content,
+                                      count(IF(cm.is_ios_free=1,1, NULL)) AS ios_free_content,
+                                      count(IF(cm.is_ios_free=0,1, NULL)) AS ios_paid_content,
                                       count(IF(cm.is_featured=1,1, NULL)) AS is_featured,
                                       coalesce((max(cm.created_at)),"") AS last_uploaded_date,
                                       scm.is_featured,
