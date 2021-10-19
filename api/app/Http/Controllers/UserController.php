@@ -4062,6 +4062,9 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            if($this->page != 1 && !$this->category_name){
+                return Response::json(array('code' => 201, 'message' => 'Templates fetched successfully.', 'cause' => '', 'data' => json_decode("{}")));
+            }
 
 
             if (!Cache::has("pel:getTemplatesBySubCategoryTags_v2$this->sub_category_id:$this->category_name:$this->page:$this->item_count")) {
@@ -4180,7 +4183,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getTemplatesBySubCategoryTags : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("getTemplatesBySubCategoryTags_v2 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
