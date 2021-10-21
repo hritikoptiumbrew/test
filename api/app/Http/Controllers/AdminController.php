@@ -1180,13 +1180,14 @@ class AdminController extends Controller
             }
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'name', 'is_featured', 'is_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'name', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
             $sub_category_id = $request->sub_category_id;
             $name = $request->name;
             $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
             $catalog_type = $request->catalog_type;
             $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
@@ -1308,6 +1309,7 @@ class AdminController extends Controller
                 'landscape_webp' => $landscape_webp,
                 'portrait_webp' => $portrait_webp,
                 'is_free' => $is_free,
+                'is_ios_free' => $is_ios_free,
                 'is_featured' => $is_featured,
                 'catalog_type' => $catalog_type,
                 'event_date' => $event_date,
@@ -1375,7 +1377,7 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'catalog_id', 'name', 'is_free', 'is_featured'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'catalog_id', 'name', 'is_free', 'is_ios_free', 'is_featured'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
@@ -1383,6 +1385,7 @@ class AdminController extends Controller
             $catalog_id = $request->catalog_id;
             $name = trim($request->name);
             $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
             $catalog_type = $request->catalog_type;
             $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
@@ -1552,12 +1555,13 @@ class AdminController extends Controller
                                 landscape_webp = IF(? != "",?,landscape_webp),
                                 portrait_webp = IF(? != "",?,portrait_webp),
                                 is_free = IF(? != is_free,?,is_free),
+                                is_ios_free = IF(? != is_ios_free,?,is_ios_free),
                                 is_featured = IF(? != is_featured,?,is_featured),
                                 event_date = IF(? != "",?,event_date),
                                 popularity_rate = IF(? != "",?,popularity_rate),
                                 search_category = IF(? != "",?,search_category),
                                 attribute1 = IF(? != "",?,attribute1)
-                              WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $catalog_type, $icon_name, $icon_name, $landscape_image, $landscape_image, $portrait_image, $portrait_image, $landscape_webp, $landscape_webp, $portrait_webp, $portrait_webp, $is_free, $is_free, $is_featured, $is_featured, $event_date, $event_date, $popularity_rate, $popularity_rate, $search_category, $search_category, $file_name, $file_name, $catalog_id]);
+                              WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $catalog_type, $icon_name, $icon_name, $landscape_image, $landscape_image, $portrait_image, $portrait_image, $landscape_webp, $landscape_webp, $portrait_webp, $portrait_webp, $is_free, $is_free, $is_ios_free, $is_ios_free, $is_featured, $is_featured, $event_date, $event_date, $popularity_rate, $popularity_rate, $search_category, $search_category, $file_name, $file_name, $catalog_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalog updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -1772,6 +1776,7 @@ class AdminController extends Controller
                                         IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
                                         IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
                                         ct.is_free,
+                                        ct.is_ios_free,
                                         ct.catalog_type,
                                         ct.event_date,
                                         ct.popularity_rate,
@@ -1946,6 +1951,7 @@ class AdminController extends Controller
                                     IF(cm.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.icon),"") as icon,
                                     IF(cm.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.attribute1),"") as webp_original_img,
                                     cm.is_free,
+                                    cm.is_ios_free,
                                     cm.catalog_type,
                                     cm.event_date,
                                     cm.popularity_rate,
@@ -2641,25 +2647,26 @@ class AdminController extends Controller
                 $result = Cache::rememberforever("getDataByCatalogIdForAdmin$this->catalog_id", function () {
 
                     $result = DB::select('SELECT
-                                              im.id as img_id,
-                                              IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
-                                              IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
-                                              IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
-                                              IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as webp_original_img,
-                                              IF(im.json_data IS NOT NULL,1,0) as is_json_data,
-                                              coalesce(im.json_data,"") as json_data,
-                                              coalesce(im.is_featured,"") as is_featured,
-                                              coalesce(im.is_free,0) as is_free,
-                                              coalesce(im.is_portrait,0) as is_portrait,
-                                              coalesce(im.search_category,"") as search_category
+                                              im.id AS img_id,
+                                              IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS thumbnail_img,
+                                              IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
+                                              IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS original_img,
+                                              IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS webp_original_img,
+                                              IF(im.json_data IS NOT NULL,1,0) AS is_json_data,
+                                              COALESCE(im.json_data,"") AS json_data,
+                                              COALESCE(im.is_featured,"") AS is_featured,
+                                              COALESCE(im.is_free,0) AS is_free,
+                                              COALESCE(im.is_ios_free,0) AS is_ios_free,
+                                              COALESCE(im.is_portrait,0) AS is_portrait,
+                                              COALESCE(im.search_category,"") AS search_category
                                             FROM
-                                              images as im
-                                            where
+                                              images AS im
+                                            WHERE
                                               im.is_active = 1 AND
                                               im.catalog_id = ? AND
-                                              isnull(im.original_img) AND
-                                              isnull(im.display_img)
-                                            order by im.updated_at DESC', [$this->catalog_id]);
+                                              ISNULL(im.original_img) AND
+                                              ISNULL(im.display_img)
+                                            ORDER BY im.updated_at DESC', [$this->catalog_id]);
 
                     foreach ($result as $key) {
                         if ($key->json_data != "") {
@@ -4133,13 +4140,14 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
             $catalog_id = $request->catalog_id;
             $json_data = $request->json_data;
             $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
             $is_featured_catalog = $request->is_featured_catalog;
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is template images
@@ -4169,13 +4177,14 @@ class AdminController extends Controller
                 $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
                 if ($tag_list == "" or $tag_list == NULL) {
 
-                    if (Config::get('constant.CLARIFAI_API_KEY') != "") {
-                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
-
-                    } else {
-                        //remove "," from the end
-                        $search_category = str_replace(",", "", $search_category);
-                    }
+//                    if (Config::get('constant.CLARIFAI_API_KEY') != "") {
+//                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+//
+//                    } else {
+//                        //remove "," from the end
+//                        $search_category = str_replace(",", "", $search_category);
+//                    }
+                    $search_category = trim($search_category, ',');
                 }
 
                 if (($response = (new VerificationController())->verifySearchCategory("$search_category$tag_list")) != '') {
@@ -4201,13 +4210,13 @@ class AdminController extends Controller
                 DB::beginTransaction();
                 /*DB::insert('INSERT
                                 INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, created_at, attribute1)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $created_at, $file_name]);*/
+                                  images(catalog_id, image, json_data, is_free, is_ios_free, is_featured, is_portrait, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $created_at, $file_name]);*/
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id, image, json_data, is_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, created_at, attribute1)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $tag_list, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
+                                  images(catalog_id, image, json_data, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, created_at, attribute1)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $tag_list, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
 
                 DB::commit();
             }
@@ -4314,7 +4323,7 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
@@ -4322,6 +4331,7 @@ class AdminController extends Controller
             $is_catalog = 0;//Here we are passed 0 bcz this is not image of catalog, this is normal images
             $img_id = $request->img_id;
             $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
             $json_data = isset($request->json_data) ? $request->json_data : '';
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
@@ -4341,10 +4351,10 @@ class AdminController extends Controller
                 if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
                     return $response;
 
-                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
-                if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
-                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
-                }
+//                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
+//                if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
+//                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+//                }
 
                 $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
                 (new ImageController())->saveOriginalImage($catalog_image);
@@ -4360,12 +4370,12 @@ class AdminController extends Controller
 
                 DB::beginTransaction();
                 /*DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
+                                images SET image = ?, json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
 
                 DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, original_img_height = ?, original_img_width = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_featured, $is_portrait, $tag_list, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
+                                images SET image = ?, json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, height = ?, width = ?, original_img_height = ?, original_img_width = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
                 DB::commit();
 
                 if (strstr($file_name, '.webp')) {
@@ -4418,8 +4428,8 @@ class AdminController extends Controller
 
                 DB::beginTransaction();
                 DB::update('UPDATE
-                                images SET json_data = ?, is_free = ?, is_featured = ?, is_portrait = ?, search_category = ?
-                                WHERE id = ?', [json_encode($json_data), $is_free, $is_featured, $is_portrait, $search_category, $img_id]);
+                                images SET json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, search_category = ?
+                                WHERE id = ?', [json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $img_id]);
                 DB::commit();
 
                 $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -7002,6 +7012,8 @@ class AdminController extends Controller
                                       count(cm.id) AS content_count,
                                       count(IF(cm.is_free=1,1, NULL)) AS free_content,
                                       count(IF(cm.is_free=0,1, NULL)) AS paid_content,
+                                      count(IF(cm.is_ios_free=1,1, NULL)) AS ios_free_content,
+                                      count(IF(cm.is_ios_free=0,1, NULL)) AS ios_paid_content,
                                       count(IF(cm.is_featured=1,1, NULL)) AS is_featured,
                                       coalesce((max(cm.created_at)),"") AS last_uploaded_date,
                                       scm.is_featured,
@@ -9390,7 +9402,7 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'catalog_id', 'is_featured', 'is_free', 'search_category','category_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'catalog_id', 'is_featured', 'is_free', 'is_ios_free', 'search_category','category_id'), $request)) != '')
                 return $response;
 
             $catalog_id = $request->catalog_id;
@@ -9398,6 +9410,7 @@ class AdminController extends Controller
             $is_featured_catalog = 1; //Here we are passed 1 bcz resource images always uploaded from featured catalogs
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is template images
             $is_free = $request->is_free;
+            $is_ios_free = isset($request->is_ios_free) ? $request->is_ios_free : 0;
             $zip_url = $request->zip_url;
             $zip_name = $request->zip_name;
             $is_featured = $request->is_featured;
@@ -9577,12 +9590,13 @@ class AdminController extends Controller
 
             DB::insert('INSERT
                                 INTO
-                                  images(catalog_id,image,json_data,is_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                                  images(catalog_id,image,json_data,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
                 $catalog_id,
                 $catalog_image,
                 json_encode($json_data),
                 $is_free,
+                $is_ios_free,
                 $is_featured,
                 $is_portrait,
                 $search_category,
@@ -9644,6 +9658,7 @@ class AdminController extends Controller
             $zip_url = $request->zip_url;
             $zip_name = $request->zip_name;
             $is_free = $request->is_free;
+            $is_ios_free = isset($request->is_ios_free) ? $request->is_ios_free : 0;
             $is_featured = $request->is_featured;
             $is_portrait = $request->is_portrait;
             $search_category = json_decode(json_encode($request->search_category),true);
@@ -9809,12 +9824,13 @@ class AdminController extends Controller
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id,image,json_data,is_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                                  images(catalog_id,image,json_data,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
                     $catalog_id,
                     $catalog_image,
                     json_encode($all_json_data->{$pages_sequence}),
                     $is_free,
+                    $is_ios_free,
                     $is_featured,
                     $is_portrait,
                     strtolower($search_category[$pages_sequence]),

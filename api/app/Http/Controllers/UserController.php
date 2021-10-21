@@ -197,6 +197,7 @@ class UserController extends Controller
                                           IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
                                           ct.is_featured,
                                           ct.is_free,
+                                          ct.is_ios_free,
                                           ct.updated_at
                                         FROM
                                           catalog_master as ct,
@@ -1350,6 +1351,7 @@ class UserController extends Controller
                                               id AS json_id,
                                               '. $image_url .'
                                               is_free,
+                                              is_ios_free,
                                               is_featured,
                                               is_portrait,
                                               coalesce(height,0) AS height,
@@ -1374,6 +1376,7 @@ class UserController extends Controller
                                                   id AS json_id,
                                                   '. $image_url .'
                                                   is_free,
+                                                  is_ios_free,
                                                   is_featured,
                                                   is_portrait,
                                                   coalesce(height,0) AS height,
@@ -2054,6 +2057,7 @@ class UserController extends Controller
                                                   IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
                                                   IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
                                                   ct.is_free,
+                                                  ct.is_ios_free,
                                                   ct.is_featured,
                                                   ct.updated_at
                                                 FROM
@@ -2070,7 +2074,9 @@ class UserController extends Controller
                         $featured_cards = DB::select('SELECT
                                                id as json_id,
                                                IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                               IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as webp_original_img,
                                                is_free,
+                                               is_ios_free,
                                                is_featured,
                                                is_portrait,
                                                coalesce(height,0) AS height,
@@ -2551,6 +2557,7 @@ class UserController extends Controller
                                                     DISTINCT im.id as json_id,
                                                     IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                     im.is_free,
+                                                    im.is_ios_free,
                                                     im.is_featured,
                                                     im.is_portrait,
                                                     coalesce(im.height,0) AS height,
@@ -2601,6 +2608,7 @@ class UserController extends Controller
                                                     DISTINCT im.id as json_id,
                                                     IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
                                                     im.is_free,
+                                                    im.is_ios_free,
                                                     im.is_featured,
                                                     im.is_portrait,
                                                     coalesce(im.height,0) AS height,
@@ -2954,6 +2962,7 @@ class UserController extends Controller
                                           IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
                                           ct.is_featured,
                                           ct.is_free,
+                                          ct.is_ios_free,
                                           ct.updated_at
                                         FROM
                                           catalog_master as ct,
@@ -2988,6 +2997,7 @@ class UserController extends Controller
                                                     DISTINCT im.id AS img_id,
                                                     IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
                                                     IF(cm.is_free=1,1,0) AS is_free,
+                                                    IF(cm.is_ios_free=1,1,0) AS is_ios_free,
                                                     im.is_featured,
                                                     im.is_portrait,
                                                     coalesce(im.height,0) AS height,
@@ -4052,6 +4062,9 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            if($this->page != 1 && !$this->category_name){
+                return Response::json(array('code' => 201, 'message' => 'Templates fetched successfully.', 'cause' => '', 'data' => json_decode("{}")));
+            }
 
 
             if (!Cache::has("pel:getTemplatesBySubCategoryTags_v2$this->sub_category_id:$this->category_name:$this->page:$this->item_count")) {
@@ -4170,7 +4183,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getTemplatesBySubCategoryTags : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("getTemplatesBySubCategoryTags_v2 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -6096,6 +6109,7 @@ class UserController extends Controller
                                                   IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
                                                   coalesce(im.is_featured,"") as is_featured,
                                                   coalesce(im.is_free,0) as is_free,
+                                                  coalesce(im.is_ios_free,0) as is_ios_free,
                                                   coalesce(im.is_portrait,0) as is_portrait,
                                                   coalesce(im.search_category,"") as search_category
                                                 FROM
@@ -6110,6 +6124,7 @@ class UserController extends Controller
                     foreach ($content_list as $key) {
                         if ($c <= $free_content_count && $this->page == 1) {
                             $key->is_free = 1;
+                            $key->is_ios_free = 1;
                         }
                         $c++;
                     }
@@ -6294,6 +6309,7 @@ class UserController extends Controller
                                           coalesce(im.json_data,"") as json_data,
                                           coalesce(im.is_featured,"") as is_featured,
                                           coalesce(im.is_free,0) as is_free,
+                                          coalesce(im.is_ios_free,0) as is_ios_free,
                                           coalesce(im.is_portrait,0) as is_portrait,
                                           coalesce(im.search_category,"") as search_category
                                         FROM
@@ -7612,12 +7628,13 @@ class UserController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
             $this->is_featured = $request->is_featured;
-            $this->search_category = strtolower(trim($request->search_category));
+            $this->search_category = mb_strtolower(trim($request->search_category));
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
             //validate search text
-            $this->is_verified = (new VerificationController())->verifySearchText($this->search_category);
+//            $this->is_verified = (new VerificationController())->verifySearchText($this->search_category);
+            $this->is_verified = 1;
 
             $redis_result = Cache::rememberforever("searchCatalogBySubCategoryId$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
 
