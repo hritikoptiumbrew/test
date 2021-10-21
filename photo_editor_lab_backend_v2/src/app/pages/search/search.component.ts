@@ -9,6 +9,7 @@ import { UpdateTagDialogComponent } from './update-tag-dialog/update-tag-dialog.
 import { Router } from '@angular/router';
 import { UtilService } from 'app/util.service';
 import { ERROR } from 'app/app.constants';
+import { FormControl } from '@angular/forms';
 
 
 
@@ -42,6 +43,10 @@ export class SearchComponent implements OnInit {
   catagoryList: [];
 
   inputValSub: string = "All Templates";
+
+  androidControl = new FormControl();
+
+  filteredStates: Observable<any[]>;
 
   isNextPage: boolean;
 
@@ -129,7 +134,7 @@ export class SearchComponent implements OnInit {
         if (response.code == 200) {
           this.allSubData = response.data.category_list;
           for (var i = 0; i < response.data.category_list.length; i++) {
-            this.optionForCatagory.push(response.data.category_list[i].sub_category_name);
+            this.optionForCatagory.push(response.data.category_list[i]);
           }
         } else if (response.code == 201) {
           this.util.showError(response.message, 3000);
@@ -171,11 +176,13 @@ export class SearchComponent implements OnInit {
 
   //function for auto-complate
   private filtered(value: string): string[] {
+    // console.log("value : ", value);
     const filteredValue = value.toLowerCase();
-    return this.optionForCatagory.filter(optionValues => optionValues.toLowerCase().includes(filteredValue));
+    return this.optionForCatagory.filter(optionValues => optionValues.sub_category_name.toLowerCase().includes(filteredValue));
   }
 
   getFiltered(values: string): Observable<string[]> {
+    // console.log("value : ", values);
     return of(values).pipe(
       map(filteredString => this.filtered(filteredString)),
     );
@@ -183,10 +190,14 @@ export class SearchComponent implements OnInit {
 
   onGetValue(event) {
     this.filterOptions$ = this.getFiltered(this.catInput.nativeElement.value);
+    // console.log("this.filterOptions$ : ", this.optionForCatagory);
   }
 
   SelectionChange($event) {
-    this.filterOptions$ = this.getFiltered($event);
+    // console.log("Event : ", $event);
+    // this.filteredStates = this.androidControl.valueChanges;
+    // this.filterOptions$ = this.getFiltered($event.sub_category_name || $event);
+    // console.log("this.filterOptions$ : ", this.filterOptions$);
   }
 
   //search tags by search type

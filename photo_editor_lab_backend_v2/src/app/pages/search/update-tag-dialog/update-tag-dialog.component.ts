@@ -47,8 +47,15 @@ export class UpdateTagDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.dataFromPage = this.dataFromPage.join().split(" ").toString().split(',');
     //removing copied tag from arrey
     this.filterDataFromPage = [...new Set(this.dataFromPage)];
+    var temp_array = [];
+    this.filterDataFromPage.forEach(element => {
+      element = element.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+      temp_array.push(element);
+    });
+    this.filterDataFromPage = temp_array;
   }
 
   //for closing dialog
@@ -110,7 +117,7 @@ export class UpdateTagDialogComponent implements OnInit {
     };
     this.api.postData("searchCardsBySubCategoryIdForAdmin", data, { headers: { 'Authorization': 'Bearer ' + this.token } })
       .then(resoponse => {
-        if (resoponse.code == 200 || resoponse.code == 427) {
+        if (resoponse.code == 200) {
           for (let i = 0; i < resoponse.data.result.length; i++) {
             this.imgData.push(resoponse.data.result[i]);
           }
@@ -123,6 +130,10 @@ export class UpdateTagDialogComponent implements OnInit {
           this.util.hideLoader();
           this.pageLoader = false;
           this.util.showError(resoponse.message, 3000);
+        } else if (resoponse.code == 427) {
+          this.util.hideLoader();
+          this.pageLoader = false;
+          this.util.showError("Sorry, we couldn't find any templates for " + this.tagList.join(","), 6000);
         }
         else {
           this.util.hideLoader();
