@@ -308,6 +308,7 @@ class PixabayController extends Controller
                         $http_status = $response->getStatusCode();
                         $result = json_decode($response->getBody()->getContents(), true);
                     } catch (Exception $e) {
+                        Log::error("getPixabayImageForUser : unable to fetch data.", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
                         $http_status = $e->getResponse()->getStatusCode();
                         $result = $e->getResponse()->getBody()->getContents();
                     }
