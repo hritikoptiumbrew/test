@@ -351,7 +351,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('clearBadgeCountData', 'NotificationController@clearBadgeCountData');
 
 
-    /* ===================| APIs of resume maker (created by Pooja Jadav) |=================== */
+    /* ===================| APIs of resume maker |=================== */
 
     //Resume maker job search
     Route::post('getHomePageDetail','UserController@getHomePageDetail');
@@ -373,6 +373,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getBlogContentByIdForUser', 'BlogController@getBlogContentByIdForUser');
 
     Route::post('addCategoryNameAsTag', 'UserController@addCategoryNameAsTag');
+    Route::post('addFontNameAsTag', 'UserController@addFontNameAsTag');
 
     //Get Searching tag by sub_category_id
     Route::post('getSearchTagBySubCategoryId', 'UserController@getSearchTagBySubCategoryId');

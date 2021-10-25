@@ -7499,6 +7499,53 @@ class UserController extends Controller
         return $response;
     }
 
+    public function addFontNameAsTag(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('catalog_ids'), $request)) != '')
+                return $response;
+
+            $catalog_ids = $request->catalog_ids;
+            $search_category = [];
+
+            foreach ($catalog_ids AS $i => $catalog_id){
+
+                $fonts_name = DB::select('SELECT 
+                                           catalog_id,
+                                           font_name
+                                        FROM
+                                           font_master
+                                        WHERE
+                                           catalog_id = ?
+                                        ORDER BY update_time DESC', [$catalog_id]);
+
+                foreach ($fonts_name AS $j => $font_name){
+
+                    $search_category[] = strtolower(preg_replace('/[^A-Za-z0-9]/', '', $font_name->font_name));
+                    $search_category[] = strtolower(preg_replace('/[^A-Za-z0-9]/', ',', $font_name->font_name));
+
+                }
+                $search_category = implode(',',array_unique(explode(',',implode(',',$search_category))));
+                DB::beginTransaction();
+                DB::update('UPDATE catalog_master SET search_category = ? , updated_at = updated_at WHERE id = ? ', [$search_category, $catalog_id]);
+                DB::commit();
+                $search_category = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag added successfully.', 'cause' => '', 'data' => $search_category));
+
+        } catch (Exception $e) {
+            Log::error("addFontNameAsTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     //Get Searching tag by subcategory id
     /**
      * @api {post} getSearchTagBySubCategoryId   getSearchTagBySubCategoryId
