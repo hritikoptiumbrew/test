@@ -164,6 +164,12 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('deleteTag', 'AdminController@deleteTag');
     Route::post('getAllTags', 'AdminController@getAllTags');
 
+    //Save Search Tag Module
+    Route::post('updateTemplateSearchingTagsByAdmin', 'AdminController@updateTemplateSearchingTagsByAdmin');
+    Route::post('getAllSearchingDetailsForAdmin', 'AdminController@getAllSearchingDetailsForAdmin');
+    Route::post('searchCardsBySubCategoryIdForAdmin', 'AdminController@searchCardsBySubCategoryIdForAdmin');
+    Route::post('refreshSearchCountByAdmin', 'AdminController@refreshSearchCountByAdmin');
+
     //Font
     Route::post('getSamplesOfNonCommercialFont', 'AdminController@getSamplesOfNonCommercialFont'); //To get template by fontNAme/fontPath
     Route::post('addFont', 'AdminController@addFont');

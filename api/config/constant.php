@@ -21,6 +21,7 @@ return [
     /* For live server */
     'ADMIN_EMAIL_ID' => env('ADMIN_EMAIL_ID'),
     'SUB_ADMIN_EMAIL_ID' => env('SUB_ADMIN_EMAIL_ID'),
+    'SUPPORTER_EMAIL_ID' => env('SUPPORTER_EMAIL_ID'),
 
     'RESPONSE_HEADER_CACHE' => 'max-age=2592000',
     'ROLE_FOR_ADMIN' => 'admin',
