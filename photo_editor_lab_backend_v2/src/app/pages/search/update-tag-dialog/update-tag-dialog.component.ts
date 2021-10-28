@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
+import { NbDialogRef, NbDialogService } from '@nebular/theme';
 import { ERROR } from 'app/app.constants';
+import { ViewimageComponent } from 'app/components/viewimage/viewimage.component';
 import { DataService } from 'app/data.service';
 import { UtilService } from 'app/util.service';
 
@@ -42,7 +43,7 @@ export class UpdateTagDialogComponent implements OnInit {
 
   pageLoader: boolean = false;
 
-  constructor(protected dialogRef: NbDialogRef<any>, public api: DataService, public util: UtilService) {
+  constructor(protected dialogRef: NbDialogRef<any>, public api: DataService, public util: UtilService, private dialog: NbDialogService) {
 
   }
 
@@ -67,12 +68,13 @@ export class UpdateTagDialogComponent implements OnInit {
   //function for adding tagname to tagList(array)
   onsubmit() {
     if (this.validateString(this.inputVal) && this.inputVal.trim() !== "") {
-      let newInputValue = this.inputVal.split(',');
-      for (let i = 0; i < newInputValue.length; i++) {
-        this.tagList.push(newInputValue[i]);
-      }
-      this.inputVal = "";
+      // let newInputValue = this.inputVal.split(',');
+      // for (let i = 0; i < newInputValue.length; i++) {
+      //   this.tagList.push(newInputValue[i]);
+      // }
+      // this.inputVal = "";
       this.showInputError = false;
+      this.searchByTags();
     }
     else {
       this.showInputError = true;
@@ -95,7 +97,7 @@ export class UpdateTagDialogComponent implements OnInit {
   searchByTags() {
     this.pagNum = 1;
     this.imgData = [];
-    if (this.tagList.length > 0) {
+    if (this.inputVal.split(',').length > 0) {
       this.util.showLoader();
       this.searchByTag();
     }
@@ -113,7 +115,8 @@ export class UpdateTagDialogComponent implements OnInit {
       "page": this.pagNum,
       "item_count": 18,
       "sub_category_id": this.subCatId,
-      "search_category": this.tagList.join(",")
+      // "search_category": this.tagList.join(",")
+      "search_category": this.inputVal
     };
     this.api.postData("searchCardsBySubCategoryIdForAdmin", data, { headers: { 'Authorization': 'Bearer ' + this.token } })
       .then(resoponse => {
@@ -210,6 +213,16 @@ export class UpdateTagDialogComponent implements OnInit {
         this.searchByTag();
       }
     }
+  }
+
+  viewImage(imgUrl) {
+    // console.log(type);
+    this.dialog.open(ViewimageComponent, {
+      context: {
+        imgSrc: imgUrl,
+        typeImg: 'cat',
+      }
+    })
   }
 }
 

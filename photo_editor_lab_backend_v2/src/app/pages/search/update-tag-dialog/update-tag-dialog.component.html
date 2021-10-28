@@ -44,7 +44,7 @@
                     <div class="col-lg-2 col-md-3 col-sm-4 col-6 my-3 d-flex justify-content-center"
                         *ngFor="let img of imgData">
                         <div class="d-flex justify-content-center align-items-center border-box position-relative ">
-                            <img src="{{ img.sample_image }}" alt="img" class="img_temp">
+                            <img (click)="viewImage(img.sample_image);" src="{{ img.sample_image }}" alt="img" class="img_temp">
                             <input type="checkbox" class="positio-absolute check pointer"
                                 (change)="addImgId(img.json_id , $event)">
                         </div>

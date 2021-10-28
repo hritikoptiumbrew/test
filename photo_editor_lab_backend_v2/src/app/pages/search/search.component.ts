@@ -103,7 +103,7 @@ export class SearchComponent implements OnInit {
     private router: Router, private util: UtilService) {
 
     this.getSubCategory();
-    this.onserch();
+    // this.onserch();
   }
 
   ngOnInit() {
@@ -136,6 +136,9 @@ export class SearchComponent implements OnInit {
           for (var i = 0; i < response.data.category_list.length; i++) {
             this.optionForCatagory.push(response.data.category_list[i]);
           }
+          this.inputValSub = this.optionForCatagory[0].sub_category_name;
+          this.subCatId = this.optionForCatagory[0].sub_category_id;
+          this.onserch();
         } else if (response.code == 201) {
           this.util.showError(response.message, 3000);
         } else {
