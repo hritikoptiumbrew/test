@@ -7667,6 +7667,11 @@ class UserController extends Controller
                     $search_category[] = strtolower(preg_replace('/[^A-Za-z0-9]/', ',', $font_name->font_name));
 
                 }
+
+                $db_data = DB::select('SELECT search_category FROM catalog_master WHERE id = ?', [$catalog_id]);
+                if(count($db_data) > 0 && $db_data[0]->search_category)
+                    $search_category[] = $db_data[0]->search_category;
+
                 $search_category = implode(',',array_unique(explode(',',implode(',',$search_category))));
                 DB::beginTransaction();
                 DB::update('UPDATE catalog_master SET search_category = ? , updated_at = updated_at WHERE id = ? ', [$search_category, $catalog_id]);
