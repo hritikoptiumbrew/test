@@ -2518,7 +2518,7 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = strtolower(trim($request->search_category));
+            $this->search_category = mb_strtolower(trim($request->search_category));
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
@@ -7670,9 +7670,10 @@ class UserController extends Controller
 
                 $db_data = DB::select('SELECT search_category FROM catalog_master WHERE id = ?', [$catalog_id]);
                 if(count($db_data) > 0 && $db_data[0]->search_category)
-                    $search_category[] = $db_data[0]->search_category;
+                    $search_category[] = strtolower($db_data[0]->search_category);
 
-                $search_category = implode(',',array_unique(explode(',',implode(',',$search_category))));
+                $search_category = implode(',',array_filter(array_unique(explode(',',implode(',',$search_category)))));
+
                 DB::beginTransaction();
                 DB::update('UPDATE catalog_master SET search_category = ? , updated_at = updated_at WHERE id = ? ', [$search_category, $catalog_id]);
                 DB::commit();
