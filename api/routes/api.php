@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 });*/
 
 //Logs Viewer
-Route::get('logs/{user_name}/{password}', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+Route::get('logs/{user_name}/{password}', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index')->where(['user_name' => Config::get('constant.LOG_USERNAME'), 'password' => Config::get('constant.LOG_PASSWORD')]);
 
 //User login
 Route::post('doLoginForContentUploader_v2', 'LoginController@doLoginForContentUploader_v2');
@@ -405,6 +405,7 @@ Route::post('runArtisanCommands', 'AdminController@runArtisanCommands');
 Route::post('storeFileIntoS3Bucket', 'AdminController@storeFileIntoS3Bucket');
 Route::post('testMail', 'AdminController@testMail');
 Route::post('getPhpInfo', 'AdminController@getPhpInfo');
+Route::post('getServerTime', 'AdminController@getServerTime');
 
 //API to get fonts into font_collection (for designer use)
 Route::post('getAllFonts', 'AdminController@getAllFonts');
