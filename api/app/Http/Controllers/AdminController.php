@@ -10263,6 +10263,7 @@ class AdminController extends Controller
 
             DB::update('UPDATE images
                         SET
+                            updated_at = updated_at,
                             search_category = IF(search_category != "",CONCAT(search_category, ",'.$search_category.'"), "'.$search_category.'")
                         WHERE
                             id IN ('.$img_ids.') ');
@@ -10286,6 +10287,7 @@ class AdminController extends Controller
 
                     DB::update('UPDATE images
                                     SET
+                                        updated_at = updated_at,
                                         search_category = ?
                                     WHERE
                                         id = ? ',[implode(',',$unique_search_tag_array), $image_detail->id]);
