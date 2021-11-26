@@ -79,11 +79,11 @@ export class UpdatesubcategoryimagebyidComponent implements OnInit {
   add(event) {
     if (typeof event == "object") {
       if (event.target.value.trim() != "") {
-        if (!this.validateString(event.target.value)) {
-          document.getElementById("tagInputError").innerHTML = "Special characters not allowed, only alphanumeric, '& , #' is allowed in tag name.";
-          return;
-        }
-        else {
+        // if (!this.validateString(event.target.value)) {
+        //   document.getElementById("tagInputError").innerHTML = "Special characters not allowed, only alphanumeric, '& , #' is allowed in tag name.";
+        //   return;
+        // }
+        // else {
           var newStr = event.target.value;
           var newArr = newStr.split(",");
           for (let i = 0; i < newArr.length; i++) {
@@ -93,7 +93,7 @@ export class UpdatesubcategoryimagebyidComponent implements OnInit {
           }
           document.getElementById("tagInputError").innerHTML = "";
           this.searchINputControl.setValue("");
-        }
+        // }
       }
       else {
         this.searchINputControl.setValue("");
@@ -101,15 +101,15 @@ export class UpdatesubcategoryimagebyidComponent implements OnInit {
     }
     else {
       if (event != "") {
-        if (!this.validateString(event)) {
-          document.getElementById("tagInputError").innerHTML = "Special characters not allowed, only alphanumeric, '&' is allowed in tag name.";
-          return;
-        }
-        else {
+        // if (!this.validateString(event)) {
+        //   document.getElementById("tagInputError").innerHTML = "Special characters not allowed, only alphanumeric, '&' is allowed in tag name.";
+        //   return;
+        // }
+        // else {
           document.getElementById("tagInputError").innerHTML = "";
           this.selectedSearchTags.push(event);
           this.searchINputControl.setValue("");
-        }
+        // }
       }
     }
     const unique = (value, index, self) => {
