@@ -2518,7 +2518,7 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = strtolower(trim($request->search_category));
+            $this->search_category = mb_strtolower(trim($request->search_category));
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
@@ -6314,6 +6314,10 @@ class UserController extends Controller
                                           IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
                                           IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
                                           IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                          coalesce(im.height,0) AS height,
+                                          coalesce(im.width,0) AS width,
+                                          coalesce(im.original_img_height,0) AS original_img_height,
+                                          coalesce(im.original_img_width,0) AS original_img_width,
                                           IF(im.json_data IS NOT NULL,1,0) as is_json_data,
                                           coalesce(im.json_data,"") as json_data,
                                           coalesce(im.is_featured,"") as is_featured,
@@ -7667,7 +7671,13 @@ class UserController extends Controller
                     $search_category[] = strtolower(preg_replace('/[^A-Za-z0-9]/', ',', $font_name->font_name));
 
                 }
-                $search_category = implode(',',array_unique(explode(',',implode(',',$search_category))));
+
+                $db_data = DB::select('SELECT search_category FROM catalog_master WHERE id = ?', [$catalog_id]);
+                if(count($db_data) > 0 && $db_data[0]->search_category)
+                    $search_category[] = strtolower($db_data[0]->search_category);
+
+                $search_category = implode(',',array_filter(array_unique(explode(',',implode(',',$search_category)))));
+
                 DB::beginTransaction();
                 DB::update('UPDATE catalog_master SET search_category = ? , updated_at = updated_at WHERE id = ? ', [$search_category, $catalog_id]);
                 DB::commit();

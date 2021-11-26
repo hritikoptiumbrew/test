@@ -20,6 +20,13 @@ use GuzzleHttp\Client;
 
 class PixabayController extends Controller
 {
+    public function __construct()
+    {
+        $keys = Config::get('constant.PIXABAY_API_KEY');
+        $key = explode(',', $keys);
+        $this->total_key = count($key);
+    }
+
     /* =====================================| Fetch Images |==============================================*/
 
     /**
@@ -143,12 +150,7 @@ class PixabayController extends Controller
             if (($response = (new VerificationController())->validateItemCount($per_page)) != '')
                 return $response;
 
-            $key = explode(',', $keys);
-            $i = 0;
-            foreach ($key as $k) {
-                $kt[$i] = $k;
-                $i++;
-            }
+            $kt = explode(',', $keys);
 
             $redis_keys = Redis::keys('pel:currentKey:*');
 
@@ -223,33 +225,26 @@ class PixabayController extends Controller
     {
         try {
             $keys = Config::get('constant.PIXABAY_API_KEY');
-            $key = explode(',', $keys);
-            $i = 0;
-            foreach ($key as $k) {
-                $kt[$i] = $k;
-                $i++;
-            }
-            $countKey = $i - 1;
+            $countKey = count(explode(',', $keys));
+            $countKey--;
             $this->currentKey = $currentKey;
+
             if ($this->currentKey == $countKey) {
                 $this->currentKey = 0;
             } else {
                 $this->currentKey = $this->currentKey + 1;
             }
 
-            if (!Cache::has("pel:currentKey:$this->currentKey")) {
-                $result = Cache::remember("currentKey:$this->currentKey", 29, function () {
-                    //Log::info('Current Key :'.$this->currentKey);
-                    return $this->currentKey;
-                });
-            }
-            $redis_result = Cache::get("currentKey:$this->currentKey");
-            Redis::expire("currentKey:$this->currentKey", 1);
+            $redis_result = Cache::rememberforever("currentKey:$this->currentKey", function () {
+                //Log::info('Current Key :'.$this->currentKey);
+                return $this->currentKey;
+            });
+
             $response = $redis_result;
+
         } catch (Exception $e) {
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'change API key of pixabay.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             Log::error("increaseCurrentKey : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            DB::rollBack();
         }
         return $response;
     }
@@ -271,6 +266,7 @@ class PixabayController extends Controller
 
                     $this->is_cache = 0;
                     $client = new Client();
+                    $host_name = request()->getHttpHost();
                     try {
                         $response = $client->request('get', $this->url);
                         $this->getRateRemaining = $response->getHeader('X-RateLimit-Remaining');
@@ -281,7 +277,9 @@ class PixabayController extends Controller
                             $rate_remaining = 0;
                         }
                         //Log::info('Rate remaining : ',['rate_limit' => $rate_remaining]);
-                        if ($rate_remaining <= 100) {
+
+                        //We changed from 100 to 10, because limit changed from 5000/hr to 100/min
+                        if ($rate_remaining <= 5) {
 
                             $redis_keys = Redis::keys('pel:currentKey:*');
                             count($redis_keys) > 0 ? $this->currentKey = substr($redis_keys[0], -1) : $this->currentKey = 0;
@@ -290,13 +288,12 @@ class PixabayController extends Controller
                                 $this->deleteRedisKey($key);
                             }
 
+                            $current_key = $this->currentKey;
                             $getKey = $this->increaseCurrentKey($this->currentKey);
-                            $host_name = request()->getHttpHost();
-                            $currentKey = $getKey + 1;
                             $template = 'stock_photos';
-                            $subject = "PhotoEditorLab: Pixabay rate limit <= 100 (host: $host_name).";
+                            $subject = "PhotoEditorLab: Pixabay rate limit <= 5 (host: $host_name).";
                             $message_body = array(
-                                'message' => "100 request is remaining from key <b>$getKey</b>.<br>Your currently used key is <b>$currentKey</b>.",
+                                'message' => "5 request is remaining from key <b>$current_key</b>.<br>Your currently used key is <b>$getKey</b>.",
                                 'user_name' => 'Admin'
                             );
                             $api_name = 'getPixabayImageForUser';
@@ -304,9 +301,23 @@ class PixabayController extends Controller
                             $email_id = Config::get('constant.SUB_ADMIN_EMAIL_ID');
                             $this->dispatch(new EmailJob(1, $email_id, $subject, $message_body, $template, $api_name, $api_description));
 
+                        }elseif ($rate_remaining <= 10) {
+
+                            $template = 'simple';
+                            $subject = "VideoFlyer: Pixabay Rate Limit <= 10 (host: $host_name).";
+                            $message_body = array(
+                                'message' => "10 request is remaining from key $this->currentKey.",
+                                'user_name' => 'Admin'
+                            );
+                            $api_name = 'getPixabayImageForUser';
+                            $api_description = 'Get pixabay image for user.';
+                            $email_id = Config::get('constant.SUB_ADMIN_EMAIL_ID');
+                            $this->dispatch(new EmailJob(1, $email_id, $subject, $message_body, $template, $api_name, $api_description));
                         }
+
                         $http_status = $response->getStatusCode();
                         $result = json_decode($response->getBody()->getContents(), true);
+
                     } catch (Exception $e) {
                         Log::error("getPixabayImageForUser : unable to fetch data.", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
                         $http_status = $e->getResponse()->getStatusCode();

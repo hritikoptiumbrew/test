@@ -9167,6 +9167,20 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function getServerTime()
+    {
+        try {
+
+            $create_at['date_time'] = date('Y-m-d H:i:s');
+            $response = Response::json(array('code' => 200, 'message' => 'Time fetch successfully.', 'cause' => '', 'data' => $create_at));
+
+        } catch (Exception $e) {
+            Log::error("getServerTime : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get time.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     //Fetch table information from database (use for only debugging query issue)
     public function getDatabaseInfo(Request $request_body)
     {
@@ -9692,7 +9706,7 @@ class AdminController extends Controller
             if ($res === TRUE) {
                 $zip->extractTo($zip_file_directory);
                 $zip->close();
-                (new ImageController())->unlinkFileFromLocalStorage($zip_name, Config::get('constant.TEMP_DIRECTORY'));
+                (new ImageController())->unlinkFileFromLocalStorage($zip_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
             } else {
                 Log::info('autoUploadTemplateV2 : Failed to extract Zip file.');
                 return Response::json(array('code' => 201, 'message' => 'Failed to extract Zip file.', 'cause' => '', 'data' => json_decode("{}")));
@@ -10249,6 +10263,7 @@ class AdminController extends Controller
 
             DB::update('UPDATE images
                         SET
+                            updated_at = updated_at,
                             search_category = IF(search_category != "",CONCAT(search_category, ",'.$search_category.'"), "'.$search_category.'")
                         WHERE
                             id IN ('.$img_ids.') ');
@@ -10272,6 +10287,7 @@ class AdminController extends Controller
 
                     DB::update('UPDATE images
                                     SET
+                                        updated_at = updated_at,
                                         search_category = ?
                                     WHERE
                                         id = ? ',[implode(',',$unique_search_tag_array), $image_detail->id]);
