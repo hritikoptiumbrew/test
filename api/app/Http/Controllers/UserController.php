@@ -2810,6 +2810,14 @@ class UserController extends Controller
                 $redis_result = [];
             }
 
+            if($this->page == 1) {
+                if($redis_result['code'] != 200){
+                    SaveSearchTagJob::dispatch(0, $this->search_category, $this->sub_category_id, 0);
+                }else{
+                    SaveSearchTagJob::dispatch($redis_result['result']['total_record'], $this->search_category, $this->sub_category_id, 1);
+                }
+            }
+
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
@@ -4071,9 +4079,6 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
-            if($this->page != 1 && !$this->category_name){
-                return Response::json(array('code' => 201, 'message' => 'Templates fetched successfully.', 'cause' => '', 'data' => json_decode("{}")));
-            }
 
 
             if (!Cache::has("pel:getTemplatesBySubCategoryTags_v2$this->sub_category_id:$this->category_name:$this->page:$this->item_count")) {
@@ -7229,6 +7234,10 @@ class UserController extends Controller
     }
 
     /*=============================| Sub functions |=============================*/
+
+    public function deleteAllRedisKeys($key_name){
+        return $is_success = Redis::del(array_merge(Redis::keys("pel:$key_name*"),['']));
+    }
 
     //Get all template by requested tags
     public function searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count)
