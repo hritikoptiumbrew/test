@@ -48,8 +48,6 @@ class SaveSearchTagJob implements ShouldQueue
     public function handle()
     {
         try {
-            $week_start_date = date( 'Y-m-d', strtotime( 'monday this week'));
-            $week_end_date = date( 'Y-m-d', strtotime( 'sunday this week' ));
 
             $tag_deatils = DB::select('SELECT
                                             id
@@ -57,17 +55,15 @@ class SaveSearchTagJob implements ShouldQueue
                                         WHERE
                                             tag = ? AND
                                             is_success = ? AND
-                                            sub_category_id = ? AND 
-                                            DATE(week_start_date) >= ? AND
-                                            DATE(week_end_date) <= ?',[$this->search_category, $this->is_success, $this->sub_category_id, $week_start_date, $week_end_date]);
+                                            sub_category_id = ?',[$this->search_category, $this->is_success, $this->sub_category_id]);
 
             if(count($tag_deatils) > 0) {
                 $id = $tag_deatils[0]->id;
-                DB::update('UPDATE tag_analysis_master SET search_count = search_count + 1, content_count= ? WHERE id=?',[$this->template_count,$id]);
+                DB::update('UPDATE tag_analysis_master SET search_count = search_count + 1, content_count = ? WHERE id = ?',[$this->template_count, $id]);
             } else {
                 DB::insert('INSERT INTO
-                               tag_analysis_master(tag, is_success, content_count, search_count, sub_category_id, week_start_date, week_end_date)
-                               VALUES(?, ?, ?, ?, ?, ?, ?)', [$this->search_category, $this->is_success, $this->template_count, 1, $this->sub_category_id, $week_start_date, $week_end_date]);
+                               tag_analysis_master(tag, is_success, content_count, search_count, sub_category_id)
+                               VALUES(?, ?, ?, ?, ?)', [$this->search_category, $this->is_success, $this->template_count, 1, $this->sub_category_id]);
             }
 
         } catch (Exception $e) {

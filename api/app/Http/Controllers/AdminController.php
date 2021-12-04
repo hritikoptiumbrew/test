@@ -10053,8 +10053,8 @@ class AdminController extends Controller
             $this->start_date = $request->start_date;
             $this->end_date = $request->end_date;
 
-            $this->page = isset($request->page) ? $request->page : '';
-            $this->item_count = isset($request->item_count) ? $request->item_count : '';
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
             $this->order_by = isset($request->order_by) ? $request->order_by : ''; //field name
@@ -10074,7 +10074,23 @@ class AdminController extends Controller
                 $this->order_by_clause = 'tam.update_time DESC';
             }
 
-            $redis_result = Cache::rememberforever("getAllSearchingDetailsForAdmin$this->sub_category_id:$this->start_date:$this->end_date:$this->order_by:$this->order_type:$this->search_type:$this->search_query", function () {
+            $redis_result = Cache::rememberforever("getAllSearchingDetailsForAdmin:$this->sub_category_id:$this->page:$this->item_count:$this->start_date:$this->end_date:$this->order_by:$this->order_type:$this->search_type:$this->search_query", function () {
+
+                $total_row_result = DB::select('SELECT 
+                                                tam.id
+                                            FROM
+                                                tag_analysis_master AS tam
+                                            LEFT JOIN  
+                                                sub_category AS scm
+                                            ON 
+                                                scm.id = tam.sub_category_id
+                                            WHERE
+                                                tam.sub_category_id = ? AND
+                                                DATE(tam.create_time) BETWEEN ? AND ?
+                                                '.$this->where_condition.'
+                                            ORDER BY '.$this->order_by_clause.' ',[$this->sub_category_id, $this->start_date, $this->end_date]);
+
+                $total_row = count($total_row_result);
 
                 $tags_detail = DB::select('SELECT 
                                                 tam.id,
@@ -10095,23 +10111,20 @@ class AdminController extends Controller
                                                 tam.sub_category_id = ? AND
                                                 DATE(tam.create_time) BETWEEN ? AND ?
                                                 '.$this->where_condition.'
-                                            ORDER BY '.$this->order_by_clause.' ',[$this->sub_category_id, $this->start_date, $this->end_date]);
+                                            ORDER BY '.$this->order_by_clause.'
+                                                LIMIT ?,?',[$this->sub_category_id, $this->start_date, $this->end_date, $this->offset, $this->item_count]);
 
-                    $total_row = count($tags_detail);
-                    $result = array('total_row' => $total_row, 'tags_detail' => $tags_detail);
-                    return $result;
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $tags_detail);
 
+                return $result;
             });
 
             if (!$redis_result) {
                 $redis_result = [];
             }
 
-            $result = array_slice($redis_result['tags_detail'], $this->offset, $this->item_count);
-            $is_next_page = ($redis_result['total_row'] > ($this->offset + $this->item_count)) ? true : false;
-            $result = array('total_record' => $redis_result['total_row'], 'is_next_page' => $is_next_page, 'result' => $result);
-
-            $response = Response::json(array('code' => 200, 'message' => 'Searching details fetched successfully.', 'cause' => '', 'data' => $result));
+            $response = Response::json(array('code' => 200, 'message' => 'Searching details fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {

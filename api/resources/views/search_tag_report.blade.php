@@ -11,7 +11,7 @@
 <div>
   <h2>Weekly search tag report </h2>
   <h3>Application name : {{ $app_name }} </h3>
-  <p>This is search tag report of last week from date <span style="font-weight: bold;">{{ $start_date }}</span> to date <span style="font-weight: bold;">{{ $end_date }}</span>.</p>
+  <p>This is search tag report of last 20 success & last 20 fail.</p>
 
   <table border=1 style="display: table;border-collapse: separate;border-color: grey;width: 100%;color: #212529;">
     <thead>
@@ -42,7 +42,7 @@
       @endforeach
     @else
       <tr style="border: 1px solid black;">
-        <td colspan="7" style="padding:.50rem;vertical-align: middle;text-align: center;">No search tag found for last week.</td>
+        <td colspan="7" style="padding:.50rem;vertical-align: middle;text-align: center;">No search tag found.</td>
       </tr>
     @endif
     </tbody>
