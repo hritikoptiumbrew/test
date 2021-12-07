@@ -251,7 +251,7 @@ class DeleteCacheKey
             }
 
             //Sub Category Images
-            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/setMultipleContentRankByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages' or $api == '/api/moveTemplate' or $api == '/api/addTemplateByZip' or $api == '/api/addCategoryNameAsTag' or $api == '/api/autoUploadTemplate' or $api == '/api/autoUploadTemplateV2') {
+            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/setMultipleContentRankByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages' or $api == '/api/moveTemplate' or $api == '/api/addTemplateByZip' or $api == '/api/addCategoryNameAsTag' or $api == '/api/autoUploadTemplate' or $api == '/api/autoUploadTemplateV2' or $api == '/api/autoUploadTemplateV3') {
 
                 //Category Wise Images Key
                 $keys = Redis::keys('pel:getImagesByCatalogId*');
@@ -736,28 +736,13 @@ class DeleteCacheKey
             }
 
             //save search module
-            if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/searchCardsBySubCategoryId' or $api == '/api/refreshSearchCountByAdmin'){
-
-                //getAllSearchingDetailsForAdmin
-                $keys = Redis::keys('pel:getAllSearchingDetailsForAdmin*');
-                foreach ($keys as $key) {
-                    Redis::del($key);
-                }
+            if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/searchCardsBySubCategoryId' or $api == '/api/searchCardsBySubCategoryId_v2' or $api == '/api/refreshSearchCountByAdmin'){
+                Redis::del(array_merge(Redis::keys("pel:getAllSearchingDetailsForAdmin*"),['']));
             }
 
             if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/refreshSearchCountByAdmin'){
-
-                //getAllSearchingDetailsForAdmin
-                $keys = Redis::keys('pel:searchCardsBySubCategoryId*');
-                foreach ($keys as $key) {
-                    Redis::del($key);
-                }
-
-                //getDataByCatalogIdForAdmin
-                $keys = Redis::keys('pel:getDataByCatalogIdForAdmin*');
-                foreach ($keys as $key) {
-                    Redis::del($key);
-                }
+                Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
+                Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin*"),['']));
             }
 
 

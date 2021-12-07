@@ -908,6 +908,59 @@ class UserController extends Controller
         return $response;
     }
 
+    public function getJsonDataV2(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_id'), $request)) != '')
+                return $response;
+
+            $this->json_id = $request->json_id;
+
+            $redis_result = Cache::rememberforever("getJsonDataV2:$this->json_id", function () {
+
+                $result = DB::select('SELECT
+                                          json_data,
+                                          COALESCE(json_pages_sequence,"") AS pages_sequence
+                                      FROM
+                                          images
+                                      WHERE
+                                          id = ?
+                                      ORDER BY updated_at DESC', [$this->json_id]);
+
+                if (count($result) > 0) {
+
+                    $result[0]->json_data = json_decode($result[0]->json_data);
+                    $result[0]->pages_sequence = explode(',',$result[0]->pages_sequence);
+
+                    if($result[0]->json_data)
+                        $result[0]->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
+
+                    return $result[0];
+
+                } else {
+                    return json_decode("{}");
+                }
+
+            });
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Json fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getJsonDataV2 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /* =====================================| Api with last_sync_time(catalog and json data) |==================================*/
 
     /**
@@ -2082,12 +2135,22 @@ class UserController extends Controller
                                                is_portrait,
                                                coalesce(height,0) AS height,
                                                coalesce(width,0) AS width,
+                                               COALESCE(multiple_images,"") AS multiple_images,
+                                               COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                               COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                updated_at
                                                 FROM
                                                 images
                                                 WHERE
                                                 catalog_id = ?
                                                 order by updated_at DESC LIMIT ?, ?', [$key->catalog_id, $this->offset, $this->item_count]);
+
+                        foreach ($featured_cards AS $i => $featured_card){
+                            if($featured_card->multiple_images && $featured_card->pages_sequence){
+                                $featured_card->multiple_images = json_decode($featured_card->multiple_images);
+                                $featured_card->pages_sequence = explode(',',$featured_card->pages_sequence);
+                            }
+                        }
 
                         $key->featured_cards = $featured_cards;
 
@@ -2563,6 +2626,9 @@ class UserController extends Controller
                                                     im.is_portrait,
                                                     coalesce(im.height,0) AS height,
                                                     coalesce(im.width,0) AS width,
+                                                    COALESCE(im.multiple_images,"") AS multiple_images,
+                                                    COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                    COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                     im.updated_at,
                                                     MATCH(im.search_category) AGAINST("' . $search_category . '") +
                                                     MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text 
@@ -2614,6 +2680,9 @@ class UserController extends Controller
                                                     im.is_portrait,
                                                     coalesce(im.height,0) AS height,
                                                     coalesce(im.width,0) AS width,
+                                                    COALESCE(im.multiple_images,"") AS multiple_images,
+                                                    COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                    COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                     im.updated_at
                                                     FROM
                                                     images as im,
@@ -2630,6 +2699,13 @@ class UserController extends Controller
                                                     ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                         $code = 427;
                         $message = "Sorry, we couldn't find any templates for '$search_category', but we found some other templates you might like:";
+                    }
+
+                    foreach ($search_result AS $i => $search){
+                        if($search->multiple_images && $search->pages_sequence){
+                            $search->multiple_images = json_decode($search->multiple_images);
+                            $search->pages_sequence = explode(',',$search->pages_sequence);
+                        }
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -4331,6 +4407,9 @@ class UserController extends Controller
                                                   coalesce(i.search_category,"") AS search_category,
                                                   coalesce(i.original_img_height,0) AS original_img_height,
                                                   coalesce(i.original_img_width,0) AS original_img_width,
+                                                  COALESCE(i.multiple_images,"") AS multiple_images,
+                                                  COALESCE(i.json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(i.json_pages_sequence) - LENGTH(REPLACE(i.json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                   i.updated_at
                                                   FROM
                                                     images as i
@@ -4368,6 +4447,9 @@ class UserController extends Controller
                                                             coalesce(i.search_category,"") AS search_category,
                                                             coalesce(i.original_img_height,0) AS original_img_height,
                                                             coalesce(i.original_img_width,0) AS original_img_width,
+                                                            COALESCE(i.multiple_images,"") AS multiple_images,
+                                                            COALESCE(i.json_pages_sequence,"") AS pages_sequence,
+                                                            COALESCE(LENGTH(i.json_pages_sequence) - LENGTH(REPLACE(i.json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                             i.updated_at
                                                             FROM
                                                             images as i,
@@ -4407,6 +4489,9 @@ class UserController extends Controller
                                                   coalesce(i.search_category,"") AS search_category,
                                                   coalesce(i.original_img_height,0) AS original_img_height,
                                                   coalesce(i.original_img_width,0) AS original_img_width,
+                                                  COALESCE(i.multiple_images,"") AS multiple_images,
+                                                  COALESCE(i.json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(i.json_pages_sequence) - LENGTH(REPLACE(i.json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                   i.updated_at
                                                   FROM
                                                     images AS i
@@ -4422,6 +4507,13 @@ class UserController extends Controller
                             'category_list' => [],
                             'sample_cards' => $sample_cards
                         );
+
+                        foreach ($result_array['sample_cards'] AS $sample_card){
+                            if($sample_card->multiple_images && $sample_card->pages_sequence){
+                                $sample_card->multiple_images = json_decode($sample_card->multiple_images);
+                                $sample_card->pages_sequence = explode(',',$sample_card->pages_sequence);
+                            }
+                        }
                     }
 
                     return $result_array;
@@ -7143,9 +7235,11 @@ class UserController extends Controller
                                                                    sct.catalog_id=ct.id AND
                                                                    sct.is_active=1 AND
                                                                    ct.catalog_type = ? AND
-                                                                   ct.is_featured = 1 AND 
-                                                                   DATE_FORMAT(ct.event_date, "%m-%d") >= DATE_FORMAT(NOW(),"%m-%d") AND
-                                                                   DATE_FORMAT(ct.event_date, "%m-%d") <= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL +45 DAY),"%m-%d")
+                                                                   ct.is_featured = 1 AND
+                                                                   ct.event_date >= NOW() AND 
+                                                                   ct.event_date <=  NOW() + INTERVAL 45 DAY AND
+                                                                   #DATE_FORMAT(ct.event_date, "%m-%d") >= DATE_FORMAT(NOW(),"%m-%d") AND
+                                                                   #DATE_FORMAT(ct.event_date, "%m-%d") <= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL +45 DAY),"%m-%d")
                                                                 ORDER BY ct.updated_at DESC)
                                                            UNION
                                                               (SELECT

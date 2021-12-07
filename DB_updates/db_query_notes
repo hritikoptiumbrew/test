@@ -199,3 +199,10 @@ CREATE TABLE tag_analysis_master
     PRIMARY KEY (`id`),
     FOREIGN KEY (sub_category_id) REFERENCES sub_category(id) ON DELETE CASCADE
 ) ENGINE = InnoDB;
+
+43) Photo_editor_lab : perform following query on database (04 Dec, 2021) to save multi-page card.
+------------------------------------------------------------------------------------------------------------------------
+ALTER TABLE `images` ADD `multiple_images` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `image`;
+ALTER TABLE `images` CHANGE `json_data` `json_data` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `images` ADD `json_pages_sequence` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `json_data`;
+ALTER TABLE `images` ADD `is_multipage` TINYINT(1) NULL DEFAULT '0' COMMENT '0=single page, 1=multi page' AFTER `json_pages_sequence`;

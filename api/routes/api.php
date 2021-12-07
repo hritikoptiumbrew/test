@@ -275,6 +275,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
     //Template APIs
     Route::post('getJsonData', 'UserController@getJsonData');
+    Route::post('getJsonDataV2', 'UserController@getJsonDataV2');
     Route::post('getTemplateDetail', 'UserController@getTemplateDetail'); //get all details of template
     Route::post('getJsonSampleData', 'UserController@getJsonSampleData');
     Route::post('getContentByCatalogId', 'UserController@getContentByCatalogId');
@@ -395,6 +396,7 @@ Route::middleware(['ability:image_uploader,image_uploader_permission'])->group(f
     Route::post('getAllValidationsForAdminForAutoUpload', 'AdminController@getAllValidationsForAdminForAutoUpload');
     Route::post('autoUploadTemplate', 'AdminController@autoUploadTemplate');
     Route::post('autoUploadTemplateV2', 'AdminController@autoUploadTemplateV2');
+    Route::post('autoUploadTemplateV3', 'AdminController@autoUploadTemplateV3');
 
 });
 
