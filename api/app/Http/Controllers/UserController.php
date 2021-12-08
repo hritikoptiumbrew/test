@@ -1413,6 +1413,9 @@ class UserController extends Controller
                                               coalesce(search_category,"") AS search_category,
                                               coalesce(original_img_height,0) AS original_img_height,
                                               coalesce(original_img_width,0) AS original_img_width,
+                                              COALESCE(multiple_images,"") AS multiple_images,
+                                              COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                              COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                               updated_at
                                             FROM
                                               images
@@ -1438,6 +1441,9 @@ class UserController extends Controller
                                                   coalesce(search_category,"") AS search_category,
                                                   coalesce(original_img_height,0) AS original_img_height,
                                                   coalesce(original_img_width,0) AS original_img_width,
+                                                  COALESCE(multiple_images,"") AS multiple_images,
+                                                  COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                   updated_at
                                                 FROM
                                                   images
@@ -1445,6 +1451,13 @@ class UserController extends Controller
                                                   catalog_id = ? AND
                                                   updated_at >= ?
                                                 ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
+                    }
+
+                    foreach ($result AS $i => $res){
+                        if($res->multiple_images && $res->pages_sequence){
+                            $res->multiple_images = json_decode($res->multiple_images);
+                            $res->pages_sequence = explode(',',$res->pages_sequence);
+                        }
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -6217,6 +6230,9 @@ class UserController extends Controller
                                                   coalesce(im.is_free,0) as is_free,
                                                   coalesce(im.is_ios_free,0) as is_ios_free,
                                                   coalesce(im.is_portrait,0) as is_portrait,
+                                                  COALESCE(im.multiple_images,"") AS multiple_images,
+                                                  COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                   coalesce(im.search_category,"") as search_category
                                                 FROM
                                                   images as im
@@ -6228,6 +6244,12 @@ class UserController extends Controller
                                                 ORDER BY im.updated_at DESC LIMIT ?,?', [$this->catalog_id, $this->offset, $this->item_count]);
                     $c = 0;
                     foreach ($content_list as $key) {
+
+                        if($key->multiple_images && $key->pages_sequence){
+                            $key->multiple_images = json_decode($key->multiple_images);
+                            $key->pages_sequence = explode(',',$key->pages_sequence);
+                        }
+
                         if ($c <= $free_content_count && $this->page == 1) {
                             $key->is_free = 1;
                             $key->is_ios_free = 1;
@@ -6421,6 +6443,9 @@ class UserController extends Controller
                                           coalesce(im.is_free,0) as is_free,
                                           coalesce(im.is_ios_free,0) as is_ios_free,
                                           coalesce(im.is_portrait,0) as is_portrait,
+                                          COALESCE(im.multiple_images,"") AS multiple_images,
+                                          COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                          COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                           coalesce(im.search_category,"") as search_category
                                         FROM
                                           images as im
@@ -6436,6 +6461,13 @@ class UserController extends Controller
                              $key->json_data = json_decode($key->json_data);
                          }
                      }*/
+
+                    foreach ($result AS $i => $res){
+                        if($res->multiple_images && $res->pages_sequence){
+                            $res->multiple_images = json_decode($res->multiple_images);
+                            $res->pages_sequence = explode(',',$res->pages_sequence);
+                        }
+                    }
 
                     return $result;
                 });
@@ -7237,7 +7269,7 @@ class UserController extends Controller
                                                                    ct.catalog_type = ? AND
                                                                    ct.is_featured = 1 AND
                                                                    ct.event_date >= NOW() AND 
-                                                                   ct.event_date <=  NOW() + INTERVAL 45 DAY AND
+                                                                   ct.event_date <=  NOW() + INTERVAL 45 DAY
                                                                    #DATE_FORMAT(ct.event_date, "%m-%d") >= DATE_FORMAT(NOW(),"%m-%d") AND
                                                                    #DATE_FORMAT(ct.event_date, "%m-%d") <= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL +45 DAY),"%m-%d")
                                                                 ORDER BY ct.updated_at DESC)
