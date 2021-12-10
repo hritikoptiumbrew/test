@@ -4323,7 +4323,7 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
@@ -4333,23 +4333,41 @@ class AdminController extends Controller
             $is_free = $request->is_free;
             $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
-            $json_data = isset($request->json_data) ? $request->json_data : '';
+            $json_data = $request->json_data;
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
             $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
 
             if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
                 return $response;
 
-            if (($response = (new ImageController())->validateFonts($json_data)) != '')
-                return $response;
+            //check this json is multi-page or single-page
+            $is_multipage_json = DB::select('SELECT 1 FROM images WHERE id = ? AND json_pages_sequence IS NOT NULL',[$img_id]);
+
+            if($is_multipage_json){
+                foreach ($json_data AS $i => $json) {
+                    if (($response = (new ImageController())->validateFonts($json)) != '')
+                        return $response;
+                }
+            }else{
+                if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                    return $response;
+            }
+
 
             if ($request_body->hasFile('file')) {
                 $image_array = Input::file('file');
                 if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
                     return $response;
 
-                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
-                    return $response;
+                if($is_multipage_json){
+                    foreach ($json_data AS $i => $json) {
+                        if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json)) != '')
+                            return $response;
+                    }
+                } else {
+                    if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
+                        return $response;
+                }
 
 //                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
 //                if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
@@ -10153,7 +10171,7 @@ class AdminController extends Controller
                 array_push($sample_image_array, $catalog_image);
                 array_push($webp_image_array,$file_name);
 
-                $multiple_images[$i] = array("name" => $catalog_image, "webp_name" => $file_name, "width" => $dimension['width'], "height" => $dimension['height'], "org_img_width" => $dimension['org_img_width'], "org_img_height" => $dimension['org_img_height']);
+                $multiple_images[$i] = array("name" => $catalog_image, "webp_name" => $file_name, "width" => $dimension['width'], "height" => $dimension['height'], "org_img_width" => $dimension['org_img_width'], "org_img_height" => $dimension['org_img_height'], "page_id" => $i);
 
                 if (!(strstr($file_name, '.webp'))) {
                     $webp_warning = "true";

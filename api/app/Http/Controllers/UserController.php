@@ -1461,7 +1461,7 @@ class UserController extends Controller
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
+                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/');
 
                 });
             }
@@ -2180,7 +2180,7 @@ class UserController extends Controller
                 $redis_result = [];
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Featured cards fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
+            $response = Response::json(array('code' => 200, 'message' => 'Featured cards fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
 
@@ -2722,7 +2722,7 @@ class UserController extends Controller
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                    $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
+                    $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/');
 
                     $result = array('result' => $search_result, 'code' => $code, 'message' => $message);
                     return $result;
@@ -4520,14 +4520,15 @@ class UserController extends Controller
                             'category_list' => [],
                             'sample_cards' => $sample_cards
                         );
+                    }
 
-                        foreach ($result_array['sample_cards'] AS $sample_card){
-                            if($sample_card->multiple_images && $sample_card->pages_sequence){
-                                $sample_card->multiple_images = json_decode($sample_card->multiple_images);
-                                $sample_card->pages_sequence = explode(',',$sample_card->pages_sequence);
-                            }
+                    foreach ($result_array['sample_cards'] AS $sample_card){
+                        if($sample_card->multiple_images && $sample_card->pages_sequence){
+                            $sample_card->multiple_images = json_decode($sample_card->multiple_images);
+                            $sample_card->pages_sequence = explode(',',$sample_card->pages_sequence);
                         }
                     }
+                    $result_array['prefix_url'] = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
 
                     return $result_array;
                 });
@@ -7824,6 +7825,90 @@ class UserController extends Controller
         } catch (Exception $e) {
             Log::error("addFontNameAsTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function changePageFromSingleToMulti(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('catalog_ids'), $request)) != '')
+                return $response;
+
+            $catalog_ids = $request->catalog_ids;
+            $count1 = 0;
+            $count2 = 0;
+
+            DB::beginTransaction();
+            foreach ($catalog_ids AS $i => $catalog_id){
+
+                $count1++;
+                $image_details = DB::select('SELECT 
+                                               id,
+                                               catalog_id,
+                                               image,
+                                               multiple_images,
+                                               json_data,
+                                               json_pages_sequence,
+                                               is_multipage,
+                                               height,
+                                               width,
+                                               original_img_height,
+                                               original_img_width,
+                                               attribute1
+                                            FROM
+                                               images
+                                            WHERE
+                                               catalog_id = ?
+                                            ORDER BY updated_at DESC', [$catalog_id]);
+
+                foreach ($image_details AS $j => $image_detail){
+
+                    $count2++;
+                    if($image_detail->is_multipage){
+
+                        $multiple_images[$image_detail->json_pages_sequence] = array("name" => $image_detail->image, "webp_name" => $image_detail->attribute1, "width" => $image_detail->width, "height" => $image_detail->height, "org_img_width" => $image_detail->original_img_width, "org_img_height" => $image_detail->original_img_height, "page_id" => $image_detail->json_pages_sequence);
+
+                        DB::update('UPDATE 
+                                    images 
+                                SET 
+                                    multiple_images = ?,
+                                    updated_at = updated_at
+                                WHERE id = ?',[json_encode($multiple_images), $image_detail->id]);
+
+                    }else{
+                        $rand_no = rand(100001,999999);
+                        $multiple_images[$rand_no] = array("name" => $image_detail->image, "webp_name" => $image_detail->attribute1, "width" => $image_detail->width, "height" => $image_detail->height, "org_img_width" => $image_detail->original_img_width, "org_img_height" => $image_detail->original_img_height, "page_id" => $rand_no);
+                        $json_data = json_decode($image_detail->json_data);
+                        $json_data->page_id = $rand_no;
+                        $new_json_data = json_decode('{}');
+                        $new_json_data->{$rand_no} = $json_data;
+
+                        DB::update('UPDATE 
+                                    images 
+                                SET 
+                                    multiple_images = ?,
+                                    json_data = ?,
+                                    json_pages_sequence = ?,
+                                    is_multipage = ?,
+                                    updated_at = updated_at
+                                WHERE id = ?',[json_encode($multiple_images), json_encode($new_json_data), $rand_no, 1, $image_detail->id]);
+
+                    }
+                }
+            }
+
+            DB::commit();
+            $response = Response::json(array('code' => 200, 'message' => 'Json converted successfully.', 'cause' => '', 'data' => $count1." : ".$count2));
+
+        } catch (Exception $e) {
+            Log::error("changePageFromSingleToMulti : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'change page.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
