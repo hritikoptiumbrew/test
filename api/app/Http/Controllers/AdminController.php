@@ -2042,6 +2042,11 @@ class AdminController extends Controller
 //                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
                     }
 
+//                  [$width, $height] = getimagesize($image_array);
+                    $img_h_w = Image::make($image_array);
+                    $height = $img_h_w->height();
+                    $width = $img_h_w->width();
+
                     $normal_image = (new ImageController())->generateNewFileName('normal_image', $image_array);
                     (new ImageController())->saveOriginalImageFromArray($image_array, $normal_image);
                     (new ImageController())->saveCompressedImage($normal_image);
@@ -2064,8 +2069,8 @@ class AdminController extends Controller
                     DB::beginTransaction();
                     DB::insert('INSERT
                                 INTO
-                                  images(catalog_id, image, search_category, created_at)
-                                VALUES(?, ?, ?, ?) ', [$catalog_id, $normal_image, $tag_list, $create_at]);
+                                  images(catalog_id, image, original_img_height, original_img_width, search_category, created_at)
+                                VALUES(?, ?, ?, ?, ?, ?) ', [$catalog_id, $normal_image, $height, $width, $tag_list, $create_at]);
                     DB::commit();
                 }
             }
@@ -2125,6 +2130,7 @@ class AdminController extends Controller
             $is_featured = $request->is_featured;
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is normal images
             $search_category = isset($request->search_category) ? strtolower($request->search_category) : NULL;
+            $height = $width = NULL;
 
             if ($search_category != NULL or $search_category != "") {
                 if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
@@ -2142,6 +2148,11 @@ class AdminController extends Controller
                 if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
 //                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
                 }
+
+//                [$width, $height] = getimagesize($image_array);
+                $img_h_w = Image::make($image_array);
+                $height = $img_h_w->height();
+                $width = $img_h_w->width();
 
                 $catalog_img = (new ImageController())->generateNewFileName('catalog_img', $image_array);
                 (new ImageController())->saveOriginalImage($catalog_img);
@@ -2169,11 +2180,13 @@ class AdminController extends Controller
             DB::update('UPDATE
                               images
                             SET
+                              original_img_height = IF(? != "",?,original_img_height),
+                              original_img_width = IF(? != "",?,original_img_width),
                               image = IF(? != "",?,image),
                               search_category = ?
                             WHERE
                               id = ? ',
-                [$catalog_img, $catalog_img, $tag_list, $img_id]);
+                [$height, $height, $width, $width, $catalog_img, $catalog_img, $tag_list, $img_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Normal image updated successfully.', 'cause' => '', 'data' => json_decode('{}')));

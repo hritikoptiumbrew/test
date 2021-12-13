@@ -383,6 +383,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('addFontNameAsTag', 'UserController@addFontNameAsTag');
     Route::post('changePageFromSingleToMulti', 'UserController@changePageFromSingleToMulti');
     Route::post('addPageFromSingleToMulti', 'UserController@addPageFromSingleToMulti');
+    Route::post('addHeightWidthInSticker', 'UserController@addHeightWidthInSticker');
 
     //Get Searching tag by sub_category_id
     Route::post('getSearchTagBySubCategoryId', 'UserController@getSearchTagBySubCategoryId');

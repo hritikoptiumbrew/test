@@ -7777,6 +7777,106 @@ class UserController extends Controller
         return $response;
     }
 
+    public function addPageFromSingleToMulti(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+//            $cat = DB::select('SELECT id,"25" AS sub FROM catalog_master ORDER BY id DESC LIMIT 50');
+//            dd(json_decode(json_encode($cat), true));
+//            $cat_id_array = [1, 2, 3, 4, 5];
+//            dd($cat_id_array);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('old_sub_category_id', 'new_sub_category_id'), $request)) != '')
+                return $response;
+
+            $old_sub_category_id = $request->old_sub_category_id;
+            $new_sub_category_id = $request->new_sub_category_id;
+            $create_at = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
+            $old_all_catalog_id = DB::select('SELECT 
+                                            id,
+                                            image
+                                        FROM 
+                                            catalog_master 
+                                        WHERE 
+                                            is_featured = 1 AND 
+                                            is_active = 1 AND 
+                                            id IN (SELECT catalog_id FROM sub_category_catalog WHERE sub_category_id = ?)',
+                                        [$old_sub_category_id]);
+            Log::info('1.old all catalog id',["id" => $old_all_catalog_id]);
+
+            $old_all_catalog_id_array = array_column($old_all_catalog_id, 'id');
+            $old_all_catalog_id_str = implode(',',$old_all_catalog_id_array);
+
+            $old_all_img_array = array_column($old_all_catalog_id, 'image');
+            $old_all_img_str = '"' . implode('","',$old_all_img_array) . '"';
+
+            Log::info('2.old all catalog detail',["old_id_array" => $old_all_catalog_id_array, "old_id_str" => $old_all_catalog_id_str, "old_img_array" => $old_all_img_array, "old_img_str" => $old_all_img_str]);
+
+            DB::insert('INSERT INTO catalog_master
+                              (name, catalog_type, image, icon, landscape_image, portrait_image, landscape_webp, portrait_webp, is_free, is_ios_free, is_featured, is_active, event_date, popularity_rate, search_category, created_at, updated_at, attribute1, attribute2, attribute3, attribute4, attribute5)
+                        SELECT name, catalog_type, image, icon, landscape_image, portrait_image, landscape_webp, portrait_webp, is_free, is_ios_free, is_featured, is_active, event_date, popularity_rate, search_category, created_at, updated_at, attribute1, attribute2, attribute3, attribute4, attribute5
+                              FROM catalog_master
+                        WHERE id IN ('.$old_all_catalog_id_str.')  ');
+
+
+            $new_all_catalog_db = DB::select('SELECT 
+                                                    id AS catalog_id, 
+                                                    ? AS sub_category_id,
+                                                    ? AS created_at
+                                              FROM 
+                                                    catalog_master 
+                                              WHERE image IN ('.$old_all_img_str.') AND id NOT IN ('.$old_all_catalog_id_str.') ',
+                                                    [$new_sub_category_id, $create_at]);
+            Log::info('3.new all catalog id',["id" => $new_all_catalog_db]);
+
+
+            $new_all_catalog_id_array = array_column($new_all_catalog_db, 'catalog_id');
+            $new_all_catalog_id_str = implode(',',$new_all_catalog_id_array);
+            Log::info('4.new all catalog detail',["new_id_array" => $new_all_catalog_id_array, "new_id_str" => $new_all_catalog_id_str]);
+
+            $sub_category_catalog_data = json_decode(json_encode($new_all_catalog_db), true);
+            //Add duplicate link
+            DB::table('sub_category_catalog')->insert($sub_category_catalog_data);
+
+            //Add duplicate content
+            DB::insert('INSERT INTO images
+                              (catalog_id, image, multiple_images, original_img, display_img, is_active, image_type, json_data, json_pages_sequence, is_multipage, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, video_duration, original_img_height, original_img_width, is_verified, video_file, is_auto_upload, created_at, updated_at, attribute1, attribute2, attribute3, attribute4)
+                        SELECT catalog_id, image, multiple_images, original_img, display_img, is_active, image_type, json_data, json_pages_sequence, is_multipage, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, video_duration, original_img_height, original_img_width, is_verified, video_file, is_auto_upload, created_at, updated_at, attribute1, attribute2, attribute3, "demo@123"
+                              FROM images
+                        WHERE catalog_id IN ('.$old_all_catalog_id_str.')  ');
+
+            //last step
+            //change it's catalog id
+            $news = DB::select('SELECT 
+                                    i.id, 
+                                    i.catalog_id,
+                                    cm.image
+                                FROM 
+                                    images AS i
+                                    LEFT JOIN catalog_master AS cm ON cm.id = i.catalog_id 
+                                WHERE i.attribute4 = ?',["demo@123"]);
+
+            foreach ($news AS $i => $new){
+                DB::update('UPDATE images SET catalog_id = (SELECT id FROM catalog_master WHERE image = ? AND id != ?), updated_at = updated_at, attribute4 = NULL WHERE id = ?',[$new->image, $new->catalog_id, $new->id]);
+            }
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Json converted successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("addPageFromSingleToMulti : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'change page.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     public function addFontNameAsTag(Request $request_body)
     {
         try {
@@ -7900,6 +8000,7 @@ class UserController extends Controller
                                 WHERE id = ?',[json_encode($multiple_images), json_encode($new_json_data), $rand_no, 1, $image_detail->id]);
 
                     }
+                    $multiple_images = NULL;
                 }
             }
 
@@ -7908,6 +8009,54 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             Log::error("changePageFromSingleToMulti : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'change page.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function addHeightWidthInSticker(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('catalog_ids'), $request)) != '')
+                return $response;
+
+            $catalog_ids = $request->catalog_ids;
+            $count1 = $count2 = 0;
+            $width = $height = NULL;
+
+            DB::beginTransaction();
+            foreach ($catalog_ids AS $i => $catalog_id){
+
+                $count1++;
+                $image_details = DB::select('SELECT 
+                                               id,
+                                               image
+                                            FROM
+                                               images
+                                            WHERE
+                                               catalog_id = ?
+                                            ORDER BY id ASC', [$catalog_id]);
+
+                foreach ($image_details AS $j => $image_detail){
+                    $count2++;
+                    $image_url = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $image_detail->image;
+                    [$width, $height] = getimagesize($image_url);
+
+                    DB::update('UPDATE images SET original_img_height = ?, original_img_width = ?, updated_at = updated_at WHERE id = ?',[$height, $width, $image_detail->id]);
+                    $width = $height = NULL;
+                }
+            }
+
+            DB::commit();
+            $response = Response::json(array('code' => 200, 'message' => 'Json converted successfully.', 'cause' => '', 'data' => $count1." : ".$count2));
+
+        } catch (Exception $e) {
+            Log::error("addHeightWidthInSticker : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'change page.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
