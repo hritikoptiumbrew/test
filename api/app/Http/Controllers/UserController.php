@@ -19,6 +19,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Redis;
 use Abraham\TwitterOAuth\TwitterOAuth;
 use App\Jobs\SaveSearchTagJob;
+use Image;
 
 class UserController extends Controller
 {
@@ -8045,7 +8046,10 @@ class UserController extends Controller
                 foreach ($image_details AS $j => $image_detail){
                     $count2++;
                     $image_url = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $image_detail->image;
-                    [$width, $height] = getimagesize($image_url);
+//                    [$width, $height] = getimagesize($image_url);
+                    $img_h_w = Image::make($image_url);
+                    $height = $img_h_w->height();
+                    $width = $img_h_w->width();
 
                     DB::update('UPDATE images SET original_img_height = ?, original_img_width = ?, updated_at = updated_at WHERE id = ?',[$height, $width, $image_detail->id]);
                     $width = $height = NULL;
