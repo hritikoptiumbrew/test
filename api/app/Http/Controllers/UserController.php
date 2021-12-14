@@ -7692,6 +7692,46 @@ class UserController extends Controller
         }
     }
 
+    public function calculateHeightWidth($image_array)
+    {
+        try {
+
+//            [$width, $height] = getimagesize($image_url);
+//            $img_h_w = Image::make($image_url);
+//            $height = $img_h_w->height();
+//            $width = $img_h_w->width();
+
+            $image_size = getimagesize($image_array);
+            $org_img_height = $image_size[1];
+            $org_img_width = $image_size[0];
+            $height = ($image_size[1] * 50) / 100;
+            $width = ($image_size[0] * 50) / 100;
+
+            if ($width < 200 or $height < 200) {
+
+                $width_orig = $image_size[0];
+                $height_orig = $image_size[1];
+                $ratio_orig = $width_orig / $height_orig;
+
+                $width = $width_orig < Config::get('constant.THUMBNAIL_WIDTH') ? $width_orig : Config::get('constant.THUMBNAIL_WIDTH');
+                $height = $height_orig < Config::get('constant.THUMBNAIL_HEIGHT') ? $height_orig : Config::get('constant.THUMBNAIL_HEIGHT');
+
+                if ($width / $height > $ratio_orig)
+                    $width = $height * $ratio_orig;
+                else
+                    $height = $width / $ratio_orig;
+            }
+
+            $response = array('height' => $height, 'width' => $width, 'org_img_height' => $org_img_height, 'org_img_width' => $org_img_width);
+
+        } catch (Exception $e) {
+            Log::error("calculateHeightWidth : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = array('height' => 0, 'width' => 0, 'org_img_height' => 0, 'org_img_width' => 0);
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     /**
      * @api {post} addCategoryNameAsTag addCategoryNameAsTag
      * @apiName addCategoryNameAsTag
@@ -8028,7 +8068,6 @@ class UserController extends Controller
 
             $catalog_ids = $request->catalog_ids;
             $count1 = $count2 = 0;
-            $width = $height = NULL;
 
             DB::beginTransaction();
             foreach ($catalog_ids AS $i => $catalog_id){
@@ -8046,13 +8085,8 @@ class UserController extends Controller
                 foreach ($image_details AS $j => $image_detail){
                     $count2++;
                     $image_url = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $image_detail->image;
-//                    [$width, $height] = getimagesize($image_url);
-                    $img_h_w = Image::make($image_url);
-                    $height = $img_h_w->height();
-                    $width = $img_h_w->width();
-
-                    DB::update('UPDATE images SET original_img_height = ?, original_img_width = ?, updated_at = updated_at WHERE id = ?',[$height, $width, $image_detail->id]);
-                    $width = $height = NULL;
+                    $image_details = $this->calculateHeightWidth($image_url);
+                    DB::update('UPDATE images SET height = ?, width = ?, original_img_height = ?, original_img_width = ?, updated_at = updated_at WHERE id = ?',[$image_details['height'], $image_details['width'], $image_details['org_img_height'], $image_details['org_img_width'], $image_detail->id]);
                 }
             }
 
