@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 });*/
 
 //Logs Viewer
-Route::get('logs/{user_name}/{password}', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+Route::get('logs/{user_name}/{password}', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index')->where(['user_name' => Config::get('constant.LOG_USERNAME'), 'password' => Config::get('constant.LOG_PASSWORD')]);
 
 //User login
 Route::post('doLoginForContentUploader_v2', 'LoginController@doLoginForContentUploader_v2');
@@ -163,6 +163,12 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('updateTag', 'AdminController@updateTag');
     Route::post('deleteTag', 'AdminController@deleteTag');
     Route::post('getAllTags', 'AdminController@getAllTags');
+
+    //Save Search Tag Module
+    Route::post('updateTemplateSearchingTagsByAdmin', 'AdminController@updateTemplateSearchingTagsByAdmin');
+    Route::post('getAllSearchingDetailsForAdmin', 'AdminController@getAllSearchingDetailsForAdmin');
+    Route::post('searchCardsBySubCategoryIdForAdmin', 'AdminController@searchCardsBySubCategoryIdForAdmin');
+    Route::post('refreshSearchCountByAdmin', 'AdminController@refreshSearchCountByAdmin');
 
     //Font
     Route::post('getSamplesOfNonCommercialFont', 'AdminController@getSamplesOfNonCommercialFont'); //To get template by fontNAme/fontPath
@@ -351,7 +357,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('clearBadgeCountData', 'NotificationController@clearBadgeCountData');
 
 
-    /* ===================| APIs of resume maker (created by Pooja Jadav) |=================== */
+    /* ===================| APIs of resume maker |=================== */
 
     //Resume maker job search
     Route::post('getHomePageDetail','UserController@getHomePageDetail');
@@ -373,6 +379,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getBlogContentByIdForUser', 'BlogController@getBlogContentByIdForUser');
 
     Route::post('addCategoryNameAsTag', 'UserController@addCategoryNameAsTag');
+    Route::post('addFontNameAsTag', 'UserController@addFontNameAsTag');
 
     //Get Searching tag by sub_category_id
     Route::post('getSearchTagBySubCategoryId', 'UserController@getSearchTagBySubCategoryId');
@@ -398,6 +405,7 @@ Route::post('runArtisanCommands', 'AdminController@runArtisanCommands');
 Route::post('storeFileIntoS3Bucket', 'AdminController@storeFileIntoS3Bucket');
 Route::post('testMail', 'AdminController@testMail');
 Route::post('getPhpInfo', 'AdminController@getPhpInfo');
+Route::post('getServerTime', 'AdminController@getServerTime');
 
 //API to get fonts into font_collection (for designer use)
 Route::post('getAllFonts', 'AdminController@getAllFonts');

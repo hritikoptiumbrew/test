@@ -1191,7 +1191,7 @@ class AdminController extends Controller
             $is_featured = $request->is_featured;
             $catalog_type = $request->catalog_type;
             $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
-            $search_category = isset($request->search_category) ? $request->search_category : NULL;
+            $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
             $landscape_image = NULL;
             $portrait_image = NULL;
             $landscape_webp = NULL;
@@ -1390,7 +1390,7 @@ class AdminController extends Controller
             $catalog_type = $request->catalog_type;
             $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
             $event_date = isset($request->event_date) ? $request->event_date : NULL;
-            $search_category = isset($request->search_category) ? $request->search_category : NULL;
+            $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
             $icon_name = NULL;
             $landscape_image = NULL;
             $portrait_image = NULL;
@@ -4152,7 +4152,7 @@ class AdminController extends Controller
             $is_featured_catalog = $request->is_featured_catalog;
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is template images
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
-            $search_category = isset($request->search_category) ? strtolower($request->search_category) : NULL;
+            $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
             $created_at = date('Y-m-d H:i:s');
 
             if ($search_category != NULL or $search_category != "") {
@@ -4335,7 +4335,7 @@ class AdminController extends Controller
             $is_featured = $request->is_featured;
             $json_data = isset($request->json_data) ? $request->json_data : '';
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
-            $search_category = isset($request->search_category) ? strtolower($request->search_category) : NULL;
+            $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
 
             if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
                 return $response;
@@ -7012,6 +7012,8 @@ class AdminController extends Controller
                                       count(cm.id) AS content_count,
                                       count(IF(cm.is_free=1,1, NULL)) AS free_content,
                                       count(IF(cm.is_free=0,1, NULL)) AS paid_content,
+                                      count(IF(cm.is_ios_free=1,1, NULL)) AS ios_free_content,
+                                      count(IF(cm.is_ios_free=0,1, NULL)) AS ios_paid_content,
                                       count(IF(cm.is_featured=1,1, NULL)) AS is_featured,
                                       coalesce((max(cm.created_at)),"") AS last_uploaded_date,
                                       scm.is_featured,
@@ -9165,6 +9167,20 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function getServerTime()
+    {
+        try {
+
+            $create_at['date_time'] = date('Y-m-d H:i:s');
+            $response = Response::json(array('code' => 200, 'message' => 'Time fetch successfully.', 'cause' => '', 'data' => $create_at));
+
+        } catch (Exception $e) {
+            Log::error("getServerTime : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get time.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     //Fetch table information from database (use for only debugging query issue)
     public function getDatabaseInfo(Request $request_body)
     {
@@ -9690,7 +9706,7 @@ class AdminController extends Controller
             if ($res === TRUE) {
                 $zip->extractTo($zip_file_directory);
                 $zip->close();
-                (new ImageController())->unlinkFileFromLocalStorage($zip_name, Config::get('constant.TEMP_DIRECTORY'));
+                (new ImageController())->unlinkFileFromLocalStorage($zip_name, Config::get('constant.TEMP_FILE_DIRECTORY'));
             } else {
                 Log::info('autoUploadTemplateV2 : Failed to extract Zip file.');
                 return Response::json(array('code' => 201, 'message' => 'Failed to extract Zip file.', 'cause' => '', 'data' => json_decode("{}")));
@@ -9928,6 +9944,363 @@ class AdminController extends Controller
             }
 
             DB::rollBack();
+        }
+        return $response;
+    }
+
+    /*=================================Save Search Tag Module=======================================  */
+
+    /**
+     * @api {post} getAllSearchingDetailsForAdmin   getAllSearchingDetailsForAdmin
+     * @apiName getAllSearchingDetailsForAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "page":1,    //compulsory
+     * "item_count":10, //compulsory
+     * "start_date":"2021-08-02",   //compulsory
+     * "end_date":"2021-08-08", //compulsory
+     * "sub_category_id":66, //compulsory
+     * "order_by":"search_count",
+     * "order_type":"DESC",
+     * "search_type":"tag",
+     * "search_query":"bio-d",
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Searching details fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 3,
+     * "is_next_page": false,
+     * "result": [
+     * {
+     *   "id": 8,
+     *   "tag": "boy name",
+     *   "is_success": 0,
+     *   "content_count": 0,
+     *   "sub_category_name": "Baby Photo Maker",
+     *   "search_count": 1,
+     *   "update_time": "2021-07-28 11:10:47"
+     * },
+     * {
+     *   "id": 7,
+     *   "tag": "baby boy name",
+     *   "is_success": 1,
+     *   "content_count": 1,
+     *   "sub_category_name": "Baby Photo Maker",
+     *   "search_count": 1,
+     *   "update_time": "2021-07-28 11:10:39"
+     * },
+     * {
+     *   "id": 6,
+     *   "tag": "baby",
+     *   "is_success": 1,
+     *   "content_count": 1,
+     *   "sub_category_name": "Baby Photo Maker",
+     *   "search_count": 1,
+     *   "update_time": "2021-07-28 11:10:32"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getAllSearchingDetailsForAdmin(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count', 'start_date', 'end_date', 'sub_category_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->start_date = $request->start_date;
+            $this->end_date = $request->end_date;
+
+            $this->page = isset($request->page) ? $request->page : '';
+            $this->item_count = isset($request->item_count) ? $request->item_count : '';
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            $this->order_by = isset($request->order_by) ? $request->order_by : ''; //field name
+            $this->order_type = isset($request->order_type) ? $request->order_type : ''; //asc or desc
+            $this->search_type = isset($request->search_type) ? $request->search_type : ''; //column name to be searched
+            $this->search_query = isset($request->search_query) ?  '%' . $request->search_query . '%'  : ''; //value to be searched
+            $this->table_prefix = "tam";
+            $this->where_condition = "";
+
+            if($this->search_type && $this->search_query){
+                $this->where_condition = 'AND ' . $this->table_prefix. '.' .$this->search_type. ' LIKE "'.$this->search_query.'" ';
+            }
+
+            if($this->order_by && $this->order_type){
+                $this->order_by_clause = $this->table_prefix. '.' .$this->order_by. ' ' .$this->order_type ;
+            }else{
+                $this->order_by_clause = 'tam.update_time DESC';
+            }
+
+            $redis_result = Cache::rememberforever("getAllSearchingDetailsForAdmin$this->sub_category_id:$this->start_date:$this->end_date:$this->order_by:$this->order_type:$this->search_type:$this->search_query", function () {
+
+                $tags_detail = DB::select('SELECT 
+                                                tam.id,
+                                                tam.tag,
+                                                tam.is_success,
+                                                tam.content_count,
+                                                scm.name AS sub_category_name,
+                                                tam.search_count,
+                                                tam.create_time,
+                                                tam.update_time 
+                                            FROM
+                                                tag_analysis_master AS tam
+                                            LEFT JOIN  
+                                                sub_category AS scm
+                                            ON 
+                                                scm.id = tam.sub_category_id
+                                            WHERE
+                                                tam.sub_category_id = ? AND
+                                                DATE(tam.create_time) BETWEEN ? AND ?
+                                                '.$this->where_condition.'
+                                            ORDER BY '.$this->order_by_clause.' ',[$this->sub_category_id, $this->start_date, $this->end_date]);
+
+                    $total_row = count($tags_detail);
+                    $result = array('total_row' => $total_row, 'tags_detail' => $tags_detail);
+                    return $result;
+
+            });
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $result = array_slice($redis_result['tags_detail'], $this->offset, $this->item_count);
+            $is_next_page = ($redis_result['total_row'] > ($this->offset + $this->item_count)) ? true : false;
+            $result = array('total_record' => $redis_result['total_row'], 'is_next_page' => $is_next_page, 'result' => $result);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Searching details fetched successfully.', 'cause' => '', 'data' => $result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getAllSearchingDetailsForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all searching details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} searchCardsBySubCategoryIdForAdmin   searchCardsBySubCategoryIdForAdmin
+     * @apiName searchCardsBySubCategoryIdForAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "page":1,    //compulsory
+     * "item_count":10, //compulsory
+     * "search_category":"tag-name",   //compulsory
+     * "sub_category_id":66, //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Templates fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 679,
+     * "is_next_page": true,
+     * "result": [
+     * {
+     *   "json_id": 4868,
+     *   "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/5caed939a419a_json_image_1554962745.webp",
+     *   "is_free": 1,
+     *   "is_featured": 0,
+     *   "is_portrait": 1,
+     *   "height": 400,
+     *   "width": 325,
+     *   "updated_at": "2019-12-24 11:57:22",
+     *   "search_text": 1.586034893989563
+     * },
+     * {
+     *   "json_id": 4869,
+     *   "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/5caed96f8079a_json_image_1554962799.webp",
+     *   "is_free": 1,
+     *   "is_featured": 0,
+     *   "is_portrait": 1,
+     *   "height": 400,
+     *   "width": 325,
+     *   "updated_at": "2019-12-24 11:57:22",
+     *   "search_text": 1.586034893989563
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function searchCardsBySubCategoryIdForAdmin(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->search_category = strtolower(trim($request->search_category));
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            $redis_result = (new UserController())->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("searchCardsBySubCategoryIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function refreshSearchCountByAdmin(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count', 'search_tag_id'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->search_category = strtolower(trim($request->search_category));
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+            $this->search_tag_id = $request->search_tag_id;
+
+            $redis_result = (new UserController())->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            if($redis_result['code'] == 200){
+                DB::beginTransaction();
+                DB::update('UPDATE tag_analysis_master SET content_count = ? WHERE id = ?',[$redis_result['result']['total_record'], $this->search_tag_id]);
+                DB::commit();
+            }
+
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("refreshSearchCountByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateTemplateSearchingTagsByAdmin   updateTemplateSearchingTagsByAdmin
+     * @apiName updateTemplateSearchingTagsByAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "img_ids":1,    //compulsory
+     * "search_category":10, //compulsory
+     * "search_category":"tag-name",   //compulsory
+     * "sub_category_id":66, //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Search category updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateTemplateSearchingTagsByAdmin(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('img_ids', 'search_category'), $request)) != '')
+                return $response;
+
+            $img_ids = $request->img_ids;
+            $search_category = $request->search_category;
+
+            $img_id_array = explode(',', $img_ids);
+            $search_category_array = explode(',', $search_category);
+            $search_category_string = implode('","', $search_category_array);
+
+//            $image_details = DB::select('SELECT id,search_category FROM images WHERE id IN ('.$img_ids.') ');
+
+            DB::update('UPDATE images
+                        SET
+                            updated_at = updated_at,
+                            search_category = IF(search_category != "",CONCAT(search_category, ",'.$search_category.'"), "'.$search_category.'")
+                        WHERE
+                            id IN ('.$img_ids.') ');
+
+//            DB::update('UPDATE tag_analysis_master
+//                        SET
+//                            content_count = content_count + ?
+//                        WHERE
+//                            tag IN ("'.$search_category_string.'") ',[count($img_id_array)]);
+
+            $image_details = DB::select('SELECT id,search_category FROM images WHERE id IN ('.$img_ids.') ');
+
+            foreach ($image_details AS $i => $image_detail){
+                $search_tag_array = explode(',',$image_detail->search_category);
+                $search_tag_count = count($search_tag_array);
+
+                $unique_search_tag_array = array_unique($search_tag_array);
+                $unique_search_tag_count = count($unique_search_tag_array);
+
+                if($search_tag_count != $unique_search_tag_count){
+
+                    DB::update('UPDATE images
+                                    SET
+                                        updated_at = updated_at,
+                                        search_category = ?
+                                    WHERE
+                                        id = ? ',[implode(',',$unique_search_tag_array), $image_detail->id]);
+
+                }
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Search category updated successfully.', 'cause' => '', 'data' => json_decode("{}")));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("updateTemplateSearchingTagsByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }

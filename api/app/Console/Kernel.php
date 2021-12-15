@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\CustomCommand::class,
+        Commands\SendTagReport::class,
     ];
 
     /**
@@ -25,6 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('custom:command')->dailyAt('1:00');
+        $schedule->command('SendTagReportMail')->weekly()->mondays()->at('4:00');
         // $schedule->command('inspire')
         //          ->hourly();
     }

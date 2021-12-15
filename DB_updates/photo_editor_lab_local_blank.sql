@@ -885,6 +885,44 @@ CREATE TABLE `user_session` (
 
 -- --------------------------------------------------------
 
+CREATE TABLE `failed_jobs` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `connection` text COLLATE utf8_unicode_ci NOT NULL,
+  `queue` text COLLATE utf8_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8_unicode_ci NOT NULL,
+  `exception` longtext COLLATE utf8_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+CREATE TABLE `failed_jobs_detail` (
+  `id` int(11) NOT NULL,
+  `user_id` varchar(254) DEFAULT NULL,
+  `failed_job_id` int(11) NOT NULL,
+  `api_name` text,
+  `api_description` text,
+  `job_name` varchar(254) DEFAULT NULL,
+  `create_time` timestamp NULL DEFAULT NULL,
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `attribute1` text,
+  `attribute2` text,
+  `attribute3` text,
+  `attribute4` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `jobs` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `queue` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `payload` longtext CHARACTER SET utf8 NOT NULL,
+  `attempts` tinyint(3) UNSIGNED NOT NULL,
+  `reserved_at` int(10) UNSIGNED DEFAULT NULL,
+  `available_at` int(10) UNSIGNED NOT NULL,
+  `created_at` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
 --
 -- Table structure for table `youtube_video_master`
 --
@@ -923,6 +961,31 @@ INSERT INTO `youtube_video_master` (`id`, `youtube_video_id`, `title`, `channel_
 --
 -- Indexes for dumped tables
 --
+
+ALTER TABLE `failed_jobs`
+ADD PRIMARY KEY (`id`),
+ADD KEY `id` (`id`);
+
+
+ALTER TABLE `failed_jobs_detail`
+ADD PRIMARY KEY (`id`);
+
+
+ALTER TABLE `jobs`
+ADD PRIMARY KEY (`id`),
+ADD KEY `jobs_queue_reserved_reserved_at_index` (`queue`,`reserved_at`);
+
+
+ALTER TABLE `failed_jobs`
+MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+
+ALTER TABLE `failed_jobs_detail`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+ALTER TABLE `jobs`
+MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- Indexes for table `advertise_category_master`

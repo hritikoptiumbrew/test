@@ -442,11 +442,18 @@ export class AddcatalogComponent implements OnInit {
     else {
       for (let l = 0; l < newName.length; l++) {
         if (this.listOfTag.indexOf(newName[l])) {
-          this.listOfTag.push(newName[l]);
+          this.listOfTag.push(newName[l].trim().toLowerCase());
         }
       }
       this.tagName = '';
     }
+
+    const unique = (value, index, self) => {
+      return self.indexOf(value) === index
+    }
+    const uniqueTags = this.listOfTag.filter(unique)
+
+    this.listOfTag = uniqueTags;
   }
   removeTag(tag) {
     let index = this.listOfTag.indexOf(tag);

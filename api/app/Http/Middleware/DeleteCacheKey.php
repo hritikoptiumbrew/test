@@ -735,6 +735,32 @@ class DeleteCacheKey
                 }
             }
 
+            //save search module
+            if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/searchCardsBySubCategoryId' or $api == '/api/refreshSearchCountByAdmin'){
+
+                //getAllSearchingDetailsForAdmin
+                $keys = Redis::keys('pel:getAllSearchingDetailsForAdmin*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+            if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/refreshSearchCountByAdmin'){
+
+                //getAllSearchingDetailsForAdmin
+                $keys = Redis::keys('pel:searchCardsBySubCategoryId*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+
+                //getDataByCatalogIdForAdmin
+                $keys = Redis::keys('pel:getDataByCatalogIdForAdmin*');
+                foreach ($keys as $key) {
+                    Redis::del($key);
+                }
+            }
+
+
         } catch (Exception $e) {
             Log::error("DeleteCacheKey Middleware : ", ['Error : ' => $e->getMessage(), '\nTraceAsString' => $e->getTraceAsString()]);
             return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'Delete Cache Key.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
