@@ -962,6 +962,59 @@ class UserController extends Controller
         return $response;
     }
 
+    //get pages_sequence in string format
+    public function getJsonDataV3(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_id'), $request)) != '')
+                return $response;
+
+            $this->json_id = $request->json_id;
+
+            $redis_result = Cache::rememberforever("getJsonDataV3:$this->json_id", function () {
+
+                $result = DB::select('SELECT
+                                          json_data,
+                                          COALESCE(json_pages_sequence,"") AS pages_sequence
+                                      FROM
+                                          images
+                                      WHERE
+                                          id = ?
+                                      ORDER BY updated_at DESC', [$this->json_id]);
+
+                if (count($result) > 0) {
+
+                    $result[0]->json_data = json_decode($result[0]->json_data);
+
+                    if($result[0]->json_data)
+                        $result[0]->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
+
+                    return $result[0];
+
+                } else {
+                    return json_decode("{}");
+                }
+
+            });
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Json fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getJsonDataV3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /* =====================================| Api with last_sync_time(catalog and json data) |==================================*/
 
     /**
@@ -7840,14 +7893,15 @@ class UserController extends Controller
             DB::beginTransaction();
             $old_all_catalog_id = DB::select('SELECT 
                                             id,
+                                            name,
                                             image
                                         FROM 
                                             catalog_master 
                                         WHERE 
-                                            is_featured = 1 AND 
                                             is_active = 1 AND 
-                                            id IN (SELECT catalog_id FROM sub_category_catalog WHERE sub_category_id = ?)',
-                                        [$old_sub_category_id]);
+                                            id IN (SELECT catalog_id FROM sub_category_catalog WHERE sub_category_id = ?)
+                                        ORDER by updated_at DESC', [$old_sub_category_id]);
+
             Log::info('1.old all catalog id',["id" => $old_all_catalog_id]);
 
             $old_all_catalog_id_array = array_column($old_all_catalog_id, 'id');
