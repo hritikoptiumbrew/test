@@ -19,8 +19,9 @@ Copyright 2018 - 2020 Optimumbrew Technology
   </nb-card-header>
   <nb-card-body>
     <div class="img-preview" id="subImage" [attr.valid-status]="subCatData?true:false">
-      <img *ngIf="subImage" class="placeholder-img" >
-      <img *ngIf="subImage" [src]="subImage" onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+      <img *ngIf="subImage" class="placeholder-img">
+      <img *ngIf="subImage" [src]="subImage" onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';"
+        (load)="imageLoad($event)">
       <label for="fileInput" class="placeholder-img">
         <i class="fa fa-camera" title="Click here to choose image"></i>
       </label>
@@ -56,8 +57,20 @@ Copyright 2018 - 2020 Optimumbrew Technology
         </div>
       </div>
     </div>
+    <div class="row mt-1" *ngIf="!subCatData">
+      <div class="col-md-3 pr-0">
+        <label class="d-block form-label">Multipage support</label>
+      </div>
+      <div class="col-md-9 pl-0">
+        <div class="form-group mt-2">
+          <nb-toggle status="primary" [(ngModel)]="is_multi_page_support"></nb-toggle>
+          <p id="subCatAddError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 14px;"></p>
+        </div>
+      </div>
+    </div>
     <div class="form-group text-center">
-      <button *ngIf="!subCatData" class="btn btn-primary w-50 mr-2" id="subCatAdd" (click)="addSubCategory()">Add</button>
+      <button *ngIf="!subCatData" class="btn btn-primary w-50 mr-2" id="subCatAdd"
+        (click)="addSubCategory()">Add</button>
       <button *ngIf="subCatData" class="btn btn-primary w-50 mr-2" id="subCatAdd"
         (click)="addSubCategory()">Update</button>
     </div>

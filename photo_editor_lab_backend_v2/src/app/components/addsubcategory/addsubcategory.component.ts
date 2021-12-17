@@ -28,7 +28,7 @@ export class AddsubcategoryComponent implements OnInit {
 
   constructor(private validService: ValidationsService, private dialogref: NbDialogRef<AddsubcategoryComponent>, private dataService: DataService, private utils: UtilService, private route: Router) {
     this.utils.dialogref = this.dialogref;
-   }
+  }
 
   selectType: any = '0';
   subImage: any;
@@ -38,6 +38,7 @@ export class AddsubcategoryComponent implements OnInit {
   file: any;
   categoryId: any;
   token: any;
+  is_multi_page_support: boolean = false;
   errormsg = ERROR;
   subCatData: any;
   ngOnInit(): void {
@@ -68,13 +69,11 @@ export class AddsubcategoryComponent implements OnInit {
     this.fileList = event.target.files;
     if (this.fileList.length > 0) {
       this.file = this.fileList[0];
-      var filesize = Math.round(this.file.size/1024);
-      if(filesize > 100)
-      {
+      var filesize = Math.round(this.file.size / 1024);
+      if (filesize > 100) {
         document.getElementById("imageError").innerHTML = "Maximum 100Kb file allow to upload";
       }
-      else
-      {
+      else {
         document.getElementById("imageError").innerHTML = "";
       }
       this.formData.append('file', this.file, this.file.name);
@@ -87,27 +86,23 @@ export class AddsubcategoryComponent implements OnInit {
       document.getElementById("imageError").innerHTML = ERROR.IMG_REQ;
     }
     else {
-      if(this.file)
-      {
-        var filesize = Math.round(this.file.size/1024);
-        if(filesize > 100)
-        {
+      if (this.file) {
+        var filesize = Math.round(this.file.size / 1024);
+        if (filesize > 100) {
           document.getElementById("imageError").innerHTML = "Maximum 100Kb file allow to upload";
         }
-        else
-        {
+        else {
           document.getElementById("imageError").innerHTML = "";
           return true;
         }
       }
-      else
-      {
+      else {
         document.getElementById("imageError").innerHTML = "";
         return true;
       }
     }
   }
-  checkValidation(id, type, catId, blankMsg, typeMsg,validType) {
+  checkValidation(id, type, catId, blankMsg, typeMsg, validType) {
     document.getElementById("subCatAddError").innerHTML = "";
     var validObj = {
       "id": id,
@@ -117,16 +112,15 @@ export class AddsubcategoryComponent implements OnInit {
       "type_msg": typeMsg,
       "button_check": {
         "button_id": "subCatAdd",
-        "successArr": ['addSubInput','subImage']
+        "successArr": ['addSubInput', 'subImage']
       }
     }
     this.validService.checkValid(validObj);
-    if(validType != "blank")
-    {
+    if (validType != "blank") {
       this.addSubCategory();
     }
   }
-  
+
   addSubCategory() {
     var validObj = [
       {
@@ -139,7 +133,7 @@ export class AddsubcategoryComponent implements OnInit {
     ]
     var addStatus = this.validService.checkAllValid(validObj);
     var imageStatus = this.checkImageValid();
-    if (addStatus && imageStatus){
+    if (addStatus && imageStatus) {
       var catApliUrl;
       if (this.subCatData) {
         catApliUrl = 'updateSubCategory';
@@ -161,7 +155,8 @@ export class AddsubcategoryComponent implements OnInit {
         category_data = {
           'category_id': this.categoryId,
           'name': this.subName,
-          'is_featured': this.selectType
+          'is_featured': this.selectType,
+          'is_multi_page_support': this.is_multi_page_support == true ? 1 : 0
         };
       }
       this.formData.append('request_data', JSON.stringify(category_data));
@@ -200,9 +195,8 @@ export class AddsubcategoryComponent implements OnInit {
         });
     }
   }
-  imageLoad(event){
-    if(event.target.previousElementSibling != null)
-    {
+  imageLoad(event) {
+    if (event.target.previousElementSibling != null) {
       event.target.previousElementSibling.remove();
     }
   }

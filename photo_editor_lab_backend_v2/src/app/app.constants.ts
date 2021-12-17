@@ -96,4 +96,5 @@ export const ERROR = Object.freeze({
     VALIDATION_DESCRIP_EMPTY: "Please enter description",
     SUB_CAT_NAME_SEARCH_EMPTY: "Please enter sub category name to search",
     CAT_LOG_SEARCH_EMPTY: "Please enter catalog name to search",
+    NOT_SUPPORT_MULTIPAGE: "Any one sub category is not supporting multipage"
 });

@@ -41,7 +41,12 @@ export class LinkcatalogComponent implements OnInit {
     this.dialogRef.close({ res: this.linkStatus });
   }
 
-  linkCatalogStatus(catalog, apiName,indexItem) {
+  linkCatalogStatus(catalog, apiName, indexItem) {
+    const selected_sub_category = JSON.parse(localStorage.getItem('selected_sub_category'));
+    if (catalog.is_multi_page_support != selected_sub_category.is_multi_page_support) {
+      this.utils.showError("results.message", 4000);
+      return;
+    }
     this.utils.showLoader();
     this.dataService.postData(apiName,
       {
@@ -55,12 +60,10 @@ export class LinkcatalogComponent implements OnInit {
       if (results.code == 200) {
         this.utils.showSuccess(results.message, 4000);
         this.linkStatus = "add";
-        if(apiName == "linkCatalog")
-        {
+        if (apiName == "linkCatalog") {
           this.catalogList[indexItem].linked = 1;
         }
-        else
-        {
+        else {
           this.catalogList[indexItem].linked = 0;
         }
         this.utils.hideLoader();
