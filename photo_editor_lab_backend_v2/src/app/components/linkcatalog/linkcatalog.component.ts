@@ -43,15 +43,16 @@ export class LinkcatalogComponent implements OnInit {
 
   linkCatalogStatus(catalog, apiName, indexItem) {
     const selected_sub_category = JSON.parse(localStorage.getItem('selected_sub_category'));
-    if (catalog.is_multi_page_support != selected_sub_category.is_multi_page_support) {
-      this.utils.showError("results.message", 4000);
+    if (this.catalogData.is_featured == 1 && catalog.is_multi_page_support != selected_sub_category.is_multi_page_support) {
+      this.utils.showError("You can't link with multipage sub category", 4000);
       return;
     }
     this.utils.showLoader();
     this.dataService.postData(apiName,
       {
         "catalog_id": this.catalogData.catalog_id,
-        "sub_category_id": JSON.parse(JSON.stringify(catalog)).sub_category_id
+        "sub_category_id": JSON.parse(JSON.stringify(catalog)).sub_category_id,
+        "old_sub_category_id": selected_sub_category.sub_category_id
       }, {
       headers: {
         'Authorization': 'Bearer ' + this.token
