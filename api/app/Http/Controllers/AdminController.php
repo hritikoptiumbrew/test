@@ -658,6 +658,7 @@ class AdminController extends Controller
             $category_id = $request->category_id;
             $name = trim($request->name);
             $is_featured = $request->is_featured;
+            $is_multi_page_support = isset($request->is_multi_page_support) ? $request->is_multi_page_support : 0;
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog
             $create_at = date('Y-m-d H:i:s');
 
@@ -685,8 +686,8 @@ class AdminController extends Controller
 
             DB::beginTransaction();
             DB::insert('insert into sub_category
-                        (name,category_id,image,is_featured,created_at) VALUES(?,?,?,?,?)',
-                [$name, $category_id, $category_img, $is_featured, $create_at]);
+                                (name,category_id,image,is_featured,is_multi_page_support,created_at) VALUES(?,?,?,?,?,?)',
+                        [$name, $category_id, $category_img, $is_featured, $is_multi_page_support, $create_at]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Sub category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -924,7 +925,8 @@ class AdminController extends Controller
                                         IF(sct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as thumbnail_img,
                                         IF(sct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as compressed_img,
                                         IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img,
-                                        sct.is_featured
+                                        sct.is_featured,
+                                        sct.is_multi_page_support
                                       FROM
                                         sub_category as sct
                                       WHERE
@@ -1029,7 +1031,8 @@ class AdminController extends Controller
                                         IF(sct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as thumbnail_img,
                                         IF(sct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as compressed_img,
                                         IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img,
-                                        sct.is_featured
+                                        sct.is_featured,
+                                        sct.is_multi_page_support
                                       FROM
                                         sub_category as sct
                                       WHERE
@@ -1113,7 +1116,8 @@ class AdminController extends Controller
                                     IF(sct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as thumbnail_img,
                                     IF(sct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as compressed_img,
                                     IF(sct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",sct.image),"") as original_img,
-                                    sct.is_featured
+                                    sct.is_featured,
+                                    sct.is_multi_page_support
                                    FROM
                                       sub_category AS sct
                                     WHERE
@@ -2783,6 +2787,7 @@ class AdminController extends Controller
                     return DB::select('SELECT
                                           id AS sub_category_id,
                                           name,
+                                          is_multi_page_support,
                                           IF((SELECT sub_category_id
                                               FROM sub_category_catalog scc
                                               WHERE catalog_id = ? and sc.id=scc.sub_category_id and scc.is_active=1 LIMIT 1) ,1,0) as linked
@@ -9414,39 +9419,40 @@ class AdminController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
 
-            if (!Cache::has("pel:getAllValidationsForAdminForAutoUpload")) {
-                $result = Cache::rememberforever("getAllValidationsForAdminForAutoUpload", function () {
+            $redis_result = Cache::rememberforever("getAllValidationsForAdminForAutoUpload:$this->sub_category_id", function () {
 
-                    $category_detail = DB::select('SELECT
-                                                     category_id
-                                                   FROM
-                                                     sub_category
-                                                   WHERE is_active = ? AND id =?', [1,$this->sub_category_id]);
-                    if(count($category_detail) > 0){
-                        $category_id = $category_detail[0]->category_id;
-                    }else{
-                        $category_id ="";
-                    }
+                $category_detail = DB::select('SELECT
+                                                 category_id,
+                                                 is_multi_page_support
+                                               FROM
+                                                 sub_category
+                                               WHERE is_active = ? AND id = ?', [1,$this->sub_category_id]);
 
-                    $list_of_validations = DB::select('SELECT
-                                        id AS setting_id,
-                                        category_id,
-                                        validation_name,
-                                        max_value_of_validation,
-                                        is_featured,
-                                        is_catalog,
-                                        description,
-                                        update_time
-                                        FROM
-                                        settings_master
-                                        WHERE is_active = ? 
-                                        ORDER BY update_time DESC', [1]);
+                if(count($category_detail) > 0){
+                    $category_id = $category_detail[0]->category_id;
+                    $is_multi_page_support = $category_detail[0]->is_multi_page_support;
+                }else{
+                    $category_id = "";
+                    $is_multi_page_support = 0;
+                }
 
-                    return array('result' => $list_of_validations, 'category_id' => $category_id);
-                });
-            }
+                $list_of_validations = DB::select('SELECT
+                                                        id AS setting_id,
+                                                        category_id,
+                                                        validation_name,
+                                                        max_value_of_validation,
+                                                        is_featured,
+                                                        is_catalog,
+                                                        description,
+                                                        update_time
+                                                    FROM
+                                                        settings_master
+                                                    WHERE 
+                                                         is_active = ? 
+                                                    ORDER BY update_time DESC', [1]);
 
-            $redis_result = Cache::get("getAllValidationsForAdminForAutoUpload");
+                return array('result' => $list_of_validations, 'category_id' => $category_id, 'is_multi_page_support' => $is_multi_page_support);
+            });
 
             if (!$redis_result) {
                 $redis_result = [];

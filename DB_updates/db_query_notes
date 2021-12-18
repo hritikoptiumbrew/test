@@ -206,3 +206,4 @@ ALTER TABLE `images` ADD `multiple_images` TEXT CHARACTER SET utf8mb4 COLLATE ut
 ALTER TABLE `images` CHANGE `json_data` `json_data` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 ALTER TABLE `images` ADD `json_pages_sequence` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL AFTER `json_data`;
 ALTER TABLE `images` ADD `is_multipage` TINYINT(1) NULL DEFAULT '0' COMMENT '0=single page, 1=multi page' AFTER `json_pages_sequence`;
+ALTER TABLE `sub_category` ADD `is_multi_page_support` TINYINT(1) NULL DEFAULT '0' AFTER `is_active`;
