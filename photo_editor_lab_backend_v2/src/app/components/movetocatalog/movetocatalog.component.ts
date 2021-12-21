@@ -34,6 +34,8 @@ export class MovetocatalogComponent implements OnInit {
   errormsg: any;
   imgIds:any = [];
   title:string = 'Template';
+  selectedNewCatalog:any;
+  selectedOldCatalog:any;
   constructor(private dialog: NbDialogRef<MovetocatalogComponent>, private dataService: DataService, private utils: UtilService) {
     this.token = localStorage.getItem('at');
     this.utils.dialogref = this.dialog;
@@ -42,6 +44,7 @@ export class MovetocatalogComponent implements OnInit {
   ngOnInit(): void {
     this.selectedCategory = JSON.parse(localStorage.getItem('selected_category'));
     this.selectedCatalog = JSON.parse(localStorage.getItem('selected_catalog'));
+    this.selectedOldCatalog = JSON.parse(localStorage.getItem('selected_catalog'));
     this.getSubList(this.catalogData);
   }
 
@@ -59,10 +62,10 @@ export class MovetocatalogComponent implements OnInit {
         if (this.selectedCatalog.catalog_id == ctlgDtl.catalog_id) {
           ctlgDtl.is_linked = event.target.checked == true ? 1 : 0;
           this.selectedCatalog = ctlgDtl;
+          this.selectedNewCatalog = sbCtDtl;
           sbCtDtl.has_tplt = true;
         }
         else {
-
           ctlgDtl.is_linked = 0;
         }
       });
@@ -121,11 +124,17 @@ export class MovetocatalogComponent implements OnInit {
   }
 
   moveTemplate() {
+    const selected_sub_category = JSON.parse(localStorage.getItem('selected_sub_category'));
     if (this.selectedCatalog.is_linked == 0 || this.selectedCatalog.is_linked == false) {
       this.errormsg = ERROR.SEL_TMPLT_MV;
       return false;
     }
     else {
+      const selected_sub_category = JSON.parse(localStorage.getItem('selected_sub_category'));
+      if (this.selectedOldCatalog.is_featured == 1 && this.selectedNewCatalog.is_multi_page_support != selected_sub_category.is_multi_page_support) {
+        this.utils.showError("You can't move with multipage sub category", 4000);
+        return;
+      }
       this.utils.showLoader();
       this.errormsg = "";
       this.dataService.postData('moveTemplate',
