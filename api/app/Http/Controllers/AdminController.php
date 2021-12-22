@@ -10393,7 +10393,7 @@ class AdminController extends Controller
                                                 scm.id = tam.sub_category_id
                                             WHERE
                                                 tam.sub_category_id = ? AND
-                                                DATE(tam.create_time) BETWEEN ? AND ?
+                                                DATE(tam.update_time) BETWEEN ? AND ?
                                                 '.$this->where_condition.'
                                             ORDER BY '.$this->order_by_clause.'
                                                 LIMIT ?,?',[$this->sub_category_id, $this->start_date, $this->end_date, $this->offset, $this->item_count]);
