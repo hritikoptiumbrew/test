@@ -3205,7 +3205,7 @@ class UserController extends Controller
             //appending $new in our array
             array_unshift($this->default_sub_category_id, $this->sub_category_id);
             //now make it unique.
-            $this->default_sub_category_id = array_unique($this->default_sub_category_id);
+            $this->default_sub_category_id = array_filter(array_unique($this->default_sub_category_id));
             $this->default_sub_category_id = implode(",", $this->default_sub_category_id);
 
             //validate search text

@@ -3109,6 +3109,7 @@ class AdminController extends Controller
                         $sub_categories = DB::select('SELECT
                                                         distinct sc.id AS sub_category_id,
                                                         sc.name AS sub_category_name,
+                                                        sc.is_multi_page_support,
                                                         sc.updated_at
                                                       FROM sub_category sc
                                                         LEFT JOIN sub_category_catalog AS scc ON sc.id=scc.sub_category_id AND scc.is_active=1
@@ -3141,6 +3142,7 @@ class AdminController extends Controller
                         $sub_categories = DB::select('SELECT
                                                         distinct sc.id AS sub_category_id,
                                                         sc.name AS sub_category_name,
+                                                        sc.is_multi_page_support,
                                                         sc.updated_at
                                                       FROM sub_category sc
                                                         LEFT JOIN sub_category_catalog AS scc ON sc.id=scc.sub_category_id AND scc.is_active=1
@@ -4406,8 +4408,8 @@ class AdminController extends Controller
                                 WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
 
                 DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, height = ?, width = ?, original_img_height = ?, original_img_width = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
+                                images SET image = ?, json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, original_img_height = ?, original_img_width = ?, attribute1 = ?
+                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
                 DB::commit();
 
                 if (strstr($file_name, '.webp')) {
