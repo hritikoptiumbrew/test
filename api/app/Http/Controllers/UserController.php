@@ -8063,6 +8063,38 @@ class UserController extends Controller
         return $response;
     }
 
+    public function removeDuplicateTagInUserSearchTag(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $count = 0;
+            DB::statement("SET sql_mode = '' ");
+            $tag_details_count = DB::select('SELECT id, SUM(search_count) AS sum, COUNT(id) AS count FROM tag_analysis_master GROUP BY sub_category_id,tag,is_success HAVING COUNT(id) > 1');
+
+            DB::beginTransaction();
+
+            foreach ($tag_details_count AS $i => $tag_detail_count){
+                $count++;
+                DB::update('UPDATE tag_analysis_master SET search_count = ?, update_time = update_time WHERE id = ?',[$tag_detail_count->sum, $tag_detail_count->id]);
+            }
+
+            DB::delete('DELETE FROM tag_analysis_master WHERE id NOT IN (SELECT * FROM (SELECT MIN(n.id) FROM tag_analysis_master AS n GROUP BY n.sub_category_id,n.tag,n.is_success) x)');
+            DB::commit();
+
+            $this->deleteAllRedisKeys("getAllSearchingDetailsForAdmin");
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag Deleted successfully.', 'cause' => '', 'data' => $count));
+
+        } catch (Exception $e) {
+            Log::error("removeDuplicateTagInUserSearchTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'change page.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     //Get Searching tag by subcategory id
     /**
      * @api {post} getSearchTagBySubCategoryId   getSearchTagBySubCategoryId
