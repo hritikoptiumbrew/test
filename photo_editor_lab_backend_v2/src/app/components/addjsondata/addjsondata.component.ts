@@ -37,6 +37,7 @@ export class AddjsondataComponent implements OnInit {
   selectedSearchTags: string[] = [];
   selectedCategory = JSON.parse(localStorage.getItem("selected_category"));
   selectedCataLog = JSON.parse(localStorage.getItem("selected_catalog"));
+  selectedSubCategory = JSON.parse(localStorage.getItem("selected_sub_category"));
   jsonImage: any;
   selectedType: any = '0';
   selectedPrice: any = '1';
@@ -46,6 +47,7 @@ export class AddjsondataComponent implements OnInit {
   formData = new FormData();
   fileList: any;
   file: any;
+  files: any;
   jsonData: any;
   token: any;
   incorrect_fonts = [];
@@ -106,15 +108,15 @@ export class AddjsondataComponent implements OnInit {
         //   return;
         // }
         // else {
-          var newStr = event.target.value;
-          var newArr = newStr.split(",");
-          for (let i = 0; i < newArr.length; i++) {
-            if ((newArr[i] || '').trim()) {
-              this.selectedSearchTags.push(newArr[i].trim().toLowerCase());
-            }
+        var newStr = event.target.value;
+        var newArr = newStr.split(",");
+        for (let i = 0; i < newArr.length; i++) {
+          if ((newArr[i] || '').trim()) {
+            this.selectedSearchTags.push(newArr[i].trim().toLowerCase());
           }
-          document.getElementById("tagInputError").innerHTML = "";
-          this.searchINputControl.setValue("");
+        }
+        document.getElementById("tagInputError").innerHTML = "";
+        this.searchINputControl.setValue("");
         // }
       }
       else {
@@ -128,9 +130,9 @@ export class AddjsondataComponent implements OnInit {
         //   return;
         // }
         // else {
-          document.getElementById("tagInputError").innerHTML = "";
-          this.selectedSearchTags.push(event.toLowerCase());
-          this.searchINputControl.setValue("");
+        document.getElementById("tagInputError").innerHTML = "";
+        this.selectedSearchTags.push(event.toLowerCase());
+        this.searchINputControl.setValue("");
         // }
       }
     }
@@ -162,6 +164,32 @@ export class AddjsondataComponent implements OnInit {
       this.formData.append('file', this.file, this.file.name);
     }
   }
+
+  fileChangemultiple(event) {
+    this.files = [];
+    this.fileList = event.target.files;
+    if (this.fileList && this.fileList.length > 0) {
+      for (let i = 0; i < this.fileList.length; i++) {
+        var reader = new FileReader();
+        reader.onload = (event: any) => {
+          this.jsonImage = event.target.result[0];
+        }
+        reader.readAsDataURL(this.fileList[i]);
+        this.files.push(this.fileList[i]);
+        this.formData.append('file[]', this.fileList[i]);
+        if (this.files.length > 20) {
+          document.getElementById("imageError").innerHTML = "Max 20 files allow to upload";
+        }
+        else {
+          document.getElementById("imageError").innerHTML = "";
+        }
+      }
+    }
+    else {
+      this.fileList = [];
+    }
+  }
+
   checkValidation(id, type, catId, blankMsg, typeMsg) {
     var validObj = {
       "id": id,
@@ -177,13 +205,24 @@ export class AddjsondataComponent implements OnInit {
     this.validService.checkValid(validObj);
   }
   checkImageValid() {
-    document.getElementById("jsonAddError").innerHTML = "";
-    if (this.jsonImage == undefined || this.jsonImage == "none" || this.jsonImage == "") {
-      document.getElementById("imageError").innerHTML = ERROR.IMG_REQ;
-    }
-    else {
-      document.getElementById("imageError").innerHTML = "";
-      return true;
+    if (this.selectedSubCategory.is_multi_page_support == 1 && !this.upJSonData) {
+      document.getElementById("jsonAddError").innerHTML = "";
+      if (this.files.length == 0) {
+        document.getElementById("imageError").innerHTML = ERROR.IMG_REQ;
+      }
+      else {
+        document.getElementById("imageError").innerHTML = "";
+        return true;
+      }
+    } else {
+      document.getElementById("jsonAddError").innerHTML = "";
+      if (this.jsonImage == undefined || this.jsonImage == "none" || this.jsonImage == "") {
+        document.getElementById("imageError").innerHTML = ERROR.IMG_REQ;
+      }
+      else {
+        document.getElementById("imageError").innerHTML = "";
+        return true;
+      }
     }
   }
   checkJsonValid() {
@@ -248,6 +287,7 @@ export class AddjsondataComponent implements OnInit {
           "json_data": json_data,
           "search_category": tmp_selected_tags
         };
+
         apiUrl = "editJsonData";
       }
       else {
@@ -262,7 +302,7 @@ export class AddjsondataComponent implements OnInit {
           "json_data": json_data,
           "search_category": tmp_selected_tags
         };
-        apiUrl = "addJson";
+        apiUrl = this.selectedSubCategory.is_multi_page_support == 0 ? "addJson" : "addMultiPageJson";
       }
       this.formData.append('request_data', JSON.stringify(requestData));
       this.dataService.postData(apiUrl, this.formData,

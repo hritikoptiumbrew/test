@@ -29,7 +29,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
             <i class="fa fa-camera" title="Click here to choose image"></i>
           </label>
         </div>
-        <input type="file" id="fileInput" autofocus="true" style="display: none;" (change)="fileChange($event)">
+        <input type="file" id="fileInput" autofocus="true" style="display: none;" (change)="this.selectedSubCategory.is_multi_page_support == 1?fileChangemultiple($event):fileChange($event)" accept="image/png, image/gif, image/jpeg" [attr.multiple]="selectedSubCategory.is_multi_page_support == 0?null:'multiple'">
         <p id="imageError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
         <div class="row mt-4">
           <div class="col-md-4 pr-0">
