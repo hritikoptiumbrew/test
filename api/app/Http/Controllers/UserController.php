@@ -909,6 +909,7 @@ class UserController extends Controller
         return $response;
     }
 
+    //get pages_sequence in string format
     public function getJsonDataV2(Request $request_body)
     {
         try {
@@ -935,7 +936,6 @@ class UserController extends Controller
                 if (count($result) > 0) {
 
                     $result[0]->json_data = json_decode($result[0]->json_data);
-                    $result[0]->pages_sequence = explode(',',$result[0]->pages_sequence);
 
                     if($result[0]->json_data)
                         $result[0]->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
@@ -957,59 +957,6 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             Log::error("getJsonDataV2 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    //get pages_sequence in string format
-    public function getJsonDataV3(Request $request_body)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('json_id'), $request)) != '')
-                return $response;
-
-            $this->json_id = $request->json_id;
-
-            $redis_result = Cache::rememberforever("getJsonDataV3:$this->json_id", function () {
-
-                $result = DB::select('SELECT
-                                          json_data,
-                                          COALESCE(json_pages_sequence,"") AS pages_sequence
-                                      FROM
-                                          images
-                                      WHERE
-                                          id = ?
-                                      ORDER BY updated_at DESC', [$this->json_id]);
-
-                if (count($result) > 0) {
-
-                    $result[0]->json_data = json_decode($result[0]->json_data);
-
-                    if($result[0]->json_data)
-                        $result[0]->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
-
-                    return $result[0];
-
-                } else {
-                    return json_decode("{}");
-                }
-
-            });
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => 200, 'message' => 'Json fetched successfully.', 'cause' => '', 'data' => $redis_result));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("getJsonDataV3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -1505,13 +1452,6 @@ class UserController extends Controller
                                                   catalog_id = ? AND
                                                   updated_at >= ?
                                                 ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
-                    }
-
-                    foreach ($result AS $i => $res){
-                        if($res->multiple_images && $res->pages_sequence){
-                            $res->multiple_images = json_decode($res->multiple_images);
-                            $res->pages_sequence = explode(',',$res->pages_sequence);
-                        }
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -2212,13 +2152,6 @@ class UserController extends Controller
                                                 catalog_id = ?
                                                 order by updated_at DESC LIMIT ?, ?', [$key->catalog_id, $this->offset, $this->item_count]);
 
-                        foreach ($featured_cards AS $i => $featured_card){
-                            if($featured_card->multiple_images && $featured_card->pages_sequence){
-                                $featured_card->multiple_images = json_decode($featured_card->multiple_images);
-                                $featured_card->pages_sequence = explode(',',$featured_card->pages_sequence);
-                            }
-                        }
-
                         $key->featured_cards = $featured_cards;
 
                     }
@@ -2768,13 +2701,6 @@ class UserController extends Controller
                         $message = "Sorry, we couldn't find any templates for '$search_category', but we found some other templates you might like:";
                     }
 
-                    foreach ($search_result AS $i => $search){
-                        if($search->multiple_images && $search->pages_sequence){
-                            $search->multiple_images = json_decode($search->multiple_images);
-                            $search->pages_sequence = explode(',',$search->pages_sequence);
-                        }
-                    }
-
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/');
 
@@ -3279,7 +3205,7 @@ class UserController extends Controller
             //appending $new in our array
             array_unshift($this->default_sub_category_id, $this->sub_category_id);
             //now make it unique.
-            $this->default_sub_category_id = array_unique($this->default_sub_category_id);
+            $this->default_sub_category_id = array_filter(array_unique($this->default_sub_category_id));
             $this->default_sub_category_id = implode(",", $this->default_sub_category_id);
 
             //validate search text
@@ -4574,13 +4500,6 @@ class UserController extends Controller
                             'category_list' => [],
                             'sample_cards' => $sample_cards
                         );
-                    }
-
-                    foreach ($result_array['sample_cards'] AS $sample_card){
-                        if($sample_card->multiple_images && $sample_card->pages_sequence){
-                            $sample_card->multiple_images = json_decode($sample_card->multiple_images);
-                            $sample_card->pages_sequence = explode(',',$sample_card->pages_sequence);
-                        }
                     }
                     $result_array['prefix_url'] = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
 
@@ -6300,11 +6219,6 @@ class UserController extends Controller
                     $c = 0;
                     foreach ($content_list as $key) {
 
-                        if($key->multiple_images && $key->pages_sequence){
-                            $key->multiple_images = json_decode($key->multiple_images);
-                            $key->pages_sequence = explode(',',$key->pages_sequence);
-                        }
-
                         if ($c <= $free_content_count && $this->page == 1) {
                             $key->is_free = 1;
                             $key->is_ios_free = 1;
@@ -6516,13 +6430,6 @@ class UserController extends Controller
                              $key->json_data = json_decode($key->json_data);
                          }
                      }*/
-
-                    foreach ($result AS $i => $res){
-                        if($res->multiple_images && $res->pages_sequence){
-                            $res->multiple_images = json_decode($res->multiple_images);
-                            $res->pages_sequence = explode(',',$res->pages_sequence);
-                        }
-                    }
 
                     return $result;
                 });
@@ -7898,6 +7805,7 @@ class UserController extends Controller
                                         FROM 
                                             catalog_master 
                                         WHERE 
+                                            is_featured = 1 AND
                                             is_active = 1 AND 
                                             id IN (SELECT catalog_id FROM sub_category_catalog WHERE sub_category_id = ?)
                                         ORDER by updated_at DESC', [$old_sub_category_id]);
@@ -8149,6 +8057,38 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             Log::error("addHeightWidthInSticker : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'change page.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function removeDuplicateTagInUserSearchTag(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $count = 0;
+            DB::statement("SET sql_mode = '' ");
+            $tag_details_count = DB::select('SELECT id, SUM(search_count) AS sum, COUNT(id) AS count FROM tag_analysis_master GROUP BY sub_category_id,tag,is_success HAVING COUNT(id) > 1');
+
+            DB::beginTransaction();
+
+            foreach ($tag_details_count AS $i => $tag_detail_count){
+                $count++;
+                DB::update('UPDATE tag_analysis_master SET search_count = ?, update_time = update_time WHERE id = ?',[$tag_detail_count->sum, $tag_detail_count->id]);
+            }
+
+            DB::delete('DELETE FROM tag_analysis_master WHERE id NOT IN (SELECT * FROM (SELECT MIN(n.id) FROM tag_analysis_master AS n GROUP BY n.sub_category_id,n.tag,n.is_success) x)');
+            DB::commit();
+
+            $this->deleteAllRedisKeys("getAllSearchingDetailsForAdmin");
+
+            $response = Response::json(array('code' => 200, 'message' => 'Tag Deleted successfully.', 'cause' => '', 'data' => $count));
+
+        } catch (Exception $e) {
+            Log::error("removeDuplicateTagInUserSearchTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'change page.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }

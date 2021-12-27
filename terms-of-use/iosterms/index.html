@@ -209,8 +209,15 @@
                         changelogo(app_data);
                         changeFavicon(app_data);
                         break;
+                    case 'sw108t':
+                        app_data = JSON.parse(JSON.stringify(data)).sw108t;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
                     default:
-
+                        app_data = JSON.parse(JSON.stringify(data)).enaup0;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
                         break;
                 }
             });

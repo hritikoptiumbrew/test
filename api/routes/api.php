@@ -276,7 +276,6 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     //Template APIs
     Route::post('getJsonData', 'UserController@getJsonData');
     Route::post('getJsonDataV2', 'UserController@getJsonDataV2');
-    Route::post('getJsonDataV3', 'UserController@getJsonDataV3');
     Route::post('getTemplateDetail', 'UserController@getTemplateDetail'); //get all details of template
     Route::post('getJsonSampleData', 'UserController@getJsonSampleData');
     Route::post('getContentByCatalogId', 'UserController@getContentByCatalogId');
@@ -385,6 +384,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('changePageFromSingleToMulti', 'UserController@changePageFromSingleToMulti');
     Route::post('addPageFromSingleToMulti', 'UserController@addPageFromSingleToMulti');
     Route::post('addHeightWidthInSticker', 'UserController@addHeightWidthInSticker');
+    Route::post('removeDuplicateTagInUserSearchTag', 'UserController@removeDuplicateTagInUserSearchTag');
 
     //Get Searching tag by sub_category_id
     Route::post('getSearchTagBySubCategoryId', 'UserController@getSearchTagBySubCategoryId');
