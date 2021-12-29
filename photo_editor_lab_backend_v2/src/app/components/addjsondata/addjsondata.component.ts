@@ -149,6 +149,7 @@ export class AddjsondataComponent implements OnInit {
     this.selectedSearchTags.splice(i, 1);
   }
   fileChange(event) {
+    this.formData = new FormData();
     if (event.target.files && event.target.files[0]) {
       var reader = new FileReader();
       reader.onload = (event: any) => {
@@ -166,13 +167,16 @@ export class AddjsondataComponent implements OnInit {
   }
 
   fileChangemultiple(event) {
+    this.formData = new FormData();
     this.files = [];
     this.fileList = event.target.files;
     if (this.fileList && this.fileList.length > 0) {
       for (let i = 0; i < this.fileList.length; i++) {
         var reader = new FileReader();
         reader.onload = (event: any) => {
-          this.jsonImage = event.target.result[0];
+          if(i == 0){
+            this.jsonImage = event.target.result;
+          }
         }
         reader.readAsDataURL(this.fileList[i]);
         this.files.push(this.fileList[i]);
