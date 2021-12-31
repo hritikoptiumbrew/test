@@ -2576,7 +2576,7 @@ class AdminController extends Controller
 
             $img_id = $request->img_id;
 
-            $result = DB::select('SELECT image,attribute1 FROM images WHERE id = ?', [$img_id]);
+            $result = DB::select('SELECT image, multiple_images, attribute1 FROM images WHERE id = ?', [$img_id]);
 
 
             DB::beginTransaction();
@@ -2586,14 +2586,25 @@ class AdminController extends Controller
             DB::commit();
 
             if (count($result) > 0) {
-                $image_name = $result[0]->image;
-                $webp_image = $result[0]->attribute1;
-                //Image Delete in image_bucket
-                (new ImageController())->deleteImage($image_name);
-                if ($webp_image) {
-                    (new ImageController())->deleteWebpImage($webp_image);
-                }
 
+                $image_name = $result[0]->image;
+                $multiple_images = json_decode($result[0]->multiple_images);
+                $webp_image = $result[0]->attribute1;
+
+                //Image Delete in image_bucket
+                if($multiple_images){
+
+                    foreach($multiple_images AS $i => $images) {
+                        (new ImageController())->deleteImage($images->name);
+                        (new ImageController())->deleteWebpImage($images->webp_name);
+                    }
+
+                }else {
+                    (new ImageController())->deleteImage($image_name);
+                    if ($webp_image) {
+                        (new ImageController())->deleteWebpImage($webp_image);
+                    }
+                }
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Normal image deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -2882,6 +2893,51 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Catalog linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
             Log::error("linkCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function linkMultiPleCatalog(Request $request)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request->getContent());
+            //Log::info("linkCatalog Request :", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+
+            //$query=DB::select('select * from sub_category_catalog WHERE sub_category_id = ? AND catalog_id = ?',[$sub_category_id,$catalog_id]);
+            $catalog_ids = $request->catalog_ids;
+            $sub_category_id = $request->sub_category_id;
+            $create_at = date('Y-m-d H:i:s');
+            $data = array();
+
+            foreach ($catalog_ids AS $i => $catalog_id) {
+
+                $catalog_name = DB::select('SELECT name FROM catalog_master WHERE id = ?', [$catalog_id]);
+
+                if (($response = (new VerificationController())->checkIsCatalogExist($sub_category_id, $catalog_name[0]->name, $catalog_id)) != '') {
+                    $sub_category_name = DB::select('SELECT name FROM sub_category WHERE id = ?', [$sub_category_id]);
+                    return $response = Response::json(array('code' => 201, 'message' => '"' . $catalog_name[0]->name . '" already exist in "' . $sub_category_name[0]->name . '" category.', 'cause' => '', 'data' => json_decode("{}")));
+                }
+
+                $data[] = ['sub_category_id' => $sub_category_id, 'catalog_id' => $catalog_id, 'created_at' => $create_at];
+
+            }
+
+            DB::beginTransaction();
+            DB::table('sub_category_catalog')->insert($data);
+            DB::commit();
+            (new UserController())->deleteAllRedisKeys("getCatalogBySubCategoryId$sub_category_id");
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("linkMultiPleCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -4252,6 +4308,152 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function addMultiPageJson(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            //Required parameter
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
+                return $response;
+
+            $category_id = $request->category_id;
+            $catalog_id = $request->catalog_id;
+            $all_json_datas = $request->json_data;
+            $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
+            $is_featured = $request->is_featured;
+            $is_featured_catalog = $request->is_featured_catalog;
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is template images
+            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
+            $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
+            $created_at = date('Y-m-d H:i:s');
+            $sample_image_array = array();
+            $webp_image_array = array();
+            $multiple_images = array();
+            $webp_warning = "";
+            $image_array_name = array();
+            $all_images_array = array();
+
+            if(!(isset($all_json_datas->json_data) && is_object($all_json_datas->json_data) && isset($all_json_datas->pages_sequence) && is_array($all_json_datas->pages_sequence))){
+                return Response::json(array('code' => 201, 'message' => 'Required field json_data or pages_sequence is missing or empty in json.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
+            $all_json_data = $all_json_datas->json_data;
+            $json_pages_sequence = $all_json_datas->pages_sequence;
+
+            if (!$request_body->hasFile('file'))
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $images_array = Input::file('file');
+
+            if(!(count(json_decode(json_encode($all_json_data), 1)) == count($images_array) && count($json_pages_sequence) == count($images_array))){
+                return Response::json(array('code' => 201, 'message' => 'Did not match count of sample image, pages_sequence & json.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
+            foreach ($images_array AS $i => $image_detail){
+                $all_images_array[$image_detail->getClientOriginalName()] = $image_detail;
+                $image_array_name[] = $image_detail->getClientOriginalName();
+            }
+
+            foreach ($all_json_data AS $i => $json_data) {
+
+                if(!($json_data->sample_image && in_array($json_data->sample_image, $image_array_name))){
+                    return Response::json(array('code' => 201, 'message' => 'sample image key is missing or mismatch in json.', 'cause' => '', 'data' => json_decode("{}")));
+                }
+
+                if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->verifySampleImage($all_images_array[$json_data->sample_image], $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($all_images_array[$json_data->sample_image], $json_data)) != '')
+                    return $response;
+
+            }
+
+            DB::beginTransaction();
+            foreach ($all_json_data AS $i => $json_data) {
+
+                $catalog_image = (new ImageController())->generateNewFileName('json_image', $all_images_array[$json_data->sample_image]);
+                (new ImageController())->saveOriginalImageFromArray($all_images_array[$json_data->sample_image], $catalog_image);
+                (new ImageController())->saveCompressedImage($catalog_image);
+                (new ImageController())->saveThumbnailImage($catalog_image);
+                $file_name = (new ImageController())->saveWebpOriginalImage($catalog_image);
+                $dimension = (new ImageController())->saveWebpThumbnailImage($catalog_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($catalog_image);
+                    (new ImageController())->saveWebpImageInToS3($file_name);
+                }
+
+                array_push($sample_image_array, $catalog_image);
+                array_push($webp_image_array,$file_name);
+
+                $multiple_images[$i] = array("name" => $catalog_image, "webp_name" => $file_name, "width" => $dimension['width'], "height" => $dimension['height'], "org_img_width" => $dimension['org_img_width'], "org_img_height" => $dimension['org_img_height'], "page_id" => $i);
+
+                if (!(strstr($file_name, '.webp'))) {
+                    $webp_warning = "true";
+                }
+            }
+
+            $image_detail = [
+                'catalog_id' => $catalog_id,
+                'image' => $multiple_images[$json_pages_sequence[0]]['name'],
+                'json_data' => json_encode($all_json_data),
+                'is_free' => $is_free,
+                'is_ios_free' => $is_ios_free,
+                'is_featured' => $is_featured,
+                'is_portrait' => $is_portrait,
+                'search_category' => $search_category,
+                'height' => $multiple_images[$json_pages_sequence[0]]['height'],
+                'width' => $multiple_images[$json_pages_sequence[0]]['width'],
+                'original_img_height' => $multiple_images[$json_pages_sequence[0]]['org_img_height'],
+                'original_img_width' => $multiple_images[$json_pages_sequence[0]]['org_img_width'],
+                'created_at' => $created_at,
+                'attribute1' => $multiple_images[$json_pages_sequence[0]]['webp_name'],
+                'is_auto_upload' => 1,
+                'json_pages_sequence' => implode(',',$json_pages_sequence),
+                'multiple_images' => json_encode($multiple_images),
+                'is_multipage' => 1
+            ];
+
+            DB::table('images')->insert($image_detail);
+
+            DB::commit();
+
+            if ($webp_warning) {
+                $response = Response::json(array('code' => 200, 'message' => 'Json added successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' =>json_decode('{}')));
+            } else {
+                $response = Response::json(array('code' => 200, 'message' => 'Json added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+        } catch (Exception $e) {
+            Log::error("addMultiPageJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add multi-page json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+
+            if(isset($webp_image_array)){
+                foreach($webp_image_array AS $webp_image_name) {
+                    (New ImageController())->deleteWebpImage($webp_image_name);
+                }
+            }
+
+            if(isset($sample_image_array)){
+                foreach($sample_image_array AS $sample_image_name) {
+                    (New ImageController())->deleteImage($sample_image_name);
+                }
+            }
+            DB::rollBack();
+        }
+        return $response;
+    }
+
     /**
      * @api {post} editJsonData   editJsonData
      * @apiName editJsonData
@@ -4357,9 +4559,9 @@ class AdminController extends Controller
                 return $response;
 
             //check this json is multi-page or single-page
-            $is_multipage_json = DB::select('SELECT 1 FROM images WHERE id = ? AND json_pages_sequence IS NOT NULL',[$img_id]);
+            $is_multi_page_json = DB::select('SELECT 1 FROM images WHERE id = ? AND json_pages_sequence IS NOT NULL',[$img_id]);
 
-            if($is_multipage_json){
+            if($is_multi_page_json){
                 foreach ($json_data AS $i => $json) {
                     if (($response = (new ImageController())->validateFonts($json)) != '')
                         return $response;
@@ -4375,7 +4577,7 @@ class AdminController extends Controller
                 if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
                     return $response;
 
-                if($is_multipage_json){
+                if($is_multi_page_json){
                     foreach ($json_data AS $i => $json) {
                         if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json)) != '')
                             return $response;

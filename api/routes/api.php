@@ -100,6 +100,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     //Link catalog into sub_category
     //Route::post('getAllCatalog', 'AdminController@getAllCatalog'); //Unused APIs
     Route::post('linkCatalog', 'AdminController@linkCatalog');
+    Route::post('linkMultiPleCatalog', 'AdminController@linkMultiPleCatalog');
     Route::post('deleteLinkedCatalog', 'AdminController@deleteLinkedCatalog');
     Route::post('getAllSubCategoryForLinkCatalog', 'AdminController@getAllSubCategoryForLinkCatalog');
 
@@ -135,6 +136,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     //Template APIs
     Route::post('addCatalogImagesForJson', 'AdminController@addCatalogImagesForJson');
     Route::post('addJson', 'AdminController@addJson');
+    Route::post('addMultiPageJson', 'AdminController@addMultiPageJson');
     Route::post('editJsonData', 'AdminController@editJsonData');
 
     //Link advertisement with another sub_category
