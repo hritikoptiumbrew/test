@@ -7784,11 +7784,6 @@ class UserController extends Controller
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-//            $cat = DB::select('SELECT id,"25" AS sub FROM catalog_master ORDER BY id DESC LIMIT 50');
-//            dd(json_decode(json_encode($cat), true));
-//            $cat_id_array = [1, 2, 3, 4, 5];
-//            dd($cat_id_array);
-
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('old_sub_category_id', 'new_sub_category_id'), $request)) != '')
                 return $response;
@@ -7869,7 +7864,8 @@ class UserController extends Controller
             }
 
             DB::commit();
-
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
+            $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
             $response = Response::json(array('code' => 200, 'message' => 'Json converted successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
@@ -8008,6 +8004,7 @@ class UserController extends Controller
             }
 
             DB::commit();
+            $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
             $response = Response::json(array('code' => 200, 'message' => 'Json converted successfully.', 'cause' => '', 'data' => $count1." : ".$count2));
 
         } catch (Exception $e) {
@@ -8029,9 +8026,9 @@ class UserController extends Controller
                 return $response;
 
             $catalog_ids = $request->catalog_ids;
+            $all_query = NULL;
             $count1 = $count2 = 0;
 
-            DB::beginTransaction();
             foreach ($catalog_ids AS $i => $catalog_id){
 
                 $count1++;
@@ -8048,9 +8045,13 @@ class UserController extends Controller
                     $count2++;
                     $image_url = Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . $image_detail->image;
                     $image_details = $this->calculateHeightWidth($image_url);
-                    DB::update('UPDATE images SET height = ?, width = ?, original_img_height = ?, original_img_width = ?, updated_at = updated_at WHERE id = ?',[$image_details['height'], $image_details['width'], $image_details['org_img_height'], $image_details['org_img_width'], $image_detail->id]);
+                    $all_query .= "UPDATE images SET height = '".$image_details['height']."', width = '".$image_details['width']."', original_img_height = '".$image_details['org_img_height']."', original_img_width = '".$image_details['org_img_width']."', updated_at = updated_at WHERE id = '".$image_detail->id."'; ";
                 }
             }
+
+            DB::beginTransaction();
+            if($all_query)
+                DB::unprepared("$all_query");
 
             DB::commit();
             $response = Response::json(array('code' => 200, 'message' => 'Json converted successfully.', 'cause' => '', 'data' => $count1." : ".$count2));
@@ -8070,15 +8071,18 @@ class UserController extends Controller
             JWTAuth::toUser($token);
 
             $count = 0;
+            $all_query = NULL;
             DB::statement("SET sql_mode = '' ");
             $tag_details_count = DB::select('SELECT id, SUM(search_count) AS sum, COUNT(id) AS count FROM tag_analysis_master GROUP BY sub_category_id,tag,is_success HAVING COUNT(id) > 1');
 
-            DB::beginTransaction();
-
             foreach ($tag_details_count AS $i => $tag_detail_count){
                 $count++;
-                DB::update('UPDATE tag_analysis_master SET search_count = ?, update_time = update_time WHERE id = ?',[$tag_detail_count->sum, $tag_detail_count->id]);
+                $all_query .= "UPDATE tag_analysis_master SET search_count = '".$tag_detail_count->sum."', update_time = update_time WHERE id = '".$tag_detail_count->id."'; ";
             }
+
+            DB::beginTransaction();
+            if($all_query)
+                DB::unprepared("$all_query");
 
             DB::delete('DELETE FROM tag_analysis_master WHERE id NOT IN (SELECT * FROM (SELECT MIN(n.id) FROM tag_analysis_master AS n GROUP BY n.sub_category_id,n.tag,n.is_success) x)');
             DB::commit();
