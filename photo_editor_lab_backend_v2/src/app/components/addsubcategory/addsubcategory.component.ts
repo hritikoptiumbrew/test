@@ -48,6 +48,7 @@ export class AddsubcategoryComponent implements OnInit {
       this.selectType = this.subCatData.is_featured.toString();
       // this.utils.showLoader();
       this.categoryId = this.subCatData.sub_category_id;
+      this.is_multi_page_support = this.subCatData.is_multi_page_support
     }
 
   }
