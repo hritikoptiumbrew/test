@@ -57,13 +57,13 @@ Copyright 2018 - 2020 Optimumbrew Technology
         </div>
       </div>
     </div>
-    <div class="row mt-1" *ngIf="!subCatData">
+    <div class="row mt-1">
       <div class="col-md-3 pr-0">
         <label class="d-block form-label">Multipage support</label>
       </div>
       <div class="col-md-9 pl-0">
         <div class="form-group mt-2">
-          <nb-toggle status="primary" [(ngModel)]="is_multi_page_support"></nb-toggle>
+          <nb-toggle status="primary" [(ngModel)]="is_multi_page_support" [disabled]="!subCatData?false:true"></nb-toggle>
           <p id="subCatAddError" style="color: red;margin-bottom: 0px;margin-top: 4px;height: 14px;"></p>
         </div>
       </div>
