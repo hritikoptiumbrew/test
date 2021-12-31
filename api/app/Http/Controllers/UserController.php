@@ -7843,8 +7843,8 @@ class UserController extends Controller
 
             //Add duplicate content
             DB::insert('INSERT INTO images
-                              (catalog_id, image, multiple_images, original_img, display_img, is_active, image_type, json_data, json_pages_sequence, is_multipage, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, video_duration, original_img_height, original_img_width, is_verified, video_file, is_auto_upload, created_at, updated_at, attribute1, attribute2, attribute3, attribute4)
-                        SELECT catalog_id, image, multiple_images, original_img, display_img, is_active, image_type, json_data, json_pages_sequence, is_multipage, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, video_duration, original_img_height, original_img_width, is_verified, video_file, is_auto_upload, created_at, updated_at, attribute1, attribute2, attribute3, "demo@123"
+                              (catalog_id, image, multiple_images, original_img, display_img, is_active, image_type, json_data, json_pages_sequence, is_multipage, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, is_auto_upload, created_at, updated_at, attribute1, attribute2, attribute3, attribute4)
+                        SELECT catalog_id, image, multiple_images, original_img, display_img, is_active, image_type, json_data, json_pages_sequence, is_multipage, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, is_auto_upload, created_at, updated_at, attribute1, attribute2, attribute3, "demo@123"
                               FROM images
                         WHERE catalog_id IN ('.$old_all_catalog_id_str.')  ');
 
