@@ -2733,6 +2733,48 @@ class UserController extends Controller
         }
         return $response;
     }
+
+    public function searchCardsBySubCategoryIdRepair(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->search_category = preg_replace('/[@()<> ]/', '', mb_strtolower(trim($request->search_category)));
+
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            $redis_result = $this->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            if($this->page == 1) {
+                if($redis_result['code'] != 200){
+                    SaveSearchTagJob::dispatch(0, $this->search_category, $this->sub_category_id, 0);
+                }else{
+                    SaveSearchTagJob::dispatch($redis_result['result']['total_record'], $this->search_category, $this->sub_category_id, 1);
+                }
+            }
+
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['result']));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("searchCardsBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     public function searchCardsBySubCategoryId_v2(Request $request_body)
     {
         try {
@@ -7388,14 +7430,15 @@ class UserController extends Controller
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
                                             ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
 
-                if (!$is_spell_corrected && count($search_result) <= 0 && Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                if (count($search_result) <= 0 && !$is_spell_corrected && Config::get('constant.STORAGE') === 'S3_BUCKET') {
 
                     $is_spell_corrected = 1;
                     $spellLink = pspell_new("en");
                     if (!pspell_check($spellLink, $this->search_category)) {
                         $suggestions = pspell_suggest($spellLink, $this->search_category);
                         $this->search_category = implode(',',array_slice($suggestions, 0, 4));
-                        goto run_same_query;
+                        if($this->search_category)
+                            goto run_same_query;
                     }
 
                 }
