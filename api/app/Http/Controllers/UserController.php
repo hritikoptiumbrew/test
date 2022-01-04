@@ -2569,7 +2569,7 @@ class UserController extends Controller
      * }
      * }
      */
-    public function searchCardsBySubCategoryId(Request $request_body)
+    public function searchCardsBySubCategoryIdOldVersion(Request $request_body)
     {
         try {
 
@@ -2734,7 +2734,59 @@ class UserController extends Controller
         return $response;
     }
 
-    public function searchCardsBySubCategoryIdRepair(Request $request_body)
+    /*
+    Purpose : for search card with single sub_category_id & correct spell if spelling was wrong
+    Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here)
+    Return : return cards detail if success otherwise error with specific status code
+    */
+    public function searchCardsBySubCategoryId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            //Remove '[@()<> ]' character from searching because if we add this character then mysql gives syntax error
+            $this->search_category = preg_replace('/[@()<> ]/', '', mb_strtolower(trim($request->search_category)));
+
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            $redis_result = $this->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            if($this->page == 1) {
+                if($redis_result['code'] != 200){
+                    SaveSearchTagJob::dispatch(0, $this->search_category, $this->sub_category_id, 0);
+                }else{
+                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $this->search_category, $this->sub_category_id, 1);
+                }
+            }
+
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("searchCardsBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /*
+    Purpose : for search card with multiple sub_category_id & correct spell if spelling was wrong
+    Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here)
+    Return : return cards detail if success otherwise error with specific status code
+    */
+    public function searchCardsByMultipleSubCategoryId(Request $request_body)
     {
         try {
             $token = JWTAuth::getToken();
@@ -2761,15 +2813,15 @@ class UserController extends Controller
                 if($redis_result['code'] != 200){
                     SaveSearchTagJob::dispatch(0, $this->search_category, $this->sub_category_id, 0);
                 }else{
-                    SaveSearchTagJob::dispatch($redis_result['result']['total_record'], $this->search_category, $this->sub_category_id, 1);
+                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $this->search_category, $this->sub_category_id, 1);
                 }
             }
 
-            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['result']));
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("searchCardsBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("searchCardsByMultipleSubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -7436,7 +7488,8 @@ class UserController extends Controller
                     $spellLink = pspell_new("en");
                     if (!pspell_check($spellLink, $this->search_category)) {
                         $suggestions = pspell_suggest($spellLink, $this->search_category);
-                        $this->search_category = implode(',',array_slice($suggestions, 0, 4));
+                        Log::info('searchTemplatesBySearchCategory : Spell suggestion.', ['user_tag' => $this->search_category, 'suggestion' => $suggestions]);
+                        $this->search_category = implode(',',array_slice($suggestions, 0, 5));
                         if($this->search_category)
                             goto run_same_query;
                     }
@@ -8547,35 +8600,6 @@ class UserController extends Controller
         } catch (Exception $e) {
             Log::error("getTemplateDetail : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-        }
-        return $response;
-    }
-
-    public function testApi(Request $request_body)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('word'), $request)) != '')
-                return $response;
-
-            $word = $request->word;
-            $suggestions = array();
-            $spellLink = pspell_new("en");
-
-            if (!pspell_check($spellLink, $word)) {
-                $suggestions = pspell_suggest($spellLink, $word);
-            }
-            $redis_result = implode(', ',$suggestions);
-
-            $response = Response::json(array('code' => 200, 'message' => 'Text corrects successfully', 'cause' => '', 'data' => $redis_result));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-
-        } catch (Exception $e) {
-            Log::error("testApi : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'convert correct text.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
