@@ -2751,7 +2751,7 @@ class UserController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
             //Remove '[@()<> ]' character from searching because if we add this character then mysql gives syntax error
-            $this->search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
+            $this->db_search_category = $this->search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
 
             $this->page = $request->page;
             $this->item_count = $request->item_count;
@@ -2761,9 +2761,9 @@ class UserController extends Controller
 
             if($this->page == 1) {
                 if($redis_result['code'] != 200){
-                    SaveSearchTagJob::dispatch(0, $this->search_category, $this->sub_category_id, 0);
+                    SaveSearchTagJob::dispatch(0, $this->db_search_category, $this->sub_category_id, 0);
                 }else{
-                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $this->search_category, $this->sub_category_id, 1);
+                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $this->db_search_category, $this->sub_category_id, 1);
                 }
             }
 
@@ -2793,7 +2793,7 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
+            $this->db_search_category = $this->search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
 
             $this->page = $request->page;
             $this->item_count = $request->item_count;
@@ -2807,9 +2807,9 @@ class UserController extends Controller
 
             if($this->page == 1) {
                 if($redis_result['code'] != 200){
-                    SaveSearchTagJob::dispatch(0, $this->search_category, $this->sub_category_id, 0);
+                    SaveSearchTagJob::dispatch(0, $this->db_search_category, $this->sub_category_id, 0);
                 }else{
-                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $this->search_category, $this->sub_category_id, 1);
+                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $this->db_search_category, $this->sub_category_id, 1);
                 }
             }
 
