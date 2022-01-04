@@ -10690,10 +10690,6 @@ class AdminController extends Controller
 
             $redis_result = (new UserController())->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
 
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
@@ -10722,10 +10718,6 @@ class AdminController extends Controller
             $this->search_tag_id = $request->search_tag_id;
 
             $redis_result = (new UserController())->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
 
             if($redis_result['code'] == 200){
                 DB::beginTransaction();

@@ -2751,17 +2751,13 @@ class UserController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
             //Remove '[@()<> ]' character from searching because if we add this character then mysql gives syntax error
-            $this->search_category = preg_replace('/[@()<> ]/', '', mb_strtolower(trim($request->search_category)));
+            $this->search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
 
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
             $redis_result = $this->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
 
             if($this->page == 1) {
                 if($redis_result['code'] != 200){
@@ -2797,7 +2793,7 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = preg_replace('/[@()<> ]/', '', mb_strtolower(trim($request->search_category)));
+            $this->search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
 
             $this->page = $request->page;
             $this->item_count = $request->item_count;
@@ -7488,7 +7484,7 @@ class UserController extends Controller
                     $spellLink = pspell_new("en");
                     if (!pspell_check($spellLink, $this->search_category)) {
                         $suggestions = pspell_suggest($spellLink, $this->search_category);
-                        Log::info('searchTemplatesBySearchCategory : Spell suggestion.', ['user_tag' => $this->search_category, 'suggestion' => $suggestions]);
+                        Log::info('searchTemplatesBySearchCategory : Spell suggestion.', ['user_tag' => $this->search_category, 'suggestion' => $suggestions, 'offset' => $this->offset, 'item_count' => $this->item_count]);
                         $this->search_category = implode(',',array_slice($suggestions, 0, 5));
                         if($this->search_category)
                             goto run_same_query;
