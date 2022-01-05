@@ -10682,13 +10682,13 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
                 return $response;
 
-            $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = strtolower(trim($request->search_category));
-            $this->page = $request->page;
-            $this->item_count = $request->item_count;
-            $this->offset = ($this->page - 1) * $this->item_count;
+            $sub_category_id = $request->sub_category_id;
+            $search_category = strtolower(trim($request->search_category));
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $offset = ($page - 1) * $item_count;
 
-            $redis_result = (new UserController())->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
+            $redis_result = (new UserController())->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count);
 
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -10710,18 +10710,18 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count', 'search_tag_id'), $request)) != '')
                 return $response;
 
-            $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = strtolower(trim($request->search_category));
-            $this->page = $request->page;
-            $this->item_count = $request->item_count;
-            $this->offset = ($this->page - 1) * $this->item_count;
-            $this->search_tag_id = $request->search_tag_id;
+            $sub_category_id = $request->sub_category_id;
+            $search_category = strtolower(trim($request->search_category));
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $offset = ($page - 1) * $item_count;
+            $search_tag_id = $request->search_tag_id;
 
-            $redis_result = (new UserController())->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
+            $redis_result = (new UserController())->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count);
 
             if($redis_result['code'] == 200){
                 DB::beginTransaction();
-                DB::update('UPDATE tag_analysis_master SET content_count = ? WHERE id = ?',[$redis_result['data']['total_record'], $this->search_tag_id]);
+                DB::update('UPDATE tag_analysis_master SET content_count = ? WHERE id = ?',[$redis_result['data']['total_record'], $search_tag_id]);
                 DB::commit();
             }
 
