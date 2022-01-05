@@ -7457,8 +7457,11 @@ class UserController extends Controller
                                                 im.is_free,
                                                 im.is_featured,
                                                 im.is_portrait,
-                                                coalesce(im.height,0) AS height,
-                                                coalesce(im.width,0) AS width,
+                                                COALESCE(im.height,0) AS height,
+                                                COALESCE(im.width,0) AS width,
+                                                COALESCE(im.multiple_images,"") AS multiple_images,
+                                                COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                 im.updated_at,
                                                 MATCH(im.search_category) AGAINST("' . $this->search_category . '") +
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text 
@@ -7516,8 +7519,11 @@ class UserController extends Controller
                                                     im.is_free,
                                                     im.is_featured,
                                                     im.is_portrait,
-                                                    coalesce(im.height,0) AS height,
-                                                    coalesce(im.width,0) AS width,
+                                                    COALESCE(im.height,0) AS height,
+                                                    COALESCE(im.width,0) AS width,
+                                                    COALESCE(im.multiple_images,"") AS multiple_images,
+                                                    COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                    COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                     im.updated_at
                                                 FROM
                                                     images AS im,
