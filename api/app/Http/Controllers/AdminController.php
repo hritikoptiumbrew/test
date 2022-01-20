@@ -10690,11 +10690,7 @@ class AdminController extends Controller
 
             $redis_result = (new UserController())->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
 
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
@@ -10723,17 +10719,13 @@ class AdminController extends Controller
 
             $redis_result = (new UserController())->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
 
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
             if($redis_result['code'] == 200){
                 DB::beginTransaction();
-                DB::update('UPDATE tag_analysis_master SET content_count = ? WHERE id = ?',[$redis_result['result']['total_record'], $this->search_tag_id]);
+                DB::update('UPDATE tag_analysis_master SET content_count = ? WHERE id = ?',[$redis_result['data']['total_record'], $this->search_tag_id]);
                 DB::commit();
             }
 
-            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
