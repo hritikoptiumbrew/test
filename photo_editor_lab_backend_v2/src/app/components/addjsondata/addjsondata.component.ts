@@ -289,7 +289,8 @@ export class AddjsondataComponent implements OnInit {
           "is_portrait": this.selectedStyle,
           "catalog_id": this.catalogId,
           "json_data": json_data,
-          "search_category": tmp_selected_tags
+          "search_category": tmp_selected_tags,
+          // "sub_category_id": this.selectedSubCategory.sub_category_id
         };
 
         apiUrl = "editJsonData";
@@ -304,7 +305,8 @@ export class AddjsondataComponent implements OnInit {
           "is_portrait": this.selectedStyle,
           "catalog_id": this.catalogId,
           "json_data": json_data,
-          "search_category": tmp_selected_tags
+          "search_category": tmp_selected_tags,
+          // "sub_category_id": this.selectedSubCategory.sub_category_id
         };
         apiUrl = this.selectedSubCategory.is_multi_page_support == 0 ? "addJson" : "addMultiPageJson";
       }

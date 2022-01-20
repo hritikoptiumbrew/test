@@ -28,10 +28,13 @@
     <div class="col px-0 mx-2">
       <input #CatInput nbInput [(ngModel)]="inputValSub" type="text" (input)="onGetValue($event)" fullWidth
         [nbAutocomplete]="auto" focusInputOnValueChange="false" />
-      <nb-autocomplete #auto (selectedChange)="SelectionChange($event)">
+      <nb-autocomplete #auto (selectedChange)="SelectionChange($event)" (click)="$event.stopPropagation();">
         <nb-option *ngFor="let options of filterOptions$ | async" [value]="options.sub_category_name"
-          class="app-list-wrapper">
-          <img [src]="options.thumbnail_img" alt="">{{ options.sub_category_name }}
+          class="app-list-wrapper" (click)="$event.stopPropagation();">
+          <div class="wc-31" (click)="$event.stopPropagation();" (change)="multiSelectApp($event,options)">
+            <input type="checkbox" class="check pointer mt-11 mr-2" [value]="options.sub_category_id" [checked]="multiSelectedApps.includes(options.sub_category_id)">
+          </div>
+          <img [src]="options.thumbnail_img" alt=""><span>{{ options.sub_category_name }}</span>
         </nb-option>
       </nb-autocomplete>
     </div>

@@ -23,7 +23,7 @@ export class UpdateTagDialogComponent implements OnInit {
   startDate: string;
   endDate: string;
 
-  subCatId: number;
+  subCatId: string;
 
   imgData: any[] = [];
 
