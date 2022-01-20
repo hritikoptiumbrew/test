@@ -1959,7 +1959,7 @@ class AdminController extends Controller
                                     cm.catalog_type,
                                     cm.event_date,
                                     cm.popularity_rate,
-                                    ct.search_category,
+                                    cm.search_category,
                                     cm.is_featured
                                    FROM
                                       catalog_master AS cm,
@@ -2041,10 +2041,10 @@ class AdminController extends Controller
 
                 foreach ($images_array as $image_array) {
 
-                    $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
-                    if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
+//                    $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
+//                    if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
 //                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
-                    }
+//                    }
 
                     $image_details = (new UserController())->calculateHeightWidth($image_array);
 
@@ -2145,10 +2145,10 @@ class AdminController extends Controller
                 if (($response = (new ImageController())->verifyImage($image_array, $category_id, $is_featured, $is_catalog)) != '')
                     return $response;
 
-                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
-                if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
+//                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
+//                if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
 //                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
-                }
+//                }
 
                 $image_details = (new UserController())->calculateHeightWidth($image_array);
 
@@ -2171,7 +2171,6 @@ class AdminController extends Controller
                 }
             } else {
                 $catalog_img = "";
-                $tag_list = $search_category;
             }
 
             DB::beginTransaction();
@@ -2186,7 +2185,7 @@ class AdminController extends Controller
                               search_category = ?
                             WHERE
                               id = ? ',
-                [$image_details['height'], $image_details['height'], $image_details['width'], $image_details['width'], $image_details['org_img_height'], $image_details['org_img_height'], $image_details['org_img_width'], $image_details['org_img_width'], $catalog_img, $catalog_img, $tag_list, $img_id]);
+                [$image_details['height'], $image_details['height'], $image_details['width'], $image_details['width'], $image_details['org_img_height'], $image_details['org_img_height'], $image_details['org_img_width'], $image_details['org_img_width'], $catalog_img, $catalog_img, $search_category, $img_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Normal image updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -2682,6 +2681,7 @@ class AdminController extends Controller
                                               COALESCE(im.is_free,0) AS is_free,
                                               COALESCE(im.is_ios_free,0) AS is_ios_free,
                                               COALESCE(im.is_portrait,0) AS is_portrait,
+                                              COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) as total_pages,
                                               COALESCE(im.search_category,"") AS search_category
                                             FROM
                                               images AS im
@@ -10776,8 +10776,6 @@ class AdminController extends Controller
             $img_id_array = explode(',', $img_ids);
             $search_category_array = explode(',', $search_category);
             $search_category_string = implode('","', $search_category_array);
-
-//            $image_details = DB::select('SELECT id,search_category FROM images WHERE id IN ('.$img_ids.') ');
 
             DB::update('UPDATE images
                         SET
