@@ -11,8 +11,6 @@ import { UtilService } from 'app/util.service';
 import { ERROR } from 'app/app.constants';
 import { FormControl } from '@angular/forms';
 
-
-
 @Component({
   selector: 'ngx-search',
   templateUrl: './search.component.html',
@@ -86,6 +84,8 @@ export class SearchComponent implements OnInit {
   next = ">";
 
   masterCheck: boolean = false;
+
+  multiSelectedApps = [];
 
   public optionsD: any = {
     locale: { format: 'YYYY-MM-DD' },
@@ -250,13 +250,15 @@ export class SearchComponent implements OnInit {
       return
     }
     this.numberOfItems = this.selectedNumberOfItems;
-
+    if(this.multiSelectedApps.length == 0){
+      this.multiSelectedApps.push(this.subCatId);
+    }
     let data = {
       "page": this.pageNum,
       "item_count": this.numberOfItems,
       "start_date": this.start,
       "end_date": this.end,
-      "sub_category_id": this.subCatId,
+      "sub_category_id": this.multiSelectedApps.join(","),
       "search_type": this.serchTage,
       "search_query": this.serchQuery,
       "order_by": this.sortByTagName,
@@ -299,7 +301,7 @@ export class SearchComponent implements OnInit {
         dataFromPage: this.DataForDialog,
         startDate: this.start,
         endDate: this.end,
-        subCatId: this.subCatId,
+        subCatId: this.multiSelectedApps.join(","),
         checked: this.masterCheck
       }
       //function on closing dialog
@@ -345,7 +347,7 @@ export class SearchComponent implements OnInit {
       "page": 1,
       "item_count": this.numberOfItems,
       "search_category": tagName,
-      "sub_category_id": this.subCatId,
+      "sub_category_id": this.multiSelectedApps.join(","),
       'search_tag_id': id
     }
     this.api.postData('refreshSearchCountByAdmin', data, { headers: { 'Authorization': 'Bearer ' + this.token } })
@@ -393,5 +395,16 @@ export class SearchComponent implements OnInit {
       this.DataForDialog = [];
     }
     this.disableAdd();
+  }
+
+  multiSelectApp(event, option) {
+    if (event.target.checked) {
+      this.multiSelectedApps.push(option.sub_category_id);
+    } else {
+      var index = this.multiSelectedApps.indexOf(option.sub_category_id);
+      if (index !== -1) {
+        this.multiSelectedApps.splice(index, 1);
+      }
+    }
   }
 }

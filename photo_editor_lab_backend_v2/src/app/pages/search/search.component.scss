@@ -1,12 +1,18 @@
 .app-list-wrapper {
-    display: block;
+    display: flex;
+    align-items: center;
 
     img {
         width: 54px;
         padding-right: 10px;
     }
 }
-
+.mt-11{
+    margin-top: 11px;
+}
+.wc-31{
+    width: 31px;
+}
 .width-100 {
     width: 100px;
 }
