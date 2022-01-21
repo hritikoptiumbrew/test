@@ -2749,21 +2749,20 @@ class UserController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
                 return $response;
 
-            $this->sub_category_id = $request->sub_category_id;
+            $sub_category_id = $request->sub_category_id;
             //Remove '[@()<> ]' character from searching because if we add this character then mysql gives syntax error
-            $this->db_search_category = $this->search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
+            $search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $offset = ($page - 1) * $item_count;
 
-            $this->page = $request->page;
-            $this->item_count = $request->item_count;
-            $this->offset = ($this->page - 1) * $this->item_count;
+            $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count);
 
-            $redis_result = $this->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
-
-            if($this->page == 1) {
+            if($page == 1) {
                 if($redis_result['code'] != 200){
-                    SaveSearchTagJob::dispatch(0, $this->db_search_category, $this->sub_category_id, 0);
+                    SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0);
                 }else{
-                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $this->db_search_category, $this->sub_category_id, 1);
+                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $search_category, $sub_category_id, 1);
                 }
             }
 
@@ -2792,24 +2791,19 @@ class UserController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
                 return $response;
 
-            $this->sub_category_id = $request->sub_category_id;
-            $this->db_search_category = $this->search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
+            $sub_category_id = $request->sub_category_id;
+            $search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $offset = ($page - 1) * $item_count;
 
-            $this->page = $request->page;
-            $this->item_count = $request->item_count;
-            $this->offset = ($this->page - 1) * $this->item_count;
+            $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count);
 
-            $redis_result = $this->searchTemplatesBySearchCategory($this->search_category, $this->sub_category_id, $this->offset, $this->item_count);
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-            if($this->page == 1) {
+            if($page == 1) {
                 if($redis_result['code'] != 200){
-                    SaveSearchTagJob::dispatch(0, $this->db_search_category, $this->sub_category_id, 0);
+                    SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0);
                 }else{
-                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $this->db_search_category, $this->sub_category_id, 1);
+                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $search_category, $sub_category_id, 1);
                 }
             }
 
@@ -7422,7 +7416,7 @@ class UserController extends Controller
     {
         try{
             $this->sub_category_id = $sub_category_id;
-            $this->search_category = $search_category;
+            $this->db_search_category = $this->search_category = $search_category;
             $this->offset = $offset;
             $this->item_count = $item_count;
 
@@ -7539,7 +7533,7 @@ class UserController extends Controller
                                                     ISNULL(im.display_img)
                                                 ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
                     $code = 427;
-                    $message = "Sorry, we couldn't find any templates for '$this->search_category', but we found some other templates you might like:";
+                    $message = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";
                 }
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;

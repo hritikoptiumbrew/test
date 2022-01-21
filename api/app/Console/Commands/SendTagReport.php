@@ -45,20 +45,17 @@ class SendTagReport extends Command
     {
         try{
 
+            $sub_category_array = array();
             $tags_detail = DB::select('(SELECT 
                                             tam.id,
                                             tam.tag,
                                             tam.is_success,
                                             tam.content_count,
-                                            scm.name AS sub_category_name,
                                             tam.search_count,
+                                            tam.sub_category_id,
                                             tam.update_time 
                                         FROM
                                             tag_analysis_master as tam
-                                        LEFT JOIN  
-                                            sub_category as scm
-                                        ON 
-                                            scm.id = tam.sub_category_id
                                         WHERE 
                                             tam.is_success = 1
                                         ORDER BY
@@ -70,21 +67,26 @@ class SendTagReport extends Command
                                             tam.tag,
                                             tam.is_success,
                                             tam.content_count,
-                                            scm.name AS sub_category_name,
                                             tam.search_count,
+                                            tam.sub_category_id,
                                             tam.update_time 
                                         FROM 
                                             tag_analysis_master AS tam
-                                        LEFT JOIN  
-                                            sub_category AS scm
-                                        ON 
-                                            scm.id = tam.sub_category_id
                                         WHERE 
                                             tam.is_success = 0
                                         ORDER BY
                                             update_time DESC
                                             LIMIT 20)
                                         ORDER BY is_success DESC, search_count DESC');
+
+            foreach ($tags_detail AS $i => $tag_detail){
+                if(!isset($sub_category_array[$tag_detail->sub_category_id])){
+                    $sub_category = DB::select('SELECT GROUP_CONCAT(sc.name SEPARATOR " + ") AS sub_category_name FROM sub_category AS sc WHERE sc.id IN ('.$tag_detail->sub_category_id.') ');
+                    $sub_category_array[$tag_detail->sub_category_id] = $sub_category[0]->sub_category_name;
+                }
+                $tag_detail->sub_category_name = $sub_category_array[$tag_detail->sub_category_id];
+            }
+
 
             if(count($tags_detail) > 0) {
 
