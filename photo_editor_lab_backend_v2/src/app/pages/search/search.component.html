@@ -30,7 +30,7 @@
         [nbAutocomplete]="auto" focusInputOnValueChange="false" />
       <nb-autocomplete #auto (selectedChange)="SelectionChange($event)" (click)="$event.stopPropagation();">
         <nb-option *ngFor="let options of filterOptions$ | async" [value]="options.sub_category_name"
-          class="app-list-wrapper" (click)="$event.stopPropagation();">
+          class="app-list-wrapper" (click)="addCategoryInArray(options.sub_category_id)">
           <div class="wc-31" (click)="$event.stopPropagation();" (change)="multiSelectApp($event,options)">
             <input type="checkbox" class="check pointer mt-11 mr-2" [value]="options.sub_category_id" [checked]="multiSelectedApps.includes(options.sub_category_id)">
           </div>

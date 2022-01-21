@@ -400,11 +400,20 @@ export class SearchComponent implements OnInit {
   multiSelectApp(event, option) {
     if (event.target.checked) {
       this.multiSelectedApps.push(option.sub_category_id);
+      this.multiSelectedApps.sort();
     } else {
       var index = this.multiSelectedApps.indexOf(option.sub_category_id);
       if (index !== -1) {
         this.multiSelectedApps.splice(index, 1);
+        this.multiSelectedApps.sort();
       }
+    }
+  }
+
+  addCategoryInArray(sub_category_id){
+    if(!this.multiSelectedApps.includes(sub_category_id)){
+      this.multiSelectedApps.push(sub_category_id);
+      this.multiSelectedApps.sort();
     }
   }
 }
