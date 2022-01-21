@@ -2041,6 +2041,7 @@ class AdminController extends Controller
 
                 foreach ($images_array as $image_array) {
 
+                    $tag_list = NULL;
 //                    $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
 //                    if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
 //                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
