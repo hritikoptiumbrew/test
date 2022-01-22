@@ -27,10 +27,10 @@
     </div>
     <div class="col px-0 mx-2">
       <input #CatInput nbInput [(ngModel)]="inputValSub" type="text" (input)="onGetValue($event)" fullWidth
-        [nbAutocomplete]="auto" focusInputOnValueChange="false" />
+      focusInputOnValueChange="false" [nbAutocomplete]="auto" />
       <nb-autocomplete #auto (selectedChange)="SelectionChange($event)" (click)="$event.stopPropagation();">
         <nb-option *ngFor="let options of filterOptions$ | async" [value]="options.sub_category_name"
-          class="app-list-wrapper" (click)="addCategoryInArray(options.sub_category_id)">
+          class="app-list-wrapper" (click)="addCategoryInArray(options)">
           <div class="wc-31" (click)="$event.stopPropagation();" (change)="multiSelectApp($event,options)">
             <input type="checkbox" class="check pointer mt-11 mr-2" [value]="options.sub_category_id" [checked]="multiSelectedApps.includes(options.sub_category_id)">
           </div>
@@ -59,6 +59,7 @@
     </div>
   </nb-card-header>
   <nb-card-body class="p-0">
+    <p class="ml-2"><b>Selected Apps:</b> {{multiSelectAppName.join(", ")}}</p>
     <table class="text-center table-striped position-relative">
       <thead class="">
         <tr class="mx-0 ">

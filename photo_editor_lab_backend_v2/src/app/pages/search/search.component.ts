@@ -86,6 +86,9 @@ export class SearchComponent implements OnInit {
   masterCheck: boolean = false;
 
   multiSelectedApps = [];
+  multiSelectAppName = [];
+
+  isAutoCompOpen: boolean = false;
 
   public optionsD: any = {
     locale: { format: 'YYYY-MM-DD' },
@@ -99,7 +102,7 @@ export class SearchComponent implements OnInit {
     }
   }
 
-  constructor(public dataOption: DaterangepickerConfig, public api: DataService, private dialogService: NbDialogService,
+  constructor(private elRef: ElementRef, public dataOption: DaterangepickerConfig, public api: DataService, private dialogService: NbDialogService,
     private router: Router, private util: UtilService) {
 
     this.getSubCategory();
@@ -250,8 +253,9 @@ export class SearchComponent implements OnInit {
       return
     }
     this.numberOfItems = this.selectedNumberOfItems;
-    if(this.multiSelectedApps.length == 0){
+    if (this.multiSelectedApps.length == 0) {
       this.multiSelectedApps.push(this.subCatId);
+      this.setMultiSelectAppName(this.subCatId);
     }
     let data = {
       "page": this.pageNum,
@@ -400,20 +404,49 @@ export class SearchComponent implements OnInit {
   multiSelectApp(event, option) {
     if (event.target.checked) {
       this.multiSelectedApps.push(option.sub_category_id);
-      this.multiSelectedApps.sort();
+      // this.multiSelectedApps.sort();
+      this.setMultiSelectAppName(option.sub_category_id);
     } else {
       var index = this.multiSelectedApps.indexOf(option.sub_category_id);
       if (index !== -1) {
         this.multiSelectedApps.splice(index, 1);
-        this.multiSelectedApps.sort();
+        // this.multiSelectedApps.sort();
+        this.removeMultiSelectAppName(option.sub_category_name);
       }
     }
   }
 
-  addCategoryInArray(sub_category_id){
-    if(!this.multiSelectedApps.includes(sub_category_id)){
-      this.multiSelectedApps.push(sub_category_id);
-      this.multiSelectedApps.sort();
+  addCategoryInArray(options) {
+    if (!this.multiSelectedApps.includes(options.sub_category_id)) {
+      this.multiSelectedApps = [];
+      this.multiSelectAppName = [];
+      this.multiSelectedApps.push(options.sub_category_id);
+      this.multiSelectAppName.push(options.sub_category_name);
+      // this.multiSelectedApps.sort();
     }
+  }
+
+  autocompleteClose() {
+    console.log("in autocomplete close");
+    this.isAutoCompOpen = false;
+  }
+  autocompleteOpen() {
+    console.log("in autocomplete open");
+    this.isAutoCompOpen = true;
+  }
+
+  setMultiSelectAppName(sub_category_id) {
+    this.optionForCatagory.forEach(element => {
+      if (sub_category_id == element.sub_category_id) {
+        this.multiSelectAppName.push(element.sub_category_name);
+      }
+    });
+  }
+
+  removeMultiSelectAppName(sub_category_name) {
+    var index = this.multiSelectAppName.indexOf(sub_category_name);
+      if (index !== -1) {
+        this.multiSelectAppName.splice(index, 1);
+      }
   }
 }
