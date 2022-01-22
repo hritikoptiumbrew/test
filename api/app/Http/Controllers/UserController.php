@@ -2799,13 +2799,13 @@ class UserController extends Controller
 
             $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count);
 
-            if($page == 1) {
-                if($redis_result['code'] != 200){
-                    SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0);
-                }else{
-                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $search_category, $sub_category_id, 1);
-                }
-            }
+//            if($page == 1) {
+//                if($redis_result['code'] != 200){
+//                    SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0);
+//                }else{
+//                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $search_category, $sub_category_id, 1);
+//                }
+//            }
 
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -7428,7 +7428,7 @@ class UserController extends Controller
 
                 run_same_query:
                 $total_row_result = DB::select('SELECT 
-                                                    COUNT(*) AS total
+                                                    COUNT(DISTINCT(im.id)) AS total
                                                 FROM
                                                     images AS im,
                                                     catalog_master AS cm,
@@ -7475,7 +7475,7 @@ class UserController extends Controller
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
                                             ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
 
-                if (count($search_result) <= 0 && !$is_spell_corrected && Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                if (count($search_result) <= 0 && !$is_spell_corrected && Config::get('constant.STORAGE') === 'S3_BUCKET' && Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app') {
 
                     $is_spell_corrected = 1;
                     $spellLink = pspell_new("en");
@@ -7492,7 +7492,7 @@ class UserController extends Controller
                 if (count($search_result) <= 0) {
 
                     $total_row_result = DB::select('SELECT 
-                                                        COUNT(*) AS total
+                                                        COUNT(DISTINCT(im.id)) AS total
                                                     FROM
                                                         images AS im,
                                                         catalog_master AS cm,
