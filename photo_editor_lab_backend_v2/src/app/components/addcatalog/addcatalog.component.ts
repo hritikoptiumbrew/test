@@ -459,4 +459,9 @@ export class AddcatalogComponent implements OnInit {
     let index = this.listOfTag.indexOf(tag);
     this.listOfTag.splice(index, 1);
   }
+
+  removeDoblecoma(event){
+    event.target.value = event.target.value.replace(/"/g,"");
+  }
+  
 }

@@ -108,7 +108,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
           <div class="col-md-9 pl-0">
             <div class="form-group">
               <input type="text" placeholder="Enter New Tag" class="w-100 mw-100" nbInput fullWidth
-                [(ngModel)]='tagName' (keyup.enter)="addTag()">
+                [(ngModel)]='tagName' (keyup.enter)="addTag()" (input)="removeDoblecoma($event)">
               <p class="mt-1 mb-0"><button nbButton class="mr-1 mb-1" outline shape="round" size="tiny" status="info"
                   *ngFor='let tag of listOfTag'>{{ tag }} <nb-icon icon="close" status='danger'
                     (click)='removeTag(tag)'></nb-icon> </button></p>
