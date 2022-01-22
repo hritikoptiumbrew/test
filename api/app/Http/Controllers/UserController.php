@@ -7428,7 +7428,7 @@ class UserController extends Controller
 
                 run_same_query:
                 $total_row_result = DB::select('SELECT 
-                                                    COUNT(*) AS total
+                                                    COUNT(DISTINCT(im.id)) AS total
                                                 FROM
                                                     images AS im,
                                                     catalog_master AS cm,
@@ -7475,7 +7475,7 @@ class UserController extends Controller
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
                                             ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
 
-                if (count($search_result) <= 0 && !$is_spell_corrected && Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                if (count($search_result) <= 0 && !$is_spell_corrected && Config::get('constant.STORAGE') === 'S3_BUCKET' && Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app') {
 
                     $is_spell_corrected = 1;
                     $spellLink = pspell_new("en");
@@ -7492,7 +7492,7 @@ class UserController extends Controller
                 if (count($search_result) <= 0) {
 
                     $total_row_result = DB::select('SELECT 
-                                                        COUNT(*) AS total
+                                                        COUNT(DISTINCT(im.id)) AS total
                                                     FROM
                                                         images AS im,
                                                         catalog_master AS cm,
@@ -8595,6 +8595,38 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             Log::error("getTemplateDetail : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function spellCorrection($text, $correct_spell_length = 5)
+    {
+        try {
+            $spell_correction = NULL;
+            $spellLink = pspell_new("en");
+            if (!pspell_check($spellLink, $text)) {
+                $suggestions = pspell_suggest($spellLink, $text);
+                Log::info('spellCorrection : Spell suggestion.', ['user_tag' => $text, 'suggestion' => $suggestions]);
+                $spell_correction = implode(',',array_slice($suggestions, 0, $correct_spell_length));
+            }
+
+            $response = array('code' => 200, 'message' => 'Spell correction successfully.', 'cause' => '', 'data' => $spell_correction);
+
+        } catch (Exception $e) {
+            Log::error("spellCorrection : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template detail.', 'cause' => $e->getMessage(), 'data' => array());
+        }
+        return $response;
+    }
+
+    public function spellCorrectionApi(Request $request_body)
+    {
+        try {
+            $response = $this->spellCorrection($request_body->text);
+
+        } catch (Exception $e) {
+            Log::error("spellCorrectionApi : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template detail.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;

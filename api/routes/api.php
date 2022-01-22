@@ -423,3 +423,4 @@ Route::post('getAllFonts', 'AdminController@getAllFonts');
 //do not use any one
 //update tag with #tag for brand maker search module
 Route::post('updateTagForBrandSearch', 'AdminController@updateTagForBrandSearch');
+Route::post('spellCorrectionApi', 'UserController@spellCorrectionApi');
