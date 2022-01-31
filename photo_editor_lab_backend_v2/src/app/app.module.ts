@@ -69,8 +69,9 @@ import { AuthModule } from './auth/auth.module';
 import { AddserverurlComponent } from './components/addserverurl/addserverurl.component';
 import { ViewcorruptedfontsComponent } from './components/viewcorruptedfonts/viewcorruptedfonts.component';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { AddMultipleTagsComponent } from './components/add-multiple-tags/add-multiple-tags.component';
 @NgModule({
-  declarations: [AppComponent, LoadingComponent, ViewimageComponent, AddsearchtagsComponent, AddsubcategoryComponent, EditcategoryComponent, AddcatalogComponent, LinkcatalogComponent, AddblogsComponent, MovetocatalogComponent, AddjsonimagesComponent, ExistingimageslistComponent, AddjsondataComponent, UpdatesubcategoryimagebyidComponent, AddsubcategoryimagesbyidComponent, EditfontComponent, PopularsampleaddComponent, StatisticsDetailsComponent, EnterotpComponent, AddvalidationsComponent, AddserverurlComponent, ViewcorruptedfontsComponent],
+  declarations: [AppComponent, LoadingComponent, ViewimageComponent, AddsearchtagsComponent, AddsubcategoryComponent, EditcategoryComponent, AddcatalogComponent, LinkcatalogComponent, AddblogsComponent, MovetocatalogComponent, AddjsonimagesComponent, ExistingimageslistComponent, AddjsondataComponent, UpdatesubcategoryimagebyidComponent, AddsubcategoryimagesbyidComponent, EditfontComponent, PopularsampleaddComponent, StatisticsDetailsComponent, EnterotpComponent, AddvalidationsComponent, AddserverurlComponent, ViewcorruptedfontsComponent, AddMultipleTagsComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

@@ -39,6 +39,8 @@ export class AddjsondataComponent implements OnInit {
   selectedCataLog = JSON.parse(localStorage.getItem("selected_catalog"));
   selectedSubCategory = JSON.parse(localStorage.getItem("selected_sub_category"));
   jsonImage: any;
+  jsonGIF: any;
+  jsonImageAfter: any;
   selectedType: any = '0';
   selectedPrice: any = '1';
   selectedIOSPrice: any = '1';
@@ -100,6 +102,27 @@ export class AddjsondataComponent implements OnInit {
     return regex;
   }
 
+  get disableInputGIF(): boolean {
+    if (this.jsonImageAfter && this.jsonImage)
+      return true;
+    else
+      return false;
+  }
+
+  get disableInputFile(): boolean {
+    if (this.jsonGIF && this.jsonImageAfter)
+      return true;
+    else
+      return false;
+  }
+
+  get disableInputAfter(): boolean {
+    if (this.jsonGIF && this.jsonImage)
+      return true;
+    else
+      return false;
+  }
+
   add(event) {
     if (typeof event == "object") {
       if (event.target.value.trim() != "") {
@@ -149,7 +172,7 @@ export class AddjsondataComponent implements OnInit {
     this.selectedSearchTags.splice(i, 1);
   }
   fileChange(event) {
-    this.formData = new FormData();
+    // this.formData = new FormData();
     if (event.target.files && event.target.files[0]) {
       var reader = new FileReader();
       reader.onload = (event: any) => {
@@ -166,15 +189,51 @@ export class AddjsondataComponent implements OnInit {
     }
   }
 
+  fileChangeGIF(event) {
+    // this.formData = new FormData();
+    if (event.target.files && event.target.files[0]) {
+      var reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.jsonGIF = event.target.result;
+        // this.checkImageValid()
+      }
+      reader.readAsDataURL(event.target.files[0]);
+
+    }
+    this.fileList = event.target.files;
+    if (this.fileList.length > 0) {
+      this.file = this.fileList[0];
+      this.formData.append('gif_file', this.file, this.file.name);
+    }
+  }
+
+  fileChangeAfter(event) {
+    // this.formData = new FormData();
+    if (event.target.files && event.target.files[0]) {
+      var reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.jsonImageAfter = event.target.result;
+        // this.checkImageValid()
+      }
+      reader.readAsDataURL(event.target.files[0]);
+
+    }
+    this.fileList = event.target.files;
+    if (this.fileList.length > 0) {
+      this.file = this.fileList[0];
+      this.formData.append('after_file', this.file, this.file.name);
+    }
+  }
+
   fileChangemultiple(event) {
-    this.formData = new FormData();
+    // this.formData = new FormData();
     this.files = [];
     this.fileList = event.target.files;
     if (this.fileList && this.fileList.length > 0) {
       for (let i = 0; i < this.fileList.length; i++) {
         var reader = new FileReader();
         reader.onload = (event: any) => {
-          if(i == 0){
+          if (i == 0) {
             this.jsonImage = event.target.result;
           }
         }

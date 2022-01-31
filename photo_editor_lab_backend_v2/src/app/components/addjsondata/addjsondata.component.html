@@ -20,16 +20,48 @@ Copyright 2018 - 2020 Optimumbrew Technology
   </nb-card-header>
   <nb-card-body>
     <div class="row json-form-data">
-      <div class="col-md-5 ">
-        <div class="img-preview" id="jsonImage" [attr.valid-status]="upJSonData?true:false">
-          <img *ngIf="jsonImage" class="placeholder-img">
-          <img *ngIf="jsonImage" [src]="jsonImage"
-            onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
-          <label for="fileInput">
-            <i class="fa fa-camera" title="Click here to choose image"></i>
-          </label>
+      <div class="col-md-5 pt-4">
+        <div class="d-flex justify-content-between">
+          <div class="img-preview" id="jsonGIF">
+            <!-- <img *ngIf="jsonImage" class="placeholder-img"> -->
+            <img *ngIf="jsonGIF" [src]="jsonGIF"
+              onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+            <label for="fileInputGIF">
+              <i class="fa fa-camera" title="Click here to choose image"></i>
+            </label>
+            <p class="input-label">GIF</p>
+            <input type="file" id="fileInputGIF" autofocus="true" style="display: none;"
+              (change)="fileChangeGIF($event)" accept="image/png, image/gif, image/jpeg" [disabled]="disableInputGIF">
+          </div>
+          <div class="img-preview" id="jsonImage" [attr.valid-status]="upJSonData?true:false">
+            <img *ngIf="jsonImage" class="placeholder-img">
+            <img *ngIf="jsonImage" [src]="jsonImage"
+              onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+            <label for="fileInput">
+              <i class="fa fa-camera" title="Click here to choose image"></i>
+            </label>
+            <p class="input-label">Sample image</p>
+            <input type="file" id="fileInput" autofocus="true" style="display: none;"
+              (change)="this.selectedSubCategory.is_multi_page_support == 1?fileChangemultiple($event):fileChange($event)"
+              accept="image/png, image/gif, image/jpeg"
+              [attr.multiple]="selectedSubCategory.is_multi_page_support == 0?null:'multiple'"
+              [disabled]="disableInputFile">
+          </div>
+          <div class="img-preview" id="jsonImageAfter">
+            <!-- <img *ngIf="jsonImage" class="placeholder-img"> -->
+            <img *ngIf="jsonImageAfter" [src]="jsonImageAfter"
+              onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+            <label for="fileInputAfter">
+              <i class="fa fa-camera" title="Click here to choose image"></i>
+            </label>
+            <p class="input-label">After Image</p>
+            <input type="file" id="fileInputAfter" autofocus="true" style="display: none;"
+              (change)="fileChangeAfter($event)" accept="image/png, image/gif, image/jpeg"
+              [disabled]="disableInputAfter">
+          </div>
+
+
         </div>
-        <input type="file" id="fileInput" autofocus="true" style="display: none;" (change)="this.selectedSubCategory.is_multi_page_support == 1?fileChangemultiple($event):fileChange($event)" accept="image/png, image/gif, image/jpeg" [attr.multiple]="selectedSubCategory.is_multi_page_support == 0?null:'multiple'">
         <p id="imageError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
         <div class="row mt-4">
           <div class="col-md-4 pr-0">

@@ -45,10 +45,19 @@
   max-width: 100% !important;
   width: 100%;
 }
-@media only screen and (max-width: 600px){
+
+.input-label {
+  position: absolute;
+  top: -20px;
+  font-size: 14px;
+  font-weight: 600;
+  left: 4px;
+}
+
+@media only screen and (max-width: 600px) {
   .add-json-data-card {
     width: 96%;
     margin-left: auto;
     margin-right: auto;
-  }  
+  }
 }

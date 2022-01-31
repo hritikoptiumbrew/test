@@ -1,0 +1,27 @@
+<nb-card class="update-image-card">
+  <nb-card-header style="position: relative;">
+    <h5 class="header-text text-center">Add multiple tags into selected templates</h5>
+    <i class="fa fa-times close-icon" (click)="closeDialog()" title="Close"></i>
+  </nb-card-header>
+  <nb-card-body class="pr-0 pl-0">
+    <div class="card-content pr-2 pl-2">
+      <div class="form-group mt-3">
+        <input nbInput (keyup.enter)="add($event)" type="text" class="mw-100 mb-1" [formControl]="searchINputControl"
+          placeholder="Select / Enter new tag">
+        <p id="tagInputError" style="color: red;margin-bottom: 3px;"></p>
+        <div class="tag-container">
+          <mat-chip-list #chipList aria-label="Fruit selection">
+            <mat-chip *ngFor="let fruit of selectedSearchTags">
+              {{fruit}}
+              <i class="fa fa-times" style="margin-top: 5px;color:red;cursor: pointer;" matChipRemove
+                (click)="remove(fruit)"></i>
+            </mat-chip>
+          </mat-chip-list>
+        </div>
+      </div>
+    </div>
+    <div class="button-area text-center">
+      <button class="btn bg-primary text-light w-50" (click)="addTags()">Add tags</button>
+    </div>
+  </nb-card-body>
+</nb-card>

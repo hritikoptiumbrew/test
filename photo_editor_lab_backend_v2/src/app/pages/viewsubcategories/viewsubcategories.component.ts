@@ -15,6 +15,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NbDialogService, NbMenuService } from '@nebular/theme';
+import { AddMultipleTagsComponent } from 'app/components/add-multiple-tags/add-multiple-tags.component';
 import { AddjsondataComponent } from 'app/components/addjsondata/addjsondata.component';
 import { AddjsonimagesComponent } from 'app/components/addjsonimages/addjsonimages.component';
 import { AddsubcategoryimagesbyidComponent } from 'app/components/addsubcategoryimagesbyid/addsubcategoryimagesbyid.component';
@@ -266,15 +267,33 @@ export class ViewsubcategoriesComponent implements OnInit {
   moveToCatalog(data) {
     this.openMove(false, data, []);
   }
+
   //this gfunction is use for move multiple templates into another catalog
-  moveMutipleTemplate(){
+  moveMutipleTemplate() {
     if (this.templatesArr.length == 0) {
       this.utils.showError("Please select templates for move", 6000);
     }
-    else
-    {
+    else {
       this.openMove(false, this.viewCatdata[0], this.templatesArr);
     }
+  }
+
+  //this function is use for add multiple tags into multiple templates
+  addMultipleTags() {
+    this.dialog.open(AddMultipleTagsComponent, {
+      closeOnBackdropClick: false,
+      closeOnEsc: false,
+      autoFocus: false,
+      context: {
+        templatesIds: this.templatesArr
+      }
+    }).onClose.subscribe((result) => {
+      if (result && result.code == 200) {
+        this.multiselectFlag = false;
+        this.templatesArr = [];
+        this.getAllCategories();
+      }
+    });
   }
 
   protected openMove(closeOnBackdropClick: boolean, data, ids_arr) {
@@ -404,12 +423,12 @@ export class ViewsubcategoriesComponent implements OnInit {
     //   }
     // }
     // else {
-      if (!this.templatesArr.includes(temp_index)) {
-        this.templatesArr.push(temp_index);
-      }
-      else {
-        this.templatesArr.splice(this.templatesArr.indexOf(temp_index), 1);
-      }
+    if (!this.templatesArr.includes(temp_index)) {
+      this.templatesArr.push(temp_index);
+    }
+    else {
+      this.templatesArr.splice(this.templatesArr.indexOf(temp_index), 1);
+    }
     // }
   }
   uploadTemplateRankArr() {
