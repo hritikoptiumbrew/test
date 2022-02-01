@@ -77,6 +77,8 @@ export class AddjsondataComponent implements OnInit {
       );
     if (this.upJSonData) {
       this.jsonImage = this.upJSonData.thumbnail_img;
+      this.jsonGIF = this.upJSonData.gif_file;
+      this.jsonImageAfter = this.upJSonData.webp_original_after_img;
 
       this.selectedType = this.upJSonData.is_featured;
       this.selectedStyle = this.upJSonData.is_portrait.toString();
@@ -349,7 +351,7 @@ export class AddjsondataComponent implements OnInit {
           "catalog_id": this.catalogId,
           "json_data": json_data,
           "search_category": tmp_selected_tags,
-          // "sub_category_id": this.selectedSubCategory.sub_category_id
+          "sub_category_id": this.selectedSubCategory.sub_category_id
         };
 
         apiUrl = "editJsonData";
@@ -365,7 +367,7 @@ export class AddjsondataComponent implements OnInit {
           "catalog_id": this.catalogId,
           "json_data": json_data,
           "search_category": tmp_selected_tags,
-          // "sub_category_id": this.selectedSubCategory.sub_category_id
+          "sub_category_id": this.selectedSubCategory.sub_category_id
         };
         apiUrl = this.selectedSubCategory.is_multi_page_support == 0 ? "addJson" : "addMultiPageJson";
       }
