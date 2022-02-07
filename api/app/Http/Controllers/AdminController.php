@@ -2038,8 +2038,9 @@ class AdminController extends Controller
                 //To verify all normal images array
                 if (($response = (new ImageController())->verifyImagesArray($images_array, 0, $category_id, $is_featured, $is_catalog)) != '')
                     return $response;
+                DB::beginTransaction();
 
-                foreach ($images_array as $image_array) {
+                foreach ($images_array as $i => $image_arrays) {
 
                     $tag_list = NULL;
 //                    $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
@@ -2047,10 +2048,10 @@ class AdminController extends Controller
 //                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
 //                    }
 
-                    $image_details = (new UserController())->calculateHeightWidth($image_array);
+                    $image_details = (new UserController())->calculateHeightWidth($image_arrays);
 
-                    $normal_image = (new ImageController())->generateNewFileName('normal_image', $image_array);
-                    (new ImageController())->saveOriginalImageFromArray($image_array, $normal_image);
+                    $normal_image = (new ImageController())->generateNewFileName('normal_image', $image_arrays);
+                    (new ImageController())->saveOriginalImageFromArray($image_arrays, $normal_image);
                     (new ImageController())->saveCompressedImage($normal_image);
                     (new ImageController())->saveThumbnailImage($normal_image);
 
@@ -2067,15 +2068,17 @@ class AdminController extends Controller
                         $tag_list .= $new_tag;
                     }
                     $tag_list = implode(',', array_unique(array_filter(explode(',', $tag_list))));
+                    $increase_time = date('Y-m-d H:i:s',strtotime("+$i seconds",strtotime($create_at)));
 
-                    DB::beginTransaction();
+
                     DB::insert('INSERT
                                 INTO
                                   images(catalog_id, image, height, width, original_img_height, original_img_width, search_category, created_at)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $normal_image, $image_details['height'], $image_details['width'], $image_details['org_img_height'], $image_details['org_img_width'], $tag_list, $create_at]);
-                    DB::commit();
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $normal_image, $image_details['height'], $image_details['width'], $image_details['org_img_height'], $image_details['org_img_width'], $tag_list, $increase_time]);
+
                 }
             }
+            DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Normal images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
@@ -3064,9 +3067,12 @@ class AdminController extends Controller
             $catalog_detail = DB::select('SELECT name FROM catalog_master WHERE id =? ', [$catalog_id]);
 
             $tag = str_replace(' ', ',',strtolower(preg_replace('/[^A-Za-z ]/', '', $catalog_detail[0]->name)));
+            $created_at = date('Y-m-d H:i:s');
+            DB::beginTransaction();
 
-            foreach ($template_list as $key) {
+            foreach ($template_list as $i => $key) {
                 $template_detail = DB::select('SELECT search_category FROM images WHERE id=?', [$key]);
+
                 $search_category =  $template_detail[0]->search_category;
                 if ($search_category != NULL || $search_category != "") {
                     $search_category .=  ','.$tag;
@@ -3074,12 +3080,12 @@ class AdminController extends Controller
                     $search_category = $tag;
                 }
                 $search_category = implode(',', array_unique(array_filter(explode(',', $search_category))));
-                $update_time = date('Y-m-d H:i:s', time() + 5);
-                DB::beginTransaction();
-                DB::update('UPDATE images SET catalog_id = ?,search_category =?,updated_at =? where id = ?', [$catalog_id, $search_category, $update_time, $key]);
-                DB::commit();
-                sleep(1);
+                $increase_time = date('Y-m-d H:i:s',strtotime("+$i seconds",strtotime($created_at)));
+                DB::update('UPDATE images SET catalog_id = ?,search_category =?,updated_at =? where id = ?', [$catalog_id, $search_category, $increase_time, $key]);
+
             }
+            DB::commit();
+
 
             $response = Response::json(array('code' => 200, 'message' => 'Template moved successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
@@ -4247,8 +4253,9 @@ class AdminController extends Controller
                 if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
                     return $response;
 
-                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
-                if ($tag_list == "" or $tag_list == NULL) {
+                  $tag_list = NULL;
+//                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
+//                if ($tag_list == "" or $tag_list == NULL) {
 
 //                    if (Config::get('constant.CLARIFAI_API_KEY') != "") {
 //                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
@@ -4257,8 +4264,8 @@ class AdminController extends Controller
 //                        //remove "," from the end
 //                        $search_category = str_replace(",", "", $search_category);
 //                    }
-                    $search_category = trim($search_category, ',');
-                }
+//                    $search_category = trim($search_category, ',');
+//                }
 
                 if (($response = (new VerificationController())->verifySearchCategory("$search_category$tag_list")) != '') {
                     $response_details = (json_decode(json_encode($response), true));
@@ -7964,17 +7971,17 @@ class AdminController extends Controller
                 return $response;
 
             $img_ids = $request->img_ids;
-            foreach ($img_ids as $img_id) {
-                $create_time = date('Y-m-d H:i:s', time() + 5);
-                DB::beginTransaction();
+            $created_at = date('Y-m-d H:i:s');
+            DB::beginTransaction();
+            foreach ($img_ids AS $i => $img_id) {
+                $increase_time = date('Y-m-d H:i:s',strtotime("+$i seconds",strtotime($created_at)));
                 DB::update('UPDATE
                             images
                             SET updated_at = ?
                             WHERE
-                            id = ?', [$create_time, $img_id]);
-                DB::commit();
-                sleep(1);
+                            id = ?', [$increase_time, $img_id]);
             }
+            DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
 

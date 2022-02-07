@@ -181,8 +181,8 @@ class ZipController extends Controller
 
             if (($response = (new ImageController())->validateHeightWidthOfSampleImage($file_array, $json_data)) != '')
                 return $response;
-
-            $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($file_array));
+            $tag_list = NULL;
+//            $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($file_array));
             if ($tag_list == "" or $tag_list == NULL) {
 
                 if (Config::get('constant.CLARIFAI_API_KEY') != "") {
