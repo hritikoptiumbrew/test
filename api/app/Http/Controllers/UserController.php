@@ -2946,6 +2946,51 @@ class UserController extends Controller
         return $response;
     }
 
+    /*
+    Purpose : for search card with multiple sub_category_id. If result not found then take fail_over_sub_category_id
+    Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here)
+    Return : return cards detail if success otherwise error with specific status code
+    */
+    public function searchCardsBySubCategoryIdFailOver(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $offset = ($page - 1) * $item_count;
+            $fail_over_sub_category_id = isset($request->fail_over_sub_category_id) ? $request->fail_over_sub_category_id : "";
+            $is_user_search_tag = isset($request->is_user_search_tag) ? $request->is_user_search_tag : 1;       //In some applications we have put search tags instead of catalog lists, So if user clicks that search tag that time we don't need to insert this tag in DB.
+            //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
+            //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
+
+            $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count);
+
+            if($page == 1 && $is_user_search_tag == 1) {
+                if($redis_result['code'] != 200){
+                    SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0);
+                }else{
+                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $search_category, $sub_category_id, 1);
+                }
+            }
+
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("searchCardsBySubCategoryIdFailOver : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     public function searchCardsBySubCategoryId_v2(Request $request_body)
     {
         try {
