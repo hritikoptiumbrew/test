@@ -228,7 +228,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('deleteAllUserFeeds', 'UserController@deleteAllUserFeeds');
     Route::post('getHostName', 'AdminController@getHostName'); //Get host name
 
-    /* ===================| APIs of resume maker (created by Pooja Jadav) |=================== */
+    /* ===================| APIs of resume maker |=================== */
 
     //Get youtube videos related to interview
     Route::post('addYouTubeVideoURL','VideoController@addYouTubeVideoURL');
@@ -253,6 +253,9 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('deleteBlogContent', 'BlogController@deleteBlogContent');
     Route::post('getBlogContent', 'BlogController@getBlogContent');
     Route::post('setBlogRankOnTheTopByAdmin', 'BlogController@setBlogRankOnTheTopByAdmin');
+
+    //Get tag from image
+    Route::post('getTagFromImage','AdminController@getTagFromImage');
 
 });
 

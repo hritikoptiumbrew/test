@@ -2566,7 +2566,6 @@ class AdminController extends Controller
     public function deleteCatalogImage(Request $request_body)
     {
         try {
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
@@ -2576,8 +2575,7 @@ class AdminController extends Controller
 
             $img_id = $request->img_id;
 
-            $result = DB::select('SELECT image, multiple_images, attribute1 FROM images WHERE id = ?', [$img_id]);
-
+            $result = DB::select('SELECT image, multiple_images, content_type, attribute1 FROM images WHERE id = ?', [$img_id]);
 
             DB::beginTransaction();
 
@@ -2588,6 +2586,7 @@ class AdminController extends Controller
             if (count($result) > 0) {
 
                 $image_name = $result[0]->image;
+                $content_type = $result[0]->content_type;
                 $multiple_images = json_decode($result[0]->multiple_images);
                 $webp_image = $result[0]->attribute1;
 
@@ -2603,6 +2602,18 @@ class AdminController extends Controller
                     (new ImageController())->deleteImage($image_name);
                     if ($webp_image) {
                         (new ImageController())->deleteWebpImage($webp_image);
+                    }
+                }
+
+                if($content_type == Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF')){
+                    $gif_image_name = pathinfo($image_name, PATHINFO_FILENAME) . ".gif";
+                    (new ImageController())->deleteFileByPath($gif_image_name, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'), "video");
+                }
+
+                if($content_type == Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE')){
+                    (new ImageController())->deleteImage("after_image_".$image_name);
+                    if ($webp_image) {
+                        (new ImageController())->deleteWebpImage("after_image_".$webp_image);
                     }
                 }
             }
@@ -2672,16 +2683,25 @@ class AdminController extends Controller
 
                     $result = DB::select('SELECT
                                               im.id AS img_id,
+                                              #for sample (before) images
                                               IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS thumbnail_img,
                                               IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
                                               IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS original_img,
                                               IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS webp_original_img,
+                                              #for after images
+                                              IF(im.content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.image),"") AS thumbnail_after_img,
+                                              IF(im.content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.image),"") AS compressed_after_img,
+                                              IF(im.content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.image),"") AS original_after_img,
+                                              IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
+                                              #for gif images
+                                              IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF').' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS gif_file,
                                               IF(im.json_data IS NOT NULL,1,0) AS is_json_data,
                                               COALESCE(im.json_data,"") AS json_data,
                                               COALESCE(im.is_featured,"") AS is_featured,
                                               COALESCE(im.is_free,0) AS is_free,
                                               COALESCE(im.is_ios_free,0) AS is_ios_free,
                                               COALESCE(im.is_portrait,0) AS is_portrait,
+                                              COALESCE(im.content_type,"") AS content_type,
                                               COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) as total_pages,
                                               COALESCE(im.search_category,"") AS search_category
                                             FROM
@@ -4200,7 +4220,7 @@ class AdminController extends Controller
      * "data": {}
      * }
      */
-    public function addJson(Request $request_body)
+    public function addJsonOldVersion(Request $request_body)
     {
 
         try {
@@ -4302,6 +4322,129 @@ class AdminController extends Controller
 
         } catch
         (Exception $e) {
+            Log::error("addJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function addJson(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            //Required parameter
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
+                return $response;
+
+            $category_id = $request->category_id;
+            $sub_category_id = $request->sub_category_id;
+            $catalog_id = $request->catalog_id;
+            $json_data = $request->json_data;
+            $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
+            $is_featured = $request->is_featured;
+            $is_featured_catalog = $request->is_featured_catalog;
+            $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is template images
+            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
+            $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
+            $created_at = date('Y-m-d H:i:s');
+            $content_type = Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE');
+            $after_image_array = NULL;
+            $gif_array = NULL;
+            $deleted_file_list = array();       //stores file_name & file_path which we have upload in s3 if any exception error occurs then get all file_list & delete one by one
+
+            if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                return $response;
+
+            if (!$request_body->hasFile('file')) {
+                return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
+            $image_array = Input::file('file');
+            $after_image_array = Input::file('after_file');
+            $gif_array = Input::file('gif_file');
+
+            if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                return $response;
+
+            if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
+                return $response;
+
+            $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
+            (new ImageController())->saveOriginalImage($catalog_image);
+            (new ImageController())->saveCompressedImage($catalog_image);
+            (new ImageController())->saveThumbnailImage($catalog_image);
+            $file_name = (new ImageController())->saveWebpOriginalImage($catalog_image);
+            $dimension = (new ImageController())->saveWebpThumbnailImage($catalog_image);
+
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                (new ImageController())->saveImageInToS3($catalog_image);
+                (new ImageController())->saveWebpImageInToS3($file_name);
+            }
+
+            if($sub_category_id == Config::get('constant.SUB_CATEGORY_ID_OF_MOCK_UP') && $after_image_array){
+
+                $content_type = Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE');
+                if (($response = (new ImageController())->verifySampleImage($after_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($after_image_array, $json_data)) != '')
+                    return $response;
+
+                $after_image_name = "after_image_".$catalog_image;
+                (new ImageController())->saveFileByPath($after_image_array, $after_image_name, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+                (new ImageController())->saveCompressedImage($after_image_name);
+                (new ImageController())->saveThumbnailImage($after_image_name);
+                $after_file_name = (new ImageController())->saveWebpOriginalImage($after_image_name);
+                $dimension = (new ImageController())->saveWebpThumbnailImage($after_image_name);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($after_image_name);
+                    (new ImageController())->saveWebpImageInToS3($after_file_name);
+                }
+            }
+
+            if($sub_category_id == Config::get('constant.SUB_CATEGORY_ID_OF_MOCK_UP') && $gif_array){
+
+                $content_type = Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF');
+                if (($response = (new ImageController())->verifySampleGif($gif_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+//                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($gif_array, $json_data)) != '')
+//                    return $response;
+
+                if (($response = (new ImageController())->validateAspectRatioOfSampleImage($gif_array, $json_data)) != '')
+                    return $response;
+
+                $gif_image_name = pathinfo($catalog_image, PATHINFO_FILENAME) . "." . pathinfo(basename($gif_array->getClientOriginalName()), PATHINFO_EXTENSION);
+
+                (new ImageController())->saveFileByPath($gif_array, $gif_image_name, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'), "video");
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveFileInToS3ByPath($gif_image_name, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'), "video");
+                }
+            }
+
+            DB::beginTransaction();
+            DB::insert('INSERT INTO
+                              images(catalog_id, image, content_type, json_data, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, created_at, attribute1)
+                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, $content_type, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
+            DB::commit();
+
+            if (strstr($file_name, '.webp')) {
+                $response = Response::json(array('code' => 200, 'message' => 'Json added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            } else {
+                $response = Response::json(array('code' => 200, 'message' => 'Json added successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' => json_decode('{}')));
+            }
+
+        } catch (Exception $e) {
             Log::error("addJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
@@ -9391,7 +9534,6 @@ class AdminController extends Controller
     }
 
     public function getPhpInfo()
-
     {
         try {
 
@@ -10818,6 +10960,42 @@ class AdminController extends Controller
         } catch (Exception $e) {
             Log::error("updateTemplateSearchingTagsByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function getTagFromImage(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!$request_body->hasFile('sample_image'))
+                return Response::json(array('code' => 201, 'message' => 'Required field sample_image is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $sample_image = Input::file('sample_image');
+
+            if (($response = (new ImageController())->verifySampleImage($sample_image, 2, 1, 0)) != '')
+                return $response;
+
+            $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($sample_image));
+            if ($tag_list == "" or $tag_list == NULL) {
+                $response = Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.Please write Manually', 'cause' => '', 'data' => json_decode("{}")));
+            }else{
+                $response = Response::json(array('code' => 200, 'message' => 'Tag fetch successfully.', 'cause' => '', 'data' =>['tag_list' => $tag_list]));
+            }
+
+//            if (($response = (new VerificationController())->verifySearchCategory("$search_category$tag_list")) != '') {
+//                $response_details = (json_decode(json_encode($response), true));
+//                $data = $response_details['original']['data'];
+//                $tag_list = $data['search_tags'];
+//            } else {
+//                $tag_list = "$search_category$tag_list";
+//            }
+
+        } catch(Exception $e) {
+            Log::error("getTagFromImage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'fetch tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }

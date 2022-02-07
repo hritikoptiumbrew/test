@@ -10,6 +10,7 @@
         "bacon/bacon-qr-code": "^1.0.3",
         "clarifai/clarifai-php": "^0.6.0",
         "dompdf/dompdf": "^0.8.3",
+        "google/cloud-translate": "^1.12",
         "illuminate/cache": "5.4.*",
         "illuminate/redis": "5.4.*",
         "intervention/image": "^2.3",

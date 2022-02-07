@@ -35,6 +35,7 @@ return [
     'ORIGINAL_IMAGES_DIRECTORY' => '/image_bucket/original/',
     'THUMBNAIL_IMAGES_DIRECTORY' => '/image_bucket/thumbnail/',
     'RESOURCE_IMAGES_DIRECTORY' => '/image_bucket/resource/',
+    'ORIGINAL_VIDEO_DIRECTORY' => '/image_bucket/video/',
     'WEBP_ORIGINAL_IMAGES_DIRECTORY' => '/image_bucket/webp_original/',
     'WEBP_THUMBNAIL_IMAGES_DIRECTORY' => '/image_bucket/webp_thumbnail/',
     'WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY' => '/image_bucket/webp_original_new/',
@@ -63,6 +64,7 @@ return [
     'WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
     'WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_ORIGINAL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
     'WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
+    'ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN' => env('ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN'),
     'FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN' => env('FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN'),
     'TEMP_FILE_DIRECTORY_OF_DIGITAL_OCEAN' => env('TEMP_FILE_DIRECTORY_OF_DIGITAL_OCEAN'),
 
@@ -174,6 +176,9 @@ return [
     /* api key to detect tag from image */
     'CLARIFAI_API_KEY' => env('CLARIFAI_API_KEY'),
 
+    /* api key to run google API like: translate,detect language */
+    'GOOGLE_API_KEY' => env('GOOGLE_API_KEY'),
+
     /* host name to identify server for 2FA */
     'APP_HOST_NAME' => env('APP_HOST_NAME'),
 
@@ -183,10 +188,16 @@ return [
     'SUB_CATEGORY_ID_OF_TEXT_ART' => env('SUB_CATEGORY_ID_OF_TEXT_ART'),
     'SUB_CATEGORY_ID_OF_SHAPES' => env('SUB_CATEGORY_ID_OF_SHAPES'),
     'SUB_CATEGORY_ID_OF_GRAPHICS' => env('SUB_CATEGORY_ID_OF_GRAPHICS'),
+    'SUB_CATEGORY_ID_OF_MOCK_UP' => env('SUB_CATEGORY_ID_OF_MOCK_UP'),
 
     /* BackEnd Logs credential */
     'LOG_USERNAME' => env('LOG_USERNAME'),
     'LOG_PASSWORD' => env('LOG_PASSWORD'),
+
+    /* all image card content type */
+    'CONTENT_TYPE_FOR_SAMPLE_IMAGE' => '1',
+    'CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF' => '2',
+    'CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE' => '3',
 
 
 ];

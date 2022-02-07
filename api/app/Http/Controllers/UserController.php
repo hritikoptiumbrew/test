@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Redis;
 use Abraham\TwitterOAuth\TwitterOAuth;
 use App\Jobs\SaveSearchTagJob;
 use Image;
+use Google\Cloud\Translate\V2\TranslateClient;
 
 class UserController extends Controller
 {
@@ -1405,6 +1406,10 @@ class UserController extends Controller
                         $result = DB::select('SELECT
                                               id AS json_id,
                                               '. $image_url .'
+                                              IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS webp_original_img,
+                                              IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS after_image,
+                                              IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
+                                              IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF').' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS sample_gif,
                                               is_free,
                                               is_ios_free,
                                               is_featured,
@@ -1417,6 +1422,7 @@ class UserController extends Controller
                                               COALESCE(multiple_images,"") AS multiple_images,
                                               COALESCE(json_pages_sequence,"") AS pages_sequence,
                                               COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                              content_type,
                                               updated_at
                                             FROM
                                               images
@@ -1433,6 +1439,10 @@ class UserController extends Controller
                         $result = DB::select('SELECT
                                                   id AS json_id,
                                                   '. $image_url .'
+                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS webp_original_img,
+                                                  IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS after_image,
+                                                  IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
+                                                  IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF').' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS sample_gif,
                                                   is_free,
                                                   is_ios_free,
                                                   is_featured,
@@ -1445,6 +1455,7 @@ class UserController extends Controller
                                                   COALESCE(multiple_images,"") AS multiple_images,
                                                   COALESCE(json_pages_sequence,"") AS pages_sequence,
                                                   COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                  content_type,
                                                   updated_at
                                                 FROM
                                                   images
@@ -2009,82 +2020,190 @@ class UserController extends Controller
      * @apiSuccessExample Success-Response:
      * {
      * "code": 200,
-     * "message": "All json fetched successfully.",
+     * "message": "Featured cards fetched successfully.",
      * "cause": "",
      * "data": {
      * "result": [
      * {
-     * "catalog_id": 168,
-     * "name": "Business Card Catalog2",
-     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a1d0851d6d32_catalog_img_1511852113.png",
-     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png",
-     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png",
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "updated_at": "2018-08-11 04:13:20",
-     * "featured_cards": [
-     * {
-     * "json_id": 414,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f9747c534f_json_image_1512019783.webp",
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "is_portrait": 0,
-     * "height": 300,
-     * "width": 525,
-     * "updated_at": "2018-08-31 10:02:15"
+     *     "catalog_id": 1068,
+     *     "name": "BeforeAfter",
+     *     "thumbnail_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/thumbnail/61f11140895d6_catalog_img_1643188544.jpg",
+     *     "compressed_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/compressed/61f11140895d6_catalog_img_1643188544.jpg",
+     *     "original_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/original/61f11140895d6_catalog_img_1643188544.jpg",
+     *     "is_free": 1,
+     *     "is_ios_free": 1,
+     *     "is_featured": 1,
+     *     "updated_at": "2022-01-26 09:15:49",
+     *     "featured_cards": [
+     *         {
+     *             "json_id": 43844,
+     *             "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/61f11461b7387_json_image_1643189345.webp",
+     *             "webp_original_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/61f11461b7387_json_image_1643189345.webp",
+     *             "sample_gif": "",
+     *             "after_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/after_image_61f11461b7387_json_image_1643189345.webp",
+     *             "webp_original_after_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/after_image_61f11461b7387_json_image_1643189345.webp",
+     *             "is_free": 1,
+     *             "is_ios_free": 1,
+     *             "is_featured": 0,
+     *             "is_portrait": 1,
+     *             "height": 400,
+     *             "width": 325,
+     *             "multiple_images": "",
+     *             "pages_sequence": "",
+     *             "total_pages": 1,
+     *             "content_type": 3,
+     *             "updated_at": "2022-01-26 09:33:55"
+     *         },
+     *         {
+     *             "json_id": 43845,
+     *             "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/61f1157462ad4_json_image_1643189620.webp",
+     *             "webp_original_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/61f1157462ad4_json_image_1643189620.webp",
+     *             "sample_gif": "",
+     *             "after_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/after_image_61f1157462ad4_json_image_1643189620.webp",
+     *             "webp_original_after_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/after_image_61f1157462ad4_json_image_1643189620.webp",
+     *             "is_free": 1,
+     *             "is_ios_free": 1,
+     *             "is_featured": 0,
+     *             "is_portrait": 1,
+     *             "height": 400,
+     *             "width": 325,
+     *             "multiple_images": "",
+     *             "pages_sequence": "",
+     *             "total_pages": 1,
+     *             "content_type": 3,
+     *             "updated_at": "2022-01-26 09:33:41"
+     *         },
+     *         {
+     *             "json_id": 43843,
+     *             "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/61f113edd1ada_json_image_1643189229.webp",
+     *             "webp_original_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/61f113edd1ada_json_image_1643189229.webp",
+     *             "sample_gif": "",
+     *             "after_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/after_image_61f113edd1ada_json_image_1643189229.webp",
+     *             "webp_original_after_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/after_image_61f113edd1ada_json_image_1643189229.webp",
+     *             "is_free": 1,
+     *             "is_ios_free": 1,
+     *             "is_featured": 0,
+     *             "is_portrait": 1,
+     *             "height": 400,
+     *             "width": 325,
+     *             "multiple_images": "",
+     *             "pages_sequence": "",
+     *             "total_pages": 1,
+     *             "content_type": 3,
+     *             "updated_at": "2022-01-26 09:27:10"
+     *         },
+     *         {
+     *             "json_id": 43842,
+     *             "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/61f113c4d8acb_json_image_1643189188.webp",
+     *             "webp_original_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/61f113c4d8acb_json_image_1643189188.webp",
+     *             "sample_gif": "",
+     *             "after_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/after_image_61f113c4d8acb_json_image_1643189188.webp",
+     *             "webp_original_after_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/after_image_61f113c4d8acb_json_image_1643189188.webp",
+     *             "is_free": 1,
+     *             "is_ios_free": 1,
+     *             "is_featured": 0,
+     *             "is_portrait": 1,
+     *             "height": 400,
+     *             "width": 325,
+     *             "multiple_images": "",
+     *             "pages_sequence": "",
+     *             "total_pages": 1,
+     *             "content_type": 3,
+     *             "updated_at": "2022-01-26 09:26:29"
+     *         },
+     *         {
+     *             "json_id": 43841,
+     *             "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/61f1138fd2902_json_image_1643189135.webp",
+     *             "webp_original_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/61f1138fd2902_json_image_1643189135.webp",
+     *             "sample_gif": "",
+     *             "after_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/after_image_61f1138fd2902_json_image_1643189135.webp",
+     *             "webp_original_after_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_original/after_image_61f1138fd2902_json_image_1643189135.webp",
+     *             "is_free": 1,
+     *             "is_ios_free": 1,
+     *             "is_featured": 0,
+     *             "is_portrait": 1,
+     *             "height": 400,
+     *             "width": 325,
+     *             "multiple_images": "",
+     *             "pages_sequence": "",
+     *             "total_pages": 1,
+     *             "content_type": 3,
+     *             "updated_at": "2022-01-26 09:25:36"
+     *         }
+     *     ]
      * },
      * {
-     * "json_id": 415,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f974dc5c1a_json_image_1512019789.webp",
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "is_portrait": 0,
-     * "height": 300,
-     * "width": 525,
-     * "updated_at": "2018-08-31 10:02:03"
+     *      "catalog_id": 168,
+     *      "name": "Business Card Catalog2",
+     *      "thumbnail_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/thumbnail/5a1d0851d6d32_catalog_img_1511852113.png",
+     *      "compressed_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/compressed/5a1d0851d6d32_catalog_img_1511852113.png",
+     *      "original_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/original/5a1d0851d6d32_catalog_img_1511852113.png",
+     *      "is_free": 1,
+     *      "is_featured": 1,
+     *      "updated_at": "2018-08-11 04:13:20",
+     *      "featured_cards": [
+     *         {
+     *              "json_id": 414,
+     *              "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f9747c534f_json_image_1512019783.webp",
+     *              "is_free": 1,
+     *              "is_featured": 1,
+     *              "is_portrait": 0,
+     *              "height": 300,
+     *              "width": 525,
+     *              "updated_at": "2018-08-31 10:02:15"
+     *         },
+     *         {
+     *              "json_id": 415,
+     *              "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f974dc5c1a_json_image_1512019789.webp",
+     *              "is_free": 1,
+     *              "is_featured": 1,
+     *              "is_portrait": 0,
+     *              "height": 300,
+     *              "width": 525,
+     *              "updated_at": "2018-08-31 10:02:03"
+     *         },
+     *         {
+     *              "json_id": 417,
+     *              "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f97592443d_json_image_1512019801.webp",
+     *              "is_free": 1,
+     *              "is_featured": 1,
+     *              "is_portrait": 0,
+     *              "height": 300,
+     *              "width": 525,
+     *              "updated_at": "2018-08-31 10:02:03"
+     *         },
+     *         {
+     *              "json_id": 418,
+     *              "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f975f6f461_json_image_1512019807.webp",
+     *              "is_free": 1,
+     *              "is_featured": 1,
+     *              "is_portrait": 0,
+     *              "height": 300,
+     *              "width": 525,
+     *              "updated_at": "2018-08-31 10:02:02"
+     *         },
+     *         {
+     *               "json_id": 419,
+     *               "sample_image": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f9765255c2_json_image_1512019813.webp",
+     *               "is_free": 1,
+     *               "is_featured": 1,
+     *               "is_portrait": 0,
+     *               "height": 300,
+     *               "width": 525,
+     *               "updated_at": "2018-08-31 10:02:02"
+     *         }
+     *     ]
      * },
      * {
-     * "json_id": 417,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f97592443d_json_image_1512019801.webp",
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "is_portrait": 0,
-     * "height": 300,
-     * "width": 525,
-     * "updated_at": "2018-08-31 10:02:03"
-     * },
-     * {
-     * "json_id": 418,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f975f6f461_json_image_1512019807.webp",
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "is_portrait": 0,
-     * "height": 300,
-     * "width": 525,
-     * "updated_at": "2018-08-31 10:02:02"
-     * },
-     * {
-     * "json_id": 419,
-     * "sample_image": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/webp_thumbnail/5a1f9765255c2_json_image_1512019813.webp",
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "is_portrait": 0,
-     * "height": 300,
-     * "width": 525,
-     * "updated_at": "2018-08-31 10:02:02"
-     * }
-     * ]
-     * },
-     * {
-     * "catalog_id": 167,
-     * "name": "Business Card Catalog1",
-     * "thumbnail_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/5a17fab520a09_catalog_img_1511520949.png",
-     * "compressed_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/5a17fab520a09_catalog_img_1511520949.png",
-     * "original_img": "http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/5a17fab520a09_catalog_img_1511520949.png",
-     * "is_free": 1,
-     * "is_featured": 1,
-     * "updated_at": "2017-11-28 07:42:02",
-     * "featured_cards": []
+     *       "catalog_id": 167,
+     *       "name": "Business Card Catalog1",
+     *       "thumbnail_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/thumbnail/5a17fab520a09_catalog_img_1511520949.png",
+     *       "compressed_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/compressed/5a17fab520a09_catalog_img_1511520949.png",
+     *       "original_img": "http://192.168.0.105/photo_editor_lab_backend/image_bucket/original/5a17fab520a09_catalog_img_1511520949.png",
+     *       "is_free": 1,
+     *       "is_featured": 1,
+     *       "updated_at": "2017-11-28 07:42:02",
+     *       "featured_cards": []
      * }
      * ]
      * }
@@ -2117,6 +2236,7 @@ class UserController extends Controller
                                                   IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
                                                   IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
                                                   IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                                  IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") AS icon,
                                                   ct.is_free,
                                                   ct.is_ios_free,
                                                   ct.is_featured,
@@ -2136,6 +2256,9 @@ class UserController extends Controller
                                                id as json_id,
                                                IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
                                                IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as webp_original_img,
+                                               IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF').' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS sample_gif,
+                                               IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS after_image,
+                                               IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
                                                is_free,
                                                is_ios_free,
                                                is_featured,
@@ -2145,6 +2268,7 @@ class UserController extends Controller
                                                COALESCE(multiple_images,"") AS multiple_images,
                                                COALESCE(json_pages_sequence,"") AS pages_sequence,
                                                COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                               content_type,
                                                updated_at
                                                 FROM
                                                 images
@@ -2735,7 +2859,7 @@ class UserController extends Controller
     }
 
     /*
-    Purpose : for search card with single sub_category_id & correct spell if spelling was wrong
+    Purpose : for search card with single sub_category_id. If result not found then translate & correction of the text
     Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here)
     Return : return cards detail if success otherwise error with specific status code
     */
@@ -2750,15 +2874,17 @@ class UserController extends Controller
                 return $response;
 
             $sub_category_id = $request->sub_category_id;
-            //Remove '[@()<> ]' character from searching because if we add this character then mysql gives syntax error
-            $search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
+            $search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
+            $is_user_search_tag = isset($request->is_user_search_tag) ? $request->is_user_search_tag : 1;       //In some applications we have put search tags instead of catalog lists, So if user clicks that search tag that time we don't need to insert this tag in DB.
+            //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
+            //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
 
             $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count);
 
-            if($page == 1) {
+            if($page == 1 && $is_user_search_tag == 1) {
                 if($redis_result['code'] != 200){
                     SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0);
                 }else{
@@ -2777,7 +2903,7 @@ class UserController extends Controller
     }
 
     /*
-    Purpose : for search card with multiple sub_category_id & correct spell if spelling was wrong
+    Purpose : for search card with multiple sub_category_id. If result not found then translate & correction of the text
     Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here)
     Return : return cards detail if success otherwise error with specific status code
     */
@@ -2792,14 +2918,17 @@ class UserController extends Controller
                 return $response;
 
             $sub_category_id = $request->sub_category_id;
-            $search_category = preg_replace('/[@()<>]/', '', mb_strtolower(trim($request->search_category)));
+            $search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
+            $is_user_search_tag = isset($request->is_user_search_tag) ? $request->is_user_search_tag : 1;       //In some applications we have put search tags instead of catalog lists, So if user clicks that search tag that time we don't need to insert this tag in DB.
+            //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
+            //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
 
             $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count);
 
-            if($page == 1) {
+            if($page == 1 && $is_user_search_tag == 1) {
                 if($redis_result['code'] != 200){
                     SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0);
                 }else{
@@ -7411,7 +7540,11 @@ class UserController extends Controller
         return $is_success = Redis::del(array_merge(Redis::keys("pel:$key_name*"),['']));
     }
 
-    //Get all template by requested tags
+    /*
+    Purpose : To get template by user searches (Get all template by requested tags).
+    Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here).
+    Return : return template detail if success otherwise error with specific status code
+    */
     public function searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count)
     {
         try{
@@ -7419,14 +7552,16 @@ class UserController extends Controller
             $this->db_search_category = $this->search_category = $search_category;
             $this->offset = $offset;
             $this->item_count = $item_count;
+            $this->is_search_category_changed = 0;
+            $this->is_featured = 1;
 
+            run_same_query:
             $redis_result = Cache::rememberforever("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", function () {
 
                 $code = 200;
                 $message = "Templates fetched successfully.";
-                $is_spell_corrected = 0;
+                $search_result = [];
 
-                run_same_query:
                 $total_row_result = DB::select('SELECT 
                                                     COUNT(DISTINCT(im.id)) AS total
                                                 FROM
@@ -7436,18 +7571,23 @@ class UserController extends Controller
                                                 WHERE
                                                     im.is_active = 1 AND
                                                     im.catalog_id = scc.catalog_id AND
-                                                    cm.is_featured = 1 AND
+                                                    cm.is_featured = ? AND
                                                     cm.id = scc.catalog_id AND
-                                                    scc.sub_category_id IN ('.$this->sub_category_id.') AND
+                                                    scc.sub_category_id IN (' . $this->sub_category_id . ') AND
                                                     ISNULL(im.original_img) AND
                                                     ISNULL(im.display_img) AND
                                                     (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
-                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE)) ');
+                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE)) ', [$this->is_featured]);
                 $total_row = $total_row_result[0]->total;
 
-                $search_result = DB::select('SELECT
+                if($total_row) {
+                    $search_result = DB::select('SELECT
                                                 DISTINCT im.id AS json_id,
                                                 IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
+                                                IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS webp_original_img,
+                                                IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS after_image,
+                                                IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS webp_original_after_img,
+                                                IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(im.image,".",1),".gif"),"") AS sample_gif,
                                                 im.is_free,
                                                 im.is_featured,
                                                 im.is_portrait,
@@ -7456,6 +7596,7 @@ class UserController extends Controller
                                                 COALESCE(im.multiple_images,"") AS multiple_images,
                                                 COALESCE(im.json_pages_sequence,"") AS pages_sequence,
                                                 COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                im.content_type,
                                                 im.updated_at,
                                                 MATCH(im.search_category) AGAINST("' . $this->search_category . '") +
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text 
@@ -7467,29 +7608,45 @@ class UserController extends Controller
                                                 im.is_active = 1 AND
                                                 im.catalog_id = scc.catalog_id AND
                                                 cm.id = scc.catalog_id AND
-                                                cm.is_featured = 1 AND
-                                                scc.sub_category_id IN ('.$this->sub_category_id.') AND
+                                                cm.is_featured = ? AND
+                                                scc.sub_category_id IN (' . $this->sub_category_id . ') AND
                                                 ISNULL(im.original_img) AND
                                                 ISNULL(im.display_img) AND
                                                 (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
-                                            ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
-
-                if (count($search_result) <= 0 && !$is_spell_corrected && Config::get('constant.STORAGE') === 'S3_BUCKET' && Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app') {
-
-                    $is_spell_corrected = 1;
-                    $spellLink = pspell_new("en");
-                    if (!pspell_check($spellLink, $this->search_category)) {
-                        $suggestions = pspell_suggest($spellLink, $this->search_category);
-                        Log::info('searchTemplatesBySearchCategory : Spell suggestion.', ['user_tag' => $this->search_category, 'suggestion' => $suggestions, 'offset' => $this->offset, 'item_count' => $this->item_count]);
-                        $this->search_category = implode(',',array_slice($suggestions, 0, 5));
-                        if($this->search_category)
-                            goto run_same_query;
-                    }
-
+                                            ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
                 }
 
-                if (count($search_result) <= 0) {
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
+
+                return array('code' => $code, 'message' => $message, 'cause' => '', 'data' => $search_result);
+
+            });
+
+            if (!$redis_result['data']['total_record'] && !$this->is_search_category_changed && Config::get('constant.APP_ENV') != 'local' && Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app') {
+
+                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count");
+                $this->is_search_category_changed = 1;
+                $translate_data = $this->translateLanguage($this->search_category, "en");
+                $suggestions = $this->spellCorrection($translate_data['data']['source'], $this->search_category);
+
+                if($suggestions['data'] || $translate_data['data']['text']) {
+                    $this->search_category = trim($translate_data['data']['text'] .",". implode(',',array_slice($suggestions['data'], 0, 5)), ",");
+                    if($this->search_category)
+                        goto run_same_query;
+
+                }
+            }
+
+            if (!$redis_result['data']['total_record']) {
+
+                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count");
+                $redis_result = Cache::remember("searchCardsBySubCategoryId:$this->sub_category_id:$this->offset:$this->item_count", 10080, function () {
+
+                    $code = 427;
+                    $message = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";
+                    $search_result = [];
 
                     $total_row_result = DB::select('SELECT 
                                                         COUNT(DISTINCT(im.id)) AS total
@@ -7501,47 +7658,52 @@ class UserController extends Controller
                                                         im.is_active = 1 AND
                                                         im.catalog_id = scc.catalog_id AND
                                                         cm.id = scc.catalog_id AND
-                                                        scc.sub_category_id IN ('.$this->sub_category_id.') AND
-                                                        cm.is_featured = 1 AND
+                                                        scc.sub_category_id IN (' . $this->sub_category_id . ') AND
+                                                        cm.is_featured = ? AND
                                                         ISNULL(im.original_img) AND
-                                                        ISNULL(im.display_img) ');
+                                                        ISNULL(im.display_img) ', [$this->is_featured]);
                     $total_row = $total_row_result[0]->total;
 
-                    $search_result = DB::select('SELECT
-                                                    DISTINCT im.id AS json_id,
-                                                    IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
-                                                    im.is_free,
-                                                    im.is_featured,
-                                                    im.is_portrait,
-                                                    COALESCE(im.height,0) AS height,
-                                                    COALESCE(im.width,0) AS width,
-                                                    COALESCE(im.multiple_images,"") AS multiple_images,
-                                                    COALESCE(im.json_pages_sequence,"") AS pages_sequence,
-                                                    COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
-                                                    im.updated_at
-                                                FROM
-                                                    images AS im,
-                                                    catalog_master AS cm,
-                                                    sub_category_catalog AS scc
-                                                WHERE
-                                                    im.is_active = 1 AND
-                                                    im.catalog_id = scc.catalog_id AND
-                                                    cm.id = scc.catalog_id AND
-                                                    cm.is_featured = 1 AND
-                                                    scc.sub_category_id IN ('.$this->sub_category_id.') AND
-                                                    ISNULL(im.original_img) AND
-                                                    ISNULL(im.display_img)
-                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
-                    $code = 427;
-                    $message = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";
-                }
+                    if($total_row){
+                        $search_result = DB::select('SELECT
+                                                        DISTINCT im.id AS json_id,
+                                                        IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
+                                                        IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS webp_original_img,
+                                                        IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS after_image,
+                                                        IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS webp_original_after_img,
+                                                        IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(im.image,".",1),".gif"),"") AS sample_gif,
+                                                        im.is_free,
+                                                        im.is_featured,
+                                                        im.is_portrait,
+                                                        COALESCE(im.height,0) AS height,
+                                                        COALESCE(im.width,0) AS width,
+                                                        COALESCE(im.multiple_images,"") AS multiple_images,
+                                                        COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                        COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                        im.content_type,
+                                                        im.updated_at
+                                                    FROM
+                                                        images AS im,
+                                                        catalog_master AS cm,
+                                                        sub_category_catalog AS scc
+                                                    WHERE
+                                                        im.is_active = 1 AND
+                                                        im.catalog_id = scc.catalog_id AND
+                                                        cm.id = scc.catalog_id AND
+                                                        cm.is_featured = ? AND
+                                                        scc.sub_category_id IN (' . $this->sub_category_id . ') AND
+                                                        ISNULL(im.original_img) AND
+                                                        ISNULL(im.display_img)
+                                                    ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+                    }
 
-                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
 
-                return array('code' => $code, 'message' => $message, 'cause' => '', 'data' => $search_result);
+                    return array('code' => $code, 'message' => $message, 'cause' => '', 'data' => $search_result);
 
-            });
+                });
+            }
 
             return $redis_result;
 
@@ -7549,6 +7711,173 @@ class UserController extends Controller
             Log::error("searchTemplatesBySearchCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}"));
         }
+    }
+
+    /*
+    Purpose : To translate language from any to english with google API.
+    Description : This method compulsory take 2 argument as parameter.(if any argument is optional then define it here).
+    Return : return translated language detected detail if success otherwise error with specific status code
+    */
+    public function translateLanguage($text, $language = "en")
+    {
+        try {
+            $this->text = $text;
+            $this->language = $language;
+
+            $redis_result = Cache::rememberforever("translateLanguage:$this->text", function () {
+
+                $translate = new TranslateClient([
+                    'key' => Config::get('constant.GOOGLE_API_KEY')
+                ]);
+
+                // Translate text from Any to English.
+                $result = $translate->translate($this->text, [
+                    'target' => $this->language
+                ]);
+
+                Log::info('translateLanguage : ', ['user_tag' => $this->text, 'result' => $result, 'target_language' => $this->language]);
+                return $result;
+            });
+
+            $response = array('code' => 200, 'message' => 'Language translation successfully.', 'cause' => '', 'data' => $redis_result);
+
+        } catch (Exception $e) {
+            Log::error("translateLanguage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template detail.', 'cause' => $e->getMessage(), 'data' => array("source" => "", "input" => $text, "text" => "", "model" => ""));
+        }
+        return $response;
+    }
+
+    /*
+    Purpose : To correct spelling of text with p-spell php extension.
+    Description : This method compulsory take 2 argument as parameter.(if any argument is optional then define it here).
+    Return : return spell corrected word in array if success otherwise error with specific status code
+    */
+    public function spellCorrection($language_dictionary, $text)
+    {
+        try {
+            $suggestions = array();
+            $spellLink = pspell_new($language_dictionary);
+            if (!pspell_check($spellLink, $text)) {
+                $suggestions = pspell_suggest($spellLink, $text);
+                Log::info('spellCorrection : Spell suggestion.', ['user_tag' => $text, 'suggestion' => $suggestions, 'language_dictionary' => $language_dictionary]);
+            }
+
+            $response = array('code' => 200, 'message' => 'Spell correction successfully.', 'cause' => '', 'data' => $suggestions);
+
+        } catch (Exception $e) {
+            Log::error("spellCorrection : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template detail.', 'cause' => $e->getMessage(), 'data' => array());
+        }
+        return $response;
+    }
+
+    /*
+    Purpose : To detect language code with google API (Unused function)
+    Description : This method compulsory take 1 argument as parameter.(if any argument is optional then define it here).
+    Return : return language detected detail if success otherwise error with specific status code
+    */
+    public function detectLanguageCode($text)
+    {
+        try {
+            $this->text = $text;
+
+            $redis_result = Cache::rememberforever("detectLanguageCode:$this->text", function () {
+
+                $translate = new TranslateClient([
+                    'key' => Config::get('constant.GOOGLE_API_KEY')
+                ]);
+
+                // Detect the language of a string.
+                $result = $translate->detectLanguage($this->text);
+
+                return $result;
+            });
+
+            $response = array('code' => 200, 'message' => 'Language code detect successfully.', 'cause' => '', 'data' => $redis_result);
+
+        } catch (Exception $e) {
+            Log::error("detectLanguageCode : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template detail.', 'cause' => $e->getMessage(), 'data' => array());
+        }
+        return $response;
+    }
+
+    /*
+    Purpose : To detect language code with composer pear library API (Unused function : if we want to used in feature then run composer require command)
+    Description : This method compulsory take 1 argument as parameter.(if any argument is optional then define it here).
+    Return : return language detected detail if success otherwise error with specific status code
+    */
+    public function detectLanguageWithComposer($text)
+    {
+        try {
+            $this->text = $text;
+            $redis_result = NULL;
+
+            //composer require pear/text_languagedetect
+            //composer library: "pear/text_languagedetect": "^1.0",
+
+            //$lib = new Text_LanguageDetect();
+
+            //$redis_result = $lib->detect($text);
+
+            $response = array('code' => 200, 'message' => 'Language code detect successfully.', 'cause' => '', 'data' => $redis_result);
+
+        } catch (Exception $e) {
+            Log::error("detectLanguageWithComposer : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template detail.', 'cause' => $e->getMessage(), 'data' => array());
+        }
+        return $response;
+    }
+
+    /*
+    Purpose : To detect emoji is exist or not in text. (Unused function)
+    Description : This method compulsory take 1 argument as parameter.(if any argument is optional then define it here).
+    Return : return true if emoji was detected otherwise false
+    */
+    public function checkIsEmojiExist($text)
+    {
+        try {
+            preg_match( '/[\x{1F600}-\x{1F64F}]/u', $text, $emoji);
+            if($emoji)
+                $response = true;
+            else
+                $response = false;
+
+        } catch (Exception $e) {
+            Log::error("checkIsEmojiExist : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = false;
+        }
+        return $response;
+    }
+
+    /*
+    Purpose : To translate emoji into text. (Unused function : if we want to used in feature then run composer require command)
+    Description : This method compulsory take 1 argument as parameter.(if any argument is optional then define it here).
+    Return : return translated text from emoji if success otherwise error with specific status code
+    */
+    public function translateEmoji($text)
+    {
+        try {
+            $result = $text;
+
+            //"elvanto/litemoji": "^4.1",
+            //composer require elvanto/litemoji
+
+            //$converted_string = LitEmoji::encodeShortcode($text);
+            //$remove_special_char = preg_replace('/[^a-zA-Z0-9]/', ",", $converted_string);
+            //$remove_same_char = trim(preg_replace('/(\,+)/', ',', $remove_special_char), ',');
+            //$char_array = explode(',', $remove_same_char);
+            //$unique_char = array_unique(array_filter($char_array));
+            //$result = implode(',', $unique_char);
+
+            $response = array('code' => 200, 'message' => 'Emoji translation successfully.', 'cause' => '', 'data' => $result);
+
+        } catch (Exception $e) {
+            Log::error("translateEmoji : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'translate emoji.', 'cause' => $e->getMessage(), 'data' => "");
+        }
+        return $response;
     }
 
     //Get all feature template with shuffle
@@ -8600,30 +8929,10 @@ class UserController extends Controller
         return $response;
     }
 
-    public function spellCorrection($text, $correct_spell_length = 5)
-    {
-        try {
-            $spell_correction = NULL;
-            $spellLink = pspell_new("en");
-            if (!pspell_check($spellLink, $text)) {
-                $suggestions = pspell_suggest($spellLink, $text);
-                Log::info('spellCorrection : Spell suggestion.', ['user_tag' => $text, 'suggestion' => $suggestions]);
-                $spell_correction = implode(',',array_slice($suggestions, 0, $correct_spell_length));
-            }
-
-            $response = array('code' => 200, 'message' => 'Spell correction successfully.', 'cause' => '', 'data' => $spell_correction);
-
-        } catch (Exception $e) {
-            Log::error("spellCorrection : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template detail.', 'cause' => $e->getMessage(), 'data' => array());
-        }
-        return $response;
-    }
-
     public function spellCorrectionApi(Request $request_body)
     {
         try {
-            $response = $this->spellCorrection($request_body->text);
+            $response = $this->spellCorrection("en", $request_body->text);
 
         } catch (Exception $e) {
             Log::error("spellCorrectionApi : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);

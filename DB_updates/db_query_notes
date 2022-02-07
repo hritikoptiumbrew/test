@@ -210,3 +210,4 @@ ALTER TABLE `sub_category` ADD `is_multi_page_support` TINYINT(1) NULL DEFAULT '
 ALTER TABLE tag_analysis_master DROP FOREIGN KEY tag_analysis_master_ibfk_1;
 ALTER TABLE `tag_analysis_master` CHANGE `sub_category_id` `sub_category_id` VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
 ALTER TABLE `images` ADD `content_type` TINYINT(1) NULL DEFAULT '1' COMMENT '1=sample image, 2=sample image with GIF image, 3=sample(before) image with after image' AFTER `is_active`;
+//ALTER TABLE `tag_analysis_master` ADD `is_template` INT(1) NOT NULL DEFAULT '1' COMMENT '1=tag of template,0=tag of graphics,text-art,shape,bg (Sticker)' AFTER `is_success`;

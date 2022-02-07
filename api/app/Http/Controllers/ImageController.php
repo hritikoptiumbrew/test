@@ -92,6 +92,34 @@ class ImageController extends Controller
         return $response;
     }
 
+    //verify sample gif of cards
+    public function verifySampleGif($image_array, $category_id, $is_featured, $is_catalog)
+    {
+
+        $image_type = $image_array->getMimeType();
+        $image_size = $image_array->getSize();
+
+        /*
+         * check size into kb
+         * here 200 is kb & 1024 is bytes
+         * 1kb = 1024 bytes
+         * */
+
+        $validations = $this->getValidationFromCache($category_id, $is_featured, $is_catalog);
+        //Log::info('verifyImage : ', ['validations' => $validations]);
+
+        $MAXIMUM_FILESIZE = $validations * 1024;
+        //$MAXIMUM_FILESIZE = 200 * 1024;
+
+        if (!($image_type == 'image/gif'))
+            $response = Response::json(array('code' => 201, 'message' => 'Please select GIF file', 'cause' => '', 'data' => json_decode("{}")));
+        elseif ($image_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => 201, 'message' => 'File size is greater then '.$validations.'', 'cause' => '', 'data' => json_decode("{}")));
+        else
+            $response = '';
+        return $response;
+    }
+
     //verify images array
     public function verifyImagesArray($images_array, $is_resource_images, $category_id, $is_featured, $is_catalog)
     {
@@ -239,6 +267,31 @@ class ImageController extends Controller
         return $response;
     }
 
+    public function validateAspectRatioOfSampleImage($image_array, $json_data)
+    {
+        // Open image as a string
+        $data = file_get_contents($image_array);
+
+        // getimagesizefromstring function accepts image data as string & return file info
+        $file_info = getimagesizefromstring($data);
+
+        // Display the image content
+        $width = $file_info[0];
+        $height = $file_info[1];
+        $file_ratio = round($width / $height, 2);
+        $json_data_ratio = round($json_data->width / $json_data->height, 2);
+
+        //Log::info('validateHeightWidthOfSampleImage height & width : ',['height_from_img' => $height, 'width_from_img' => $width, 'height_from_json' => $json_data->height, 'width_from_json' => $json_data->width]);
+
+        if ($file_ratio == $json_data_ratio) {
+            $response = '';
+        } else {
+            return $response = Response::json(array('code' => 201, 'message' => 'Height & width of the sample image doesn\'t match with height & width given in json.', 'cause' => '', 'data' => json_decode("{}")));
+        }
+
+        return $response;
+    }
+
     //validate fonts
     public function validateFonts($json_data)
     {
@@ -337,6 +390,18 @@ class ImageController extends Controller
         if (File::exists($path))
             $new_file_name = uniqid() . '_' . $image_type . '_' . time() . '.' . $fileData['extension'];
         return $new_file_name;
+    }
+
+    public function saveFileByPath($image_array, $img, $file_path, $dir_name)
+    {
+        try {
+            $original_path = '../..' . $file_path;
+            $image_array->move($original_path, $img);
+            $path = $original_path . $img;
+            $this->saveImageDetails($path, $dir_name);
+        } catch (Exception $e) {
+            Log::error("saveFileWithFileNameAndPath : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
     }
 
     //save original image
@@ -788,6 +853,34 @@ class ImageController extends Controller
         }
     }
 
+    public function deleteFileByPath($image_name, $local_path, $s3_path)
+    {
+        try {
+
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                $this->deleteObjectFromS3($image_name, $s3_path);
+
+            } else {
+                $this->unlinkFileFromLocalStorage($image_name, $local_path);
+
+            }
+
+            /* Image Details delete */
+            DB::beginTransaction();
+            DB::delete('DELETE
+                        FROM
+                          image_details
+                        WHERE
+                          name = ?', [$image_name]);
+            DB::commit();
+
+        } catch (Exception $e) {
+            Log::error("deleteFileByPath : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            DB::rollBack();
+            return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . ' delete image.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+    }
+
     //Delete Webp Images In Directory
     public function deleteWebpImage($image_name)
     {
@@ -942,6 +1035,25 @@ class ImageController extends Controller
         }
 
 
+    }
+
+    public function saveFileInToS3ByPath($image_name, $image_path, $s3_path)
+    {
+        try {
+            $original_sourceFile = '../..' . $image_path . $image_name;
+
+            $disk = Storage::disk('s3');
+            if (($is_exist = ($this->checkFileExist($original_sourceFile)) != 0)) {
+                $original_targetFile = "imageflyer/$s3_path/$image_name";
+                $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
+
+                //unlink file from local storage
+                unlink($original_sourceFile);
+            }
+
+        } catch (Exception $e) {
+            Log::error("saveFileInToS3ByPath : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
     }
 
     //save image into S3
