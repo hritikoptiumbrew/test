@@ -84,7 +84,7 @@
           <td class="width-100">{{ (pageNum - 1) * numberOfItems + i + 1 }}</td>
           <td class="min-300" class="text-left pl-3">{{row.tag}}</td>
           <td class="width-200">{{ row.content_count }}
-            <button class="btn p-0 m-2 shadow-none" (click)="onRefresh(row.tag , row.id)">
+            <button class="btn p-0 m-2 shadow-none" (click)="onRefresh(row)">
               <nb-icon icon="refresh"></nb-icon>
             </button>
           </td>
