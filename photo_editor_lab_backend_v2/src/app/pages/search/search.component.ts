@@ -345,20 +345,21 @@ export class SearchComponent implements OnInit {
   }
 
   //function for refreshing the content count
-  onRefresh(tagName, id) {
+  onRefresh(dataDetails) {
     this.util.showPageLoader()
     let data = {
       "page": 1,
       "item_count": this.numberOfItems,
-      "search_category": tagName,
+      "search_category": dataDetails.tag,
       "sub_category_id": this.multiSelectedApps.join(","),
-      'search_tag_id': id
+      'search_tag_id': dataDetails.id,
+      // 'is_template': dataDetails.is_template.toString(),
     }
     this.api.postData('refreshSearchCountByAdmin', data, { headers: { 'Authorization': 'Bearer ' + this.token } })
       .then((response: any) => {
         if (response.code == 200) {
           let c_c = response.data.total_record
-          let i = this.dataForTable.findIndex(table => table.id == id)
+          let i = this.dataForTable.findIndex(table => table.id == dataDetails.id)
           this.dataForTable[i].content_count = c_c
           this.util.hidePageLoader();
           this.util.showSuccess(response.message, 3000);
