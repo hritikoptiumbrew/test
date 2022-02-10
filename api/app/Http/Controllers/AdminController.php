@@ -4679,7 +4679,7 @@ class AdminController extends Controller
      * "data": {}
      * }
      */
-    public function editJsonData(Request $request_body)
+    public function editJsonDataOldVersion(Request $request_body)
     {
 
         try {
@@ -4825,6 +4825,199 @@ class AdminController extends Controller
 
         } catch
         (Exception $e) {
+            Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function editJsonData(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            //Required parameter
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'sub_category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
+                return $response;
+
+            $category_id = $request->category_id;
+            $sub_category_id = $request->sub_category_id;
+            $is_featured_catalog = $request->is_featured_catalog;
+            $is_catalog = 0;//Here we are passed 0 bcz this is not image of catalog, this is normal images
+            $img_id = $request->img_id;
+            $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
+            $is_featured = $request->is_featured;
+            $json_data = $request->json_data;
+            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
+            $old_file = isset($request->old_file) ? $request->old_file : "";
+            $old_gif_file = isset($request->old_gif_file) ? $request->old_gif_file : "";
+            $old_after_file = isset($request->old_after_file) ? $request->old_after_file : "";
+            $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
+            $search_category = implode(',', array_unique(array_filter(explode(',', $search_category))));
+            $height = $width = $original_img_height = $original_img_width = NULL;
+            $content_type = Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE');
+
+            //check this json is multi-page or single-page
+            $is_multi_page_json = DB::select('SELECT 1 FROM images WHERE id = ? AND json_pages_sequence IS NOT NULL',[$img_id]);
+
+            if($is_multi_page_json){
+                foreach ($json_data AS $i => $json) {
+                    if (($response = (new ImageController())->validateFonts($json)) != '')
+                        return $response;
+                }
+            }else{
+                if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                    return $response;
+            }
+
+            if ($request_body->hasFile('file')) {
+
+                $image_array = Input::file('file');
+
+                if($is_multi_page_json){
+
+                    $all_images_array = [];
+                    foreach ($image_array AS $i => $image_detail){
+                        $all_images_array[$image_detail->getClientOriginalName()] = $image_detail;
+                    }
+
+                    foreach ($json_data AS $i => $json) {
+                        if (($response = (new ImageController())->verifySampleImage($all_images_array[$json_data->sample_image], $category_id, $is_featured_catalog, $is_catalog)) != '')
+                            return $response;
+
+                        if (($response = (new ImageController())->validateHeightWidthOfSampleImage($all_images_array[$json_data->sample_image], $json_data)) != '')
+                            return $response;
+                    }
+
+                } else {
+                    if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                        return $response;
+
+                    if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
+                        return $response;
+                }
+
+                (new ImageController())->saveOriginalImage($old_file);
+                (new ImageController())->saveCompressedImage($old_file);
+                (new ImageController())->saveThumbnailImage($old_file);
+                $file_name = (new ImageController())->saveWebpOriginalImage($old_file);
+                $dimension = (new ImageController())->saveWebpThumbnailImage($old_file);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($old_file);
+                    (new ImageController())->saveWebpImageInToS3($file_name);
+                }
+
+                $height = $dimension['height'];
+                $width = $dimension['width'];
+                $original_img_height = $dimension['org_img_height'];
+                $original_img_width = $dimension['org_img_width'];
+
+                if (!strstr($file_name, '.webp')) {
+                    Log::error('editJsonData : webp is not converted due to size grater than original.', ['file_name' => $file_name]);
+                }
+            }
+
+            if ($sub_category_id == Config::get('constant.SUB_CATEGORY_ID_OF_MOCK_UP') && $request_body->hasFile('gif_file')) {
+
+                $gif_array = Input::file('gif_file');
+                $content_type = Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF');
+
+                if (($response = (new ImageController())->verifySampleGif($gif_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+//                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($gif_array, $json_data)) != '')
+//                    return $response;
+
+                if (($response = (new ImageController())->validateAspectRatioOfSampleImage($gif_array, $json_data)) != '')
+                    return $response;
+
+                if(!$old_gif_file){
+                    $old_gif_file = pathinfo($old_file, PATHINFO_FILENAME) . "." . pathinfo(basename($gif_array->getClientOriginalName()), PATHINFO_EXTENSION);
+                }
+
+                (new ImageController())->saveFileByPath($gif_array, $old_gif_file, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'), "video");
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveFileInToS3ByPath($old_gif_file, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'), "video");
+                }
+
+            }
+
+            if ($sub_category_id == Config::get('constant.SUB_CATEGORY_ID_OF_MOCK_UP') && $request_body->hasFile('after_file')) {
+
+                $after_image_array = Input::file('after_file');
+                $content_type = Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE');
+
+                if (($response = (new ImageController())->verifySampleImage($after_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                if($is_multi_page_json){
+                    foreach ($json_data AS $i => $json) {
+                        if (($response = (new ImageController())->validateHeightWidthOfSampleImage($after_image_array, $json)) != '')
+                            return $response;
+                    }
+                } else {
+                    if (($response = (new ImageController())->validateHeightWidthOfSampleImage($after_image_array, $json_data)) != '')
+                        return $response;
+                }
+
+                if(!$old_after_file){
+                    $old_after_file = "after_image_" . pathinfo($old_file, PATHINFO_FILENAME) . "." . pathinfo(basename($after_image_array->getClientOriginalName()), PATHINFO_EXTENSION);
+                }
+
+                (new ImageController())->saveFileByPath($after_image_array, $old_after_file, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+                (new ImageController())->saveCompressedImage($old_after_file);
+                (new ImageController())->saveThumbnailImage($old_after_file);
+                $after_file_name = (new ImageController())->saveWebpOriginalImage($old_after_file);
+                $after_file_dimension = (new ImageController())->saveWebpThumbnailImage($old_after_file);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($old_after_file);
+                    (new ImageController())->saveWebpImageInToS3($after_file_name);
+                }
+            }
+
+            DB::beginTransaction();
+            DB::update('UPDATE
+                            images 
+                        SET 
+                            json_data = ?, 
+                            is_free = ?, 
+                            is_ios_free = ?, 
+                            is_featured = ?, 
+                            is_portrait = ?, 
+                            search_category = ?,
+                            content_type = ?,
+                            height = IF(? != "", ?, height),
+                            width = IF(? != "", ?, width),
+                            original_img_height = IF(? != "", ?, original_img_height),
+                            original_img_width = IF(? != "", ?, original_img_width)
+                        WHERE 
+                            id = ?', [json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $content_type, $height, $height, $width, $width, $original_img_height, $original_img_height, $original_img_width, $original_img_width, $img_id]);
+            DB::commit();
+
+            $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND attribute1 IS NULL', [$img_id]);
+            if (count($is_exist) > 0) {
+                Log::error('editJsonData : attribute1 is null : please revert the code', ['img_id' => $img_id]);
+            }
+
+            $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND width IS NULL AND height IS NULL AND attribute1 IS NOT NULL', [$img_id]);
+            if (count($is_exist) > 0) {
+                Log::error('editJsonData : attribute1 is null, width is null, height is null : please revert the code', ['img_id' => $img_id]);
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+
+        } catch (Exception $e) {
             Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();

@@ -7687,7 +7687,7 @@ class UserController extends Controller
             if (!$redis_result['data']['total_record']) {
 
                 Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count");
-                $redis_result = Cache::remember("searchCardsBySubCategoryId:$this->sub_category_id:$this->offset:$this->item_count", 10080, function () {
+                $redis_result = Cache::remember("default:searchCardsBySubCategoryId:$this->sub_category_id:$this->offset:$this->item_count", 10080, function () {
 
                     $code = 427;
                     $message = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";
