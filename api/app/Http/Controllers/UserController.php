@@ -7669,12 +7669,17 @@ class UserController extends Controller
 
             });
 
-            if (!$redis_result['data']['total_record'] && !$this->is_search_category_changed && Config::get('constant.APP_ENV') != 'local' && Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app') {
+            if (!$redis_result['data']['total_record'] && !$this->is_search_category_changed) {
 
                 Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count");
                 $this->is_search_category_changed = 1;
                 $translate_data = $this->translateLanguage($this->search_category, "en");
-                $suggestions = $this->spellCorrection($translate_data['data']['source'], $this->search_category);
+
+                if(Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app' && Config::get('constant.APP_ENV') != 'local') {
+                    $suggestions = $this->spellCorrection($translate_data['data']['source'], $this->search_category);
+                }else{
+                    $suggestions['data'] = array();
+                }
 
                 if($suggestions['data'] || $translate_data['data']['text']) {
                     $this->search_category = trim($translate_data['data']['text'] .",". implode(',',array_slice($suggestions['data'], 0, 5)), ",");
@@ -7748,6 +7753,7 @@ class UserController extends Controller
                     return array('code' => $code, 'message' => $message, 'cause' => '', 'data' => $search_result);
 
                 });
+                $redis_result['message'] = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";
             }
 
             return $redis_result;
@@ -7802,7 +7808,8 @@ class UserController extends Controller
     {
         try {
             $suggestions = array();
-            $spellLink = pspell_new($language_dictionary);
+            //$spellLink = pspell_new($language_dictionary);
+            $spellLink = pspell_new("en");
             if (!pspell_check($spellLink, $text)) {
                 $suggestions = pspell_suggest($spellLink, $text);
                 Log::info('spellCorrection : Spell suggestion.', ['user_tag' => $text, 'suggestion' => $suggestions, 'language_dictionary' => $language_dictionary]);
@@ -8346,6 +8353,11 @@ class UserController extends Controller
         return $response;
     }
 
+    /*
+    Purpose : For add font name as tag in catalog.
+    Description : This method compulsory take 1 argument as parameter.(if any argument is optional then define it here).
+    Return : return Tag added successfully if success otherwise error with specific status code
+    */
     public function addFontNameAsTag(Request $request_body)
     {
         try {
@@ -8564,6 +8576,162 @@ class UserController extends Controller
         } catch (Exception $e) {
             Log::error("removeDuplicateTagInUserSearchTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'change page.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function copyCatalogFromOldToNew(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('old_sub_category_id', 'new_sub_category_id'), $request)) != '')
+                return $response;
+
+            $old_sub_category_id = $request->old_sub_category_id;
+            $new_sub_category_id = $request->new_sub_category_id;
+            $create_at = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
+            $old_all_catalog_id = DB::select('SELECT 
+                                            id,
+                                            name,
+                                            image
+                                        FROM 
+                                            catalog_master 
+                                        WHERE 
+                                            is_featured = 1 AND
+                                            is_active = 1 AND 
+                                            id IN (SELECT catalog_id FROM sub_category_catalog WHERE sub_category_id = ?)
+                                        ORDER by updated_at DESC', [$old_sub_category_id]);
+
+            Log::info('copyCatalogFromOldToNew : 1.old all catalog id',["id" => $old_all_catalog_id]);
+
+            $old_all_catalog_id_array = array_column($old_all_catalog_id, 'id');
+            $old_all_catalog_id_str = implode(',',$old_all_catalog_id_array);
+
+            $old_all_img_array = array_column($old_all_catalog_id, 'image');
+            $old_all_img_str = '"' . implode('","',$old_all_img_array) . '"';
+
+            Log::info('copyCatalogFromOldToNew : 2.old all catalog detail',["old_id_array" => $old_all_catalog_id_array, "old_id_str" => $old_all_catalog_id_str, "old_img_array" => $old_all_img_array, "old_img_str" => $old_all_img_str]);
+
+            DB::insert('INSERT INTO catalog_master
+                              (name, catalog_type, image, icon, landscape_image, portrait_image, landscape_webp, portrait_webp, is_free, is_ios_free, is_featured, is_active, event_date, popularity_rate, search_category, created_at, updated_at, attribute1, attribute2, attribute3, attribute4, attribute5)
+                        SELECT name, catalog_type, image, icon, landscape_image, portrait_image, landscape_webp, portrait_webp, is_free, is_ios_free, is_featured, is_active, event_date, popularity_rate, search_category, created_at, updated_at, attribute1, attribute2, attribute3, attribute4, id
+                              FROM catalog_master
+                        WHERE id IN ('.$old_all_catalog_id_str.')  ');
+
+
+            $new_all_catalog_db = DB::select('SELECT 
+                                                    id AS catalog_id, 
+                                                    ? AS sub_category_id,
+                                                    ? AS created_at
+                                              FROM 
+                                                    catalog_master 
+                                              WHERE image IN ('.$old_all_img_str.') AND id NOT IN ('.$old_all_catalog_id_str.') ',
+                [$new_sub_category_id, $create_at]);
+            Log::info('mixSinglePageWithMultiPage : 3.new all catalog id',["id" => $new_all_catalog_db]);
+
+
+            $new_all_catalog_id_array = array_column($new_all_catalog_db, 'catalog_id');
+            $new_all_catalog_id_str = implode(',',$new_all_catalog_id_array);
+            Log::info('mixSinglePageWithMultiPage : 4.new all catalog detail',["new_id_array" => $new_all_catalog_id_array, "new_id_str" => $new_all_catalog_id_str]);
+
+            $sub_category_catalog_data = json_decode(json_encode($new_all_catalog_db), true);
+            DB::table('sub_category_catalog')->insert($sub_category_catalog_data);
+            DB::commit();
+
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
+            $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
+
+            $response = Response::json(array('code' => 200, 'message' => 'catalog copied successfully.', 'cause' => '', 'data' => $sub_category_catalog_data));
+
+        } catch (Exception $e) {
+            Log::error("copyCatalogFromOldToNew : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function mixSinglePageWithMultiPage(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('first_page_json_ids', 'second_page_json_ids'), $request)) != '')
+                return $response;
+
+            $first_page_json_ids = $request->first_page_json_ids;
+            $second_page_json_ids = $request->second_page_json_ids;
+            $new_data_ids = [];
+
+            DB::beginTransaction();
+            foreach ($first_page_json_ids AS $i => $first_page_json_id){
+
+                $multiple_images = [];
+
+                $first_page_json_data = DB::select('SELECT * FROM images WHERE id = ?', [$first_page_json_id]);
+                $second_page_json_data = DB::select('SELECT * FROM images WHERE id = ?', [$second_page_json_ids[$i]]);
+                $new_catalog_detail = DB::select('SELECT id FROM catalog_master WHERE attribute5 = ?', [$first_page_json_data[0]->catalog_id]);
+
+                if($new_catalog_detail){
+                    $new_catalog_id = $new_catalog_detail[0]->id;
+                }else{
+                    Log::error("mixSinglePageWithMultiPage : new catalog_id not found :", ["first_page_json_id" => $first_page_json_id, "second_page_json_id" => $second_page_json_ids[$i], "new_catalog_detail" => $new_catalog_detail]);
+                    continue;
+                }
+
+                $first_page_rand_no = rand(100001, 999999);
+                $second_page_rand_no = rand(100001, 999999);
+
+                if($first_page_rand_no == $second_page_rand_no){
+                    Log::info('mixSinglePageWithMultiPage : random number :',["first_page_rand_no" => $first_page_rand_no, "second_page_rand_no" => $second_page_rand_no]);
+                    continue;
+                }
+
+                $multiple_images[$first_page_rand_no] = array("name" => $first_page_json_data[0]->image, "webp_name" => $first_page_json_data[0]->attribute1, "width" => $first_page_json_data[0]->width, "height" => $first_page_json_data[0]->height, "org_img_width" => $first_page_json_data[0]->original_img_width, "org_img_height" => $first_page_json_data[0]->original_img_height, "page_id" => $first_page_rand_no);
+                $multiple_images[$second_page_rand_no] = array("name" => $second_page_json_data[0]->image, "webp_name" => $second_page_json_data[0]->attribute1, "width" => $second_page_json_data[0]->width, "height" => $second_page_json_data[0]->height, "org_img_width" => $second_page_json_data[0]->original_img_width, "org_img_height" => $second_page_json_data[0]->original_img_height, "page_id" => $second_page_rand_no);
+
+                $first_page_json = json_decode($first_page_json_data[0]->json_data);
+                $first_page_json->page_id = $first_page_rand_no;
+
+                $second_page_json = json_decode($second_page_json_data[0]->json_data);
+                $second_page_json->page_id = $second_page_rand_no;
+
+                $all_page_new_json_data = json_decode('{}');
+                $all_page_new_json_data->{$first_page_rand_no} = $first_page_json;
+                $all_page_new_json_data->{$second_page_rand_no} = $second_page_json;
+
+                $json_pages_sequence = $first_page_rand_no . "," . $second_page_rand_no;
+                $search_category = implode(',', array_filter(array_unique(explode(',', $first_page_json_data[0]->search_category . "," . $second_page_json_data[0]->search_category))));
+
+                $new_data = NULL;
+                $new_data = json_decode(json_encode($first_page_json_data[0]), true);
+                $new_data['id'] = NULL;
+                $new_data['catalog_id'] = $new_catalog_id;
+                $new_data['multiple_images'] = json_encode($multiple_images);
+                $new_data['json_data'] = json_encode($all_page_new_json_data);
+                $new_data['json_pages_sequence'] = $json_pages_sequence;
+                $new_data['is_multipage'] = 1;
+                $new_data['search_category'] = $search_category;
+
+                $new_data_ids[] = DB::table('images')->insertGetId($new_data);
+            }
+            DB::commit();
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
+            $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
+
+            $response = Response::json(array('code' => 200, 'message' => 'Template mixed successfully.', 'cause' => '', 'data' => $new_data_ids));
+
+        } catch (Exception $e) {
+            Log::error("mixSinglePageWithMultiPage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
