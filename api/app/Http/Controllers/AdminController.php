@@ -2923,51 +2923,6 @@ class AdminController extends Controller
         return $response;
     }
 
-    public function linkMultiPleCatalog(Request $request)
-    {
-        try {
-            $token = JWTAuth::getToken();
-            JWTAuth::toUser($token);
-
-            $request = json_decode($request->getContent());
-            //Log::info("linkCatalog Request :", [$request]);
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
-                return $response;
-
-            //$query=DB::select('select * from sub_category_catalog WHERE sub_category_id = ? AND catalog_id = ?',[$sub_category_id,$catalog_id]);
-            $catalog_ids = $request->catalog_ids;
-            $sub_category_id = $request->sub_category_id;
-            $create_at = date('Y-m-d H:i:s');
-            $data = array();
-
-            foreach ($catalog_ids AS $i => $catalog_id) {
-
-                $catalog_name = DB::select('SELECT name FROM catalog_master WHERE id = ?', [$catalog_id]);
-
-                if (($response = (new VerificationController())->checkIsCatalogExist($sub_category_id, $catalog_name[0]->name, $catalog_id)) != '') {
-                    $sub_category_name = DB::select('SELECT name FROM sub_category WHERE id = ?', [$sub_category_id]);
-                    return $response = Response::json(array('code' => 201, 'message' => '"' . $catalog_name[0]->name . '" already exist in "' . $sub_category_name[0]->name . '" category.', 'cause' => '', 'data' => json_decode("{}")));
-                }
-
-                $data[] = ['sub_category_id' => $sub_category_id, 'catalog_id' => $catalog_id, 'created_at' => $create_at];
-
-            }
-
-            DB::beginTransaction();
-            DB::table('sub_category_catalog')->insert($data);
-            DB::commit();
-            (new UserController())->deleteAllRedisKeys("getCatalogBySubCategoryId$sub_category_id");
-
-            $response = Response::json(array('code' => 200, 'message' => 'Catalog linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
-        } catch (Exception $e) {
-            Log::error("linkMultiPleCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'link catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
-        }
-        return $response;
-    }
-
     /**
      * @api {post} deleteLinkedCatalog deleteLinkedCatalog
      * @apiName deleteLinkedCatalog
