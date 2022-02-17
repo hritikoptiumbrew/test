@@ -7784,31 +7784,30 @@ class UserController extends Controller
             $this->offset = $offset;
             $this->item_count = $item_count;
             $this->is_featured = $is_featured;
-            $category_id = isset($request->category_id) ? $request->category_id : 4;
-            $this->is_verified = 1;
 
-            $redis_result = Cache::rememberforever("searchCatalogBySubCategoryId$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
+            $redis_result = Cache::rememberforever("searchCatalogBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
 
                 $search_category = $this->search_category;
                 $code = 200;
                 $message = "Catalog fetched successfully.";
 
-                if ($this->is_verified == 1) {
-                    $total_row_result = DB::select('SELECT
-                                                      count(*) AS total
+                $total_row_result = DB::select('SELECT
+                                                      COUNT(*) AS total
                                                     FROM
                                                       catalog_master AS cm,
-                                                      sub_category_catalog as sct
+                                                      sub_category_catalog AS sct
                                                     WHERE
                                                       sct.sub_category_id = ? AND
                                                       sct.catalog_id = cm.id AND
                                                       cm.is_featured = ? AND
                                                       sct.is_active = 1 AND
-                                                      (MATCH(cm.search_category) AGAINST("' . $this->search_category . '") OR 
-                                                        MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ")  IN BOOLEAN MODE))',
-                        [$this->sub_category_id,$this->is_featured]);
+                                                      (MATCH(cm.search_category) AGAINST("' . $search_category . '") OR 
+                                                        MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE))',
+                    [$this->sub_category_id, $this->is_featured]);
 
-                    $total_row = $total_row_result[0]->total;
+                $total_row = $total_row_result[0]->total;
+
+                if ($total_row) {
 
                     $search_result = DB::select('SELECT
                                                     cm.id AS catalog_id,
@@ -7837,11 +7836,10 @@ class UserController extends Controller
                 } else {
                     $search_result = [];
                     $total_row = 0;
+                    $code = 427;
+                    $message = "Sorry, we couldn't find any templates for '$search_category'";
                 }
 
-                if($total_row <= 0){
-                    $message="Sorry, we couldn't find any catalog for '$search_category'";
-                }
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                 $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
 
@@ -7850,17 +7848,14 @@ class UserController extends Controller
                 return $result;
             });
 
-            if (!$redis_result) {
-                $redis_result = array('category_list' => array(), 'code' => 200, 'message' => "Sorry,There are no any catalog.");
-            }
-
-            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['category_list']));
+            $response = array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['category_list']);
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
             Log::error("searchCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}"));
         }
+        return $response;
     }
 
     /*
