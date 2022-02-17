@@ -3766,7 +3766,8 @@ class AdminController extends Controller
             $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_advertise_links where is_active = ? AND sub_category_id = ?', [1, $this->sub_category_id]);
             $total_row = $total_row_result[0]->total;
             //return $total_row_result;
-                $redis_result = Cache::rememberforever("getAllLink$this->page:$this->item_count:$this->sub_category_id", function () {
+
+            $redis_result = Cache::rememberforever("getAllLink$this->page:$this->item_count:$this->sub_category_id", function () {
                     return DB::select('SELECT
                                         adl.id as advertise_link_id,
                                         adl.name,
@@ -3806,7 +3807,7 @@ class AdminController extends Controller
 //                                        sadl.is_active=1
 //                                      order by adl.updated_at DESC
 //                                      LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
-                });
+            });
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -5801,7 +5802,6 @@ class AdminController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
 
-
             $redis_result = Cache::rememberforever("getAdvertiseServerIdForAdmin$this->sub_category_id", function () {
 
                 $category = DB::select('SELECT
@@ -7371,7 +7371,6 @@ class AdminController extends Controller
 
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
-
 
             $redis_result = Cache::rememberforever("getAllServerUrls", function () {
                 return DB::select('SELECT
