@@ -8490,7 +8490,7 @@ class UserController extends Controller
             $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
             $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
 
-            $response = Response::json(array('code' => 200, 'message' => 'template copied successfully.', 'cause' => '', 'data' => $result));
+            $response = Response::json(array('code' => 200, 'message' => 'template copied successfully.', 'cause' => '', 'data' => count($old_json_array)));
 
         } catch (Exception $e) {
             Log::error("copyTemplateByCatalogIds : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
