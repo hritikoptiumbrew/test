@@ -21,19 +21,23 @@ class SaveSearchTagJob implements ShouldQueue
     public $search_category;
     public $sub_category_id;
     public $is_success;
+    public $is_featured;
+    public $category_id;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($template_count, $seacrh_tag, $sub_category_id, $is_success)
+    public function __construct($template_count, $seacrh_tag, $sub_category_id,  $is_success, $is_featured, $category_id)
     {
         try {
             $this->template_count = $template_count;
             $this->search_category = $seacrh_tag;
             $this->sub_category_id = $sub_category_id;
             $this->is_success = $is_success;
+            $this->is_featured = $is_featured;
+            $this->category_id = $category_id;
 
         } catch (Exception $e) {
             Log::error("SaveSearchTagJob construct() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
@@ -55,15 +59,17 @@ class SaveSearchTagJob implements ShouldQueue
                                         WHERE
                                             tag = ? AND
                                             is_success = ? AND
-                                            sub_category_id = ?',[$this->search_category, $this->is_success, $this->sub_category_id]);
+                                            is_featured = ? AND 
+                                            category_id = ? AND 
+                                            sub_category_id = ?',[$this->search_category, $this->is_success, $this->is_featured, $this->category_id, $this->sub_category_id]);
 
             if(count($tag_deatils) > 0) {
                 $id = $tag_deatils[0]->id;
                 DB::update('UPDATE tag_analysis_master SET search_count = search_count + 1, content_count = ? WHERE id = ?',[$this->template_count, $id]);
             } else {
                 DB::insert('INSERT INTO
-                               tag_analysis_master(tag, is_success, content_count, search_count, sub_category_id)
-                               VALUES(?, ?, ?, ?, ?)', [$this->search_category, $this->is_success, $this->template_count, 1, $this->sub_category_id]);
+                               tag_analysis_master(tag, is_success, is_featured, category_id, content_count, search_count, sub_category_id)
+                               VALUES(?, ?, ?, ?, ?, ?, ?)', [$this->search_category, $this->is_success, $this->is_featured, $this->category_id, $this->template_count, 1, $this->sub_category_id]);
             }
 
         } catch (Exception $e) {
