@@ -7854,10 +7854,6 @@ class UserController extends Controller
                 $redis_result = array('category_list' => array(), 'code' => 200, 'message' => "Sorry,There are no any catalog.");
             }
 
-            if($this->page == 1) {
-                    SaveSearchTagJob::dispatch($redis_result['category_list']['total_record'], $this->search_category, $this->sub_category_id, $this->is_featured, $category_id);
-            }
-
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['category_list']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
