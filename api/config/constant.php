@@ -199,5 +199,9 @@ return [
     'CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF' => '2',
     'CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE' => '3',
 
+    /* Category Id value */
+    'CATEGORY_ID_OF_STICKER' => '2',
+    'CATEGORY_ID_OF_BACKGROUND' => '3',
+    'CATEGORY_ID_OF_FONTS' => '4',
 
 ];
