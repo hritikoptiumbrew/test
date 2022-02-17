@@ -100,7 +100,6 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     //Link catalog into sub_category
     //Route::post('getAllCatalog', 'AdminController@getAllCatalog'); //Unused APIs
     Route::post('linkCatalog', 'AdminController@linkCatalog');
-    Route::post('linkMultiPleCatalog', 'AdminController@linkMultiPleCatalog');
     Route::post('deleteLinkedCatalog', 'AdminController@deleteLinkedCatalog');
     Route::post('getAllSubCategoryForLinkCatalog', 'AdminController@getAllSubCategoryForLinkCatalog');
 
@@ -388,8 +387,13 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
     Route::post('addCategoryNameAsTag', 'UserController@addCategoryNameAsTag');
     Route::post('addFontNameAsTag', 'UserController@addFontNameAsTag');
-    Route::post('changePageFromSingleToMulti', 'UserController@changePageFromSingleToMulti');
-    Route::post('addPageFromSingleToMulti', 'UserController@addPageFromSingleToMulti');
+
+    Route::post('linkMultiPleCatalog', 'UserController@linkMultiPleCatalog');
+    Route::post('copyCatalogBySubCategoryId', 'UserController@copyCatalogBySubCategoryId');
+    Route::post('copyTemplateByCatalogIds', 'UserController@copyTemplateByCatalogIds');
+    Route::post('updateCardToMultiFormatByCatalogIds', 'UserController@updateCardToMultiFormatByCatalogIds');
+    Route::post('mixSinglePageWithMultiPage', 'UserController@mixSinglePageWithMultiPage');
+
     Route::post('addHeightWidthInSticker', 'UserController@addHeightWidthInSticker');
     Route::post('removeDuplicateTagInUserSearchTag', 'UserController@removeDuplicateTagInUserSearchTag');
 
