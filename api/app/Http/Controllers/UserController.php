@@ -2926,7 +2926,7 @@ class UserController extends Controller
             $offset = ($page - 1) * $item_count;
             $is_user_search_tag = isset($request->is_user_search_tag) ? $request->is_user_search_tag : 1;       //In some applications we have put search tags instead of catalog lists, So if user clicks that search tag that time we don't need to insert this tag in DB.
             $is_featured = isset($request->is_featured) ? $request->is_featured : 1;                //is_featured is use for finding a proper data from DB.
-            $category_id = isset($request->category_id) ? $request->category_id : 2;               //Category id to find, Which category is use.
+            $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');               //Category id to find, Which category is use.
             //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
             //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
 
@@ -2975,9 +2975,9 @@ class UserController extends Controller
             //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
             //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
             $is_featured = isset($request->is_featured) ? $request->is_featured : 1;                //is_featured is use for finding a proper data from DB.
-            $category_id = isset($request->category_id) ? $request->category_id : 2;               //Category id to find, Which category is use.
+            $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');               //Category id to find, Which category is use.
 
-            $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count);
+            $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
 
             if($page == 1 && $is_user_search_tag == 1) {
                 if($redis_result['code'] != 200){
@@ -7784,31 +7784,30 @@ class UserController extends Controller
             $this->offset = $offset;
             $this->item_count = $item_count;
             $this->is_featured = $is_featured;
-            $category_id = isset($request->category_id) ? $request->category_id : 4;
-            $this->is_verified = 1;
 
-            $redis_result = Cache::rememberforever("searchCatalogBySubCategoryId$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
+            $redis_result = Cache::rememberforever("searchCatalogBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
 
                 $search_category = $this->search_category;
                 $code = 200;
                 $message = "Catalog fetched successfully.";
 
-                if ($this->is_verified == 1) {
-                    $total_row_result = DB::select('SELECT
-                                                      count(*) AS total
+                $total_row_result = DB::select('SELECT
+                                                      COUNT(*) AS total
                                                     FROM
                                                       catalog_master AS cm,
-                                                      sub_category_catalog as sct
+                                                      sub_category_catalog AS sct
                                                     WHERE
                                                       sct.sub_category_id = ? AND
                                                       sct.catalog_id = cm.id AND
                                                       cm.is_featured = ? AND
                                                       sct.is_active = 1 AND
-                                                      (MATCH(cm.search_category) AGAINST("' . $this->search_category . '") OR 
-                                                        MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ")  IN BOOLEAN MODE))',
-                        [$this->sub_category_id,$this->is_featured]);
+                                                      (MATCH(cm.search_category) AGAINST("' . $search_category . '") OR 
+                                                        MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE))',
+                    [$this->sub_category_id, $this->is_featured]);
 
-                    $total_row = $total_row_result[0]->total;
+                $total_row = $total_row_result[0]->total;
+
+                if ($total_row) {
 
                     $search_result = DB::select('SELECT
                                                     cm.id AS catalog_id,
@@ -7837,11 +7836,10 @@ class UserController extends Controller
                 } else {
                     $search_result = [];
                     $total_row = 0;
+                    $code = 427;
+                    $message = "Sorry, we couldn't find any templates for '$search_category'";
                 }
 
-                if($total_row <= 0){
-                    $message="Sorry, we couldn't find any catalog for '$search_category'";
-                }
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                 $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
 
@@ -7850,17 +7848,14 @@ class UserController extends Controller
                 return $result;
             });
 
-            if (!$redis_result) {
-                $redis_result = array('category_list' => array(), 'code' => 200, 'message' => "Sorry,There are no any catalog.");
-            }
-
-            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['category_list']));
+            $response = array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['category_list']);
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
             Log::error("searchCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search catalog.', 'cause' => $e->getMessage(), 'data' => json_decode("{}"));
         }
+        return $response;
     }
 
     /*
@@ -8589,7 +8584,7 @@ class UserController extends Controller
             $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
             $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
 
-            $response = Response::json(array('code' => 200, 'message' => 'template copied successfully.', 'cause' => '', 'data' => $result));
+            $response = Response::json(array('code' => 200, 'message' => 'template copied successfully.', 'cause' => '', 'data' => count($old_json_array)));
 
         } catch (Exception $e) {
             Log::error("copyTemplateByCatalogIds : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);

@@ -213,5 +213,5 @@ ALTER TABLE `images` ADD `content_type` TINYINT(1) NULL DEFAULT '1' COMMENT '1=s
 
 44) Photo_editor_lab : perform following query on database (09 Fab, 2022) to identify search tag type.
 ------------------------------------------------------------------------------------------------------------------------
-ALTER TABLE `tag_analysis_master`  ADD `is_featured` TINYINT(1) NOT NULL DEFAULT '1' COMMENT '1=>\'template\' 0=>\'sticker, fonts\' AFTER `is_success`;
-ALTER TABLE `tag_analysis_master`  ADD `category_id` INT(11) NOT NULL DEFAULT '2' COMMENT '2 => \"template, sticker\", 4 => \"fonts\"' AFTER `search_count`;
+ALTER TABLE tag_analysis_master  ADD is_featured TINYINT(1) NULL DEFAULT 1 COMMENT '1=template, 0=sticker,fonts' AFTER is_success;
+ALTER TABLE tag_analysis_master  ADD category_id INT(11) NULL DEFAULT 2 COMMENT '2=template,sticker, 4=fonts' AFTER search_count;
