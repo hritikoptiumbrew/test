@@ -15,6 +15,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\CustomCommand::class,
         Commands\SendTagReport::class,
+        Commands\SendFontsTagReport::class,
+        Commands\SendStickerTagReport::class,
     ];
 
     /**
@@ -27,6 +29,11 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('custom:command')->dailyAt('1:00');
         $schedule->command('SendTagReportMail')->weekly()->mondays()->at('4:00');
+        $schedule->command('SendFontsTagReport')->weekly()->mondays()->at('4:00');
+        $schedule->command('SendStickerTagReport')->weekly()->mondays()->at('4:00');
+//        $schedule->command('SendTagReportMail')->everyMinute();
+//        $schedule->command('SendFontsTagReport')->everyMinute();
+//        $schedule->command('SendStickerTagReport')->everyMinute();
         // $schedule->command('inspire')
         //          ->hourly();
     }

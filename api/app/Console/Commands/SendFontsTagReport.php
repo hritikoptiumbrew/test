@@ -10,21 +10,21 @@ use Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
-class SendTagReport extends Command
+class SendFontsTagReport extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'SendTagReportMail';
+    protected $signature = 'SendFontsTagReports';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Send weekly search tag report mail to admin.';
+    protected $description = 'Send weekly search fonts tag report mail to admin.';
 
     /**
      * Create a new command instance.
@@ -57,8 +57,8 @@ class SendTagReport extends Command
                                         FROM
                                             tag_analysis_master as tam
                                         WHERE 
-                                           tam.is_success = 1 AND
-                                            tam.is_featured = 1 AND
+                                            tam.is_success = 1 AND
+                                            tam.is_featured = 0 AND
                                             tam.category_id = ?
                                         ORDER BY
                                             update_time DESC
@@ -76,13 +76,13 @@ class SendTagReport extends Command
                                             tag_analysis_master AS tam
                                         WHERE 
                                             tam.is_success = 0 AND
-                                            tam.is_featured = 1 AND
+                                            tam.is_featured = 0 AND
                                             tam.category_id = ?
                                         ORDER BY
                                             update_time DESC
                                             LIMIT 20)
                                         ORDER BY is_success DESC, search_count DESC',
-                [Config::get('constant.CATEGORY_ID_OF_STICKER'), Config::get('constant.CATEGORY_ID_OF_STICKER')]);
+            [Config::get('constant.CATEGORY_ID_OF_FONTS'), Config::get('constant.CATEGORY_ID_OF_FONTS')]);
 
             foreach ($tags_detail AS $i => $tag_detail){
                 if(!isset($sub_category_array[$tag_detail->sub_category_id])){
@@ -96,7 +96,7 @@ class SendTagReport extends Command
             if(count($tags_detail) > 0) {
 
                 $host_name = Config::get('constant.APP_HOST_NAME');
-                $subject = "PhotoEditorLab: Search tag analysis report (host: $host_name).";
+                $subject = "PhotoEditorLab: Search font tag analysis report (host: $host_name).";
                 $template = "search_tag_info";
                 $data = array("template" => $template, "subject" => $subject, "message_body" => $tags_detail, "app_name" => $host_name);
 
@@ -107,12 +107,11 @@ class SendTagReport extends Command
                 });
 
             }else{
-                Log::info('SendTagReport : No search tag found for last week.');
+                Log::info('SendFontsTagReport : No search fonts tag found for last week.');
             }
 
         } catch (Exception $e) {
             Log::error("SendTagReport command handle() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
-
 }
