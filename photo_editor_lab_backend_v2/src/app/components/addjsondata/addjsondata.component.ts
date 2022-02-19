@@ -344,6 +344,7 @@ export class AddjsondataComponent implements OnInit {
           "category_id": this.selectedCategory.category_id,
           "is_featured_catalog": this.selectedCataLog.is_featured,
           "img_id": this.upJSonData.img_id,
+          "content_type": this.upJSonData.content_type,
           "is_free": this.selectedPrice,
           "is_ios_free": this.selectedIOSPrice,
           "is_featured": this.selectedType,
