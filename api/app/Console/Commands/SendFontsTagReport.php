@@ -96,9 +96,10 @@ class SendFontsTagReport extends Command
             if(count($tags_detail) > 0) {
 
                 $host_name = Config::get('constant.APP_HOST_NAME');
-                $subject = "PhotoEditorLab: Search font tag analysis report (host: $host_name).";
-                $template = "search_tag_info";
-                $data = array("template" => $template, "subject" => $subject, "message_body" => $tags_detail, "app_name" => $host_name);
+                $subject = "PhotoEditorLab: Search tag analysis report (host: $host_name).";
+                $heading = "Weekly search fonts tag report";
+                $template = "search_tag_report_v2";
+                $data = array("template" => $template, "subject" => $subject, "message_body" => $tags_detail, "app_name" => $host_name, "heading" => $heading);
 
                 Mail::send($data['template'], $data, function ($message) use ($data) {
                     $message->to(Config::get('constant.SUPPORTER_EMAIL_ID'))->subject($data['subject']);

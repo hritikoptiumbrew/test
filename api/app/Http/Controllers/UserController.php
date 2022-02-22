@@ -7696,6 +7696,16 @@ class UserController extends Controller
                 }
             }
 
+            if($this->is_search_category_changed = 1 && $redis_result['data']['total_record']){
+                $old_data = Cache::get('translationReport');
+                $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 1, "sub_category_id" => $this->sub_category_id);
+                Cache::forever('translationReport', $old_data);
+            }elseif($this->is_search_category_changed = 1 && !$redis_result['data']['total_record']){
+                $old_data = Cache::get('translationReport');
+                $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 0, "sub_category_id" => $this->sub_category_id);
+                Cache::forever('translationReport', $old_data);
+            }
+
             if (!$redis_result['data']['total_record']) {
 
                 Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
@@ -7866,6 +7876,8 @@ class UserController extends Controller
     public function translateLanguage($text, $language = "en")
     {
         try {
+//            $redis_result = array("source" => "", "input" => $text, "text" => "coupons", "model" => "");
+//            return array('code' => 200, 'message' => 'Language translation successfully.', 'cause' => '', 'data' => $redis_result);
             $this->text = $text;
             $this->language = $language;
 
