@@ -60,8 +60,6 @@ class SendTranslateTagReport extends Command
                 $old_data[$i]['sub_category_name'] = $sub_category_array[$data['sub_category_id']];
             }
 
-            Log::info("SendTranslateTag : old data : ",["data" => $old_data]);
-
             if(count($old_data) > 0) {
 
                 $host_name = Config::get('constant.APP_HOST_NAME');
@@ -80,7 +78,7 @@ class SendTranslateTagReport extends Command
                 Log::info('SendTranslateTag : No search tag found for last week.');
             }
 
-            //Redis::del('pel:translationReport');
+            Redis::del('pel:translationReport');
 
         } catch (Exception $e) {
             Log::error("SendTagReport command handle() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
