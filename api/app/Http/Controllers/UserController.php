@@ -2962,22 +2962,22 @@ class UserController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'fail_over_sub_category_id', 'page', 'item_count'), $request)) != '')
                 return $response;
 
             $sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
+            $fail_over_sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->fail_over_sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
             $search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
-            $fail_over_sub_category_id = isset($request->fail_over_sub_category_id) ? $request->fail_over_sub_category_id : "";
             $is_user_search_tag = isset($request->is_user_search_tag) ? $request->is_user_search_tag : 1;       //In some applications we have put search tags instead of catalog lists, So if user clicks that search tag that time we don't need to insert this tag in DB.
             //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
             //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
             $is_featured = isset($request->is_featured) ? $request->is_featured : 1;                //is_featured is use for finding a proper data from DB.
             $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');               //Category id to find, Which category is use.
 
-            $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
+            $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $fail_over_sub_category_id);
 
             if($page == 1 && $is_user_search_tag == 1) {
                 if($redis_result['code'] != 200){
@@ -7590,10 +7590,11 @@ class UserController extends Controller
     Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here).
     Return : return template detail if success otherwise error with specific status code
     */
-    public function searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured)
+    public function searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $fail_over_sub_category_id = '')
     {
         try{
             $this->sub_category_id = $sub_category_id;
+            $this->fail_over_sub_category_id = $fail_over_sub_category_id;
             $this->db_search_category = $this->search_category = $search_category;
             $this->offset = $offset;
             $this->item_count = $item_count;
@@ -7601,7 +7602,7 @@ class UserController extends Controller
             $this->is_featured = $is_featured;
 
             run_same_query:
-            $redis_result = Cache::rememberforever("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
+            $redis_result = Cache::rememberforever("searchCardsBySubCategoryId:$this->sub_category_id:$this->fail_over_sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
 
                 $code = 200;
                 $message = "Templates fetched successfully.";
@@ -7671,7 +7672,7 @@ class UserController extends Controller
 
             if (!$redis_result['data']['total_record'] && !$this->is_search_category_changed) {
 
-                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
+                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->fail_over_sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
                 $this->is_search_category_changed = 1;
                 $translate_data = $this->translateLanguage($this->search_category, "en");
 
@@ -7689,9 +7690,24 @@ class UserController extends Controller
                 }
             }
 
+            if($this->is_search_category_changed = 1 && $redis_result['data']['total_record']){
+                $old_data = Cache::get('translationReport');
+                $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 1, "sub_category_id" => $this->sub_category_id);
+                Cache::forever('translationReport', $old_data);
+            }elseif($this->is_search_category_changed = 1 && !$redis_result['data']['total_record']){
+                $old_data = Cache::get('translationReport');
+                $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 0, "sub_category_id" => $this->sub_category_id);
+                Cache::forever('translationReport', $old_data);
+                if($this->fail_over_sub_category_id) {
+                    $this->sub_category_id = $this->fail_over_sub_category_id;
+                    $this->search_category = $this->db_search_category;
+                    goto run_same_query;
+                }
+            }
+
             if (!$redis_result['data']['total_record']) {
 
-                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
+                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->fail_over_sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
                 $redis_result = Cache::remember("default:searchCardsBySubCategoryId:$this->sub_category_id:$this->is_featured:$this->offset:$this->item_count", 10080, function () {
 
                     $code = 427;
@@ -7765,10 +7781,10 @@ class UserController extends Controller
     }
 
     /*
-   Purpose : To search catalog using search tag in admin side.
-   Description : This method compulsory take 5 argument as parameter.(if any argument is optional then define it here).
-   Return : return template. if success otherwise give error.
-   */
+    Purpose : To search catalog using search tag in admin side.
+    Description : This method compulsory take 5 argument as parameter.(if any argument is optional then define it here).
+    Return : return template. if success otherwise give error.
+    */
     public function searchCatalogsBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured)
     {
         try {

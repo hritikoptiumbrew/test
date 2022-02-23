@@ -262,7 +262,7 @@
                                             bgcolor="#ffffff">
                                             {{--                                            <h1 style="text-transform: uppercase; margin: 0; font-family: 'Montserrat', sans-serif; font-size: 24px; line-height: 36px; color: #565566; font-weight: bold;">Hi--}}
                                             {{--                                                {!! $message_body['user_name'] !!}</h1>--}}
-                                            <h2>Weekly search tag report </h2>
+                                            <h2>{{ $heading }} </h2>
                                             <h3>Application name : {{ $app_name }} </h3>
                                             <p>This is search tag report of last 20 success & last 20 fail.</p>
                                         </td>

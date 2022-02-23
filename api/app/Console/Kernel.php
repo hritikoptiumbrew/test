@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         Commands\SendTagReport::class,
         Commands\SendFontsTagReport::class,
         Commands\SendStickerTagReport::class,
+        Commands\SendTranslateTagReport::class,
     ];
 
     /**
@@ -31,9 +32,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('SendTagReportMail')->weekly()->mondays()->at('4:00');
         $schedule->command('SendFontsTagReport')->weekly()->mondays()->at('4:00');
         $schedule->command('SendStickerTagReport')->weekly()->mondays()->at('4:00');
-//        $schedule->command('SendTagReportMail')->everyMinute();
-//        $schedule->command('SendFontsTagReport')->everyMinute();
-//        $schedule->command('SendStickerTagReport')->everyMinute();
+        $schedule->command('SendTranslateTagReport')->weekly()->mondays()->at('4:00');
         // $schedule->command('inspire')
         //          ->hourly();
     }
