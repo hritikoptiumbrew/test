@@ -7700,7 +7700,8 @@ class UserController extends Controller
                 Cache::forever('translationReport', $old_data);
                 if($this->fail_over_sub_category_id) {
                     $this->sub_category_id = $this->fail_over_sub_category_id;
-                    $this->search_category = $this->db_search_category;
+                    $this->search_category = $this->search_category . " " . $this->db_search_category;
+                    $this->fail_over_sub_category_id = NULL;
                     goto run_same_query;
                 }
             }

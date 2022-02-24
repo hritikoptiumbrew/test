@@ -4609,13 +4609,21 @@ class AdminController extends Controller
             $json_data = $request->json_data;
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
             $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
+            $search_category = implode(',', array_unique(array_filter(explode(',', $search_category))));
             $content_type = isset($request->content_type) ? $request->content_type : Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE');
-
-            if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
-                return $response;
+            $image_array = Input::file('file');
+            $gif_array = Input::file('gif_file');
+            $after_image_array = Input::file('after_file');
+            $catalog_image = $file_name = NULL;
+            $dimension = array('height' => '', 'width' => '', 'org_img_height' => '', 'org_img_width' => '');
 
             //check this json is multi-page or single-page
-            $is_multi_page_json = DB::select('SELECT 1 FROM images WHERE id = ? AND json_pages_sequence IS NOT NULL',[$img_id]);
+            $old_image_details = DB::select('SELECT image, content_type, json_pages_sequence, is_multipage, height, width, original_img_height, original_img_width, attribute1 FROM images WHERE id = ?',[$img_id]);
+            $is_multi_page_json = $old_image_details[0]->is_multipage;
+
+            if ((count($old_image_details) > 0) && (!$old_image_details[0]->height || !$old_image_details[0]->width || !$old_image_details[0]->attribute1)) {
+                Log::error('editJsonData : please revert the code.', ['img_id' => $img_id, 'height' => $old_image_details[0]->height, 'width' => $old_image_details[0]->width, 'attribute1' => $old_image_details[0]->attribute1]);
+            }
 
             if($is_multi_page_json){
                 foreach ($json_data AS $i => $json) {
@@ -4627,9 +4635,112 @@ class AdminController extends Controller
                     return $response;
             }
 
+            if($gif_array){
 
-            if ($request_body->hasFile('file') && $content_type == Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE')) {
-                $image_array = Input::file('file');
+                if(!$image_array){
+                    return Response::json(array('code' => 201, 'message' => 'Required field file or gif_file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+                }
+
+                if (($response = (new ImageController())->verifySampleGif($gif_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+//                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($gif_array, $json_data)) != '')
+//                    return $response;
+
+                if (($response = (new ImageController())->validateAspectRatioOfSampleImage($gif_array, $json_data)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
+                    return $response;
+
+                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
+                $gif_image_name = pathinfo($catalog_image, PATHINFO_FILENAME) . "." . pathinfo(basename($gif_array->getClientOriginalName()), PATHINFO_EXTENSION);
+
+                (new ImageController())->saveFileByPath($gif_array, $gif_image_name, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'), "video");
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveFileInToS3ByPath($gif_image_name, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'), "video");
+                }
+
+                (new ImageController())->saveOriginalImage($catalog_image);
+                (new ImageController())->saveCompressedImage($catalog_image);
+                (new ImageController())->saveThumbnailImage($catalog_image);
+                $file_name = (new ImageController())->saveWebpOriginalImage($catalog_image);
+                $dimension = (new ImageController())->saveWebpThumbnailImage($catalog_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($catalog_image);
+                    (new ImageController())->saveWebpImageInToS3($file_name);
+                }
+
+                (new ImageController())->deleteImage($old_image_details[0]->image);
+                (new ImageController())->deleteWebpImage($old_image_details[0]->attribute1);
+                if($content_type == Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF')) {
+                    $old_gif_image_name = pathinfo($old_image_details[0]->image, PATHINFO_FILENAME) . ".gif";
+                    (new ImageController())->deleteFileByPath($old_gif_image_name, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'), "video");
+                }
+                $content_type = Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF');
+
+            }
+
+            if($after_image_array){
+
+                if(!$image_array){
+                    return Response::json(array('code' => 201, 'message' => 'Required field file or after_file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+                }
+
+                if (($response = (new ImageController())->verifySampleImage($after_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($after_image_array, $json_data)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
+                    return $response;
+
+                $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
+                $after_image_name = "after_image_".$catalog_image;
+
+                (new ImageController())->saveFileByPath($after_image_array, $after_image_name, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+                (new ImageController())->saveCompressedImage($after_image_name);
+                (new ImageController())->saveThumbnailImage($after_image_name);
+                $after_file_name = (new ImageController())->saveWebpOriginalImage($after_image_name);
+                $dimension = (new ImageController())->saveWebpThumbnailImage($after_image_name);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($after_image_name);
+                    (new ImageController())->saveWebpImageInToS3($after_file_name);
+                }
+
+                (new ImageController())->saveOriginalImage($catalog_image);
+                (new ImageController())->saveCompressedImage($catalog_image);
+                (new ImageController())->saveThumbnailImage($catalog_image);
+                $file_name = (new ImageController())->saveWebpOriginalImage($catalog_image);
+                $dimension = (new ImageController())->saveWebpThumbnailImage($catalog_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($catalog_image);
+                    (new ImageController())->saveWebpImageInToS3($file_name);
+                }
+
+                (new ImageController())->deleteImage($old_image_details[0]->image);
+                (new ImageController())->deleteWebpImage($old_image_details[0]->attribute1);
+                if($content_type == Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE')) {
+                    (new ImageController())->deleteImage("after_image_".$old_image_details[0]->image);
+                    (new ImageController())->deleteWebpImage("after_image_".$old_image_details[0]->attribute1);
+                }
+                $content_type = Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE');
+
+            }
+
+            if($image_array && !$gif_array && !$after_image_array){
+
                 if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
                     return $response;
 
@@ -4643,11 +4754,6 @@ class AdminController extends Controller
                         return $response;
                 }
 
-//                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
-//                if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
-//                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
-//                }
-
                 $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
                 (new ImageController())->saveOriginalImage($catalog_image);
                 (new ImageController())->saveCompressedImage($catalog_image);
@@ -4660,73 +4766,43 @@ class AdminController extends Controller
                     (new ImageController())->saveWebpImageInToS3($file_name);
                 }
 
-                DB::beginTransaction();
-                /*DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $file_name, $img_id]);*/
+                (new ImageController())->deleteImage($old_image_details[0]->image);
+                (new ImageController())->deleteWebpImage($old_image_details[0]->attribute1);
 
-                DB::update('UPDATE
-                                images SET image = ?, json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, search_category = ?, height = ?, width = ?, original_img_height = ?, original_img_width = ?, attribute1 = ?
-                                WHERE id = ?', [$catalog_image, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $file_name, $img_id]);
-                DB::commit();
+                if($content_type == Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF')) {
+                    $old_gif_image_name = pathinfo($old_image_details[0]->image, PATHINFO_FILENAME) . ".gif";
+                    (new ImageController())->deleteFileByPath($old_gif_image_name, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'), "video");
 
-                if (strstr($file_name, '.webp')) {
-
-                    $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
-
-
-                } else {
-                    $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' => json_decode('{}')));
-
+                }elseif($content_type == Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE')) {
+                    (new ImageController())->deleteImage("after_image_".$old_image_details[0]->image);
+                    (new ImageController())->deleteWebpImage("after_image_".$old_image_details[0]->attribute1);
                 }
-            } else {
-
-                /* generate webp original & thumbnail from original image (genearte webp for uploaded jpg/png samples) */
-                $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND attribute1 IS NULL', [$img_id]);
-
-                if (count($is_exist) > 0) {
-
-                    //Log::info('webp original');
-                    $file_data = (new ImageController())->saveWebpImage($is_exist[0]->image);
-
-                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
-                        (new ImageController())->saveWebpImageInToS3($file_data['filename']);
-                    }
-
-                    DB::beginTransaction();
-                    DB::update('UPDATE
-                                images SET height = ?, width = ?, attribute1 = ?
-                                WHERE id = ?', [$file_data['height'], $file_data['width'], $file_data['filename'], $img_id]);
-                    DB::commit();
-                }
-
-
-                /* generate webp thumbnail from original image when webp thumbnail is not exist */
-                $is_exist = DB::select('SELECT * FROM images WHERE id = ? AND width IS NULL AND height IS NULL AND attribute1 IS NOT NULL', [$img_id]);
-                if (count($is_exist) > 0) {
-
-                    //Log::info('webp thumbnail');
-                    $dimension = (new ImageController())->saveWebpThumbnailImageFromS3($is_exist[0]->image);
-
-                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
-                        (new ImageController())->saveWebpThumbnailImageInToS3($is_exist[0]->attribute1);
-                    }
-                    DB::beginTransaction();
-                    DB::update('UPDATE
-                                images SET height = ?, width =?
-                                WHERE id = ?', [$dimension['height'], $dimension['width'], $img_id]);
-                    DB::commit();
-                }
-
-                DB::beginTransaction();
-                DB::update('UPDATE
-                                images SET json_data = ?, is_free = ?, is_ios_free = ?, is_featured = ?, is_portrait = ?, search_category = ?
-                                WHERE id = ?', [json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $img_id]);
-                DB::commit();
-
-                $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+                $content_type = Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE');
 
             }
+
+            DB::beginTransaction();
+            DB::update('UPDATE
+                            images 
+                        SET 
+                            image = IF(? != "", ?, image),
+                            attribute1 = IF(? != "", ?, attribute1),
+                            json_data = ?, 
+                            is_free = ?, 
+                            is_ios_free = ?, 
+                            is_featured = ?, 
+                            is_portrait = ?, 
+                            search_category = ?,
+                            content_type = ?,
+                            height = IF(? != "", ?, height),
+                            width = IF(? != "", ?, width),
+                            original_img_height = IF(? != "", ?, original_img_height),
+                            original_img_width = IF(? != "", ?, original_img_width)
+                        WHERE 
+                            id = ?', [$catalog_image, $catalog_image, $file_name, $file_name, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $content_type, $dimension['height'], $dimension['height'], $dimension['width'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_height'], $dimension['org_img_width'], $dimension['org_img_width'], $img_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
             Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
