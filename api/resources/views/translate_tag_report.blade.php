@@ -249,7 +249,7 @@
                             <td align="center" valign="middle" width="800px">
                     <![endif]-->
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" width="1400px"
-                           style="max-width:1500px; margin: auto;">
+                           style="max-width:100%; margin: auto;">
                         <tr>
                             <td height="40" style="font-size:20px; line-height:20px;">&nbsp;</td>
                         </tr>
