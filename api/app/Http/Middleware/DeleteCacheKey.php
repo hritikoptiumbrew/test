@@ -27,7 +27,6 @@ class DeleteCacheKey
         return $next($request);
     }
 
-
     public function terminate(Request $request)
     {
         try {

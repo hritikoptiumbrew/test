@@ -33,10 +33,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('SendFontsTagReport')->weekly()->mondays()->at('4:00');
         $schedule->command('SendStickerTagReport')->weekly()->mondays()->at('4:00');
         $schedule->command('SendTranslateTagReport')->weekly()->mondays()->at('4:00');
-//        $schedule->command('SendTagReport')->everyMinute();
-//        $schedule->command('SendFontsTagReport')->everyMinute();
-//        $schedule->command('SendStickerTagReport')->everyMinute();
-//        $schedule->command('SendTranslateTagReport')->everyMinute();
         // $schedule->command('inspire')
         //          ->hourly();
     }

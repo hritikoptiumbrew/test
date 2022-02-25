@@ -386,6 +386,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getBlogContentByIdForUser', 'BlogController@getBlogContentByIdForUser');
 
     Route::post('addCategoryNameAsTag', 'UserController@addCategoryNameAsTag');
+    Route::post('addCategoryNameAsTagV2', 'UserController@addCategoryNameAsTagV2');
     Route::post('addFontNameAsTag', 'UserController@addFontNameAsTag');
 
     Route::post('linkMultiPleCatalog', 'UserController@linkMultiPleCatalog');
@@ -424,6 +425,7 @@ Route::post('testMail', 'AdminController@testMail');
 Route::post('getPhpInfo', 'AdminController@getPhpInfo');
 Route::post('getServerTime', 'AdminController@getServerTime');
 Route::post('deleteAllRedisKeysByKeyName', 'AdminController@deleteAllRedisKeysByKeyName');
+Route::post('getRedisKeysByKeyName', 'AdminController@getRedisKeysByKeyName');
 
 //API to get fonts into font_collection (for designer use)
 Route::post('getAllFonts', 'AdminController@getAllFonts');

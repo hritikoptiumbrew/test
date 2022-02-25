@@ -69,8 +69,7 @@ class SendTranslateTagReport extends Command
                 $data = array("template" => $template, "subject" => $subject, "message_body" => $old_data, "app_name" => $host_name, "heading" => $heading);
 
                 Mail::send($data['template'], $data, function ($message) use ($data) {
-                    $message->to(Config::get('constant.SUPPORTER_EMAIL_ID'))->subject($data['subject']);
-                    $message->bcc(Config::get('constant.ADMIN_EMAIL_ID'))->subject($data['subject']);
+                    $message->to(Config::get('constant.ADMIN_EMAIL_ID'))->subject($data['subject']);
                     $message->bcc(Config::get('constant.SUB_ADMIN_EMAIL_ID'))->subject($data['subject']);
                 });
 
