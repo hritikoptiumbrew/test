@@ -7593,7 +7593,7 @@ class UserController extends Controller
     public function searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $fail_over_sub_category_id = '')
     {
         try{
-            $this->sub_category_id = $sub_category_id;
+            $this->db_sub_category_id = $this->sub_category_id = $sub_category_id;
             $this->fail_over_sub_category_id = $fail_over_sub_category_id;
             $this->db_search_category = $this->search_category = $search_category;
             $this->offset = $offset;
@@ -7602,7 +7602,7 @@ class UserController extends Controller
             $this->is_featured = $is_featured;
 
             run_same_query:
-            $redis_result = Cache::rememberforever("searchCardsBySubCategoryId:$this->sub_category_id:$this->fail_over_sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
+            $redis_result = Cache::rememberforever("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
 
                 $code = 200;
                 $message = "Templates fetched successfully.";
@@ -7672,7 +7672,7 @@ class UserController extends Controller
 
             if (!$redis_result['data']['total_record'] && !$this->is_search_category_changed) {
 
-                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->fail_over_sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
+                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
                 $this->is_search_category_changed = 1;
                 $translate_data = $this->translateLanguage($this->search_category, "en");
 
@@ -7694,10 +7694,12 @@ class UserController extends Controller
                 $old_data = Cache::get('translationReport');
                 $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 1, "sub_category_id" => $this->sub_category_id);
                 Cache::forever('translationReport', $old_data);
+
             }elseif($this->is_search_category_changed = 1 && !$redis_result['data']['total_record']){
                 $old_data = Cache::get('translationReport');
                 $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 0, "sub_category_id" => $this->sub_category_id);
                 Cache::forever('translationReport', $old_data);
+
                 if($this->fail_over_sub_category_id) {
                     $this->sub_category_id = $this->fail_over_sub_category_id;
                     $this->search_category = $this->search_category . " " . $this->db_search_category;
@@ -7708,8 +7710,8 @@ class UserController extends Controller
 
             if (!$redis_result['data']['total_record']) {
 
-                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->fail_over_sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
-                $redis_result = Cache::remember("default:searchCardsBySubCategoryId:$this->sub_category_id:$this->is_featured:$this->offset:$this->item_count", 10080, function () {
+                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
+                $redis_result = Cache::remember("default:searchCardsBySubCategoryId:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", 10080, function () {
 
                     $code = 427;
                     $message = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";
@@ -7725,7 +7727,7 @@ class UserController extends Controller
                                                         im.is_active = 1 AND
                                                         im.catalog_id = scc.catalog_id AND
                                                         cm.id = scc.catalog_id AND
-                                                        scc.sub_category_id IN (' . $this->sub_category_id . ') AND
+                                                        scc.sub_category_id IN (' . $this->db_sub_category_id . ') AND
                                                         cm.is_featured = ? AND
                                                         ISNULL(im.original_img) AND
                                                         ISNULL(im.display_img) ', [$this->is_featured]);
@@ -7758,7 +7760,7 @@ class UserController extends Controller
                                                         im.catalog_id = scc.catalog_id AND
                                                         cm.id = scc.catalog_id AND
                                                         cm.is_featured = ? AND
-                                                        scc.sub_category_id IN (' . $this->sub_category_id . ') AND
+                                                        scc.sub_category_id IN (' . $this->db_sub_category_id . ') AND
                                                         ISNULL(im.original_img) AND
                                                         ISNULL(im.display_img)
                                                     ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
