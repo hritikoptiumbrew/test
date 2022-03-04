@@ -4289,19 +4289,21 @@ class UserController extends Controller
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
 
-
-            if (!Cache::has("pel:getTemplatesBySubCategoryTags$this->sub_category_id:$this->category_name:$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getTemplatesBySubCategoryTags$this->sub_category_id:$this->category_name:$this->page:$this->item_count", function () {
+            $redis_result = Cache::rememberforever("getTemplatesBySubCategoryTags:$this->sub_category_id:$this->category_name:$this->page:$this->item_count", function () {
 
                     $tag_name = $this->category_name;
 
                     if ($this->page == 1 && $tag_name == "") {
                         $category_list = DB::select('SELECT
-                                        id AS sub_category_tag_id,
-                                        tag_name
-                                        FROM
-                                        sub_category_tag_master
-                                         WHERE sub_category_id = ? AND is_active = ? ORDER BY update_time DESC', [$this->sub_category_id, 1]);
+                                                          id AS sub_category_tag_id,
+                                                          tag_name
+                                                    FROM
+                                                          sub_category_tag_master
+                                                    WHERE 
+                                                          sub_category_id = ? AND 
+                                                          is_active = ? AND
+                                                          is_template = ?
+                                                    ORDER BY update_time DESC', [$this->sub_category_id, 1, 1]);
 
                         $tag_name = (count($category_list) > 0) ? $category_list[0]->tag_name : 'Test';
 
@@ -4389,14 +4391,7 @@ class UserController extends Controller
                     $result = array('result' => $search_result, 'code' => $code, 'message' => $message);
                     return $result;
 
-                });
-            }
-
-            $redis_result = Cache::get("getTemplatesBySubCategoryTags$this->sub_category_id:$this->category_name:$this->page:$this->item_count");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
+            });
 
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -4407,6 +4402,7 @@ class UserController extends Controller
         }
         return $response;
     }
+
     public function getTemplatesBySubCategoryTags_v2(Request $request_body)
     {
         try {
