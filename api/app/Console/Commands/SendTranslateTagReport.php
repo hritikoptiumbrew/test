@@ -63,7 +63,7 @@ class SendTranslateTagReport extends Command
             if(count($old_data) > 0) {
 
                 $host_name = Config::get('constant.APP_HOST_NAME');
-                $subject = "PhotoEditorLab: Search tag analysis report (host: $host_name).";
+                $subject = "(host: $host_name) PhotoEditorLab: Search tag analysis report.";
                 $heading = "Weekly search translate tag report";
                 $template = "translate_tag_report";
                 $data = array("template" => $template, "subject" => $subject, "message_body" => $old_data, "app_name" => $host_name, "heading" => $heading);

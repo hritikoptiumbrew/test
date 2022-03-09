@@ -96,7 +96,7 @@ class SendTagReport extends Command
             if(count($tags_detail) > 0) {
 
                 $host_name = Config::get('constant.APP_HOST_NAME');
-                $subject = "PhotoEditorLab: Search tag analysis report (host: $host_name).";
+                $subject = "(host: $host_name) PhotoEditorLab: Search tag analysis report.";
                 $heading = "Weekly search tag report";
                 $template = "search_tag_report_v2";
                 $data = array("template" => $template, "subject" => $subject, "message_body" => $tags_detail, "app_name" => $host_name, "heading" => $heading);
