@@ -7887,13 +7887,13 @@ class UserController extends Controller
                 if ($offset = 0){
                     $old_data = Cache::get('translationReport');
                     $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 1, "sub_category_id" => $this->sub_category_id);
-                    Cache::forever('translationReport', $old_data);
+                    Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
                 }
             }elseif($this->is_search_category_changed = 1 && !$redis_result['data']['total_record']){
                 if ($offset = 0){
                     $old_data = Cache::get('translationReport');
                     $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 0, "sub_category_id" => $this->sub_category_id);
-                    Cache::forever('translationReport', $old_data);
+                    Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
                 }
 
                 if($this->fail_over_sub_category_id) {
