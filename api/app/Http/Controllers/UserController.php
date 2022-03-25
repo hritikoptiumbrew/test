@@ -6279,6 +6279,9 @@ class UserController extends Controller
                                     is_portrait,
                                     coalesce(height,0) AS height,
                                     coalesce(width,0) AS width,
+                                    COALESCE(multiple_images,"") AS multiple_images,
+                                    COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                    COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                     updated_at
                                     FROM
                                     images
@@ -6361,7 +6364,7 @@ class UserController extends Controller
                                   where qm.is_active = ?
                                   ORDER BY update_time DESC LIMIT ?, ?', [$this->is_active, 0, $this->question_type_item]);
 
-                    return ['template' => $template, 'video' => $video, 'job_news' => $this->job_news, 'interview_que_ans' => $interview_que_ans];
+                    return ['template' => $template, 'video' => $video, 'job_news' => $this->job_news, 'interview_que_ans' => $interview_que_ans, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/'];
 
                 });
             }
