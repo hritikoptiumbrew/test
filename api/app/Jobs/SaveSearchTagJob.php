@@ -53,7 +53,7 @@ class SaveSearchTagJob implements ShouldQueue
     {
         try {
 
-            $tag_deatils = DB::select('SELECT
+            $tag_details = DB::select('SELECT
                                             id
                                         FROM tag_analysis_master
                                         WHERE
@@ -63,13 +63,28 @@ class SaveSearchTagJob implements ShouldQueue
                                             category_id = ? AND 
                                             sub_category_id = ?',[$this->search_category, $this->is_success, $this->is_featured, $this->category_id, $this->sub_category_id]);
 
-            if(count($tag_deatils) > 0) {
-                $id = $tag_deatils[0]->id;
-                DB::update('UPDATE tag_analysis_master SET search_count = search_count + 1, content_count = ? WHERE id = ?',[$this->template_count, $id]);
+            Log::info("SaveSearchTagJob: Tag is exist or not.", $tag_details);
+
+            if(count($tag_details) > 0) {
+                $id = $tag_details[0]->id;
+                $update_query = DB::update('UPDATE tag_analysis_master SET search_count = search_count + 1, content_count = ? WHERE id = ?',[$this->template_count, $id]);
+
+                if (!$update_query) {
+                    Log::info('SaveSearchTagJob : Search tag count is not increase', ["id" => $id]);
+                }else{
+                    Log::info('SaveSearchTagJob : Search tag count is increase', ["result" => $update_query]);
+                }
+
             } else {
-                DB::insert('INSERT INTO
+                $insert_query = DB::insert('INSERT INTO
                                tag_analysis_master(tag, is_success, is_featured, category_id, content_count, search_count, sub_category_id)
                                VALUES(?, ?, ?, ?, ?, ?, ?)', [$this->search_category, $this->is_success, $this->is_featured, $this->category_id, $this->template_count, 1, $this->sub_category_id]);
+
+                if (!$insert_query) {
+                    Log::info('SaveSearchTagJob : Search tag not insert');
+                }else{
+                    Log::info('SaveSearchTagJob : Search tag insert', ["result" => $insert_query]);
+                }
             }
 
         } catch (Exception $e) {
