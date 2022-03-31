@@ -38,7 +38,7 @@ class SaveSearchTagJob implements ShouldQueue
             $this->is_success = $is_success;
             $this->is_featured = $is_featured;
             $this->category_id = $category_id;
-
+            Log::info('SaveSearchTagJob: Value', ['template_count' => $this->template_count , 'search_tag' => $this->search_category , 'sub_category_id' => $this->sub_category_id , 'is_success' => $this->is_success , 'is_featured' => $this->is_featured , 'category_id' => $this->category_id]);
         } catch (Exception $e) {
             Log::error("SaveSearchTagJob construct() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
@@ -63,7 +63,7 @@ class SaveSearchTagJob implements ShouldQueue
                                             category_id = ? AND 
                                             sub_category_id = ?',[$this->search_category, $this->is_success, $this->is_featured, $this->category_id, $this->sub_category_id]);
 
-            Log::info("SaveSearchTagJob: Tag is exist or not.", $tag_details);
+            Log::info("SaveSearchTagJob: Tag is exist or not.", ['tag_result' => $tag_details]);
 
             if(count($tag_details) > 0) {
                 $id = $tag_details[0]->id;
