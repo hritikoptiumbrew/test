@@ -23,7 +23,7 @@ return [
     'SUB_ADMIN_EMAIL_ID' => env('SUB_ADMIN_EMAIL_ID'),
     'SUPPORTER_EMAIL_ID' => env('SUPPORTER_EMAIL_ID'),
 
-    'RESPONSE_HEADER_CACHE' => 'max-age=2592000',
+    'RESPONSE_HEADER_CACHE' => 'max-age=2592000',    // 30 days caching response data
     'ROLE_FOR_ADMIN' => 'admin',
     'ROLE_FOR_USER' => 'user',
 
@@ -203,5 +203,13 @@ return [
     'CATEGORY_ID_OF_STICKER' => '2',
     'CATEGORY_ID_OF_BACKGROUND' => '3',
     'CATEGORY_ID_OF_FONTS' => '4',
+
+    /* For Language Translation */
+    'DEFAULT_LANGUAGE_CODE' => 'en',
+
+    /* For API Caching */
+    'CACHE_TIME_24_HOUR' => '1440',
+    'CACHE_TIME_48_HOUR' => '172800',
+    'CACHE_TIME_7_DAYS' => '10080',
 
 ];

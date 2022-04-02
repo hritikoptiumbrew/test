@@ -1490,6 +1490,7 @@ class UserController extends Controller
         }
         return $response;
     }
+
     public function getJsonSampleDataWithLastSyncTime_webp_v2(Request $request_body)
     {
 
@@ -1612,6 +1613,7 @@ class UserController extends Controller
     }
 
     //shuffle all featured templates for 24hours from given sub_category_id or get templates by catalog_id with last_sync_time
+
     /**
      * @api {post} getTemplatesWithLastSyncTime   getTemplatesWithLastSyncTime
      * @apiName getTemplatesWithLastSyncTime
@@ -2458,6 +2460,7 @@ class UserController extends Controller
 
 
     //search catalog by catalog name
+
     /**
      * @api {post} searchCatalogByUser searchCatalogByUser
      * @apiName searchCatalogByUser
@@ -2885,6 +2888,7 @@ class UserController extends Controller
             //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
             //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
 
+
             if ($is_cache_enable == 1) {
                 $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
             }else{
@@ -2895,6 +2899,62 @@ class UserController extends Controller
                 if($redis_result['code'] != 200){
                     SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0, $is_featured, $category_id);
                 }else{
+                    SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $search_category, $sub_category_id, 1, $is_featured, $category_id);
+                }
+            }
+
+            $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("searchCardsBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /*
+    Purpose : for search card with single sub_category_id with translate. If result not found then translate & correction of the text
+    Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here)
+    Return : return cards detail if success otherwise error with specific status code
+    */
+    public function searchCardsBySubCategoryIdWithTranslate(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
+            $search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
+            $bcp_language_code = isset($request->bcp_language_code) ? $request->bcp_language_code : '';
+            $page = $request->page;
+            $item_count = $request->item_count;
+            $offset = ($page - 1) * $item_count;
+            $is_user_search_tag = isset($request->is_user_search_tag) ? $request->is_user_search_tag : 1;       //In some applications we have put search tags instead of catalog lists, So if user clicks that search tag that time we don't need to insert this tag in DB.
+            $is_featured = isset($request->is_featured) ? $request->is_featured : 1;   //is_featured is use for finding a proper data from DB.
+            $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');    //Category id to find, Which category is use.
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
+            $fail_over_sub_category_id = isset($request->fail_over_sub_category_id) ? $request->fail_over_sub_category_id : '';
+            //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
+            //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
+
+
+            $redis_result = $this->searchTemplatesBySearchCategory_V2($search_category, $sub_category_id, $offset, $page, $item_count, $is_featured, $fail_over_sub_category_id, $bcp_language_code, $is_cache_enable);
+            /*if ($is_cache_enable == 1) {
+                $redis_result = $this->searchTemplatesBySearchCategory_V2($search_category, $sub_category_id, $offset, $page, $item_count, $is_featured, $fail_over_sub_category_id, $bcp_language_code, $is_cache_enable);
+            } else {
+
+                $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $fail_over_sub_category_id, $bcp_language_code);
+            }*/
+
+            if ($page == 1 && $is_user_search_tag == 1) {
+                if ($redis_result['code'] != 200) {
+                    SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0, $is_featured, $category_id);
+                } else {
                     SaveSearchTagJob::dispatch($redis_result['data']['total_record'], $search_category, $sub_category_id, 1, $is_featured, $category_id);
                 }
             }
@@ -3609,6 +3669,7 @@ class UserController extends Controller
         }
         return $response;
     }
+
     public function searchNormalImagesBySubCategoryId_v2(Request $request_body)
     {
         try {
@@ -3744,6 +3805,7 @@ class UserController extends Controller
 
 
     //get all samples without pagination
+
     /**
      * @api {post} getAllSamplesWithWebp   getAllSamplesWithWebp
      * @apiName getAllSamplesWithWebp
@@ -3883,6 +3945,7 @@ class UserController extends Controller
     }
 
     //get catalogs by sub_category_id with pagination
+
     /**
      * @api {post} getCatalogBySubCategoryIdWithWebp   getCatalogBySubCategoryIdWithWebp
      * @apiName getCatalogBySubCategoryIdWithWebp
@@ -4007,6 +4070,7 @@ class UserController extends Controller
     }
 
     //This API is used for Brochure Maker (iOS & Android)
+
     /**
      * @api {post} getFeaturedSamplesWithCatalogs   getFeaturedSamplesWithCatalogs
      * @apiName getFeaturedSamplesWithCatalogs
@@ -4541,6 +4605,7 @@ class UserController extends Controller
     }
 
     //This API is used to get featured cards when developer has not contain catalog_id) or samples by catalog_id
+
     /**
      * @api {post} getTemplateWithCatalogs   getTemplateWithCatalogs
      * @apiName getTemplateWithCatalogs
@@ -6519,6 +6584,7 @@ class UserController extends Controller
         }
         return $response;
     }
+
     public function getContentByCatalogId_v2(Request $request_body)
     {
         try {
@@ -7869,6 +7935,7 @@ class UserController extends Controller
             if (!$redis_result['data']['total_record'] && !$this->is_search_category_changed) {
 
                 Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
+
                 $this->is_search_category_changed = 1;
                 $translate_data = $this->translateLanguage($this->search_category, "en");
 
@@ -7981,6 +8048,428 @@ class UserController extends Controller
             return array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}"));
         }
     }
+
+    public function searchTemplatesBySearchCategory_V2($search_category, $sub_category_id, $offset, $page, $item_count, $is_featured, $fail_over_sub_category_id, $bcp_language_code, $is_cache_enable)
+    {
+        try {
+            $this->db_sub_category_id = $this->sub_category_id = $sub_category_id;
+            $this->bcp_language_code = $bcp_language_code;
+            $this->fail_over_sub_category_id = $fail_over_sub_category_id;
+            $this->search_category = $search_category; // ફૂડ
+            $this->offset = $offset;
+            $this->page = $page;
+            $this->item_count = $item_count;
+            $this->is_featured = $is_featured;
+
+            $this->translated_search_category = "";
+            $this->is_search_keyword_already_translated = 0;
+            $this->current_search_keyword = $this->search_category;
+            $this->is_cache_enable = $is_cache_enable;
+            $this->cache_key_name = "searchCardsBySubCategoryId";
+            $this->cache_key_time = Config::get('constant.CACHE_TIME_24_HOUR');
+
+
+            Log::info('PHASE_1: Direct Search Keyword');
+            run_same_query:
+            Log::info('CURRENT SEARCH TAG : ', ['CURRENT SEARCH TAG' => $this->current_search_keyword]);
+
+            if ($this->is_cache_enable == 1) {
+                Log::info('IS CACHE ENABLE : TRUE');
+                $this->cache_key_name = "searchCardsBySubCategoryId";
+                $this->cache_key_time = Config::get('constant.CACHE_TIME_24_HOUR');
+            } else {
+                Log::info('IS CACHE ENABLE : FALSE');
+                $this->cache_key_name = "searchCardsBySubCategoryId_without_cache";
+                $this->cache_key_time = 0;
+            }
+
+            $redis_result = Cache::remember("$this->cache_key_name:$this->sub_category_id:$this->current_search_keyword:$this->is_featured:$this->offset:$this->item_count", $this->cache_key_time, function () {
+
+                $code = 200;
+                $message = "Templates fetched successfully.";
+                $search_result = [];
+
+                Log::info('DB hit For direct search');
+
+                $total_row_result = DB::select('SELECT 
+                                                    COUNT(DISTINCT(im.id)) AS total
+                                                FROM
+                                                    images AS im,
+                                                    catalog_master AS cm,
+                                                    sub_category_catalog AS scc
+                                                WHERE
+                                                    im.is_active = 1 AND
+                                                    im.catalog_id = scc.catalog_id AND
+                                                    cm.is_featured = ? AND
+                                                    cm.id = scc.catalog_id AND
+                                                    scc.sub_category_id IN (' . $this->sub_category_id . ') AND
+                                                    ISNULL(im.original_img) AND
+                                                    ISNULL(im.display_img) AND
+                                                    (MATCH(im.search_category) AGAINST("' . $this->current_search_keyword . '") OR 
+                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->current_search_keyword . '"," ")," ","* ") IN BOOLEAN MODE)) ', [$this->is_featured]);
+                $total_row = $total_row_result[0]->total;
+
+                //if search count is available, then go to search image using search_category
+                if ($total_row) {
+
+                    $search_result = DB::select('SELECT
+                                                DISTINCT im.id AS json_id,
+                                                IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
+                                                IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS webp_original_img,
+                                                IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS after_image,
+                                                IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS webp_original_after_img,
+                                                IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(im.image,".",1),".gif"),"") AS sample_gif,
+                                                im.is_free,
+                                                im.is_featured,
+                                                im.is_portrait,
+                                                COALESCE(im.height,0) AS height,
+                                                COALESCE(im.width,0) AS width,
+                                                COALESCE(im.multiple_images,"") AS multiple_images,
+                                                COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                im.content_type,
+                                                im.updated_at,
+                                                MATCH(im.search_category) AGAINST("' . $this->current_search_keyword . '") +
+                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->current_search_keyword . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text 
+                                            FROM
+                                                images AS im,
+                                                catalog_master AS cm,
+                                                sub_category_catalog AS scc
+                                            WHERE
+                                                im.is_active = 1 AND
+                                                im.catalog_id = scc.catalog_id AND
+                                                cm.id = scc.catalog_id AND
+                                                cm.is_featured = ? AND
+                                                scc.sub_category_id IN (' . $this->sub_category_id . ') AND
+                                                ISNULL(im.original_img) AND
+                                                ISNULL(im.display_img) AND
+                                                (MATCH(im.search_category) AGAINST("' . $this->current_search_keyword . '") OR 
+                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->current_search_keyword . '"," ")," ","* ") IN BOOLEAN MODE))
+                                            ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+                }
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
+
+                return array('code' => $code, 'message' => $message, 'cause' => '', 'data' => $search_result);
+            });
+
+            Log::info('Redis result', $redis_result);
+//            $redis_result = Cache::get("searchCardsBySubCategoryId:$this->sub_category_id:$this->current_search_keyword:$this->is_featured:$this->offset:$this->item_count");
+
+
+            if (!$redis_result['data']['result']) {
+                Log::info('SEARCH RESULT NOT FOUND');
+            } else {
+                Log::info('SEARCH RESULT FOUND');
+            }
+
+            if ($redis_result['data']['result']) {
+                Log::info('RESULT FOUND!');
+                if ($this->is_search_keyword_already_translated == 1) {
+                    $this->reportSuccessSearchKeywordResult($this->search_category, $this->translated_search_category, $this->sub_category_id);
+                }
+
+                return $redis_result;
+
+            } elseif ($this->page > 1 && !$redis_result['data']['is_next_page']) {
+                Log::info('NEXT PAGE RESULT NOT FOUND!');
+                return $redis_result;
+            } elseif ($this->is_search_keyword_already_translated == 1) {
+                Log::info('RESULT NOT FOUND! & is_search_keyword_already_translated = 1');
+                // If Result not get after detect & translate then report keyword & goto fail_over_sub_category_id
+                $this->reportFailSearchKeywordResult($this->search_category, $this->translated_search_category, $this->sub_category_id);
+
+                if ($this->fail_over_sub_category_id) {
+
+                    Log::info('FAIL_OVER : RESULT NOT FOUND! & is_search_keyword_already_translated = 1');
+
+                    $this->sub_category_id = $this->fail_over_sub_category_id;
+                    $this->current_search_keyword = $this->search_category . " " . $this->translated_search_category;
+                    $this->fail_over_sub_category_id = NULL;
+                    goto run_same_query;
+                } else {
+                    // Give 427 result
+                    Log::info('RETURN 427 : RESULT NOT FOUND! & is_search_keyword_already_translated = 1');
+                    $redis_result = $this->giveDefaultSearchResult($this->sub_category_id, $this->search_category, $this->is_featured, $this->offset, $this->item_count, $this->db_sub_category_id,$this->is_cache_enable);
+                    return $redis_result;
+                }
+
+            }
+
+
+            // Verify is Language code available
+            if ($bcp_language_code) {
+
+                Log::info('LANGUAGE CODE AVAILABLE: ' . $bcp_language_code);
+
+                // Verify is Language code "en"
+                if ($bcp_language_code == Config::get('constant.DEFAULT_LANGUAGE_CODE')) {
+
+                    if ($this->fail_over_sub_category_id) {
+
+                        Log::info('FAIL_OVER : LANGUAGE CODE AVAILABLE & DEFAULT_LANGUAGE_CODE = en');
+
+                        $this->sub_category_id = $this->fail_over_sub_category_id;
+                        $this->current_search_keyword = $this->search_category;
+                        $this->fail_over_sub_category_id = NULL;
+                        goto run_same_query;
+                    } else {
+                        // Give 427 result
+                        Log::info('RETURN 427 : LANGUAGE CODE AVAILABLE & DEFAULT_LANGUAGE_CODE = en');
+                        $redis_result = $this->giveDefaultSearchResult($this->sub_category_id, $this->search_category, $this->is_featured, $this->offset, $this->item_count, $this->db_sub_category_id,$this->is_cache_enable);
+                        return $redis_result;
+                    }
+
+                } else {
+
+                    if ($this->is_search_keyword_already_translated == 0) {
+                        Log::info('PHASE_2: Detect & Translate Search Keyword');
+                        // Detect & Translate Search Keyword
+                        $this->is_search_keyword_already_translated = 1;
+                        $this->translated_search_category = $this->detectAndTranslateSearchKeyword($this->search_category);
+                        Log::info('PHASE_2 : TRANSLATED RESULT : ' . $this->translated_search_category);
+
+                        if ($this->translated_search_category) {
+                            $this->current_search_keyword = $this->translated_search_category;
+                            goto run_same_query;
+                        } else {
+
+                            if ($this->fail_over_sub_category_id) {
+                                Log::info('FAIL_OVER : PHASE_2 & TRANSLATE_SEARCH_KEYWORD = NULL');
+
+                                $this->sub_category_id = $this->fail_over_sub_category_id;
+                                $this->current_search_keyword = $this->search_category;
+                                $this->fail_over_sub_category_id = NULL;
+                                goto run_same_query;
+                            } else {
+                                // Give 427 result
+                                Log::info('RETURN 427 : PHASE_2 & TRANSLATE_SEARCH_KEYWORD = NULL');
+                                $redis_result = $this->giveDefaultSearchResult($this->sub_category_id, $this->search_category, $this->is_featured, $this->offset, $this->item_count, $this->db_sub_category_id,$this->is_cache_enable);
+                                return $redis_result;
+                            }
+                        }
+
+                    } else {
+
+                        // If Result not get after detect & translate then report keyword & goto fail_over_sub_category_id
+                        $this->reportFailSearchKeywordResult($this->search_category, $this->translated_search_category, $this->sub_category_id);
+
+                        if ($this->fail_over_sub_category_id) {
+
+                            Log::info('FAIL_OVER : PHASE_2 & Detect & Translate Search Keyword Already DONE');
+
+                            $this->sub_category_id = $this->fail_over_sub_category_id;
+                            $this->search_category = $this->search_category . " " . $this->translated_search_category;
+                            $this->fail_over_sub_category_id = NULL;
+                            goto run_same_query;
+                        } else {
+                            // Give 427 result
+                            Log::info('RETURN 427 : PHASE_2 & Detect & Translate Search Keyword Already DONE');
+                            $redis_result = $this->giveDefaultSearchResult($this->sub_category_id, $this->search_category, $this->is_featured, $this->offset, $this->item_count, $this->db_sub_category_id,$this->is_cache_enable);
+                            return $redis_result;
+                        }
+
+                    }
+                }
+
+            } else {
+
+                Log::info('LANGUAGE CODE NOT AVAILABLE:');
+
+                if ($this->is_search_keyword_already_translated == 0) {
+
+                    Log::info('PHASE_3: Detect & Translate Search Keyword');
+
+                    // Detect & Translate Search Keyword
+                    $this->is_search_keyword_already_translated = 1;
+                    $this->translated_search_category = $this->detectAndTranslateSearchKeyword($this->search_category);
+                    Log::info('PHASE_3 : TRANSLATED RESULT : ' . $this->translated_search_category);
+
+                    if ($this->translated_search_category) {
+                        $this->current_search_keyword = $this->translated_search_category;
+                        goto run_same_query;
+                    } else {
+
+                        if ($this->fail_over_sub_category_id) {
+                            Log::info('FAIL_OVER : PHASE_3 & TRANSLATE_SEARCH_KEYWORD = NULL');
+
+                            $this->sub_category_id = $this->fail_over_sub_category_id;
+                            $this->current_search_keyword = $this->search_category;
+                            $this->fail_over_sub_category_id = NULL;
+                            goto run_same_query;
+                        } else {
+                            // Give 427 result
+                            Log::info('RETURN 427 : PHASE_3 & TRANSLATE_SEARCH_KEYWORD = NULL');
+                            $redis_result = $this->giveDefaultSearchResult($this->sub_category_id, $this->search_category, $this->is_featured, $this->offset, $this->item_count, $this->db_sub_category_id, $this->is_cache_enable);
+                            return $redis_result;
+                        }
+                    }
+                }
+            }
+
+            return $redis_result;
+
+        } catch (Exception $e) {
+            Log::error("searchTemplatesBySearchCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}"));
+        }
+    }
+
+    private function giveDefaultSearchResult($sub_category_id, $search_category, $is_featured, $offset, $item_count, $db_sub_category_id, $is_cache_enable)
+    {
+        $this->sub_category_id = $sub_category_id;
+        $this->search_category = $search_category;
+        $this->is_featured = $is_featured;
+        $this->offset = $offset;
+        $this->item_count = $item_count;
+        $this->db_sub_category_id = $db_sub_category_id;
+        $this->is_cache_enable = $is_cache_enable;
+        $this->cache_key_name = "default:searchCardsBySubCategoryId";
+        $this->cache_key_time = Config::get('constant.CACHE_TIME_7_DAYS');
+
+        if ($this->is_cache_enable == 1) {
+            $this->cache_key_name = "default:searchCardsBySubCategoryId";
+            $this->cache_key_time = Config::get('constant.CACHE_TIME_7_DAYS');
+        } else {
+            $this->cache_key_name = "default:searchCardsBySubCategoryId_without_cache";
+            $this->cache_key_time = 0;
+        }
+
+//        Redis::del("pel:searchCardsBySubCategoryId:$sub_category_id:$search_category:$is_featured:$offset:$item_count");
+        $redis_result = Cache::remember("$this->cache_key_name:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", $this->cache_key_time, function () {
+
+            $code = 427;
+            $message = "Sorry, we couldn't find any templates for '$this->search_category', but we found some other templates you might like:";
+            $search_result = [];
+
+            Log::info('DB hit For 427');
+
+            $total_row_result = DB::select('SELECT 
+                                                        COUNT(DISTINCT(im.id)) AS total
+                                                    FROM
+                                                        images AS im,
+                                                        catalog_master AS cm,
+                                                        sub_category_catalog AS scc
+                                                    WHERE
+                                                        im.is_active = 1 AND
+                                                        im.catalog_id = scc.catalog_id AND
+                                                        cm.id = scc.catalog_id AND
+                                                        scc.sub_category_id IN (' . $this->db_sub_category_id . ') AND
+                                                        cm.is_featured = ? AND
+                                                        ISNULL(im.original_img) AND
+                                                        ISNULL(im.display_img) ', [$this->is_featured]);
+            $total_row = $total_row_result[0]->total;
+
+            if ($total_row) {
+                $search_result = DB::select('SELECT
+                                                        DISTINCT im.id AS json_id,
+                                                        IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
+                                                        IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS webp_original_img,
+                                                        IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS after_image,
+                                                        IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS webp_original_after_img,
+                                                        IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(im.image,".",1),".gif"),"") AS sample_gif,
+                                                        im.is_free,
+                                                        im.is_featured,
+                                                        im.is_portrait,
+                                                        COALESCE(im.height,0) AS height,
+                                                        COALESCE(im.width,0) AS width,
+                                                        COALESCE(im.multiple_images,"") AS multiple_images,
+                                                        COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                        COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                        im.content_type,
+                                                        im.updated_at
+                                                    FROM
+                                                        images AS im,
+                                                        catalog_master AS cm,
+                                                        sub_category_catalog AS scc
+                                                    WHERE
+                                                        im.is_active = 1 AND
+                                                        im.catalog_id = scc.catalog_id AND
+                                                        cm.id = scc.catalog_id AND
+                                                        cm.is_featured = ? AND
+                                                        scc.sub_category_id IN (' . $this->db_sub_category_id . ') AND
+                                                        ISNULL(im.original_img) AND
+                                                        ISNULL(im.display_img)
+                                                    ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+            }
+
+            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+            $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
+
+            return array('code' => $code, 'message' => $message, 'cause' => '', 'data' => $search_result);
+
+        });
+        $redis_result['message'] = "Sorry, we couldn't find any templates for '$this->search_category', but we found some other templates you might like:";
+
+        return $redis_result;
+    }
+
+    private function detectAndTranslateSearchKeyword($search_category)
+    {
+
+        $this->search_category = $search_category;
+
+        Log::info('PHASE : 2 (Detect & Translate)');
+
+        $translate_data = array('data' => array("source" => "", "input" => $this->search_category, "text" => "", "model" => ""));
+
+//        Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
+
+        $translate_data = $this->translateLanguage($this->search_category, "en");
+
+
+        if (Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app' && Config::get('constant.APP_ENV') != 'local' && $translate_data['code'] == 200) {
+
+            Log::info('PHASE : 3 (Start Spell Correction)');
+
+            $suggestions = $this->spellCorrection($translate_data['data']['source'], $this->search_category);
+
+        } else {
+            $suggestions['data'] = array();
+        }
+
+        if ($translate_data['data']['text'] == $this->search_category || $translate_data['data']['source'] == 'en' || $translate_data['code'] != 200) {
+            $translate_data['data']['text'] = NULL;
+            Log::info('PHASE : 4 (search keyword & translate word are same || language code detected en || $translate_data[code] != 200)');
+            return NULL;
+        }
+
+        if ($suggestions['data'] || $translate_data['data']['text']) {
+            $search_category = trim($translate_data['data']['text'] . "," . implode(',', array_slice($suggestions['data'], 0, 5)), ",");
+            Log::info('PHASE : 5 (Merge user search keyword & translate keyword)');
+        }
+
+        return $search_category;
+
+    }
+
+    private function reportSuccessSearchKeywordResult($search_category, $current_search_keyword, $sub_category_id)
+    {
+        $this->search_category = $search_category;
+        $this->current_search_keyword = $current_search_keyword;
+        $this->sub_category_id = $sub_category_id;
+
+        // if result found after detect & translate keyword then call
+
+        $old_data = Cache::get('translationReport');
+        $old_data[] = array("user_tag" => $this->search_category, "translate_tag" => $this->current_search_keyword, "is_success" => 1, "sub_category_id" => $this->sub_category_id);
+        Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
+    }
+
+    private function reportFailSearchKeywordResult($search_category, $current_search_keyword, $sub_category_id)
+    {
+        $this->search_category = $search_category;
+        $this->current_search_keyword = $current_search_keyword;
+        $this->sub_category_id = $sub_category_id;
+
+        // if result not found after detect & translate keyword then call
+
+        $old_data = Cache::get('translationReport');
+        $old_data[] = array("user_tag" => $this->search_category, "translate_tag" => $this->current_search_keyword, "is_success" => 0, "sub_category_id" => $this->sub_category_id);
+        Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
+    }
+
 
     /*
     Purpose : To search catalog using search tag in admin side.
@@ -9108,6 +9597,7 @@ class UserController extends Controller
     }
 
     //Get Searching tag by subcategory id
+
     /**
      * @api {post} getSearchTagBySubCategoryId   getSearchTagBySubCategoryId
      * @apiName getSearchTagBySubCategoryId
