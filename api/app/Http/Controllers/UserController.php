@@ -8083,7 +8083,7 @@ class UserController extends Controller
                 $this->cache_key_time = 0;
             }
 
-            $redis_result = Cache::remember("$this->cache_key_name:$this->sub_category_id:$this->current_search_keyword:$this->is_featured:$this->offset:$this->item_count", $this->cache_key_time, function () {
+            $redis_result = Cache::remember("$this->cache_key_name:$this->sub_category_id:$this->current_search_keyword:$this->is_featured:$this->offset:$this->item_count", 1440, function () {
 
                 $code = 200;
                 $message = "Templates fetched successfully.";
@@ -8337,7 +8337,7 @@ class UserController extends Controller
         }
 
 //        Redis::del("pel:searchCardsBySubCategoryId:$sub_category_id:$search_category:$is_featured:$offset:$item_count");
-        $redis_result = Cache::remember("$this->cache_key_name:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", $this->cache_key_time, function () {
+        $redis_result = Cache::remember("$this->cache_key_name:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", 10080, function () {
 
             $code = 427;
             $message = "Sorry, we couldn't find any templates for '$this->search_category', but we found some other templates you might like:";
