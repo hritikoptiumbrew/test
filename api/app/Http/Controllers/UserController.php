@@ -8185,7 +8185,7 @@ class UserController extends Controller
                     Log::info('FAIL_OVER : RESULT NOT FOUND! & is_search_keyword_already_translated = 1');
 
                     $this->sub_category_id = $this->fail_over_sub_category_id;
-                    $this->current_search_keyword = $this->search_category . " " . $this->translated_search_category;
+                    $this->current_search_keyword = $this->translated_search_category . " " . $this->search_category ;
                     $this->fail_over_sub_category_id = NULL;
                     goto run_same_query;
                 } else {
@@ -8450,17 +8450,10 @@ class UserController extends Controller
 
         }
 
-        if ($suggestions['data'] || $translate_data['data']['text']) {
+        if ($translate_data['data']['text']) {
 
-            if (count($suggestions['data']) > 6){
-                Log::info('PHASE : Suggestion result found MORE then 5 result');
-                $search_category = trim($translate_data['data']['text'] . "," . implode(',', array_slice($suggestions['data'], 0, 5)), ",");
-            }else {
-                Log::info('PHASE : Suggestion result found LESS then 5 result');
-                $search_category = implode(',', $suggestions['data']);
-            }
-
-//            $search_category = trim($translate_data['data']['text'] . "," . implode(',', array_slice($suggestions['data'], 0, 5)), ",");
+            $search_category =$translate_data['data']['text'] ;
+//          $search_category = trim($translate_data['data']['text'] . "," . implode(',', array_slice($suggestions['data'], 0, 5)), ",");
             Log::info('PHASE : 5 (Merge user search keyword & translate keyword)');
         }
 
