@@ -8325,14 +8325,14 @@ class UserController extends Controller
         $this->item_count = $item_count;
         $this->db_sub_category_id = $db_sub_category_id;
         $this->is_cache_enable = $is_cache_enable;
-        $this->cache_key_name = "default_search:searchCardsBySubCategoryIdWithTranslate";
+        $this->cache_key_name = "default_result:searchCardsBySubCategoryIdWithTranslate";
         $this->cache_key_time = Config::get('constant.CACHE_TIME_7_DAYS');
 
         if ($this->is_cache_enable == 1) {
-            $this->cache_key_name = "default_search:searchCardsBySubCategoryIdWithTranslate";
+            $this->cache_key_name = "default_result:searchCardsBySubCategoryIdWithTranslate";
             $this->cache_key_time = Config::get('constant.CACHE_TIME_7_DAYS');
         } else {
-            $this->cache_key_name = "default_search:searchCardsBySubCategoryIdWithTranslate_without_cache";
+            $this->cache_key_name = "default_result:searchCardsBySubCategoryIdWithTranslate_without_cache";
             $this->cache_key_time = 0;
         }
 
@@ -8419,7 +8419,7 @@ class UserController extends Controller
         $translate_data = $this->translateLanguage($this->search_category, "en");
 
 
-        if (Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app' && Config::get('constant.APP_ENV') != 'local' && $translate_data['code'] == 200 && $translate_data['source'] == Config::get('constant.DEFAULT_LANGUAGE_CODE')) {
+        if (Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app' && Config::get('constant.APP_ENV') != 'local' && $translate_data['code'] == 200 && $translate_data['data']['source'] == Config::get('constant.DEFAULT_LANGUAGE_CODE')) {
 
             Log::info('PHASE : 3 (Start Spell Correction)');
 
