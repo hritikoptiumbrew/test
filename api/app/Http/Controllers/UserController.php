@@ -8065,7 +8065,7 @@ class UserController extends Controller
             $this->is_search_keyword_already_translated = 0;
             $this->current_search_keyword = $this->search_category;
             $this->is_cache_enable = $is_cache_enable;
-            $this->cache_key_name = "searchCardsBySubCategoryId";
+            $this->cache_key_name = "searchCardsBySubCategoryIdWithTranslate";
             $this->cache_key_time = Config::get('constant.CACHE_TIME_24_HOUR');
 
 
@@ -8075,11 +8075,11 @@ class UserController extends Controller
 
             if ($this->is_cache_enable == 1) {
                 Log::info('IS CACHE ENABLE : TRUE');
-                $this->cache_key_name = "searchCardsBySubCategoryId";
+                $this->cache_key_name = "searchCardsBySubCategoryIdWithTranslate";
                 $this->cache_key_time = Config::get('constant.CACHE_TIME_24_HOUR');
             } else {
                 Log::info('IS CACHE ENABLE : FALSE');
-                $this->cache_key_name = "searchCardsBySubCategoryId_without_cache";
+                $this->cache_key_name = "searchCardsBySubCategoryIdWithTranslate_without_cache";
                 $this->cache_key_time = 0;
             }
 
@@ -8325,14 +8325,14 @@ class UserController extends Controller
         $this->item_count = $item_count;
         $this->db_sub_category_id = $db_sub_category_id;
         $this->is_cache_enable = $is_cache_enable;
-        $this->cache_key_name = "default:searchCardsBySubCategoryId";
+        $this->cache_key_name = "default:searchCardsBySubCategoryIdWithTranslate";
         $this->cache_key_time = Config::get('constant.CACHE_TIME_7_DAYS');
 
         if ($this->is_cache_enable == 1) {
-            $this->cache_key_name = "default:searchCardsBySubCategoryId";
+            $this->cache_key_name = "default:searchCardsBySubCategoryIdWithTranslate";
             $this->cache_key_time = Config::get('constant.CACHE_TIME_7_DAYS');
         } else {
-            $this->cache_key_name = "default:searchCardsBySubCategoryId_without_cache";
+            $this->cache_key_name = "default:searchCardsBySubCategoryIdWithTranslate_without_cache";
             $this->cache_key_time = 0;
         }
 

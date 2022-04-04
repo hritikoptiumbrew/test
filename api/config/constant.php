@@ -209,7 +209,7 @@ return [
 
     /* For API Caching */
     'CACHE_TIME_24_HOUR' => '1440',
-    'CACHE_TIME_48_HOUR' => '172800',
+    'CACHE_TIME_48_HOUR' => '2880',
     'CACHE_TIME_7_DAYS' => '10080',
 
 ];
