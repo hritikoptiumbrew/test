@@ -7954,13 +7954,13 @@ class UserController extends Controller
             }
 
             if($this->is_search_category_changed = 1 && $redis_result['data']['total_record']){
-                if ($offset = 0){
+                if ($offset == 0){
                     $old_data = Cache::get('translationReport');
                     $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 1, "sub_category_id" => $this->sub_category_id);
                     Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
                 }
             }elseif($this->is_search_category_changed = 1 && !$redis_result['data']['total_record']){
-                if ($offset = 0){
+                if ($offset == 0){
                     $old_data = Cache::get('translationReport');
                     $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 0, "sub_category_id" => $this->sub_category_id);
                     Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
@@ -8069,16 +8069,16 @@ class UserController extends Controller
             $this->cache_key_time = Config::get('constant.CACHE_TIME_24_HOUR');
 
 
-            Log::info('PHASE_1: Direct Search Keyword');
+//            Log::info('PHASE_1: Direct Search Keyword');
             run_same_query:
-            Log::info('CURRENT SEARCH TAG : ', ['CURRENT SEARCH TAG' => $this->current_search_keyword]);
+//            Log::info('CURRENT SEARCH TAG : ', ['CURRENT SEARCH TAG' => $this->current_search_keyword]);
 
             if ($this->is_cache_enable == 1) {
-                Log::info('IS CACHE ENABLE : TRUE');
+//                Log::info('IS CACHE ENABLE : TRUE');
                 $this->cache_key_name = "direct_search:searchCardsBySubCategoryIdWithTranslate";
                 $this->cache_key_time = Config::get('constant.CACHE_TIME_24_HOUR');
             } else {
-                Log::info('IS CACHE ENABLE : FALSE');
+//                Log::info('IS CACHE ENABLE : FALSE');
                 $this->cache_key_name = "direct_search:searchCardsBySubCategoryIdWithTranslate_without_cache";
                 $this->cache_key_time = 0;
             }
@@ -8089,7 +8089,7 @@ class UserController extends Controller
                 $message = "Templates fetched successfully.";
                 $search_result = [];
 
-                Log::info('DB hit For direct search');
+//                Log::info('DB hit For direct search');
 
                 $total_row_result = DB::select('SELECT 
                                                     COUNT(DISTINCT(im.id)) AS total
@@ -8154,18 +8154,18 @@ class UserController extends Controller
                 return array('code' => $code, 'message' => $message, 'cause' => '', 'data' => $search_result);
             });
 
-            Log::info('Redis result', $redis_result);
-//            $redis_result = Cache::get("searchCardsBySubCategoryId:$this->sub_category_id:$this->current_search_keyword:$this->is_featured:$this->offset:$this->item_count");
+//            Log::info('Redis result', $redis_result);
 
 
-            if (!$redis_result['data']['result']) {
-                Log::info('SEARCH RESULT NOT FOUND');
-            } else {
-                Log::info('SEARCH RESULT FOUND');
-            }
+
+//            if (!$redis_result['data']['result']) {
+//                Log::info('SEARCH RESULT NOT FOUND');
+//            } else {
+//                Log::info('SEARCH RESULT FOUND');
+//            }
 
             if ($redis_result['data']['result']) {
-                Log::info('RESULT FOUND!');
+//                Log::info('RESULT FOUND!');
                 if ($this->is_search_keyword_already_translated == 1) {
                     $this->reportSuccessSearchKeywordResult($this->search_category, $this->translated_search_category, $this->sub_category_id);
                 }
@@ -8173,16 +8173,16 @@ class UserController extends Controller
                 return $redis_result;
 
             } elseif ($this->page > 1 && !$redis_result['data']['is_next_page']) {
-                Log::info('NEXT PAGE RESULT NOT FOUND!');
+//                Log::info('NEXT PAGE RESULT NOT FOUND!');
                 return $redis_result;
             } elseif ($this->is_search_keyword_already_translated == 1) {
-                Log::info('RESULT NOT FOUND! & is_search_keyword_already_translated = 1');
+//                Log::info('RESULT NOT FOUND! & is_search_keyword_already_translated = 1');
                 // If Result not get after detect & translate then report keyword & goto fail_over_sub_category_id
                 $this->reportFailSearchKeywordResult($this->search_category, $this->translated_search_category, $this->sub_category_id);
 
                 if ($this->fail_over_sub_category_id) {
 
-                    Log::info('FAIL_OVER : RESULT NOT FOUND! & is_search_keyword_already_translated = 1');
+//                    Log::info('FAIL_OVER : RESULT NOT FOUND! & is_search_keyword_already_translated = 1');
 
                     $this->sub_category_id = $this->fail_over_sub_category_id;
                     $this->current_search_keyword = $this->translated_search_category . " " . $this->search_category ;
@@ -8190,7 +8190,7 @@ class UserController extends Controller
                     goto run_same_query;
                 } else {
                     // Give 427 result
-                    Log::info('RETURN 427 : RESULT NOT FOUND! & is_search_keyword_already_translated = 1');
+//                    Log::info('RETURN 427 : RESULT NOT FOUND! & is_search_keyword_already_translated = 1');
                     $redis_result = $this->giveDefaultSearchResult($this->sub_category_id, $this->search_category, $this->is_featured, $this->offset, $this->item_count, $this->db_sub_category_id,$this->is_cache_enable);
                     return $redis_result;
                 }
@@ -8201,14 +8201,14 @@ class UserController extends Controller
             // Verify is Language code available
             if ($bcp_language_code) {
 
-                Log::info('LANGUAGE CODE AVAILABLE: ' . $bcp_language_code);
+//                Log::info('LANGUAGE CODE AVAILABLE: ' . $bcp_language_code);
 
                 // Verify is Language code "en"
                 if ($bcp_language_code == Config::get('constant.DEFAULT_LANGUAGE_CODE')) {
 
                     if ($this->fail_over_sub_category_id) {
 
-                        Log::info('FAIL_OVER : LANGUAGE CODE AVAILABLE & DEFAULT_LANGUAGE_CODE = en');
+//                        Log::info('FAIL_OVER : LANGUAGE CODE AVAILABLE & DEFAULT_LANGUAGE_CODE = en');
 
                         $this->sub_category_id = $this->fail_over_sub_category_id;
                         $this->current_search_keyword = $this->search_category;
@@ -8216,7 +8216,7 @@ class UserController extends Controller
                         goto run_same_query;
                     } else {
                         // Give 427 result
-                        Log::info('RETURN 427 : LANGUAGE CODE AVAILABLE & DEFAULT_LANGUAGE_CODE = en');
+//                        Log::info('RETURN 427 : LANGUAGE CODE AVAILABLE & DEFAULT_LANGUAGE_CODE = en');
                         $redis_result = $this->giveDefaultSearchResult($this->sub_category_id, $this->search_category, $this->is_featured, $this->offset, $this->item_count, $this->db_sub_category_id,$this->is_cache_enable);
                         return $redis_result;
                     }
@@ -8224,11 +8224,11 @@ class UserController extends Controller
                 } else {
 
                     if ($this->is_search_keyword_already_translated == 0) {
-                        Log::info('PHASE_2: Detect & Translate Search Keyword');
+//                        Log::info('PHASE_2: Detect & Translate Search Keyword');
                         // Detect & Translate Search Keyword
                         $this->is_search_keyword_already_translated = 1;
                         $this->translated_search_category = $this->detectAndTranslateSearchKeyword($this->search_category);
-                        Log::info('PHASE_2 : TRANSLATED RESULT : ' . $this->translated_search_category);
+//                        Log::info('PHASE_2 : TRANSLATED RESULT : ' . $this->translated_search_category);
 
                         if ($this->translated_search_category) {
                             $this->current_search_keyword = $this->translated_search_category;
@@ -8236,7 +8236,7 @@ class UserController extends Controller
                         } else {
 
                             if ($this->fail_over_sub_category_id) {
-                                Log::info('FAIL_OVER : PHASE_2 & TRANSLATE_SEARCH_KEYWORD = NULL');
+//                                Log::info('FAIL_OVER : PHASE_2 & TRANSLATE_SEARCH_KEYWORD = NULL');
 
                                 $this->sub_category_id = $this->fail_over_sub_category_id;
                                 $this->current_search_keyword = $this->search_category;
@@ -8244,7 +8244,7 @@ class UserController extends Controller
                                 goto run_same_query;
                             } else {
                                 // Give 427 result
-                                Log::info('RETURN 427 : PHASE_2 & TRANSLATE_SEARCH_KEYWORD = NULL');
+//                                Log::info('RETURN 427 : PHASE_2 & TRANSLATE_SEARCH_KEYWORD = NULL');
                                 $redis_result = $this->giveDefaultSearchResult($this->sub_category_id, $this->search_category, $this->is_featured, $this->offset, $this->item_count, $this->db_sub_category_id,$this->is_cache_enable);
                                 return $redis_result;
                             }
@@ -8257,7 +8257,7 @@ class UserController extends Controller
 
                         if ($this->fail_over_sub_category_id) {
 
-                            Log::info('FAIL_OVER : PHASE_2 & Detect & Translate Search Keyword Already DONE');
+//                            Log::info('FAIL_OVER : PHASE_2 & Detect & Translate Search Keyword Already DONE');
 
                             $this->sub_category_id = $this->fail_over_sub_category_id;
                             $this->search_category = $this->search_category . " " . $this->translated_search_category;
@@ -8265,7 +8265,7 @@ class UserController extends Controller
                             goto run_same_query;
                         } else {
                             // Give 427 result
-                            Log::info('RETURN 427 : PHASE_2 & Detect & Translate Search Keyword Already DONE');
+//                            Log::info('RETURN 427 : PHASE_2 & Detect & Translate Search Keyword Already DONE');
                             $redis_result = $this->giveDefaultSearchResult($this->sub_category_id, $this->search_category, $this->is_featured, $this->offset, $this->item_count, $this->db_sub_category_id,$this->is_cache_enable);
                             return $redis_result;
                         }
@@ -8275,16 +8275,16 @@ class UserController extends Controller
 
             } else {
 
-                Log::info('LANGUAGE CODE NOT AVAILABLE:');
+//                Log::info('LANGUAGE CODE NOT AVAILABLE:');
 
                 if ($this->is_search_keyword_already_translated == 0) {
 
-                    Log::info('PHASE_3: Detect & Translate Search Keyword');
+//                    Log::info('PHASE_3: Detect & Translate Search Keyword');
 
                     // Detect & Translate Search Keyword
                     $this->is_search_keyword_already_translated = 1;
                     $this->translated_search_category = $this->detectAndTranslateSearchKeyword($this->search_category);
-                    Log::info('PHASE_3 : TRANSLATED RESULT : ' . $this->translated_search_category);
+//                    Log::info('PHASE_3 : TRANSLATED RESULT : ' . $this->translated_search_category);
 
                     if ($this->translated_search_category) {
                         $this->current_search_keyword = $this->translated_search_category;
@@ -8292,7 +8292,7 @@ class UserController extends Controller
                     } else {
 
                         if ($this->fail_over_sub_category_id) {
-                            Log::info('FAIL_OVER : PHASE_3 & TRANSLATE_SEARCH_KEYWORD = NULL');
+//                            Log::info('FAIL_OVER : PHASE_3 & TRANSLATE_SEARCH_KEYWORD = NULL');
 
                             $this->sub_category_id = $this->fail_over_sub_category_id;
                             $this->current_search_keyword = $this->search_category;
@@ -8300,7 +8300,7 @@ class UserController extends Controller
                             goto run_same_query;
                         } else {
                             // Give 427 result
-                            Log::info('RETURN 427 : PHASE_3 & TRANSLATE_SEARCH_KEYWORD = NULL');
+//                            Log::info('RETURN 427 : PHASE_3 & TRANSLATE_SEARCH_KEYWORD = NULL');
                             $redis_result = $this->giveDefaultSearchResult($this->sub_category_id, $this->search_category, $this->is_featured, $this->offset, $this->item_count, $this->db_sub_category_id, $this->is_cache_enable);
                             return $redis_result;
                         }
@@ -8336,7 +8336,6 @@ class UserController extends Controller
             $this->cache_key_time = 0;
         }
 
-//        Redis::del("pel:searchCardsBySubCategoryId:$sub_category_id:$search_category:$is_featured:$offset:$item_count");
         $redis_result = Cache::remember("$this->cache_key_name:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", $this->cache_key_time, function () {
 
             $code = 427;
@@ -8410,21 +8409,19 @@ class UserController extends Controller
 
         $this->search_category = $search_category;
 
-        Log::info('PHASE : 2 (Detect & Translate)');
+//        Log::info('PHASE : 2 (Detect & Translate)');
 
         $translate_data = array('data' => array("source" => "", "input" => $this->search_category, "text" => "", "model" => ""));
-
-//        Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
 
         $translate_data = $this->translateLanguage($this->search_category, "en");
 
 
         if (Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app' && Config::get('constant.APP_ENV') != 'local' && $translate_data['code'] == 200 && $translate_data['data']['source'] == Config::get('constant.DEFAULT_LANGUAGE_CODE')) {
 
-            Log::info('PHASE : 3 (Start Spell Correction)');
+//            Log::info('PHASE : 3 (Start Spell Correction)');
 
             $suggestions = $this->spellCorrection($translate_data['data']['source'], $this->search_category);
-            Log::info("Spell Correction :",$suggestions);
+//            Log::info("Spell Correction :",$suggestions);
 
         } else {
             $suggestions['data'] = array();
@@ -8432,19 +8429,13 @@ class UserController extends Controller
 
         if ($translate_data['data']['text'] == $this->search_category || $translate_data['data']['source'] == 'en' || $translate_data['code'] != 200) {
             $translate_data['data']['text'] = NULL;
-            Log::info('PHASE : 4 (search keyword & translate word are same || language code detected en || $translate_data[code] != 200)');
+//            Log::info('PHASE : 4 (search keyword & translate word are same || language code detected en || $translate_data[code] != 200)');
 
             if ($suggestions['data']){
-//                if (count($suggestions['data']) > 6){
-                    Log::info('PHASE : Suggestion result found MORE then 5 result');
                     $search_category = implode(',', array_slice($suggestions['data'], 0, 5));
-//                }else {
-//                    Log::info('PHASE : Suggestion result found LESS then 5 result');
-//                    $search_category = implode(',', $suggestions['data']);
-//                }
                 return $search_category;
             }else{
-                Log::info('PHASE : Suggestion result NOT found!');
+//                Log::info('PHASE : Suggestion result NOT found!');
                 return NULL;
             }
 
@@ -8453,8 +8444,7 @@ class UserController extends Controller
         if ($translate_data['data']['text']) {
 
             $search_category = $translate_data['data']['text'];
-//          $search_category = trim($translate_data['data']['text'] . "," . implode(',', array_slice($suggestions['data'], 0, 5)), ",");
-            Log::info('PHASE : 5 (Merge user search keyword & translate keyword)');
+//            Log::info('PHASE : 5 Return translate result');
         }
 
         return $search_category;

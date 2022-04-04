@@ -287,10 +287,10 @@
                                                     @foreach($message_body AS $i => $row)
                                                         @if($i%2 == 0)
                                                             <tr style="border: 1px solid black; word-break: break-word; background-color: #ffffff;">
-                                                                <td style="padding:.50rem;vertical-align: middle;text-align: center;">{{  $i + 1 }}</td>
-                                                                <td style="padding:.50rem;vertical-align: middle;text-align: center;">{{ isset($row['user_tag']) ? $row['user_tag'] : '' }}</td>
+                                                                <td style="padding:.50rem;vertical-align: middle;text-align: left;">{{  $i + 1 }}</td>
+                                                                <td style="padding:.50rem;vertical-align: middle;text-align: left;">{{ isset($row['user_tag']) ? $row['user_tag'] : '' }}</td>
                                                                 <td style="padding:.50rem;vertical-align: middle;text-align: center;">{{ isset($row['translate_tag']) ? $row['translate_tag'] : '' }}</td>
-                                                                <td style="padding:.50rem;vertical-align: middle;text-align: center;">{{ isset($row['sub_category_name']) && $row['sub_category_name'] !='' ? $row['sub_category_name'] :'-' }}</td>
+                                                                <td style="padding:.50rem;vertical-align: middle;text-align: left;">{{ isset($row['sub_category_name']) && $row['sub_category_name'] !='' ? $row['sub_category_name'] :'-' }}</td>
                                                                 @if(isset($row['is_success']) && $row['is_success'] == 1)
                                                                     <td style="padding:.50rem;vertical-align: middle;text-align: center;color: green !important;">Success</td>
                                                                 @else
@@ -299,10 +299,10 @@
                                                             </tr>
                                                         @else
                                                             <tr style="border: 1px solid black; word-break: break-word; background-color: #D3D3D3">
-                                                                <td style="padding:.50rem;vertical-align: middle;text-align: center;">{{  $i + 1 }}</td>
-                                                                <td style="padding:.50rem;vertical-align: middle;text-align: center;">{{ isset($row['user_tag']) ? $row['user_tag'] : '' }}</td>
+                                                                <td style="padding:.50rem;vertical-align: middle;text-align: left;">{{  $i + 1 }}</td>
+                                                                <td style="padding:.50rem;vertical-align: middle;text-align: left;">{{ isset($row['user_tag']) ? $row['user_tag'] : '' }}</td>
                                                                 <td style="padding:.50rem;vertical-align: middle;text-align: center;">{{ isset($row['translate_tag']) ? $row['translate_tag'] : '' }}</td>
-                                                                <td style="padding:.50rem;vertical-align: middle;text-align: center;">{{ isset($row['sub_category_name']) && $row['sub_category_name'] !='' ? $row['sub_category_name'] :'-' }}</td>
+                                                                <td style="padding:.50rem;vertical-align: middle;text-align: left;">{{ isset($row['sub_category_name']) && $row['sub_category_name'] !='' ? $row['sub_category_name'] :'-' }}</td>
                                                                 @if(isset($row['is_success']) && $row['is_success'] == 1)
                                                                     <td style="padding:.50rem;vertical-align: middle;text-align: center;color: green !important;">Success</td>
                                                                 @else
