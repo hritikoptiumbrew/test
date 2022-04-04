@@ -8419,11 +8419,12 @@ class UserController extends Controller
         $translate_data = $this->translateLanguage($this->search_category, "en");
 
 
-        if (Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app' && Config::get('constant.APP_ENV') != 'local' && $translate_data['code'] == 200) {
+        if (Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app' && Config::get('constant.APP_ENV') != 'local' && $translate_data['code'] == 200 && $translate_data['source'] == Config::get('constant.DEFAULT_LANGUAGE_CODE')) {
 
             Log::info('PHASE : 3 (Start Spell Correction)');
 
             $suggestions = $this->spellCorrection($translate_data['data']['source'], $this->search_category);
+            Log::info("Spell Correction :",$suggestions);
 
         } else {
             $suggestions['data'] = array();
@@ -8436,7 +8437,7 @@ class UserController extends Controller
         }
 
         if ($suggestions['data'] || $translate_data['data']['text']) {
-            $search_category = trim($translate_data['data']['text'] . "," . implode(',', array_slice($suggestions['data'], 0, 5)), ",");
+            $search_category = trim($translate_data['data']['text'] . ", " . implode(', ', array_slice($suggestions['data'], 0, 5)), ",");
             Log::info('PHASE : 5 (Merge user search keyword & translate keyword)');
         }
 
