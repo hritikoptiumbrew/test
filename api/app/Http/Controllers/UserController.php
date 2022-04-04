@@ -8433,7 +8433,21 @@ class UserController extends Controller
         if ($translate_data['data']['text'] == $this->search_category || $translate_data['data']['source'] == 'en' || $translate_data['code'] != 200) {
             $translate_data['data']['text'] = NULL;
             Log::info('PHASE : 4 (search keyword & translate word are same || language code detected en || $translate_data[code] != 200)');
-            return NULL;
+
+            if ($suggestions['data']){
+                if (count($suggestions['data']) > 6){
+                    Log::info('PHASE : Suggestion result found MORE then 5 result');
+                    $search_category = implode(',', array_slice($suggestions['data'], 0, 5));
+                }else {
+                    Log::info('PHASE : Suggestion result found LESS then 5 result');
+                    $search_category = implode(',', $suggestions['data']);
+                }
+                return $search_category;
+            }else{
+                Log::info('PHASE : Suggestion result NOT found!');
+                return NULL;
+            }
+
         }
 
         if ($suggestions['data'] || $translate_data['data']['text']) {
