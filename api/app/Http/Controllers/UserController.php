@@ -8451,7 +8451,16 @@ class UserController extends Controller
         }
 
         if ($suggestions['data'] || $translate_data['data']['text']) {
-            $search_category = trim($translate_data['data']['text'] . ", " . implode(', ', array_slice($suggestions['data'], 0, 5)), ",");
+
+            if (count($suggestions['data']) > 6){
+                Log::info('PHASE : Suggestion result found MORE then 5 result');
+                $search_category = trim($translate_data['data']['text'] . "," . implode(',', array_slice($suggestions['data'], 0, 5)), ",");
+            }else {
+                Log::info('PHASE : Suggestion result found LESS then 5 result');
+                $search_category = implode(',', $suggestions['data']);
+            }
+
+//            $search_category = trim($translate_data['data']['text'] . "," . implode(',', array_slice($suggestions['data'], 0, 5)), ",");
             Log::info('PHASE : 5 (Merge user search keyword & translate keyword)');
         }
 
