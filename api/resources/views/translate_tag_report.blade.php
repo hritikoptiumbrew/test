@@ -275,11 +275,11 @@
                                             <table border=1 style="display: table;border-collapse: separate;padding: 5px;border-color: grey;width: 100%;color: #212529;">
                                                 <thead>
                                                 <tr style="padding:.50rem;vertical-align: middle;border-bottom-width: 2px;border-top-width: 2px;">
-                                                    <th>No</th>
+                                                    <th style="width:75px;">No</th>
                                                     <th>Search tag</th>
                                                     <th>Translate Tag</th>
                                                     <th>Sub category name</th>
-                                                    <th>Status</th>
+                                                    <th style="width:80px;">Status</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
