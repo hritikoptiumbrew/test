@@ -280,7 +280,7 @@
                                                     <th style="width:80px;">Search count</th>
                                                     <th style="width:80px;">Content count</th>
                                                     <th>Sub category name</th>
-                                                    <th>Status</th>
+                                                    <th style="width:80px;">Status</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
