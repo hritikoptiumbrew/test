@@ -1716,7 +1716,7 @@ class UserController extends Controller
                                 }else{
                                     $is_next_page = true;
                                 }
-                                return array('total_record' => $this->total_row, 'is_next_page' => $is_next_page, 'data' => $this->total_page[$this->i]);
+                                return array('total_record' => $this->total_row, 'is_next_page' => $is_next_page, 'data' => $this->total_page[$this->i], 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/');
                             });
                         }
                         $redis_result = Cache::get("getFeaturedTemplatesWithWebp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id");
@@ -1765,6 +1765,9 @@ class UserController extends Controller
                                                   coalesce(search_category,"") AS search_category,
                                                   coalesce(original_img_height,0) AS original_img_height,
                                                   coalesce(original_img_width,0) AS original_img_width,
+                                                  COALESCE(multiple_images,"") AS multiple_images,
+                                                  COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                   updated_at
                                                 FROM
                                                   images
@@ -1774,7 +1777,7 @@ class UserController extends Controller
                                                 ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
                         $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
+                        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/');
 
 
                     });
@@ -8755,6 +8758,9 @@ class UserController extends Controller
                                                                   coalesce(search_category,"") AS search_category,
                                                                   coalesce(original_img_height,0) AS original_img_height,
                                                                   coalesce(original_img_width,0) AS original_img_width,
+                                                                  COALESCE(multiple_images,"") AS multiple_images,
+                                                                  COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                                                  COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                                   updated_at
                                                                 FROM (
                                                                        (SELECT
@@ -8807,6 +8813,9 @@ class UserController extends Controller
                                                                               coalesce(search_category,"") AS search_category,
                                                                               coalesce(original_img_height,0) AS original_img_height,
                                                                               coalesce(original_img_width,0) AS original_img_width,
+                                                                              COALESCE(multiple_images,"") AS multiple_images,
+                                                                              COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                                                              COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                                               updated_at
                                                                               FROM (
                                                                                       (SELECT
@@ -8926,7 +8935,7 @@ class UserController extends Controller
         catch (Exception $e)
         {
             Log::error("getAllFeaturedTemplatesWithShuffling : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            return $response = array('total_row' => 0, 'featured_templates' => []);
+            return $response = array('total_row' => 0, 'featured_templates' => [], 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/');
         }
     }
 
