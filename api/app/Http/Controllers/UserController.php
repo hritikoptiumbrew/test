@@ -7745,19 +7745,12 @@ class UserController extends Controller
             if (!$total_row && !$this->is_search_category_changed) {
 
                 $this->is_search_category_changed = 1;
+
                 $translate_data = $this->translateLanguage($this->search_category, "en");
 
-                if(Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app' && Config::get('constant.APP_ENV') != 'local') {
-                    $suggestions = $this->spellCorrection($translate_data['data']['source'], $this->search_category);
-                }else{
-                    $suggestions['data'] = array();
-                }
-
-                if($suggestions['data'] || $translate_data['data']['text']) {
-                    $this->search_category = trim($translate_data['data']['text'] .",". implode(',',array_slice($suggestions['data'], 0, 5)), ",");
-                    if($this->search_category)
-                        goto run_same_query;
-
+                if($translate_data['data']['text'] && $translate_data['data']['text'] != $this->search_category) {
+                    $this->search_category = $translate_data['data']['text'];
+                    goto run_same_query;
                 }
             }
 
