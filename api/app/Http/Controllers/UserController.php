@@ -2930,7 +2930,7 @@ class UserController extends Controller
 
             $sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
             $search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
-            $bcp_language_code = isset($request->bcp_language_code) ? $request->bcp_language_code : '';
+            $bcp_language_code = isset($request->bcp_language_code) ? $request->bcp_language_code : '';     //if user text language is in english that in "en" that time we don't need to call translate API.
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
@@ -2940,16 +2940,8 @@ class UserController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $fail_over_sub_category_id = isset($request->fail_over_sub_category_id) ? $request->fail_over_sub_category_id : '';
             //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
-            //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
-
 
             $redis_result = $this->searchTemplatesBySearchCategory_V2($search_category, $sub_category_id, $offset, $page, $item_count, $is_featured, $fail_over_sub_category_id, $bcp_language_code, $is_cache_enable);
-            /*if ($is_cache_enable == 1) {
-                $redis_result = $this->searchTemplatesBySearchCategory_V2($search_category, $sub_category_id, $offset, $page, $item_count, $is_featured, $fail_over_sub_category_id, $bcp_language_code, $is_cache_enable);
-            } else {
-
-                $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $fail_over_sub_category_id, $bcp_language_code);
-            }*/
 
             if ($page == 1 && $is_user_search_tag == 1) {
                 if ($redis_result['code'] != 200) {
