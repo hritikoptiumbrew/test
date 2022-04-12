@@ -30,11 +30,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('custom:command')->dailyAt('1:00');
-        $schedule->command('SendTagReportMail')->weekly()->mondays()->at('13:00');
+        $schedule->command('SendTagReportMail')->weekly()->mondays()->at('4:00');
 //        $schedule->command('SendFontsTagReport')->weekly()->mondays()->at('4:00');
 //        $schedule->command('SendStickerTagReport')->weekly()->mondays()->at('4:00');
 //        $schedule->command('SendTranslateTagReport')->weekly()->mondays()->at('4:00');
-        $schedule->command('SendTagReport_V2')->weekly()->mondays()->at('13:00');
+        $schedule->command('SendTagReport_V2')->weekly()->mondays()->at('4:00');
 
         // $schedule->command('inspire')
         //          ->hourly();
