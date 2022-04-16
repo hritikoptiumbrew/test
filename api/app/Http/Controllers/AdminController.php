@@ -9882,7 +9882,7 @@ class AdminController extends Controller
         return $response;
     }
 
-    public function getRedisKeysByKeyName(Request $request_body)
+    public function getAllRedisKeysByKeyName(Request $request_body)
     {
         try {
 
@@ -9897,13 +9897,13 @@ class AdminController extends Controller
 
             $key_name = $request->key_name;
 
-            $response = Cache::get($key_name);
+            $response = (new UserController())->getAllRedisKeys($key_name);
 
             $response = Response::json(array('code' => 200, 'message' => 'Redis keys fetched successfully.', 'cause' => '', 'data' => $response));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getRedisKeysByKeyName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("getAllRedisKeysByKeyName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete redis keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;

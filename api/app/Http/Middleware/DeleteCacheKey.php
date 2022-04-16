@@ -98,7 +98,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getCatalogsByType*"),['']));
 
                 //getFeaturedJsonSampleData_webp
-                Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonSampleData_webp*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonSampleData_webp*"),['']));
 
                 //getAllSubCategoryForLinkCatalog
                 Redis::del(array_merge(Redis::keys("pel:getAllSubCategoryForLinkCatalog*"),['']));
@@ -144,7 +144,7 @@ class DeleteCacheKey
 
                 Redis::del(array_merge(Redis::keys("pel:getFeaturedSampleAndCatalogWithWebp*"),['']));
 
-                Redis::del(array_merge(Redis::keys("pel:getPopularAndEventCatalogs*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getPopularAndEventCatalogs*"),['']));
 
             }
 
@@ -193,7 +193,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getHomePageDetail*"),['']));
 
                 //getFeaturedJsonSampleData_webp
-                Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonSampleData_webp*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonSampleData_webp*"),['']));
 
                 //getFeaturedJsonImages
                 Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonImages*"),['']));
@@ -394,7 +394,7 @@ class DeleteCacheKey
                 //getTemplatesBySubCategoryTags_v2
                 Redis::del(array_merge(Redis::keys("pel:getTemplatesBySubCategoryTags_v2*"),['']));
 
-                Redis::del(array_merge(Redis::keys("pel:getSearchTagBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getSearchTagBySubCategoryId*"),['']));
 
                 Redis::del(array_merge(Redis::keys("pel:searchCatalogBySubCategoryId*"),['']));
             }
