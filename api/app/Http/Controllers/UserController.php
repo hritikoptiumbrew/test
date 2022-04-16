@@ -3071,11 +3071,14 @@ class UserController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
                 return $response;
 
-            $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = strtolower(trim($request->search_category));
+            $this->sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
+            $this->search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $this->is_featured = isset($request->is_featured) ? $request->is_featured : 1;   //is_featured is use for finding a proper data from DB.
+            $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');    //Category id to find, Which category is use.
+
 
             //validate search text
             $this->is_verified = (new VerificationController())->verifySearchText($this->search_category);
@@ -3098,14 +3101,14 @@ class UserController extends Controller
                                                                 WHERE
                                                                 im.is_active = 1 AND
                                                                 im.catalog_id = scc.catalog_id AND
-                                                                cm.is_featured = 1 AND
+                                                                cm.is_featured = ? AND
                                                                 cm.id = scc.catalog_id AND
                                                                 scc.sub_category_id = ? AND
                                                                 isnull(im.original_img) AND
                                                                 isnull(im.display_img) AND
                                                                 (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
                                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
-                                                                ', [$this->sub_category_id]);
+                                                                ', [$this->is_featured, $this->sub_category_id]);
 
                                 return $total_row_result[0]->total;
                             });
@@ -3121,8 +3124,8 @@ class UserController extends Controller
                                                     coalesce(im.height,0) AS height,
                                                     coalesce(im.width,0) AS width,
                                                     im.updated_at,
-                                                    MATCH(im.search_category) AGAINST("' . $search_category . '") +
-                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text 
+                                                    MATCH(im.search_category) AGAINST("' . $this->search_category . '") +
+                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text 
                                                     FROM
                                                     images as im,
                                                     catalog_master AS cm,
@@ -3135,8 +3138,8 @@ class UserController extends Controller
                                                     scc.sub_category_id = ? AND
                                                     isnull(im.original_img) AND
                                                     isnull(im.display_img) AND
-                                                    (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
-                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE))
+                                                    (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
+                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
                                                     ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                     } else {
                         $search_result = [];
@@ -3188,7 +3191,7 @@ class UserController extends Controller
                                                     isnull(im.display_img)
                                                     ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
                         $code = 427;
-                        $message = "Sorry, we couldn't find any templates for '$search_category', but we found some other templates you might like:";
+                        $message = "Sorry, we couldn't find any templates for '$this->search_category', but we found some other templates you might like:";
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -3208,9 +3211,9 @@ class UserController extends Controller
 
             if($this->page == 1) {
                 if($redis_result['code'] != 200){
-                    SaveSearchTagJob::dispatch(0, $this->search_category, $this->sub_category_id, 0);
+                    SaveSearchTagJob::dispatch(0, $this->search_category, $this->sub_category_id, 0, $this->is_featured, $category_id);
                 }else{
-                    SaveSearchTagJob::dispatch($redis_result['result']['total_record'], $this->search_category, $this->sub_category_id, 1);
+                    SaveSearchTagJob::dispatch($redis_result['result']['total_record'], $this->search_category, $this->sub_category_id, 1, $this->is_featured, $category_id);
                 }
             }
 
