@@ -3600,6 +3600,9 @@ class UserController extends Controller
                         $search_result = DB::select('SELECT
                                                         im.id AS img_id,
                                                         IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
+                                                        IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS thumbnail_img,
+                                                        IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
+                                                        IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS original_img,
                                                         IF(cm.is_free=1,1,0) AS is_free,
                                                         scc.sub_category_id,
                                                         im.is_featured,
