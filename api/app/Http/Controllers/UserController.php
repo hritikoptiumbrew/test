@@ -2231,7 +2231,6 @@ class UserController extends Controller
 
             $redis_result = Cache::remember("getFeaturedJsonSampleData_webp:$this->item_count:$this->sub_category_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
-                    Log::info('getFeaturedJsonSampleData_webp : DB hits');
                     $catalogs = DB::select('SELECT
                                                   ct.id as catalog_id,
                                                   ct.name,
@@ -9665,7 +9664,6 @@ class UserController extends Controller
 
             $redis_result = Cache::remember("getSearchTagBySubCategoryId:$this->sub_category_id:$this->is_template:$this->item_count_of_search_tag:$this->page", Config::get("constant.CACHE_TIME_6_HOUR"), function () {
 
-                    Log::info('getSearchTagBySubCategoryId : DB hits');
                     $search_tag_list = DB::select('SELECT
                                                       id,
                                                       tag_name
