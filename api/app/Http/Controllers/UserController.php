@@ -2888,14 +2888,15 @@ class UserController extends Controller
             $is_featured = isset($request->is_featured) ? $request->is_featured : 1;   //is_featured is use for finding a proper data from DB.
             $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');    //Category id to find, Which category is use.
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
+            $catalog_id = isset($request->catalog_id) ? $request->catalog_id : '';    //Catalog id to give a priority template.
             //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
             //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
 
 
             if ($is_cache_enable == 1) {
-                $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
+                $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
             }else{
-                $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured);
+                $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
             }
 
             if($page == 1 && $is_user_search_tag == 1) {
@@ -2988,13 +2989,14 @@ class UserController extends Controller
             $is_featured = isset($request->is_featured) ? $request->is_featured : 1;                //is_featured is use for finding a proper data from DB.
             $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');               //Category id to find, Which category is use.
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
+            $catalog_id = isset($request->catalog_id) ? $request->catalog_id : '';         //Catalog id to give a priority template.
             //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
             //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
 
             if ($is_cache_enable == 1) {
-                $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
+                $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
             }else{
-                $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured);
+                $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
             }
 
             if($page == 1 && $is_user_search_tag == 1) {
@@ -7668,7 +7670,7 @@ class UserController extends Controller
     Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here).
     Return : return template detail if success otherwise error with specific status code
     */
-    public function searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $fail_over_sub_category_id = '')
+    public function searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id, $fail_over_sub_category_id = '')
     {
         try{
             $this->db_sub_category_id = $this->sub_category_id = $sub_category_id;
@@ -7678,6 +7680,13 @@ class UserController extends Controller
             $this->item_count = $item_count;
             $this->is_search_category_changed = 0;
             $this->is_featured = $is_featured;
+            $this->catalog_id = $catalog_id;
+
+            if ($this->catalog_id) {
+                $this->order_by = 'ORDER BY im.catalog_id = '. $this->catalog_id .' DESC';
+            } else {
+                $this->order_by = 'ORDER BY search_text DESC, im.updated_at DESC';
+            }
 
             run_same_query:
             $code = 200;
@@ -7713,6 +7722,7 @@ class UserController extends Controller
                                             im.is_free,
                                             im.is_featured,
                                             im.is_portrait,
+                                            im.catalog_id,
                                             COALESCE(im.height,0) AS height,
                                             COALESCE(im.width,0) AS width,
                                             COALESCE(im.multiple_images,"") AS multiple_images,
@@ -7736,7 +7746,7 @@ class UserController extends Controller
                                             ISNULL(im.display_img) AND
                                             (MATCH(im.search_category) AGAINST("' . $this->db_search_category . '") OR 
                                             MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->db_search_category . '"," ")," ","* ") IN BOOLEAN MODE))
-                                        ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+                                            '. $this->order_by .' LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                 $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
@@ -7843,7 +7853,7 @@ class UserController extends Controller
     Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here).
     Return : return template detail if success otherwise error with specific status code
     */
-    public function searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $fail_over_sub_category_id = '')
+    public function searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id, $fail_over_sub_category_id = '')
     {
         try{
             $this->db_sub_category_id = $this->sub_category_id = $sub_category_id;
@@ -7853,9 +7863,16 @@ class UserController extends Controller
             $this->item_count = $item_count;
             $this->is_search_category_changed = 0;
             $this->is_featured = $is_featured;
+            $this->catalog_id = $catalog_id;
+
+            if ($this->catalog_id) {
+                $this->order_by = 'ORDER BY im.catalog_id = '. $this->catalog_id .' DESC';
+            } else {
+                $this->order_by = 'ORDER BY search_text DESC, im.updated_at DESC';
+            }
 
             run_same_query:
-            $redis_result = Cache::rememberforever("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
+            $redis_result = Cache::rememberforever("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id", function () {
 
                 $code = 200;
                 $message = "Templates fetched successfully.";
@@ -7890,6 +7907,7 @@ class UserController extends Controller
                                                 im.is_free,
                                                 im.is_featured,
                                                 im.is_portrait,
+                                                im.catalog_id,
                                                 COALESCE(im.height,0) AS height,
                                                 COALESCE(im.width,0) AS width,
                                                 COALESCE(im.multiple_images,"") AS multiple_images,
@@ -7913,7 +7931,7 @@ class UserController extends Controller
                                                 ISNULL(im.display_img) AND
                                                 (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
-                                            ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+                                                '. $this->order_by .' LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
                 }
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
