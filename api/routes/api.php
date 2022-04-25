@@ -426,7 +426,7 @@ Route::post('testMail', 'AdminController@testMail');
 Route::post('getPhpInfo', 'AdminController@getPhpInfo');
 Route::post('getServerTime', 'AdminController@getServerTime');
 Route::post('deleteAllRedisKeysByKeyName', 'AdminController@deleteAllRedisKeysByKeyName');
-Route::post('getRedisKeysByKeyName', 'AdminController@getRedisKeysByKeyName');
+Route::post('getAllRedisKeysByKeyName', 'AdminController@getAllRedisKeysByKeyName');
 
 //API to get fonts into font_collection (for designer use)
 Route::post('getAllFonts', 'AdminController@getAllFonts');

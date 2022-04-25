@@ -2216,7 +2216,6 @@ class UserController extends Controller
      */
     public function getFeaturedJsonSampleData_webp(Request $request_body)
     {
-
         try {
 
             $token = JWTAuth::getToken();
@@ -2230,10 +2229,7 @@ class UserController extends Controller
             $this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_JSON');
             $this->offset = 0;
 
-            //Log::info('request_data', ['request_data' => $request]);
-
-            if (!Cache::has("pel:getFeaturedJsonSampleData_webp$this->item_count:$this->sub_category_id")) {
-                $result = Cache::rememberforever("getFeaturedJsonSampleData_webp$this->item_count:$this->sub_category_id", function () {
+            $redis_result = Cache::remember("getFeaturedJsonSampleData_webp:$this->item_count:$this->sub_category_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $catalogs = DB::select('SELECT
                                                   ct.id as catalog_id,
@@ -2287,10 +2283,7 @@ class UserController extends Controller
 
 
                     return $catalogs;
-                });
-            }
-
-            $redis_result = Cache::get("getFeaturedJsonSampleData_webp$this->item_count:$this->sub_category_id");
+            });
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -2300,8 +2293,7 @@ class UserController extends Controller
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
 
-        } catch
-        (Exception $e) {
+        } catch (Exception $e) {
             Log::error("getFeaturedJsonSampleData_webp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get featured json sample data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
@@ -3609,6 +3601,9 @@ class UserController extends Controller
                         $search_result = DB::select('SELECT
                                                         im.id AS img_id,
                                                         IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
+                                                        IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS thumbnail_img,
+                                                        IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
+                                                        IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS original_img,
                                                         IF(cm.is_free=1,1,0) AS is_free,
                                                         scc.sub_category_id,
                                                         im.is_featured,
@@ -7497,7 +7492,6 @@ class UserController extends Controller
      */
     public function getPopularAndEventCatalogs(Request $request_body)
     {
-
         try {
 
             $token = JWTAuth::getToken();
@@ -7513,8 +7507,9 @@ class UserController extends Controller
 
             $this->time_of_expired_redis_key = Config::get('constant.EXPIRATION_TIME_OF_REDIS_KEY_TO_GET_ALL_FEATURED_TEMPLATES');
 
-            if (!Cache::has("pel:getPopularAndEventCatalogs$this->item_count:$this->sub_category_id")) {
-                $result = Cache::remember("getPopularAndEventCatalogs$this->item_count:$this->sub_category_id", $this->time_of_expired_redis_key, function () {
+            $redis_result = Cache::remember("getPopularAndEventCatalogs:$this->sub_category_id", $this->time_of_expired_redis_key, function () {
+
+                    Log::info('getPopularAndEventCatalogs : db_query hits.');
 
                     $popular_catalogs = DB::select('SELECT
                                                   ct.id as catalog_id,
@@ -7641,10 +7636,7 @@ class UserController extends Controller
                                                 order by ct.updated_at DESC', [$this->sub_category_id]);
 
                     return array("popular_category" => $popular_catalogs, 'event_category' => $event_catalogs, 'all_category' => $all_category);
-                });
-            }
-
-            $redis_result = Cache::get("getPopularAndEventCatalogs$this->item_count:$this->sub_category_id");
+            });
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -7660,9 +7652,28 @@ class UserController extends Controller
     }
 
     /*=============================| Sub functions |=============================*/
+    public function deleteAllRedisKeys($key_name)
+    {
+        try {
+            $is_success = Redis::del(array_merge(Redis::keys("pel:$key_name*"), ['']));
+            return $is_success;
 
-    public function deleteAllRedisKeys($key_name){
-        return $is_success = Redis::del(array_merge(Redis::keys("pel:$key_name*"),['']));
+        } catch (Exception $e) {
+            Log::error("deleteAllRedisKeys : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return 0;
+        }
+    }
+
+    public function getAllRedisKeys($key_name)
+    {
+        try {
+            $redis_keys = Redis::keys("pel:$key_name*");
+            return $redis_keys;
+
+        } catch (Exception $e) {
+            Log::error("getAllRedisKeys : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return json_decode('{}');
+        }
     }
 
     /*
@@ -7948,7 +7959,7 @@ class UserController extends Controller
 
                 $translate_data = $this->translateLanguage($this->search_category, "en");
 
-                if($translate_data['data']['text'] && $translate_data['data']['text'] != $this->search_category) {
+                if(isset($translate_data['data']['text']) && $translate_data['data']['text'] && $translate_data['data']['text'] != $this->search_category) {
                     $this->search_category = $translate_data['data']['text'];
                     goto run_same_query;
                 }
@@ -9669,8 +9680,7 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->offset = ($this->page - 1) * $this->item_count_of_search_tag;
 
-            if (!Cache::has("pel:getSearchTagBySubCategoryId$this->sub_category_id:$this->is_template:$this->item_count_of_search_tag:$this->page")) {
-                Cache::rememberforever("getSearchTagBySubCategoryId$this->sub_category_id:$this->is_template:$this->item_count_of_search_tag:$this->page", function () {
+            $redis_result = Cache::remember("getSearchTagBySubCategoryId:$this->sub_category_id:$this->is_template:$this->item_count_of_search_tag:$this->page", Config::get("constant.CACHE_TIME_6_HOUR"), function () {
 
                     $search_tag_list = DB::select('SELECT
                                                       id,
@@ -9688,10 +9698,7 @@ class UserController extends Controller
                     $is_next_page = ($total_row > ($this->offset + $this->item_count_of_search_tag)) ? true : false;
 
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'tag_list' => $search_tag_list);
-                });
-            }
-
-            $redis_result = Cache::get("getSearchTagBySubCategoryId$this->sub_category_id:$this->is_template:$this->item_count_of_search_tag:$this->page");
+            });
 
             if (!$redis_result) {
                 $redis_result = [];
