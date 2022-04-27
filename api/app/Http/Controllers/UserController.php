@@ -7927,7 +7927,6 @@ class UserController extends Controller
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                 $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
-
                 return array('code' => $code, 'message' => $message, 'cause' => '', 'data' => $search_result);
 
             });
@@ -7937,6 +7936,7 @@ class UserController extends Controller
                 Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
 
                 $this->is_search_category_changed = 1;
+
                 $translate_data = $this->translateLanguage($this->search_category, "en");
 
                 if(Config::get('constant.ACTIVATION_LINK_PATH') != 'https://flyerbuilder.app' && Config::get('constant.APP_ENV') != 'local') {
@@ -8065,7 +8065,7 @@ class UserController extends Controller
             $this->is_search_keyword_already_translated = 0;
             $this->current_search_keyword = $this->search_category;
             $this->is_cache_enable = $is_cache_enable;
-            $this->cache_key_name = "searchCardsBySubCategoryIdWithTranslate";
+            $this->cache_key_name = "direct_search:searchCardsBySubCategoryIdWithTranslate";
             $this->cache_key_time = Config::get('constant.CACHE_TIME_24_HOUR');
 
 
@@ -8075,15 +8075,15 @@ class UserController extends Controller
 
             if ($this->is_cache_enable == 1) {
                 Log::info('IS CACHE ENABLE : TRUE');
-                $this->cache_key_name = "searchCardsBySubCategoryIdWithTranslate";
+                $this->cache_key_name = "direct_search:searchCardsBySubCategoryIdWithTranslate";
                 $this->cache_key_time = Config::get('constant.CACHE_TIME_24_HOUR');
             } else {
                 Log::info('IS CACHE ENABLE : FALSE');
-                $this->cache_key_name = "searchCardsBySubCategoryIdWithTranslate_without_cache";
+                $this->cache_key_name = "direct_search:searchCardsBySubCategoryIdWithTranslate_without_cache";
                 $this->cache_key_time = 0;
             }
 
-            $redis_result = Cache::remember("$this->cache_key_name:$this->sub_category_id:$this->current_search_keyword:$this->is_featured:$this->offset:$this->item_count", 1440, function () {
+            $redis_result = Cache::remember("$this->cache_key_name:$this->sub_category_id:$this->current_search_keyword:$this->is_featured:$this->offset:$this->item_count", $this->cache_key_time, function () {
 
                 $code = 200;
                 $message = "Templates fetched successfully.";
@@ -8325,19 +8325,19 @@ class UserController extends Controller
         $this->item_count = $item_count;
         $this->db_sub_category_id = $db_sub_category_id;
         $this->is_cache_enable = $is_cache_enable;
-        $this->cache_key_name = "default:searchCardsBySubCategoryIdWithTranslate";
+        $this->cache_key_name = "default_search:searchCardsBySubCategoryIdWithTranslate";
         $this->cache_key_time = Config::get('constant.CACHE_TIME_7_DAYS');
 
         if ($this->is_cache_enable == 1) {
-            $this->cache_key_name = "default:searchCardsBySubCategoryIdWithTranslate";
+            $this->cache_key_name = "default_search:searchCardsBySubCategoryIdWithTranslate";
             $this->cache_key_time = Config::get('constant.CACHE_TIME_7_DAYS');
         } else {
-            $this->cache_key_name = "default:searchCardsBySubCategoryIdWithTranslate_without_cache";
+            $this->cache_key_name = "default_search:searchCardsBySubCategoryIdWithTranslate_without_cache";
             $this->cache_key_time = 0;
         }
 
 //        Redis::del("pel:searchCardsBySubCategoryId:$sub_category_id:$search_category:$is_featured:$offset:$item_count");
-        $redis_result = Cache::remember("$this->cache_key_name:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", 10080, function () {
+        $redis_result = Cache::remember("$this->cache_key_name:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", $this->cache_key_time, function () {
 
             $code = 427;
             $message = "Sorry, we couldn't find any templates for '$this->search_category', but we found some other templates you might like:";

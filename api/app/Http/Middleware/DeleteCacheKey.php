@@ -167,7 +167,9 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
 
                 //searchCardsBySubCategoryIdWithTranslate
-//                Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryIdWithTranslate*"),['']));
+//                Redis::del(array_merge(Redis::keys("pel:direct_search:searchCardsBySubCategoryIdWithTranslate*"),['']));
+
+//                Redis::del(array_merge(Redis::keys("pel:default_search:searchCardsBySubCategoryIdWithTranslate*"),['']));
 
                 //getDataByCatalogIdForAdmin
                 Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin*"),['']));
