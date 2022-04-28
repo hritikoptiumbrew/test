@@ -2958,8 +2958,8 @@ class UserController extends Controller
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         $time_end = microtime(true);
-        $execution_time = intval($time_end - $time_start)." Sec";
-        Log::info('searchCardsBySubCategoryIdWithTranslate : total execution time is :',['sec' => $execution_time]);
+        $execution_time = $time_end - $time_start;
+        Log::info('searchCardsBySubCategoryIdWithTranslate : total execution time in milli-seconds is :',[$execution_time]);
         return $response;
     }
 
