@@ -222,9 +222,6 @@ class DeleteCacheKey
                 //getTemplatesBySubCategoryTags
                 Redis::del(array_merge(Redis::keys("pel:getTemplatesBySubCategoryTags*"),['']));
 
-                //getTemplatesBySubCategoryTags_v2
-                Redis::del(array_merge(Redis::keys("pel:getTemplatesBySubCategoryTags_v2*"),['']));
-
                 //getCategoryTagBySubCategoryId
                 Redis::del(array_merge(Redis::keys("pel:getCategoryTagBySubCategoryId*"),['']));
 
@@ -390,9 +387,6 @@ class DeleteCacheKey
 
                 //getTemplatesBySubCategoryTags
                 Redis::del(array_merge(Redis::keys("pel:getTemplatesBySubCategoryTags*"),['']));
-
-                //getTemplatesBySubCategoryTags_v2
-                Redis::del(array_merge(Redis::keys("pel:getTemplatesBySubCategoryTags_v2*"),['']));
 
                 //Redis::del(array_merge(Redis::keys("pel:getSearchTagBySubCategoryId*"),['']));
 
