@@ -7831,7 +7831,7 @@ class UserController extends Controller
             $this->catalog_id = $catalog_id;
 
             if ($this->catalog_id) {
-                $this->order_by = 'ORDER BY im.catalog_id = '. $this->catalog_id .' DESC, search_text DESC, im.updated_at DESC';
+                $this->order_by = 'ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
             } else {
                 $this->order_by = 'ORDER BY search_text DESC, im.updated_at DESC';
             }
@@ -7893,7 +7893,7 @@ class UserController extends Controller
                                             ISNULL(im.display_img) AND
                                             (MATCH(im.search_category) AGAINST("' . $this->db_search_category . '") OR 
                                             MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->db_search_category . '"," ")," ","* ") IN BOOLEAN MODE))
-                                            '. $this->order_by .' LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+                                        '. $this->order_by .' LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                 $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
@@ -8020,7 +8020,7 @@ class UserController extends Controller
                 $search_result = [];
 
                 if ($this->catalog_id) {
-                    $this->order_by = 'ORDER BY im.catalog_id = '. $this->catalog_id .' DESC, search_text DESC, im.updated_at DESC';
+                    $this->order_by = 'ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
                 } else {
                     $this->order_by = 'ORDER BY search_text DESC, im.updated_at DESC';
                 }
@@ -8054,7 +8054,6 @@ class UserController extends Controller
                                                 im.is_free,
                                                 im.is_featured,
                                                 im.is_portrait,
-                                                im.catalog_id,
                                                 COALESCE(im.height,0) AS height,
                                                 COALESCE(im.width,0) AS width,
                                                 COALESCE(im.multiple_images,"") AS multiple_images,
@@ -8078,7 +8077,7 @@ class UserController extends Controller
                                                 ISNULL(im.display_img) AND
                                                 (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
-                                                '. $this->order_by .' LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+                                            '. $this->order_by .' LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
                 }
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
