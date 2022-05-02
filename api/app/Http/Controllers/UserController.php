@@ -4627,6 +4627,7 @@ class UserController extends Controller
                 $this->tag_name = $this->category_name;
 
                 if ($this->page == 1 && $this->tag_name == "") {
+                    DB::statement("SET sql_mode = '' ");
                     $category_list = DB::select('SELECT
                                                       id AS sub_category_tag_id,
                                                       tag_name
@@ -4636,6 +4637,7 @@ class UserController extends Controller
                                                       sub_category_id IN (' . $this->sub_category_id . ') AND 
                                                       is_active = ? AND
                                                       is_template = ?
+                                                GROUP BY tag_name
                                                 ORDER BY update_time DESC', [1, 1]);
 
                     $this->tag_name = (count($category_list) > 0) ? $category_list[0]->tag_name : 'Test';
@@ -4719,7 +4721,7 @@ class UserController extends Controller
                 $search_result = array(
                     'total_record' => $total_row,
                     'is_next_page' => $is_next_page,
-                    'category_list' => array_unique($final_tag_list),
+                    'category_list' => $final_tag_list,
                     'template_list' => $search_result
                 );
 
