@@ -8040,6 +8040,8 @@ class UserController extends Controller
                                                     MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE)) ', [$this->is_featured]);
                 $total_row = $total_row_result[0]->total;
 
+                Log::info('1. searchTemplatesBySearchCategory : total row result :',['total_row_result' => $total_row_result, 'sub_category_id' => $this->sub_category_id, 'search_category' => $this->search_category]);
+
                 if($total_row) {
                     $search_result = DB::select('SELECT
                                                 DISTINCT im.id AS json_id,
@@ -8076,6 +8078,8 @@ class UserController extends Controller
                                                 (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
                                             '. $this->order_by .' LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+
+                    Log::info('2. searchTemplatesBySearchCategory : search_result :',['search_result' => $search_result, 'sub_category_id' => $this->sub_category_id, 'search_category' => $this->search_category]);
                 }
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -8087,6 +8091,7 @@ class UserController extends Controller
             if (!$redis_result['data']['total_record'] && !$this->is_search_category_changed) {
 
                 Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id");
+                Log::info('3. searchTemplatesBySearchCategory : if condition translate_result :');
 
                 $this->is_search_category_changed = 1;
 
@@ -8094,34 +8099,42 @@ class UserController extends Controller
 
                 if(isset($translate_data['data']['text']) && $translate_data['data']['text'] && $translate_data['data']['text'] != $this->search_category) {
                     $this->search_category = $translate_data['data']['text'];
+                    Log::info('4. searchTemplatesBySearchCategory : translate_result :',['db_search_category' => $this->db_search_category, 'search_category' => $this->search_category]);
                     goto run_same_query;
                 }
             }
 
-            if($this->is_search_category_changed = 1 && $redis_result['data']['total_record']){
+            if($this->is_search_category_changed == 1 && $redis_result['data']['total_record']){
+                Log::info('5. searchTemplatesBySearchCategory');
                 if ($offset == 0){
                     $old_data = Cache::get('translationReport');
                     $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 1, "sub_category_id" => $this->sub_category_id);
                     Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
+                    Log::info('6. searchTemplatesBySearchCategory');
                 }
-            }elseif($this->is_search_category_changed = 1 && !$redis_result['data']['total_record']){
+            }elseif($this->is_search_category_changed == 1 && !$redis_result['data']['total_record']){
+                Log::info('7. searchTemplatesBySearchCategory');
                 if ($offset == 0){
                     $old_data = Cache::get('translationReport');
                     $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 0, "sub_category_id" => $this->sub_category_id);
                     Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
+                    Log::info('8. searchTemplatesBySearchCategory');
                 }
 
                 if($this->fail_over_sub_category_id) {
                     $this->sub_category_id = $this->fail_over_sub_category_id;
                     $this->search_category = $this->search_category . " " . $this->db_search_category;
                     $this->fail_over_sub_category_id = NULL;
+                    Log::info('9. searchTemplatesBySearchCategory : fail_over_sub_category_id',['sub_category_id' => $this->sub_category_id, 'search_category' => $this->search_category]);
                     goto run_same_query;
                 }
             }
 
             if (!$redis_result['data']['total_record']) {
 
-                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
+                Log::info('10. searchTemplatesBySearchCategory');
+                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id");
+                Log::info('11. searchTemplatesBySearchCategory');
                 $redis_result = Cache::remember("default:searchCardsBySubCategoryId:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", 10080, function () {
 
                     $code = 427;
@@ -8143,6 +8156,7 @@ class UserController extends Controller
                                                         ISNULL(im.original_img) AND
                                                         ISNULL(im.display_img) ', [$this->is_featured]);
                     $total_row = $total_row_result[0]->total;
+                    Log::info('12. searchTemplatesBySearchCategory : total row result :',['total_row_result' => $total_row_result, 'sub_category_id' => $this->db_sub_category_id]);
 
                     if($total_row){
                         $search_result = DB::select('SELECT
@@ -8175,6 +8189,8 @@ class UserController extends Controller
                                                         ISNULL(im.original_img) AND
                                                         ISNULL(im.display_img)
                                                     ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+
+                        Log::info('13. searchTemplatesBySearchCategory : search_result :',['search_result' => $search_result, 'sub_category_id' => $this->sub_category_id, 'search_category' => $this->search_category]);
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -8186,6 +8202,7 @@ class UserController extends Controller
                 $redis_result['message'] = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";
             }
 
+            Log::info('14. searchTemplatesBySearchCategory : search_result :',['redis_result' => $redis_result]);
             return $redis_result;
 
         } catch (Exception $e) {
