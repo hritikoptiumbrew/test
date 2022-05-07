@@ -8299,17 +8299,24 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('catalog_id'), $request)) != '')
                 return $response;
 
-            $catalog_id = $request->catalog_id;
-            $create_time = date('Y-m-d H:i:s');
+            $catalog_ids = $request->catalog_id;
+            $created_at = date('Y-m-d H:i:s');
             DB::beginTransaction();
-            DB::update('UPDATE
-                            catalog_master
-                            SET updated_at = ?
-                            WHERE
-                            id = ?', [$create_time, $catalog_id]);
+
+            foreach ($catalog_ids as $key => $id) {
+                $increase_time = date('Y-m-d H:i:s', strtotime("+$key seconds", strtotime($created_at)));
+
+                DB::update('UPDATE
+                                catalog_master
+                            SET 
+                                updated_at = ?
+                            WHERE 
+                                id = ?', [$increase_time, $id]);
+            }
+
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
