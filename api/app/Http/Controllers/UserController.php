@@ -2919,7 +2919,7 @@ class UserController extends Controller
     */
     public function searchCardsBySubCategoryIdWithTranslate(Request $request_body)
     {
-        $time_start = microtime(true);
+        //$time_start = microtime(true);
         try {
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
@@ -2958,9 +2958,9 @@ class UserController extends Controller
             Log::error("searchCardsBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
-        $time_end = microtime(true);
-        $execution_time = $time_end - $time_start;
-        Log::info('searchCardsBySubCategoryIdWithTranslate : total execution time in milli-seconds is :',[$execution_time]);
+        //$time_end = microtime(true);
+        //$execution_time = $time_end - $time_start;
+        //Log::info('searchCardsBySubCategoryIdWithTranslate : total execution time in milli-seconds is :',[$execution_time]);
         return $response;
     }
 
@@ -8489,7 +8489,7 @@ class UserController extends Controller
             $message = "Sorry, we couldn't find any templates for '$this->search_category', but we found some other templates you might like:";
             $search_result = [];
 
-            Log::info('DB hit For 427');
+            //Log::info('DB hit For 427');
 
             $total_row_result = DB::select('SELECT 
                                                         COUNT(DISTINCT(im.id)) AS total

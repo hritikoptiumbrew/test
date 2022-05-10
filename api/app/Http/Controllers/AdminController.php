@@ -10551,6 +10551,9 @@ class AdminController extends Controller
             foreach ($json_pages_sequence AS $i => $pages_sequence) {
 
                 unset($all_json_data->{$pages_sequence}->tool_json);
+                if(isset($all_json_data->{$pages_sequence}->total_objects)){
+                    $this->removeIndexInImageJsonWhileCardUploading($all_json_data->{$pages_sequence});
+                }
                 $updated_at = date('Y-m-d H:i:s',strtotime("+$i seconds",strtotime($created_at)));
                 $sample_image = $all_json_data->{$pages_sequence}->sample_image;
                 $fileData = pathinfo(basename($sample_image));
@@ -10844,6 +10847,10 @@ class AdminController extends Controller
             DB::beginTransaction();
             foreach ($all_json_data AS $i => $json_data) {
 
+                unset($json_data->tool_json);
+                if(isset($json_data->total_objects)){
+                    $this->removeIndexInImageJsonWhileCardUploading($json_data);
+                }
                 $sample_image = $json_data->sample_image;
                 $fileData = pathinfo(basename($sample_image));
                 $catalog_image = uniqid() . '_json_image_' . time() . '.' . $fileData['extension'];
@@ -10929,6 +10936,210 @@ class AdminController extends Controller
             }
 
             DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function removeIndexInImageJsonWhileCardUploading($single_page_json_data)
+    {
+        try {
+
+            $frame_image_sticker_jsons = isset($single_page_json_data->frame_image_sticker_json) ? $single_page_json_data->frame_image_sticker_json : [];
+            $frame_jsons = isset($single_page_json_data->frame_json) ? $single_page_json_data->frame_json : [];
+            $image_sticker_jsons = isset($single_page_json_data->image_sticker_json) ? $single_page_json_data->image_sticker_json : [];
+            $sticker_jsons = isset($single_page_json_data->sticker_json) ? $single_page_json_data->sticker_json : [];
+            $text_jsons = isset($single_page_json_data->text_json) ? $single_page_json_data->text_json : [];
+            $curved_text_jsons = isset($single_page_json_data->curved_text_json) ? $single_page_json_data->curved_text_json : [];
+
+            foreach ($frame_image_sticker_jsons as $i => $frame_image_sticker_json) {
+                if(isset($frame_image_sticker_json->index)){
+                    unset($single_page_json_data->frame_image_sticker_json[$i]->index);
+                }
+            }
+
+            if ($frame_jsons && isset($frame_jsons->index)) {
+                unset($single_page_json_data->frame_json->index);
+            }
+
+            foreach ($image_sticker_jsons as $j => $image_sticker_json) {
+                if(isset($image_sticker_json->index)){
+                    unset($single_page_json_data->image_sticker_json[$j]->index);
+                }
+            }
+
+            foreach ($sticker_jsons as $k => $sticker_json) {
+                if(isset($sticker_json->index)){
+                    unset($single_page_json_data->sticker_json[$k]->index);
+                }
+            }
+
+            foreach ($text_jsons as $l => $text_json) {
+                if(isset($text_json->index)){
+                    unset($single_page_json_data->text_json[$l]->index);
+                }
+            }
+
+            foreach ($curved_text_jsons as $m => $curved_text_json) {
+                if(isset($curved_text_json->index)){
+                    unset($single_page_json_data->curved_text_json[$m]->index);
+                }
+            }
+
+            if(isset($single_page_json_data->total_objects)){
+                unset($single_page_json_data->total_objects);
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Index removed successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("removeIndexInImageJsonWhileCardUploading : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'remove index.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function removeIndexInImageJson(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $counter = -1;
+            $remove_lists = DB::select('SELECT id, json_data, json_pages_sequence, is_multipage FROM images WHERE json_data LIKE "%total_objects%" ORDER BY updated_at DESC');
+
+            //dd($remove_lists);
+
+            DB::beginTransaction();
+
+            foreach ($remove_lists as $counter => $remove_list){
+
+                $old_json_data = json_decode($remove_list->json_data);
+
+                //dd($old_json_data);
+
+                if($remove_list->is_multipage){
+
+                    $json_pages_sequence = explode(',', $remove_list->json_pages_sequence);
+
+                    //dd($json_pages_sequence);
+
+                    foreach ($json_pages_sequence as $n => $json_page){
+
+                        $single_page_json_data = $old_json_data->{$json_page};
+
+                        $frame_image_sticker_jsons = isset($single_page_json_data->frame_image_sticker_json) ? $single_page_json_data->frame_image_sticker_json : [];
+                        $frame_jsons = isset($single_page_json_data->frame_json) ? $single_page_json_data->frame_json : [];
+                        $image_sticker_jsons = isset($single_page_json_data->image_sticker_json) ? $single_page_json_data->image_sticker_json : [];
+                        $sticker_jsons = isset($single_page_json_data->sticker_json) ? $single_page_json_data->sticker_json : [];
+                        $text_jsons = isset($single_page_json_data->text_json) ? $single_page_json_data->text_json : [];
+                        $curved_text_jsons = isset($single_page_json_data->curved_text_json) ? $single_page_json_data->curved_text_json : [];
+
+                        //dd($frame_image_sticker_jsons, $frame_jsons, $image_sticker_jsons, $sticker_jsons, $text_jsons, $curved_text_jsons);
+
+                        foreach ($frame_image_sticker_jsons as $i => $frame_image_sticker_json) {
+                            if(isset($frame_image_sticker_json->index)){
+                                unset($single_page_json_data->frame_image_sticker_json[$i]->index);
+                            }
+                        }
+
+                        if ($frame_jsons && isset($frame_jsons->index)) {
+                            unset($single_page_json_data->frame_json->index);
+                        }
+
+                        foreach ($image_sticker_jsons as $j => $image_sticker_json) {
+                            if(isset($image_sticker_json->index)){
+                                unset($single_page_json_data->image_sticker_json[$j]->index);
+                            }
+                        }
+
+                        foreach ($sticker_jsons as $k => $sticker_json) {
+                            if(isset($sticker_json->index)){
+                                unset($single_page_json_data->sticker_json[$k]->index);
+                            }
+                        }
+
+                        foreach ($text_jsons as $l => $text_json) {
+                            if(isset($text_json->index)){
+                                unset($single_page_json_data->text_json[$l]->index);
+                            }
+                        }
+
+                        foreach ($curved_text_jsons as $m => $curved_text_json) {
+                            if(isset($curved_text_json->index)){
+                                unset($single_page_json_data->curved_text_json[$m]->index);
+                            }
+                        }
+
+                        if(isset($single_page_json_data->total_objects)){
+                            unset($single_page_json_data->total_objects);
+                        }
+
+                    }
+
+                }else{
+
+                    $frame_image_sticker_jsons = isset($old_json_data->frame_image_sticker_json) ? $old_json_data->frame_image_sticker_json : [];
+                    $frame_jsons = isset($old_json_data->frame_json) ? $old_json_data->frame_json : [];
+                    $image_sticker_jsons = isset($old_json_data->image_sticker_json) ? $old_json_data->image_sticker_json : [];
+                    $sticker_jsons = isset($old_json_data->sticker_json) ? $old_json_data->sticker_json : [];
+                    $text_jsons = isset($old_json_data->text_json) ? $old_json_data->text_json : [];
+                    $curved_text_jsons = isset($old_json_data->curved_text_json) ? $old_json_data->curved_text_json : [];
+
+                    //dd($frame_image_sticker_jsons, $frame_jsons, $image_sticker_jsons, $sticker_jsons, $text_jsons, $curved_text_jsons);
+
+                    foreach ($frame_image_sticker_jsons as $i => $frame_image_sticker_json) {
+                        if(isset($frame_image_sticker_json->index)){
+                            unset($old_json_data->frame_image_sticker_json[$i]->index);
+                        }
+                    }
+
+                    if ($frame_jsons && isset($frame_jsons->index)) {
+                        unset($old_json_data->frame_json->index);
+                    }
+
+                    foreach ($image_sticker_jsons as $j => $image_sticker_json) {
+                        if(isset($image_sticker_json->index)){
+                            unset($old_json_data->image_sticker_json[$j]->index);
+                        }
+                    }
+
+                    foreach ($sticker_jsons as $k => $sticker_json) {
+                        if(isset($sticker_json->index)){
+                            unset($old_json_data->sticker_json[$k]->index);
+                        }
+                    }
+
+                    foreach ($text_jsons as $l => $text_json) {
+                        if(isset($text_json->index)){
+                            unset($old_json_data->text_json[$l]->index);
+                        }
+                    }
+
+                    foreach ($curved_text_jsons as $m => $curved_text_json) {
+                        if(isset($curved_text_json->index)){
+                            unset($old_json_data->curved_text_json[$m]->index);
+                        }
+                    }
+
+                    if(isset($old_json_data->total_objects)){
+                        unset($old_json_data->total_objects);
+                    }
+
+                }
+
+                //dd($old_json_data);
+
+                $all_query = DB::update('UPDATE images SET json_data = ?, updated_at = updated_at WHERE id = ?',[json_encode($old_json_data), $remove_list->id]);
+
+            }
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Index removed successfully.', 'cause' => '', 'data' => $counter));
+
+        } catch (Exception $e) {
+            Log::error("removeIndexInImageJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'remove index.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
