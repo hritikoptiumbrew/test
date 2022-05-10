@@ -9916,6 +9916,33 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function getRedisKeyValueByKeyName(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            //Log::info("request data :", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParam(array('key_name'), $request)) != '')
+                return $response;
+
+            $key_name = $request->key_name;
+
+            $response = (new UserController())->getRedisKeyValue($key_name);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Redis key\'s value fetched successfully.', 'cause' => '', 'data' => $response));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getRedisKeyValueByKeyName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete redis keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     //Fetch table information from database (use for only debugging query issue)
     public function getDatabaseInfo(Request $request_body)
     {

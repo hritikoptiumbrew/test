@@ -2878,15 +2878,10 @@ class UserController extends Controller
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
-            $is_user_search_tag = isset($request->is_user_search_tag) ? $request->is_user_search_tag : 1;       //In some applications we have put search tags instead of catalog lists, So if user clicks that search tag that time we don't need to insert this tag in DB.
             $is_featured = isset($request->is_featured) ? $request->is_featured : 1;   //is_featured is use for finding a proper data from DB.
             $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');    //Category id to find, Which category is use.
-            //$is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
-            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 0;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $catalog_id = isset($request->catalog_id) ? $request->catalog_id : '';    //Catalog id to give a priority template.
-            //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
-            //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
-
 
             if ($is_cache_enable == 1) {
                 $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
@@ -2894,7 +2889,7 @@ class UserController extends Controller
                 $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
             }
 
-            if($page == 1 && $is_user_search_tag == 1) {
+            if($page == 1) {
                 if($redis_result['code'] != 200){
                     SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0, $is_featured, $category_id);
                 }else{
@@ -2984,14 +2979,10 @@ class UserController extends Controller
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
-            $is_user_search_tag = isset($request->is_user_search_tag) ? $request->is_user_search_tag : 1;       //In some applications we have put search tags instead of catalog lists, So if user clicks that search tag that time we don't need to insert this tag in DB.
             $is_featured = isset($request->is_featured) ? $request->is_featured : 1;                //is_featured is use for finding a proper data from DB.
             $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');               //Category id to find, Which category is use.
-            //$is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
-            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 0;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $catalog_id = isset($request->catalog_id) ? $request->catalog_id : '';         //Catalog id to give a priority template.
-            //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
-            //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
 
             if ($is_cache_enable == 1) {
                 $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
@@ -2999,7 +2990,7 @@ class UserController extends Controller
                 $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
             }
 
-            if($page == 1 && $is_user_search_tag == 1) {
+            if($page == 1) {
                 if($redis_result['code'] != 200){
                     SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0, $is_featured, $category_id);
                 }else{
@@ -7817,6 +7808,18 @@ class UserController extends Controller
         }
     }
 
+    public function getRedisKeyValue($key_name)
+    {
+        try {
+            $redis_value = Cache::get($key_name);
+            return $redis_value;
+
+        } catch (Exception $e) {
+            Log::error("getRedisKeyValue : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return json_decode('{}');
+        }
+    }
+
     /*
     Purpose : To get disable cache template by user searches (Get all template by requested tags).
     Description : This method compulsory take 4 argument as parameter.(if any argument is optional then define it here).
@@ -7843,7 +7846,6 @@ class UserController extends Controller
             run_same_query:
             $code = 200;
             $message = "Templates fetched successfully.";
-            $search_result = [];
 
             $total_row_result = DB::select('SELECT 
                                                 COUNT(DISTINCT(im.id)) AS total
@@ -7913,13 +7915,13 @@ class UserController extends Controller
 
                 $translate_data = $this->translateLanguage($this->search_category, "en");
 
-                if($translate_data['data']['text'] && $translate_data['data']['text'] != $this->search_category) {
+                if(isset($translate_data['data']['text']) && $translate_data['data']['text'] && $translate_data['data']['text'] != $this->search_category) {
                     $this->search_category = $translate_data['data']['text'];
                     goto run_same_query;
                 }
             }
 
-            if($this->fail_over_sub_category_id) {
+            if(!$total_row && $this->is_search_category_changed && $this->fail_over_sub_category_id) {
                 $this->sub_category_id = $this->fail_over_sub_category_id;
                 $this->search_category = $this->search_category . " " . $this->db_search_category;
                 $this->fail_over_sub_category_id = NULL;
@@ -7930,7 +7932,6 @@ class UserController extends Controller
 
                 $code = 427;
                 $message = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";
-                $search_result = [];
 
                 $total_row_result = DB::select('SELECT
                                                     COUNT(DISTINCT(im.id)) AS total
@@ -7948,8 +7949,7 @@ class UserController extends Controller
                                                     ISNULL(im.display_img) ', [$this->is_featured]);
                 $total_row = $total_row_result[0]->total;
 
-                if($total_row){
-                    $search_result = DB::select('SELECT
+                $search_result = DB::select('SELECT
                                                     DISTINCT im.id AS json_id,
                                                     IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
                                                     IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS webp_original_img,
@@ -7979,7 +7979,6 @@ class UserController extends Controller
                                                     ISNULL(im.original_img) AND
                                                     ISNULL(im.display_img)
                                                 ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
-                }
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                 $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
@@ -8010,7 +8009,7 @@ class UserController extends Controller
             $this->catalog_id = $catalog_id;
 
             run_same_query:
-            $redis_result = Cache::rememberforever("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id", function () {
+            $redis_result = Cache::remember("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id", config('constant.CACHE_TIME_48_HOUR'), function () {
 
                 $code = 200;
                 $message = "Templates fetched successfully.";
@@ -8099,31 +8098,18 @@ class UserController extends Controller
                 }
             }
 
-            if($this->is_search_category_changed == 1 && $redis_result['data']['total_record']){
-                if ($offset == 0){
-                    $old_data = Cache::get('translationReport');
-                    $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 1, "sub_category_id" => $this->sub_category_id);
-                    Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
-                }
-            }elseif($this->is_search_category_changed == 1 && !$redis_result['data']['total_record']){
-                if ($offset == 0){
-                    $old_data = Cache::get('translationReport');
-                    $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 0, "sub_category_id" => $this->sub_category_id);
-                    Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
-                }
+            if($this->is_search_category_changed && !$redis_result['data']['total_record'] && $this->fail_over_sub_category_id){
 
-                if($this->fail_over_sub_category_id) {
-                    $this->sub_category_id = $this->fail_over_sub_category_id;
-                    $this->search_category = $this->search_category . " " . $this->db_search_category;
-                    $this->fail_over_sub_category_id = NULL;
-                    goto run_same_query;
-                }
+                $this->sub_category_id = $this->fail_over_sub_category_id;
+                $this->search_category = $this->search_category . " " . $this->db_search_category;
+                $this->fail_over_sub_category_id = NULL;
+                goto run_same_query;
             }
 
             if (!$redis_result['data']['total_record']) {
 
                 Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id");
-                $redis_result = Cache::remember("default:searchCardsBySubCategoryId:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", 10080, function () {
+                $redis_result = Cache::remember("default:searchCardsBySubCategoryId:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", config('constant.CACHE_TIME_7_DAYS'), function () {
 
                     $code = 427;
                     $message = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";

@@ -131,7 +131,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:searchNormalImagesBySubCategoryIdForFlyer*"),['']));
 
                 //searchCardsBySubCategoryId
-                Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
 
                 //getFeaturedTemplatesWithWebp
                 Redis::del(array_merge(Redis::keys("pel:getFeaturedTemplatesWithWebp*"),['']));
@@ -164,7 +164,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataFilterBySearchTag*"),['']));
 
                 //searchCardsBySubCategoryId
-                Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
 
                 //searchCardsBySubCategoryIdWithTranslate
 //                Redis::del(array_merge(Redis::keys("pel:direct_search:searchCardsBySubCategoryIdWithTranslate*"),['']));
@@ -432,7 +432,7 @@ class DeleteCacheKey
             }
 
             if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/refreshSearchCountByAdmin'){
-                Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
                 Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin*"),['']));
             }
 
