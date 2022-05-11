@@ -194,6 +194,8 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('setContentRankOnTheTopByAdmin', 'AdminController@setContentRankOnTheTopByAdmin');
     Route::post('setMultipleContentRankByAdmin', 'AdminController@setMultipleContentRankByAdmin');
 
+    Route::post('downloadTemplateZip', 'AdminController@downloadTemplateZip');
+
     /*API to add search tags via image_url by sub_category_id with pagination
     Note: Don't use this API in live server because it will must effect on live cards*/
     Route::post('getSearchTagsForAllSampleImages', 'AdminController@getSearchTagsForAllSampleImages');

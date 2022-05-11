@@ -2679,6 +2679,7 @@ class AdminController extends Controller
                                           COALESCE(im.is_ios_free,0) AS is_ios_free,
                                           COALESCE(im.is_portrait,0) AS is_portrait,
                                           COALESCE(im.content_type,"") AS content_type,
+                                          COALESCE(im.json_pages_sequence,"") AS pages_sequence,
                                           COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) as total_pages,
                                           COALESCE(im.search_category,"") AS search_category
                                         FROM
@@ -8438,6 +8439,131 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function downloadTemplateZip(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data'), $request)) != '')
+                return $response;
+
+            $json_data = $request->json_data;
+            $json_pages_sequence = isset($request->json_pages_sequence) ? $request->json_pages_sequence : NULL;
+            $zip = new ZipArchive();
+            $folder_name = "supporter_zip_" . time() . uniqid();
+            $zip_name = $folder_name . ".zip";
+            $temp_path = config('constant.TEMP_FILE_DIRECTORY');
+            $temp_file_path = '../..' . $temp_path;
+            $folder_path = $temp_file_path . $folder_name;
+            $zip_path = $temp_file_path . $zip_name;
+            $resource_img_path = config('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN');
+            $url = config('constant.ACTIVATION_LINK_PATH') . $temp_path . $zip_name;
+
+            $all_zip_file = glob($temp_file_path."supporter_zip_*.zip");
+            foreach ($all_zip_file as $j => $zip_file){
+                unlink($zip_file);
+            }
+
+            mkdir($folder_path, 0755);
+            $json_encode = json_encode($json_data);
+            $text_file = $folder_path . '/' . "json.txt";
+            file_put_contents($text_file, $json_encode);
+
+            if($json_pages_sequence){
+
+                foreach ($json_pages_sequence as $i => $page_sequence){
+
+                    if(isset($json_data->{$page_sequence}->sample_image) && $json_data->{$page_sequence}->sample_image){
+                        copy($resource_img_path . $json_data->{$page_sequence}->sample_image, $folder_path . "/" . $json_data->{$page_sequence}->sample_image);
+                    }
+
+                    if(isset($json_data->{$page_sequence}->background_json->background_image) && $json_data->{$page_sequence}->background_json->background_image){
+                        copy($resource_img_path . $json_data->{$page_sequence}->background_json->background_image, $folder_path . "/" . $json_data->{$page_sequence}->background_json->background_image);
+                    }
+
+                    if(isset($json_data->{$page_sequence}->frame_json->frame_image) && $json_data->{$page_sequence}->frame_json->frame_image){
+                        copy($resource_img_path . $json_data->{$page_sequence}->frame_json->frame_image, $folder_path . "/" . $json_data->{$page_sequence}->frame_json->frame_image);
+                    }
+
+                    $sticker_jsons = isset($json_data->{$page_sequence}->sticker_json) ? $json_data->{$page_sequence}->sticker_json : [];
+                    foreach ($sticker_jsons as $i => $sticker_json){
+
+                        if(isset($sticker_json->sticker_image) && $sticker_json->sticker_image){
+                            copy($resource_img_path . $sticker_json->sticker_image, $folder_path . "/" . $sticker_json->sticker_image);
+                        }
+                    }
+
+                    $frame_image_sticker_jsons = isset($json_data->{$page_sequence}->frame_image_sticker_json) ? $json_data->{$page_sequence}->frame_image_sticker_json : [];
+                    foreach ($frame_image_sticker_jsons as $i => $frame_image_sticker_json){
+
+                        if(isset($frame_image_sticker_json->image_sticker_image) && $frame_image_sticker_json->image_sticker_image){
+                            copy($resource_img_path . $frame_image_sticker_json->image_sticker_image, $folder_path . "/" . $frame_image_sticker_json->image_sticker_image);
+                        }
+                    }
+
+                }
+
+            }else{
+
+                if(isset($json_data->sample_image) && $json_data->sample_image){
+                    copy($resource_img_path . $json_data->sample_image, $folder_path . $json_data->sample_image);
+                }
+
+                if(isset($json_data->background_json->background_image) && $json_data->background_json->background_image){
+                    copy($resource_img_path . $json_data->background_json->background_image, $folder_path . "/" . $json_data->background_json->background_image);
+                }
+
+                if(isset($json_data->frame_json->frame_image) && $json_data->frame_json->frame_image){
+                    copy($resource_img_path . $json_data->frame_json->frame_image, $folder_path . "/" . $json_data->frame_json->frame_image);
+                }
+
+                $sticker_jsons = isset($json_data->sticker_json) ? $json_data->sticker_json : [];
+                foreach ($sticker_jsons as $i => $sticker_json){
+
+                    if(isset($sticker_json->sticker_image) && $sticker_json->sticker_image){
+                        copy($resource_img_path . $sticker_json->sticker_image, $folder_path . "/" . $sticker_json->sticker_image);
+                    }
+                }
+
+                $frame_image_sticker_jsons = isset($json_data->frame_image_sticker_json) ? $json_data->frame_image_sticker_json : [];
+                foreach ($frame_image_sticker_jsons as $i => $frame_image_sticker_json){
+
+                    if(isset($frame_image_sticker_json->image_sticker_image) && $frame_image_sticker_json->image_sticker_image){
+                        copy($resource_img_path . $frame_image_sticker_json->image_sticker_image, $folder_path . "/" . $frame_image_sticker_json->image_sticker_image);
+                    }
+                }
+            }
+
+            if ($zip->open($zip_path, ZipArchive::CREATE) === TRUE)
+            {
+
+                foreach (glob($folder_path . '/*') as $file) {
+                    $file_name = basename($file);
+                    $zip->addFile($file, $folder_name . '/' . $file_name);
+                }
+                $zip->close();
+
+//                    foreach (glob($folder_path) as $key => $value) {
+//                        $relative_name_in_zip_file = basename($value);
+//                        $zip->addFile($value, $relative_name_in_zip_file);
+//                    }
+//                    $zip->close();
+            }
+
+            (New ImageController())->rrmdir($folder_path);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Zip downloaded successfully.', 'cause' => '', 'data' => ['url' => $url]));
+
+        } catch (Exception $e) {
+            isset($folder_path) ? (New ImageController())->rrmdir($folder_path) : "";
+            Log::error("downloadTemplateZip : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'download template zip.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /* =================| Set search tags of samples by sub_category |=================================*/
 
     /**
@@ -10498,7 +10624,9 @@ class AdminController extends Controller
                     }
                 } elseif (($extension == "json" || $extension == "txt") && $error_msg == "") {
 
-                    $all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
+                    //$all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
+                    $all_json_data_encode = file_get_contents($folder_path.'/'.$files);
+                    $all_json_data = json_decode(str_replace("index", "pak_index", $all_json_data_encode));
                 }
 
             }
@@ -10578,9 +10706,6 @@ class AdminController extends Controller
             foreach ($json_pages_sequence AS $i => $pages_sequence) {
 
                 unset($all_json_data->{$pages_sequence}->tool_json);
-                if(isset($all_json_data->{$pages_sequence}->total_objects)){
-                    $this->removeIndexInImageJsonWhileCardUploading($all_json_data->{$pages_sequence});
-                }
                 $updated_at = date('Y-m-d H:i:s',strtotime("+$i seconds",strtotime($created_at)));
                 $sample_image = $all_json_data->{$pages_sequence}->sample_image;
                 $fileData = pathinfo(basename($sample_image));
@@ -10796,7 +10921,9 @@ class AdminController extends Controller
                     }
                 } elseif (($extension == "json" || $extension == "txt") && $error_msg == "") {
 
-                    $all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
+                    //$all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
+                    $all_json_data_encode = file_get_contents($folder_path.'/'.$files);
+                    $all_json_data = json_decode(str_replace("index", "pak_index", $all_json_data_encode));
                 }
 
             }
@@ -10875,9 +11002,6 @@ class AdminController extends Controller
             foreach ($all_json_data AS $i => $json_data) {
 
                 unset($json_data->tool_json);
-                if(isset($json_data->total_objects)){
-                    $this->removeIndexInImageJsonWhileCardUploading($json_data);
-                }
                 $sample_image = $json_data->sample_image;
                 $fileData = pathinfo(basename($sample_image));
                 $catalog_image = uniqid() . '_json_image_' . time() . '.' . $fileData['extension'];
@@ -10967,6 +11091,7 @@ class AdminController extends Controller
         return $response;
     }
 
+    //(Unused function)
     public function removeIndexInImageJsonWhileCardUploading($single_page_json_data)
     {
         try {
@@ -11025,6 +11150,7 @@ class AdminController extends Controller
         return $response;
     }
 
+    //(Unused api)
     public function removeIndexInImageJson(Request $request_body)
     {
         try {
