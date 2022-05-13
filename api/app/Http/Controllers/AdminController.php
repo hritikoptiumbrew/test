@@ -8450,7 +8450,7 @@ class AdminController extends Controller
                 return $response;
 
             $json_data = $request->json_data;
-            $json_pages_sequence = isset($request->json_pages_sequence) ? $request->json_pages_sequence : NULL;
+            $json_pages_sequence = isset($request->pages_sequence) ? explode(',', $request->pages_sequence) : NULL;
             $zip = new ZipArchive();
             $folder_name = "supporter_zip_" . time() . uniqid();
             $zip_name = $folder_name . ".zip";
