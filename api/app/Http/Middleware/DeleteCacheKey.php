@@ -98,7 +98,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getCatalogsByType*"),['']));
 
                 //getFeaturedJsonSampleData_webp
-                Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonSampleData_webp*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonSampleData_webp*"),['']));
 
                 //getAllSubCategoryForLinkCatalog
                 Redis::del(array_merge(Redis::keys("pel:getAllSubCategoryForLinkCatalog*"),['']));
@@ -131,7 +131,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:searchNormalImagesBySubCategoryIdForFlyer*"),['']));
 
                 //searchCardsBySubCategoryId
-                Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
 
                 //getFeaturedTemplatesWithWebp
                 Redis::del(array_merge(Redis::keys("pel:getFeaturedTemplatesWithWebp*"),['']));
@@ -144,7 +144,7 @@ class DeleteCacheKey
 
                 Redis::del(array_merge(Redis::keys("pel:getFeaturedSampleAndCatalogWithWebp*"),['']));
 
-                Redis::del(array_merge(Redis::keys("pel:getPopularAndEventCatalogs*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getPopularAndEventCatalogs*"),['']));
 
             }
 
@@ -164,7 +164,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataFilterBySearchTag*"),['']));
 
                 //searchCardsBySubCategoryId
-                Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
 
                 //searchCardsBySubCategoryIdWithTranslate
 //                Redis::del(array_merge(Redis::keys("pel:direct_search:searchCardsBySubCategoryIdWithTranslate*"),['']));
@@ -193,7 +193,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getHomePageDetail*"),['']));
 
                 //getFeaturedJsonSampleData_webp
-                Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonSampleData_webp*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonSampleData_webp*"),['']));
 
                 //getFeaturedJsonImages
                 Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonImages*"),['']));
@@ -221,9 +221,6 @@ class DeleteCacheKey
 
                 //getTemplatesBySubCategoryTags
                 Redis::del(array_merge(Redis::keys("pel:getTemplatesBySubCategoryTags*"),['']));
-
-                //getTemplatesBySubCategoryTags_v2
-                Redis::del(array_merge(Redis::keys("pel:getTemplatesBySubCategoryTags_v2*"),['']));
 
                 //getCategoryTagBySubCategoryId
                 Redis::del(array_merge(Redis::keys("pel:getCategoryTagBySubCategoryId*"),['']));
@@ -391,10 +388,7 @@ class DeleteCacheKey
                 //getTemplatesBySubCategoryTags
                 Redis::del(array_merge(Redis::keys("pel:getTemplatesBySubCategoryTags*"),['']));
 
-                //getTemplatesBySubCategoryTags_v2
-                Redis::del(array_merge(Redis::keys("pel:getTemplatesBySubCategoryTags_v2*"),['']));
-
-                Redis::del(array_merge(Redis::keys("pel:getSearchTagBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getSearchTagBySubCategoryId*"),['']));
 
                 Redis::del(array_merge(Redis::keys("pel:searchCatalogBySubCategoryId*"),['']));
             }
@@ -438,7 +432,7 @@ class DeleteCacheKey
             }
 
             if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/refreshSearchCountByAdmin'){
-                Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
                 Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin*"),['']));
             }
 

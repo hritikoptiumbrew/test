@@ -194,6 +194,8 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('setContentRankOnTheTopByAdmin', 'AdminController@setContentRankOnTheTopByAdmin');
     Route::post('setMultipleContentRankByAdmin', 'AdminController@setMultipleContentRankByAdmin');
 
+    Route::post('downloadTemplateZip', 'AdminController@downloadTemplateZip');
+
     /*API to add search tags via image_url by sub_category_id with pagination
     Note: Don't use this API in live server because it will must effect on live cards*/
     Route::post('getSearchTagsForAllSampleImages', 'AdminController@getSearchTagsForAllSampleImages');
@@ -340,6 +342,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     //Get templates by category tags
     Route::post('getTemplatesBySubCategoryTags', 'UserController@getTemplatesBySubCategoryTags');
     Route::post('getTemplatesBySubCategoryTags_v2', 'UserController@getTemplatesBySubCategoryTags_v2');
+    Route::post('getTemplatesBySubCategoryTagsV3', 'UserController@getTemplatesBySubCategoryTagsV3');
 
     //Shuffle all featured templates for 24hours from given sub_category_id or get templates by catalog_id with last_sync_time
     Route::post('getTemplatesWithLastSyncTime', 'UserController@getTemplatesWithLastSyncTime');
@@ -426,7 +429,8 @@ Route::post('testMail', 'AdminController@testMail');
 Route::post('getPhpInfo', 'AdminController@getPhpInfo');
 Route::post('getServerTime', 'AdminController@getServerTime');
 Route::post('deleteAllRedisKeysByKeyName', 'AdminController@deleteAllRedisKeysByKeyName');
-Route::post('getRedisKeysByKeyName', 'AdminController@getRedisKeysByKeyName');
+Route::post('getAllRedisKeysByKeyName', 'AdminController@getAllRedisKeysByKeyName');
+Route::post('getRedisKeyValueByKeyName', 'AdminController@getRedisKeyValueByKeyName');
 
 //API to get fonts into font_collection (for designer use)
 Route::post('getAllFonts', 'AdminController@getAllFonts');
@@ -435,3 +439,4 @@ Route::post('getAllFonts', 'AdminController@getAllFonts');
 //update tag with #tag for brand maker search module
 Route::post('updateTagForBrandSearch', 'AdminController@updateTagForBrandSearch');
 Route::post('spellCorrectionApi', 'UserController@spellCorrectionApi');
+Route::post('removeIndexInImageJson', 'AdminController@removeIndexInImageJson');

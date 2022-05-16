@@ -208,6 +208,7 @@ return [
     'DEFAULT_LANGUAGE_CODE' => 'en',
 
     /* For API Caching */
+    'CACHE_TIME_6_HOUR' => '360',
     'CACHE_TIME_24_HOUR' => '1440',
     'CACHE_TIME_48_HOUR' => '2880',
     'CACHE_TIME_7_DAYS' => '10080',

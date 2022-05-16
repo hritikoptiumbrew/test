@@ -215,3 +215,4 @@ ALTER TABLE `images` ADD `content_type` TINYINT(1) NULL DEFAULT '1' COMMENT '1=s
 ------------------------------------------------------------------------------------------------------------------------
 ALTER TABLE tag_analysis_master  ADD is_featured TINYINT(1) NULL DEFAULT 1 COMMENT '1=template, 0=sticker,fonts' AFTER is_success;
 ALTER TABLE tag_analysis_master  ADD category_id INT(11) NULL DEFAULT 2 COMMENT '2=template,sticker, 4=fonts' AFTER search_count;
+UPDATE images SET json_data = REPLACE(json_data, '"index"', '"pak_index"'), updated_at = updated_at WHERE json_data LIKE '%total_objects%';

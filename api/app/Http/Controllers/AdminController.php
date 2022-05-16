@@ -2679,6 +2679,7 @@ class AdminController extends Controller
                                           COALESCE(im.is_ios_free,0) AS is_ios_free,
                                           COALESCE(im.is_portrait,0) AS is_portrait,
                                           COALESCE(im.content_type,"") AS content_type,
+                                          COALESCE(im.json_pages_sequence,"") AS pages_sequence,
                                           COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) as total_pages,
                                           COALESCE(im.search_category,"") AS search_category
                                         FROM
@@ -8299,17 +8300,24 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('catalog_id'), $request)) != '')
                 return $response;
 
-            $catalog_id = $request->catalog_id;
-            $create_time = date('Y-m-d H:i:s');
+            $catalog_ids = $request->catalog_id;
+            $created_at = date('Y-m-d H:i:s');
             DB::beginTransaction();
-            DB::update('UPDATE
-                            catalog_master
-                            SET updated_at = ?
-                            WHERE
-                            id = ?', [$create_time, $catalog_id]);
+
+            foreach ($catalog_ids as $key => $id) {
+                $increase_time = date('Y-m-d H:i:s', strtotime("+$key seconds", strtotime($created_at)));
+
+                DB::update('UPDATE
+                                catalog_master
+                            SET 
+                                updated_at = ?
+                            WHERE 
+                                id = ?', [$increase_time, $id]);
+            }
+
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
@@ -8427,6 +8435,131 @@ class AdminController extends Controller
         } catch (Exception $e) {
             Log::error("setMultipleContentRankByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'set content rank.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function downloadTemplateZip(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data'), $request)) != '')
+                return $response;
+
+            $json_data = $request->json_data;
+            $json_pages_sequence = isset($request->pages_sequence) ? explode(',', $request->pages_sequence) : NULL;
+            $zip = new ZipArchive();
+            $folder_name = "supporter_zip_" . time() . uniqid();
+            $zip_name = $folder_name . ".zip";
+            $temp_path = config('constant.TEMP_FILE_DIRECTORY');
+            $temp_file_path = '../..' . $temp_path;
+            $folder_path = $temp_file_path . $folder_name;
+            $zip_path = $temp_file_path . $zip_name;
+            $resource_img_path = config('constant.RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN');
+            $url = config('constant.ACTIVATION_LINK_PATH') . $temp_path . $zip_name;
+
+            $all_zip_file = glob($temp_file_path."supporter_zip_*.zip");
+            foreach ($all_zip_file as $j => $zip_file){
+                unlink($zip_file);
+            }
+
+            mkdir($folder_path, 0755);
+            $json_encode = json_encode($json_data);
+            $text_file = $folder_path . '/' . "json.txt";
+            file_put_contents($text_file, $json_encode);
+
+            if($json_pages_sequence){
+
+                foreach ($json_pages_sequence as $i => $page_sequence){
+
+                    if(isset($json_data->{$page_sequence}->sample_image) && $json_data->{$page_sequence}->sample_image){
+                        copy($resource_img_path . $json_data->{$page_sequence}->sample_image, $folder_path . "/" . $json_data->{$page_sequence}->sample_image);
+                    }
+
+                    if(isset($json_data->{$page_sequence}->background_json->background_image) && $json_data->{$page_sequence}->background_json->background_image){
+                        copy($resource_img_path . $json_data->{$page_sequence}->background_json->background_image, $folder_path . "/" . $json_data->{$page_sequence}->background_json->background_image);
+                    }
+
+                    if(isset($json_data->{$page_sequence}->frame_json->frame_image) && $json_data->{$page_sequence}->frame_json->frame_image){
+                        copy($resource_img_path . $json_data->{$page_sequence}->frame_json->frame_image, $folder_path . "/" . $json_data->{$page_sequence}->frame_json->frame_image);
+                    }
+
+                    $sticker_jsons = isset($json_data->{$page_sequence}->sticker_json) ? $json_data->{$page_sequence}->sticker_json : [];
+                    foreach ($sticker_jsons as $i => $sticker_json){
+
+                        if(isset($sticker_json->sticker_image) && $sticker_json->sticker_image){
+                            copy($resource_img_path . $sticker_json->sticker_image, $folder_path . "/" . $sticker_json->sticker_image);
+                        }
+                    }
+
+                    $frame_image_sticker_jsons = isset($json_data->{$page_sequence}->frame_image_sticker_json) ? $json_data->{$page_sequence}->frame_image_sticker_json : [];
+                    foreach ($frame_image_sticker_jsons as $i => $frame_image_sticker_json){
+
+                        if(isset($frame_image_sticker_json->image_sticker_image) && $frame_image_sticker_json->image_sticker_image){
+                            copy($resource_img_path . $frame_image_sticker_json->image_sticker_image, $folder_path . "/" . $frame_image_sticker_json->image_sticker_image);
+                        }
+                    }
+
+                }
+
+            }else{
+
+                if(isset($json_data->sample_image) && $json_data->sample_image){
+                    copy($resource_img_path . $json_data->sample_image, $folder_path . $json_data->sample_image);
+                }
+
+                if(isset($json_data->background_json->background_image) && $json_data->background_json->background_image){
+                    copy($resource_img_path . $json_data->background_json->background_image, $folder_path . "/" . $json_data->background_json->background_image);
+                }
+
+                if(isset($json_data->frame_json->frame_image) && $json_data->frame_json->frame_image){
+                    copy($resource_img_path . $json_data->frame_json->frame_image, $folder_path . "/" . $json_data->frame_json->frame_image);
+                }
+
+                $sticker_jsons = isset($json_data->sticker_json) ? $json_data->sticker_json : [];
+                foreach ($sticker_jsons as $i => $sticker_json){
+
+                    if(isset($sticker_json->sticker_image) && $sticker_json->sticker_image){
+                        copy($resource_img_path . $sticker_json->sticker_image, $folder_path . "/" . $sticker_json->sticker_image);
+                    }
+                }
+
+                $frame_image_sticker_jsons = isset($json_data->frame_image_sticker_json) ? $json_data->frame_image_sticker_json : [];
+                foreach ($frame_image_sticker_jsons as $i => $frame_image_sticker_json){
+
+                    if(isset($frame_image_sticker_json->image_sticker_image) && $frame_image_sticker_json->image_sticker_image){
+                        copy($resource_img_path . $frame_image_sticker_json->image_sticker_image, $folder_path . "/" . $frame_image_sticker_json->image_sticker_image);
+                    }
+                }
+            }
+
+            if ($zip->open($zip_path, ZipArchive::CREATE) === TRUE)
+            {
+
+                foreach (glob($folder_path . '/*') as $file) {
+                    $file_name = basename($file);
+                    $zip->addFile($file, $folder_name . '/' . $file_name);
+                }
+                $zip->close();
+
+//                    foreach (glob($folder_path) as $key => $value) {
+//                        $relative_name_in_zip_file = basename($value);
+//                        $zip->addFile($value, $relative_name_in_zip_file);
+//                    }
+//                    $zip->close();
+            }
+
+            (New ImageController())->rrmdir($folder_path);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Zip downloaded successfully.', 'cause' => '', 'data' => ['url' => $url]));
+
+        } catch (Exception $e) {
+            isset($folder_path) ? (New ImageController())->rrmdir($folder_path) : "";
+            Log::error("downloadTemplateZip : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'download template zip.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -9882,7 +10015,7 @@ class AdminController extends Controller
         return $response;
     }
 
-    public function getRedisKeysByKeyName(Request $request_body)
+    public function getAllRedisKeysByKeyName(Request $request_body)
     {
         try {
 
@@ -9897,13 +10030,40 @@ class AdminController extends Controller
 
             $key_name = $request->key_name;
 
-            $response = Cache::get($key_name);
+            $response = (new UserController())->getAllRedisKeys($key_name);
 
             $response = Response::json(array('code' => 200, 'message' => 'Redis keys fetched successfully.', 'cause' => '', 'data' => $response));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getRedisKeysByKeyName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("getAllRedisKeysByKeyName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete redis keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function getRedisKeyValueByKeyName(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            //Log::info("request data :", [$request]);
+
+            if (($response = (new VerificationController())->validateRequiredParam(array('key_name'), $request)) != '')
+                return $response;
+
+            $key_name = $request->key_name;
+
+            $response = (new UserController())->getRedisKeyValue($key_name);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Redis key\'s value fetched successfully.', 'cause' => '', 'data' => $response));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getRedisKeyValueByKeyName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete redis keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
@@ -10464,7 +10624,9 @@ class AdminController extends Controller
                     }
                 } elseif (($extension == "json" || $extension == "txt") && $error_msg == "") {
 
-                    $all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
+                    //$all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
+                    $all_json_data_encode = file_get_contents($folder_path.'/'.$files);
+                    $all_json_data = json_decode(str_replace("index", "pak_index", $all_json_data_encode));
                 }
 
             }
@@ -10759,7 +10921,9 @@ class AdminController extends Controller
                     }
                 } elseif (($extension == "json" || $extension == "txt") && $error_msg == "") {
 
-                    $all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
+                    //$all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
+                    $all_json_data_encode = file_get_contents($folder_path.'/'.$files);
+                    $all_json_data = json_decode(str_replace("index", "pak_index", $all_json_data_encode));
                 }
 
             }
@@ -10837,6 +11001,7 @@ class AdminController extends Controller
             DB::beginTransaction();
             foreach ($all_json_data AS $i => $json_data) {
 
+                unset($json_data->tool_json);
                 $sample_image = $json_data->sample_image;
                 $fileData = pathinfo(basename($sample_image));
                 $catalog_image = uniqid() . '_json_image_' . time() . '.' . $fileData['extension'];
@@ -10922,6 +11087,212 @@ class AdminController extends Controller
             }
 
             DB::rollBack();
+        }
+        return $response;
+    }
+
+    //(Unused function)
+    public function removeIndexInImageJsonWhileCardUploading($single_page_json_data)
+    {
+        try {
+
+            $frame_image_sticker_jsons = isset($single_page_json_data->frame_image_sticker_json) ? $single_page_json_data->frame_image_sticker_json : [];
+            $frame_jsons = isset($single_page_json_data->frame_json) ? $single_page_json_data->frame_json : [];
+            $image_sticker_jsons = isset($single_page_json_data->image_sticker_json) ? $single_page_json_data->image_sticker_json : [];
+            $sticker_jsons = isset($single_page_json_data->sticker_json) ? $single_page_json_data->sticker_json : [];
+            $text_jsons = isset($single_page_json_data->text_json) ? $single_page_json_data->text_json : [];
+            $curved_text_jsons = isset($single_page_json_data->curved_text_json) ? $single_page_json_data->curved_text_json : [];
+
+            foreach ($frame_image_sticker_jsons as $i => $frame_image_sticker_json) {
+                if(isset($frame_image_sticker_json->index)){
+                    unset($single_page_json_data->frame_image_sticker_json[$i]->index);
+                }
+            }
+
+            if ($frame_jsons && isset($frame_jsons->index)) {
+                unset($single_page_json_data->frame_json->index);
+            }
+
+            foreach ($image_sticker_jsons as $j => $image_sticker_json) {
+                if(isset($image_sticker_json->index)){
+                    unset($single_page_json_data->image_sticker_json[$j]->index);
+                }
+            }
+
+            foreach ($sticker_jsons as $k => $sticker_json) {
+                if(isset($sticker_json->index)){
+                    unset($single_page_json_data->sticker_json[$k]->index);
+                }
+            }
+
+            foreach ($text_jsons as $l => $text_json) {
+                if(isset($text_json->index)){
+                    unset($single_page_json_data->text_json[$l]->index);
+                }
+            }
+
+            foreach ($curved_text_jsons as $m => $curved_text_json) {
+                if(isset($curved_text_json->index)){
+                    unset($single_page_json_data->curved_text_json[$m]->index);
+                }
+            }
+
+            if(isset($single_page_json_data->total_objects)){
+                unset($single_page_json_data->total_objects);
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Index removed successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("removeIndexInImageJsonWhileCardUploading : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'remove index.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    //(Unused api)
+    public function removeIndexInImageJson(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $counter = -1;
+            $remove_lists = DB::select('SELECT id, json_data, json_pages_sequence, is_multipage FROM images WHERE json_data LIKE "%total_objects%" ORDER BY updated_at DESC');
+
+            //dd($remove_lists);
+
+            DB::beginTransaction();
+
+            foreach ($remove_lists as $counter => $remove_list){
+
+                $old_json_data = json_decode($remove_list->json_data);
+
+                //dd($old_json_data);
+
+                if($remove_list->is_multipage){
+
+                    $json_pages_sequence = explode(',', $remove_list->json_pages_sequence);
+
+                    //dd($json_pages_sequence);
+
+                    foreach ($json_pages_sequence as $n => $json_page){
+
+                        $single_page_json_data = $old_json_data->{$json_page};
+
+                        $frame_image_sticker_jsons = isset($single_page_json_data->frame_image_sticker_json) ? $single_page_json_data->frame_image_sticker_json : [];
+                        $frame_jsons = isset($single_page_json_data->frame_json) ? $single_page_json_data->frame_json : [];
+                        $image_sticker_jsons = isset($single_page_json_data->image_sticker_json) ? $single_page_json_data->image_sticker_json : [];
+                        $sticker_jsons = isset($single_page_json_data->sticker_json) ? $single_page_json_data->sticker_json : [];
+                        $text_jsons = isset($single_page_json_data->text_json) ? $single_page_json_data->text_json : [];
+                        $curved_text_jsons = isset($single_page_json_data->curved_text_json) ? $single_page_json_data->curved_text_json : [];
+
+                        //dd($frame_image_sticker_jsons, $frame_jsons, $image_sticker_jsons, $sticker_jsons, $text_jsons, $curved_text_jsons);
+
+                        foreach ($frame_image_sticker_jsons as $i => $frame_image_sticker_json) {
+                            if(isset($frame_image_sticker_json->index)){
+                                unset($single_page_json_data->frame_image_sticker_json[$i]->index);
+                            }
+                        }
+
+                        if ($frame_jsons && isset($frame_jsons->index)) {
+                            unset($single_page_json_data->frame_json->index);
+                        }
+
+                        foreach ($image_sticker_jsons as $j => $image_sticker_json) {
+                            if(isset($image_sticker_json->index)){
+                                unset($single_page_json_data->image_sticker_json[$j]->index);
+                            }
+                        }
+
+                        foreach ($sticker_jsons as $k => $sticker_json) {
+                            if(isset($sticker_json->index)){
+                                unset($single_page_json_data->sticker_json[$k]->index);
+                            }
+                        }
+
+                        foreach ($text_jsons as $l => $text_json) {
+                            if(isset($text_json->index)){
+                                unset($single_page_json_data->text_json[$l]->index);
+                            }
+                        }
+
+                        foreach ($curved_text_jsons as $m => $curved_text_json) {
+                            if(isset($curved_text_json->index)){
+                                unset($single_page_json_data->curved_text_json[$m]->index);
+                            }
+                        }
+
+                        if(isset($single_page_json_data->total_objects)){
+                            unset($single_page_json_data->total_objects);
+                        }
+
+                    }
+
+                }else{
+
+                    $frame_image_sticker_jsons = isset($old_json_data->frame_image_sticker_json) ? $old_json_data->frame_image_sticker_json : [];
+                    $frame_jsons = isset($old_json_data->frame_json) ? $old_json_data->frame_json : [];
+                    $image_sticker_jsons = isset($old_json_data->image_sticker_json) ? $old_json_data->image_sticker_json : [];
+                    $sticker_jsons = isset($old_json_data->sticker_json) ? $old_json_data->sticker_json : [];
+                    $text_jsons = isset($old_json_data->text_json) ? $old_json_data->text_json : [];
+                    $curved_text_jsons = isset($old_json_data->curved_text_json) ? $old_json_data->curved_text_json : [];
+
+                    //dd($frame_image_sticker_jsons, $frame_jsons, $image_sticker_jsons, $sticker_jsons, $text_jsons, $curved_text_jsons);
+
+                    foreach ($frame_image_sticker_jsons as $i => $frame_image_sticker_json) {
+                        if(isset($frame_image_sticker_json->index)){
+                            unset($old_json_data->frame_image_sticker_json[$i]->index);
+                        }
+                    }
+
+                    if ($frame_jsons && isset($frame_jsons->index)) {
+                        unset($old_json_data->frame_json->index);
+                    }
+
+                    foreach ($image_sticker_jsons as $j => $image_sticker_json) {
+                        if(isset($image_sticker_json->index)){
+                            unset($old_json_data->image_sticker_json[$j]->index);
+                        }
+                    }
+
+                    foreach ($sticker_jsons as $k => $sticker_json) {
+                        if(isset($sticker_json->index)){
+                            unset($old_json_data->sticker_json[$k]->index);
+                        }
+                    }
+
+                    foreach ($text_jsons as $l => $text_json) {
+                        if(isset($text_json->index)){
+                            unset($old_json_data->text_json[$l]->index);
+                        }
+                    }
+
+                    foreach ($curved_text_jsons as $m => $curved_text_json) {
+                        if(isset($curved_text_json->index)){
+                            unset($old_json_data->curved_text_json[$m]->index);
+                        }
+                    }
+
+                    if(isset($old_json_data->total_objects)){
+                        unset($old_json_data->total_objects);
+                    }
+
+                }
+
+                //dd($old_json_data);
+
+                $all_query = DB::update('UPDATE images SET json_data = ?, updated_at = updated_at WHERE id = ?',[json_encode($old_json_data), $remove_list->id]);
+
+            }
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Index removed successfully.', 'cause' => '', 'data' => $counter));
+
+        } catch (Exception $e) {
+            Log::error("removeIndexInImageJson : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'remove index.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
