@@ -123,11 +123,13 @@ export class AddcatalogComponent implements OnInit {
     //     }
     //   }
     // }
-    if (this.indexOfCatalog.search_category !== null) {
+    if (this.indexOfCatalog && this.indexOfCatalog.search_category !== null) {
       let newList = this.indexOfCatalog.search_category.split(',')
       for (let i = 0; i < newList.length; i++) {
         this.listOfTag.push(newList[i]);
       }
+    }else{
+      this.listOfTag = [];
     }
   }
 
@@ -333,7 +335,6 @@ export class AddcatalogComponent implements OnInit {
     }
   }
   addCatalog() {
-    console.log(this.listOfTag)
     var validObj = [
       {
         "id": 'addCalogInput',
@@ -384,7 +385,8 @@ export class AddcatalogComponent implements OnInit {
           "event_date": this.eventDate,
           "popularity_rate": this.popularity,
           "is_featured": this.selectCalogType,
-          "name": this.CalogName
+          "name": this.CalogName,
+          "search_category": this.listOfTag.join(',')
         };
       }
 
@@ -397,6 +399,7 @@ export class AddcatalogComponent implements OnInit {
         }).then((results: any) => {
           if (results.code == 200) {
             this.utils.hideLoader();
+            this.listOfTag = [];
             this.dialogref.close({ res: "add" });
             if (this.catalogData) {
               this.utils.showSuccess("Catalog updated successfully", 4000);

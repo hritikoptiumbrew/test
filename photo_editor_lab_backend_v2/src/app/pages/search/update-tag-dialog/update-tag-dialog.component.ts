@@ -224,5 +224,11 @@ export class UpdateTagDialogComponent implements OnInit {
       }
     })
   }
+  selectAll() {
+    this.listOfId = [];
+      for (let i = 0; i < this.imgData.length; i++) {
+          this.listOfId.push(this.imgData[i].json_id);
+      }
+  }
 }
 

@@ -116,7 +116,19 @@
   color: #000000;
   box-shadow: 15px 0 8px 0 rgba(0, 0, 0, .5);
 }
-
+.rank-icon {
+  height: 40px;
+  width: 40px;
+  padding-top: 9px;
+  color: #fff;
+  background: #218838;
+  font-weight: 600;
+  border-radius: 50%;
+  font-size: 18px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
 .ribbon-wrapper-pages {
   width: 70px;
   height: 24px;

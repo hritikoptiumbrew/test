@@ -41,9 +41,12 @@ export class CatalogsgetComponent implements OnInit {
   totalRecords: any;
   searchQuery: any;
   errormsg = ERROR;
-  totalImages:any;
-  listOfCatagory:any = [];
-  indexOfCatalog:any;
+  totalImages: any;
+  listOfCatagory: any = [];
+  indexOfCatalog: any;
+  multiselectFlag: boolean = false;
+  catalogIdArr: any = [];
+  selectedCatalogType: any = "1";
   constructor(private actRoute: ActivatedRoute, private validService: ValidationsService, private dialog: NbDialogService, private dataService: DataService, private utils: UtilService, private route: Router) {
     this.token = localStorage.getItem('at');
     this.broadHome = JSON.parse(localStorage.getItem('selected_category')).name;
@@ -116,8 +119,9 @@ export class CatalogsgetComponent implements OnInit {
       });
     }
   }
-  viewImage(imgUrl){
-    this.dialog.open(ViewimageComponent, { context: {
+  viewImage(imgUrl) {
+    this.dialog.open(ViewimageComponent, {
+      context: {
         imgSrc: imgUrl,
         typeImg: 'cat'
       }
@@ -140,15 +144,13 @@ export class CatalogsgetComponent implements OnInit {
       this.searchCategory();
     }
   }
-  setRank(type,indexItem){
-    if(type == "feature")
-    {
+  setRank(type, indexItem) {
+    if (type == "feature") {
       var element = this.featuredCatalogList[indexItem];
       this.featuredCatalogList.splice(indexItem, 1);
       this.featuredCatalogList.splice(0, 0, element);
     }
-    else
-    {
+    else {
       var element = this.normalCatalogList[indexItem];
       this.normalCatalogList.splice(indexItem, 1);
       this.normalCatalogList.splice(0, 0, element);
@@ -183,20 +185,21 @@ export class CatalogsgetComponent implements OnInit {
   addCatalog() {
     this.open(false, "");
   }
-  editCatalog(data , i) {
+  editCatalog(data, i) {
     // console.log(data);
     this.indexOfCatalog = data;
     this.open(false, data);
   }
   protected open(closeOnBackdropClick: boolean, data) {
     this.dialog.open(AddcatalogComponent, {
-      closeOnBackdropClick,closeOnEsc: false,autoFocus: false, context: {
+      closeOnBackdropClick, closeOnEsc: false, autoFocus: false, context: {
         catalogData: data,
-        catalogList:this.catalogList,
-        indexOfCatalog: this.indexOfCatalog
+        catalogList: this.catalogList,
+        indexOfCatalog: data?this.indexOfCatalog:""
       }
     }).onClose.subscribe((result) => {
       if (result.res == "add") {
+        this.indexOfCatalog = undefined;
         this.getAllCatalogs();
       }
     });
@@ -208,20 +211,20 @@ export class CatalogsgetComponent implements OnInit {
   }
   protected openLinkTag(closeOnBackdropClick: boolean, data) {
     this.dialog.open(LinkcatalogComponent, {
-      closeOnBackdropClick,closeOnEsc: false, context: {
+      closeOnBackdropClick, closeOnEsc: false, context: {
         catalogData: data
       }
     }).onClose.subscribe((result) => {
-      
+
       if (result.res == "add") {
         this.getAllCatalogs();
       }
     });
   }
-  moveToFirst(category,type,indexItem) {
+  moveToFirst(category, type, indexItem) {
     this.utils.showLoader();
     this.dataService.postData('setCatalogRankOnTheTopByAdmin', {
-      "catalog_id": category.catalog_id
+      "catalog_id": [category.catalog_id]
     }, {
       headers: {
         'Authorization': 'Bearer ' + this.token
@@ -233,7 +236,7 @@ export class CatalogsgetComponent implements OnInit {
         // this.setRank(type,indexItem);
         this.utils.showSuccess(results.message, 4000);
         this.utils.hideLoader();
-       
+
       }
       else if (results.code == 201) {
         this.utils.showError(results.message, 4000);
@@ -344,10 +347,87 @@ export class CatalogsgetComponent implements OnInit {
       this.utils.showError(ERROR.SERVER_ERR, 4000);
     });
   }
-  imageLoad(event){
-    if(event.target.previousElementSibling != null)
-    {
+  imageLoad(event) {
+    if (event.target.previousElementSibling != null) {
       event.target.previousElementSibling.classList.remove('placeholder-img');
+    }
+  }
+
+  addCatalogRank(event, temp_index) {
+    // if (this.templatesArr.length > 19) {
+    //   if (!this.templatesArr.includes(temp_index)) {
+    //     this.utils.showError("Maximum 20 templates are allow for select", 6000);
+    //   }
+    //   else {
+    //     this.templatesArr.splice(this.templatesArr.indexOf(temp_index), 1);
+    //   }
+    // }
+    // else {
+    if (!this.catalogIdArr.includes(temp_index)) {
+      this.catalogIdArr.push(temp_index);
+    }
+    else {
+      this.catalogIdArr.splice(this.catalogIdArr.indexOf(temp_index), 1);
+    }
+    // }
+  }
+
+  selectAllCatalog() {
+    this.catalogIdArr = [];
+    if (this.selectedCatalogType == 1) {
+      for (let i = 0; i < this.featuredCatalogList.length; i++) {
+        this.catalogIdArr.push(this.featuredCatalogList[i].catalog_id);
+      }
+    } else {
+      for (let i = 0; i < this.normalCatalogList.length; i++) {
+        this.catalogIdArr.push(this.normalCatalogList[i].catalog_id);
+      }
+    }
+  }
+  setRankForAllCatalog() {
+    if (this.catalogIdArr.length == 0) {
+      this.utils.showError("Please select catalog for set rank", 6000);
+    }
+    else {
+      this.utils.showLoader();
+      this.dataService.postData('setCatalogRankOnTheTopByAdmin', {
+        "catalog_id": this.catalogIdArr
+      }, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).then((results: any) => {
+
+        if (results.code == 200) {
+          this.catalogIdArr = [];
+          this.multiselectFlag = false;
+          this.selectedCatalogType = "1";
+          this.utils.showSuccess(results.message, 4000);
+          this.utils.hideLoader();
+          this.getAllCatalogs();
+          // this.setRank(type,indexItem);
+        }
+        else if (results.code == 201) {
+          this.utils.showError(results.message, 4000);
+          this.utils.hideLoader();
+        }
+        else if (results.status || results.status == 0) {
+          this.utils.showError(ERROR.SERVER_ERR, 4000);
+          this.utils.hideLoader();
+        }
+        else {
+          this.utils.showError(results.message, 4000);
+          this.utils.hideLoader();
+        }
+      }, (error: any) => {
+        console.log(error);
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 4000);
+      }).catch((error: any) => {
+        console.log(error);
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 4000);
+      });
     }
   }
 }

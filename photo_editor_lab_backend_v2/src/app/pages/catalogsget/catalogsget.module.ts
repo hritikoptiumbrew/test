@@ -16,7 +16,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CatalogsgetComponent } from './catalogsget.component';
 import { FormsModule } from '@angular/forms';
-import { NbAccordionModule, NbBadgeModule, NbCardModule, NbIconModule, NbInputModule, NbSelectModule, NbTooltipModule } from '@nebular/theme';
+import { NbAccordionModule, NbBadgeModule, NbCardModule, NbIconModule, NbInputModule, NbRadioModule, NbSelectModule, NbTooltipModule } from '@nebular/theme';
 import { LazyLoadImageModule } from 'ng-lazyload-image';
 
 @NgModule({
@@ -27,6 +27,7 @@ import { LazyLoadImageModule } from 'ng-lazyload-image';
     NbCardModule,
     NbIconModule,
     NbInputModule,
+    NbRadioModule,
     FormsModule,
     NbTooltipModule,
     NbAccordionModule,

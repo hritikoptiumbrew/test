@@ -240,5 +240,16 @@
     "contact_us": "../../support/iossupport/?id=sw108t",
     "privacy_policy": "../../privacy-policy/iosprivacy-menu/?id=sw108t",
     "terms": "../../terms-of-use/iosterms/?id=sw108t"
+  },
+  "poa12l": {
+    "app_name": "Social Media Post Maker JNA",
+    "canonical": "https://photoeditorlab.co.in",
+    "webp_logo": "assets/images/app_logo/social_media_post_maker.webp",
+    "png_logo": "assets/images/app_logo/social_media_post_maker.png",
+    "favicon": "ios_favicon/SocialMediaPostMakerJNA",
+    "title": "Social Media Post Maker",
+    "contact_us": "../../support/iossupport/?id=poa12l",
+    "privacy_policy": "../../privacy-policy/iosprivacy-smpm/?id=poa12l",
+    "terms": "../../terms-of-use/iosterms/?id=poa12l"
   }
 }
