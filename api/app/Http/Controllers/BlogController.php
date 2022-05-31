@@ -811,9 +811,10 @@ class BlogController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getBlogListByUser$this->page:$this->item_count:$this->catalog_id:$this->platform")) {
-                $result = Cache::rememberforever("getBlogListByUser$this->page:$this->item_count:$this->catalog_id:$this->platform", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::rememberforever("getBlogListByUser$this->page:$this->item_count:$this->catalog_id:$this->platform", function () {
 
                     $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ? AND catalog_id = ? AND platform IN(?,?) ', [1,$this->catalog_id,$this->platform,3]);
                     $total_row = $total_row_result[0]->total;
@@ -842,12 +843,35 @@ class BlogController extends Controller
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result);
 
                 });
-            }
 
-            $redis_result = Cache::get("getBlogListByUser$this->page:$this->item_count:$this->catalog_id:$this->platform");
+            } else {
 
-            if (!$redis_result) {
-                $redis_result = [];
+                $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ? AND catalog_id = ? AND platform IN(?,?) ', [1,$this->catalog_id,$this->platform,3]);
+                $total_row = $total_row_result[0]->total;
+
+                $result = DB::select('SELECT 
+                                          id AS blog_id,
+                                          IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as thumbnail_img,
+                                          IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as compressed_img,
+                                          IF(image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as original_img,
+                                          IF(webp_image != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",webp_image),"") as webp_original_img,
+                                          IF(webp_image != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",webp_image),"") as webp_thumbnail_img,
+                                          height,
+                                          width,
+                                          title,
+                                          subtitle,
+                                          catalog_id,
+                                          is_active
+                                      FROM  blog_master 
+                                      WHERE is_active = ? AND
+                                      catalog_id =? AND
+                                      platform IN(?,?)
+                                      ORDER BY update_time DESC 
+                                      LIMIT ?, ?', [1,$this->catalog_id,$this->platform,3,$this->offset, $this->item_count]);
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $redis_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $result);
+
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Blog content fetched successfully.', 'cause' => '', 'data' => $redis_result));
@@ -952,9 +976,10 @@ class BlogController extends Controller
 
 
             $this->blog_id = $request->blog_id;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getBlogContentByIdForUser$this->blog_id")) {
-                $result = Cache::rememberforever("getBlogContentByIdForUser$this->blog_id", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::rememberforever("getBlogContentByIdForUser$this->blog_id", function () {
 
                     return DB::select('SELECT 
                                           id AS blog_id,
@@ -973,12 +998,25 @@ class BlogController extends Controller
                                       WHERE id = ?', [$this->blog_id]);
 
                 });
-            }
 
-            $redis_result = Cache::get("getBlogContentByIdForUser$this->blog_id");
+            } else {
 
-            if (!$redis_result) {
-                $redis_result = [];
+                $redis_result = DB::select('SELECT 
+                                          id AS blog_id,
+                                          IF(image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as thumbnail_img,
+                                          IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as compressed_img,
+                                          IF(image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as original_img,
+                                          IF(webp_image != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",webp_image),"") as webp_original_img,
+                                          IF(webp_image != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",webp_image),"") as webp_thumbnail_img,
+                                          height,
+                                          width,
+                                          title,
+                                          subtitle,
+                                          blog_json,
+                                          is_active
+                                      FROM  blog_master 
+                                      WHERE id = ?', [$this->blog_id]);
+
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Blog content fetched successfully.', 'cause' => '', 'data' => $redis_result));
