@@ -10848,7 +10848,8 @@ class AdminController extends Controller
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-            $request = json_decode($request_body->getContent());
+            //$request = json_decode($request_body->getContent());
+            $request = json_decode($request_body->input('request_data'));
             if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'category_id', 'catalog_id', 'is_featured', 'is_portrait', 'is_free', 'search_category', 'json_pages_sequence'), $request)) != '')
                 return $response;
 
@@ -10866,14 +10867,9 @@ class AdminController extends Controller
             $json_pages_sequence = explode(',',$request->json_pages_sequence);
             $created_at = date('Y-m-d H:i:s');
 
-            $resource_image_array = array();
-            $sample_image_array = array();
-            $webp_image_array = array();
-            $multiple_images = array();
-            $error_detail = array();
-            $error_msg = "";
-            $all_json_data = "";
-            $webp_warning = "";
+            $resource_image_array = $sample_image_array = $webp_image_array = $multiple_images = $error_detail = array();
+            $cover_image_dimension = array('height' => '', 'width' => '', 'org_img_height' => '', 'org_img_width' => '');
+            $error_msg = $all_json_data = $webp_warning = $cover_image = $cover_webp_image = "";
 
             $zip_file_directory = '../..' . Config::get('constant.TEMP_FILE_DIRECTORY');
             $zip_store_path = $zip_file_directory . $zip_name;
@@ -11027,8 +11023,35 @@ class AdminController extends Controller
                 }
             }
 
+            //upload cover_image if is exist in request
+            if ($request_body->hasFile('cover_image')) {
+
+                $cover_image_array = Input::file('cover_image');
+                $extension = $cover_image_array->extension();
+                $file_size = $cover_image_array->getSize();
+
+                if (($extension == "jpg" || $extension == "png" || $extension == "jpeg") && $file_size < $IMAGE_MAXIMUM_FILESIZE) {
+
+                    $cover_image = uniqid() . '_cover_image_' . time() . '.' . $extension;
+                    (new ImageController())->saveFileByPath($cover_image_array, $cover_image, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+
+                    (new ImageController())->saveCompressedImage($cover_image);
+                    (new ImageController())->saveThumbnailImage($cover_image);
+                    $cover_webp_image = (new ImageController())->saveWebpOriginalImage($cover_image);
+                    $cover_image_dimension = (new ImageController())->saveWebpThumbnailImage($cover_image);
+
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveImageInToS3($cover_image);
+                        (new ImageController())->saveWebpImageInToS3($cover_webp_image);
+
+                    }
+                }
+            }
+
             $image_detail = [
                 'catalog_id' => $catalog_id,
+                'cover_img' => $cover_image,
+                'cover_webp_img' => $cover_webp_image,
                 'image' => $multiple_images[$json_pages_sequence[0]]['name'],
                 'json_data' => json_encode($all_json_data),
                 'is_free' => $is_free,
@@ -11040,6 +11063,10 @@ class AdminController extends Controller
                 'width' => $multiple_images[$json_pages_sequence[0]]['width'],
                 'original_img_height' => $multiple_images[$json_pages_sequence[0]]['org_img_height'],
                 'original_img_width' => $multiple_images[$json_pages_sequence[0]]['org_img_width'],
+                'cover_img_height' => $cover_image_dimension['height'],
+                'cover_img_width' => $cover_image_dimension['width'],
+                'original_cover_img_height' => $cover_image_dimension['org_img_height'],
+                'original_cover_img_width' => $cover_image_dimension['org_img_width'],
                 'created_at' => $created_at,
                 'attribute1' => $multiple_images[$json_pages_sequence[0]]['webp_name'],
                 'is_auto_upload' => 1,
