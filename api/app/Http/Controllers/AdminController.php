@@ -4377,7 +4377,7 @@ class AdminController extends Controller
             DB::beginTransaction();
             DB::insert('INSERT INTO
                               images(catalog_id, image, cover_img, cover_webp_img, content_type, json_data, is_active, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, cover_img_height, cover_img_width, original_cover_img_height, original_cover_img_width, created_at, attribute1)
-                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, $content_type, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $cover_image_dimension['height'], $cover_image_dimension['width'], $cover_image_dimension['org_img_height'], $cover_image_dimension['org_img_width'], $created_at, $file_name]);
+                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, $cover_image, $cover_webp_image, $content_type, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $cover_image_dimension['height'], $cover_image_dimension['width'], $cover_image_dimension['org_img_height'], $cover_image_dimension['org_img_width'], $created_at, $file_name]);
             DB::commit();
 
             if (strstr($file_name, '.webp')) {
@@ -4405,12 +4405,13 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free', 'is_active'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
             $catalog_id = $request->catalog_id;
             $all_json_datas = $request->json_data;
+            $is_active = $request->is_active;
             $is_free = $request->is_free;
             $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
@@ -4419,6 +4420,8 @@ class AdminController extends Controller
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
             $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
             $created_at = date('Y-m-d H:i:s');
+            $cover_image = $cover_webp_image = "";
+            $cover_image_dimension = array('height' => '', 'width' => '', 'org_img_height' => '', 'org_img_width' => '');
             $sample_image_array = array();
             $webp_image_array = array();
             $multiple_images = array();
@@ -4437,6 +4440,7 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $images_array = Input::file('file');
+            $cover_image_array = Input::file('cover_image');
 
             if(!(count(json_decode(json_encode($all_json_data), 1)) == count($images_array) && count($json_pages_sequence) == count($images_array))){
                 return Response::json(array('code' => 201, 'message' => 'Did not match count of sample image, pages_sequence & json.', 'cause' => '', 'data' => json_decode("{}")));
@@ -4493,6 +4497,7 @@ class AdminController extends Controller
                 'catalog_id' => $catalog_id,
                 'image' => $multiple_images[$json_pages_sequence[0]]['name'],
                 'json_data' => json_encode($all_json_data),
+                'is_active' => $is_active,
                 'is_free' => $is_free,
                 'is_ios_free' => $is_ios_free,
                 'is_featured' => $is_featured,
@@ -4509,6 +4514,30 @@ class AdminController extends Controller
                 'multiple_images' => json_encode($multiple_images),
                 'is_multipage' => 1
             ];
+
+            if ($cover_image_array) {
+
+                $cover_image = (new ImageController())->generateNewFileName('cover_image', $image_array);
+
+                (new ImageController())->saveFileByPath($cover_image_array, $cover_image, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+                (new ImageController())->saveCompressedImage($cover_image);
+                (new ImageController())->saveThumbnailImage($cover_image);
+                $cover_webp_image = (new ImageController())->saveWebpOriginalImage($cover_image);
+                $cover_image_dimension = (new ImageController())->saveWebpThumbnailImage($cover_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($cover_image);
+                    (new ImageController())->saveWebpImageInToS3($cover_webp_image);
+                }
+
+                $image_detail['cover_img'] = $cover_image;
+                $image_detail['cover_webp_img'] = $cover_webp_image;
+                $image_detail['cover_img_height'] = $cover_image_dimension['height'];
+                $image_detail['cover_img_width'] = $cover_image_dimension['width'];
+                $image_detail['original_cover_img_height'] = $cover_image_dimension['org_img_height'];
+                $image_detail['original_cover_img_width'] = $cover_image_dimension['org_img_width'];
+
+            }
 
             DB::table('images')->insert($image_detail);
 
