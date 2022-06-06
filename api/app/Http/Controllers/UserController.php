@@ -1485,7 +1485,6 @@ class UserController extends Controller
                                                                              FROM sub_category_catalog
                                                                              WHERE sub_category_id = ?) AND 
                                                               is_featured = 1 AND 
-                                                              is_active = 1 AND 
                                                               updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
                         $total_row = $total_row_result[0]->total;
                         $result = DB::select('SELECT
