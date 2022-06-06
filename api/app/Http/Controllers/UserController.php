@@ -523,7 +523,7 @@ class UserController extends Controller
             $new_array = array();
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getLinkWithLastSyncTime:$this->platform:$this->sub_category_id:$this->last_sync_time", function () {
+                $redis_result = Cache::remember("getLinkWithLastSyncTime:$this->platform:$this->sub_category_id:$this->last_sync_time", Config::get("constant.CACHE_TIME_24_HOUR"), function () {
 
                     if (count($this->advertise_id_list) > 0) {
 
@@ -912,17 +912,15 @@ class UserController extends Controller
                 return $response;
 
             $this->json_id_to_get_json_data = $request->json_id;
-            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getJsonData:$this->json_id_to_get_json_data", function () {
+            if (!Cache::has("pel:getJsonData$this->json_id_to_get_json_data")) {
+                $result = Cache::rememberforever("getJsonData$this->json_id_to_get_json_data", function () {
                     $result = DB::select('SELECT
                                                 json_data
                                                 FROM
                                                 images
                                                 WHERE
-                                                id = ? AND
-                                                is_active = 1
+                                                id= ?
                                                 order by updated_at DESC', [$this->json_id_to_get_json_data]);
                     if (count($result) > 0) {
                         $json_data = json_decode($result[0]->json_data);
@@ -933,24 +931,12 @@ class UserController extends Controller
                         return json_decode("{}");
                     }
                 });
+            }
 
-            } else {
-                $result = DB::select('SELECT
-                                                json_data
-                                                FROM
-                                                images
-                                                WHERE
-                                                id = ? AND
-                                                is_active = 1
-                                                order by updated_at DESC', [$this->json_id_to_get_json_data]);
-                if (count($result) > 0) {
-                    $json_data = json_decode($result[0]->json_data);
-                    if($result[0]->json_data)
-                        $json_data->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
-                    $redis_result = $json_data;
-                } else {
-                    $redis_result = json_decode("{}");
-                }
+            $redis_result = Cache::get("getJsonData$this->json_id_to_get_json_data");
+
+            if (!$redis_result) {
+                $redis_result = [];
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Json fetched successfully.', 'cause' => '', 'data' => $redis_result));
@@ -976,63 +962,35 @@ class UserController extends Controller
                 return $response;
 
             $this->json_id = $request->json_id;
-            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
+            $redis_result = Cache::rememberforever("getJsonDataV2:$this->json_id", function () {
 
-            if ($is_cache_enable) {
-
-                $redis_result = Cache::rememberforever("getJsonDataV2:$this->json_id", function () {
-
-                    $result = DB::select('SELECT
-                                              json_data,
-                                              COALESCE(json_pages_sequence,"") AS pages_sequence
-                                          FROM
-                                              images
-                                          WHERE
-                                              id = ? AND 
-                                              is_active = 1
-                                          ORDER BY updated_at DESC', [$this->json_id]);
-
-                    if (count($result) > 0) {
-
-                        $result[0]->json_data = json_decode($result[0]->json_data);
-
-                        if($result[0]->json_data)
-                            $result[0]->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
-
-                        return $result[0];
-
-                    } else {
-                        return json_decode("{}");
-                    }
-
-                });
-
-            } else {
-
-                $redis_result = DB::select('SELECT
+                $result = DB::select('SELECT
                                           json_data,
                                           COALESCE(json_pages_sequence,"") AS pages_sequence
                                       FROM
                                           images
                                       WHERE
-                                          id = ? AND
-                                          is_active = 1
+                                          id = ?
                                       ORDER BY updated_at DESC', [$this->json_id]);
 
-                if (count($redis_result) > 0) {
+                if (count($result) > 0) {
 
-                    $redis_result[0]->json_data = json_decode($redis_result[0]->json_data);
+                    $result[0]->json_data = json_decode($result[0]->json_data);
 
-                    if($redis_result[0]->json_data)
-                        $redis_result[0]->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
+                    if($result[0]->json_data)
+                        $result[0]->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
 
-                    return $redis_result[0];
+                    return $result[0];
 
                 } else {
                     return json_decode("{}");
                 }
 
+            });
+
+            if (!$redis_result) {
+                $redis_result = [];
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Json fetched successfully.', 'cause' => '', 'data' => $redis_result));
@@ -1510,7 +1468,7 @@ class UserController extends Controller
             //Log::info('request_data', ['request_data' => $request]);
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+                $redis_result = Cache::remember("getJsonSampleDataWithLastSyncTime_webp:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
                     $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
@@ -2658,7 +2616,7 @@ class UserController extends Controller
             //Log::info('request_data', ['request_data' => $request]);
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getFeaturedSampleAndCatalogWithWebp:$this->item_count:$this->sub_category_id", function () {
+                $redis_result = Cache::remember("getFeaturedSampleAndCatalogWithWebp:$this->item_count:$this->sub_category_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $category_list = DB::select('SELECT
                                                   ct.id as catalog_id,
@@ -2831,7 +2789,7 @@ class UserController extends Controller
             $this->is_verified = (new VerificationController())->verifySearchText($this->search_category);
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("searchCatalogByUser:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count:$this->is_free:$this->is_featured", function () {
+                $redis_result = Cache::remember("searchCatalogByUser:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count:$this->is_free:$this->is_featured", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $search_category = $this->search_category;
                     $code = 200;
@@ -4360,7 +4318,7 @@ class UserController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getAllSamplesWithWebp:$this->sub_category_id:$this->catalog_id", function () {
+                $redis_result = Cache::remember("getAllSamplesWithWebp:$this->sub_category_id:$this->catalog_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     if ($this->catalog_id == 0) {
 
@@ -4542,7 +4500,7 @@ class UserController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getCatalogBySubCategoryIdWithWebp:$this->sub_category_id:$this->page:$this->item_count:$this->is_free:$this->is_featured", function () {
+                $redis_result = Cache::remember("getCatalogBySubCategoryIdWithWebp:$this->sub_category_id:$this->page:$this->item_count:$this->is_free:$this->is_featured", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $total_row_result = DB::select('SELECT
                                                       count(ct.id) as total
@@ -7207,7 +7165,7 @@ class UserController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getContentByCatalogId:$this->catalog_id:$this->page:$this->item_count", function () {
+                $redis_result = Cache::remember("getContentByCatalogId:$this->catalog_id:$this->page:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
 
                     $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
@@ -7472,7 +7430,7 @@ class UserController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getImagesByCatalogId:$this->catalog_id", function () {
+                $redis_result = Cache::remember("getImagesByCatalogId:$this->catalog_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
                     $result = DB::select('SELECT
                                           im.id as img_id,
                                           IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
@@ -7871,7 +7829,7 @@ class UserController extends Controller
 
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getJsonSampleDataFilterBySearchTag:$this->sub_category_id:$this->search_category:$this->page:$this->item_count", function () {
+                $redis_result = Cache::remember("getJsonSampleDataFilterBySearchTag:$this->sub_category_id:$this->search_category:$this->page:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
 
                     if ($this->search_category == "") {

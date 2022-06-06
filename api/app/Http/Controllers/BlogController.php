@@ -814,7 +814,7 @@ class BlogController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getBlogListByUser:$this->page:$this->item_count:$this->catalog_id:$this->platform", function () {
+                $redis_result = Cache::remember("getBlogListByUser:$this->page:$this->item_count:$this->catalog_id:$this->platform", Config::get("constant.CACHE_TIME_24_HOUR"), function () {
 
                     $total_row_result = DB::select('SELECT COUNT(*) as total FROM  blog_master WHERE is_active = ? AND catalog_id = ? AND platform IN(?,?) ', [1,$this->catalog_id,$this->platform,3]);
                     $total_row = $total_row_result[0]->total;
@@ -979,7 +979,7 @@ class BlogController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getBlogContentByIdForUser:$this->blog_id", function () {
+                $redis_result = Cache::remember("getBlogContentByIdForUser:$this->blog_id", Config::get("constant.CACHE_TIME_48_HOUR"), function () {
 
                     return DB::select('SELECT 
                                           id AS blog_id,
