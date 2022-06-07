@@ -67,7 +67,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
         <div class="picture text-center" style="position: relative;overflow: hidden;height: 130px; background: #e5e5e5;"
           (click)="!multiselectFlag?viewImage(item.cover_compressed_img?item.cover_compressed_img:item.compressed_img):addTemplateRank($event,item.img_id)">
           <img class="placeholder-img">
-          <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
+          <img [lazyLoad]="item.cover_compressed_img?item.cover_compressed_img:item.webp_original_img?item.webp_original_img:item.thumbnail_img"
             [errorImage]="utils.errorImg" alt="{{item.name}} image" (load)="imageLoad($event)"
             [ngStyle]="categoryId == '5' ? {'filter': 'drop-shadow(0px 0px 3px rgba(0,0,0,0.3))','padding':'5px 0px'}:''">
           <div *ngIf="item.is_free==0 && item.is_json_data==1" class="ribbon-wrapper-yellow">
