@@ -1742,9 +1742,51 @@ class AdminController extends Controller
                 return $response;
             //Log::info('getCatalogBySubCategoryId request : ',['request' => $request]);
 
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $this->sub_category_id = $request->sub_category_id;
 
-            $redis_result = Cache::rememberforever("getCatalogBySubCategoryId$this->sub_category_id", function () {
+            if ($is_cache_enable) {
+
+                $redis_result = Cache::remember("getCatalogBySubCategoryId:$this->sub_category_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
+
+                    //sub Category Name
+                    $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
+                    $category_name = $name[0]->name;
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
+                                    ct.id as catalog_id,
+                                    ct.name,
+                                    IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                    IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                    IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                    IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                    IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                    IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
+                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                    ct.is_free,
+                                    ct.is_ios_free,
+                                    ct.catalog_type,
+                                    ct.event_date,
+                                    ct.popularity_rate,
+                                    ct.search_category,
+                                    ct.is_featured
+                                  FROM
+                                    catalog_master as ct,
+                                    sub_category_catalog as sct
+                                  WHERE
+                                    sct.sub_category_id = ? AND
+                                    sct.catalog_id=ct.id AND
+                                    sct.is_active=1
+                                  order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                    return array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
+                });
+
+            } else {
 
                 //sub Category Name
                 $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
@@ -1780,11 +1822,7 @@ class AdminController extends Controller
                                     sct.is_active=1
                                   order by ct.updated_at DESC', [$this->sub_category_id]);
 
-                return array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
-            });
-
-            if (!$redis_result) {
-                $redis_result = [];
+                $redis_result = array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
