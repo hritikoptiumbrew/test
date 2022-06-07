@@ -10692,7 +10692,8 @@ class UserController extends Controller
                                                    FROM
                                                        sub_category_tag_master
                                                    WHERE sub_category_id = ? AND
-                                                         is_template=?
+                                                         is_template=? AND 
+                                                         is_active = ?
                                                    ORDER BY update_time DESC LIMIT ?,?', [$this->sub_category_id, $this->is_template, $this->offset, $this->item_count_of_search_tag]);
 
                 $total_row_result = DB::select('SELECT COUNT(*) as total FROM sub_category_tag_master WHERE is_active=? AND sub_category_id = ? AND is_template=?', [1, $this->sub_category_id, $this->is_template]);
