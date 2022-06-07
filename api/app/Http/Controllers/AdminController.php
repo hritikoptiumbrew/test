@@ -4353,7 +4353,10 @@ class AdminController extends Controller
 
             if ($cover_image_array) {
 
-                $cover_image = (new ImageController())->generateNewFileName('cover_image', $image_array);
+                if (($response = (new ImageController())->verifySampleImage($cover_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                $cover_image = (new ImageController())->generateNewFileName('cover_image', $cover_image_array);
 
                 (new ImageController())->saveFileByPath($cover_image_array, $cover_image, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
                 (new ImageController())->saveCompressedImage($cover_image);
@@ -4509,7 +4512,10 @@ class AdminController extends Controller
 
             if ($cover_image_array) {
 
-                $cover_image = (new ImageController())->generateNewFileName('cover_image', $image_array);
+                if (($response = (new ImageController())->verifySampleImage($cover_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                $cover_image = (new ImageController())->generateNewFileName('cover_image', $cover_image_array);
 
                 (new ImageController())->saveFileByPath($cover_image_array, $cover_image, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
                 (new ImageController())->saveCompressedImage($cover_image);
@@ -4837,8 +4843,8 @@ class AdminController extends Controller
 
             if($cover_image_array){
 
-                (new ImageController())->deleteImage($old_image_details[0]->cover_img);
-                (new ImageController())->deleteWebpImage($old_image_details[0]->cover_webp_img);
+                if (($response = (new ImageController())->verifySampleImage($cover_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
 
                 $cover_image = (new ImageController())->generateNewFileName('cover_image', $cover_image_array);
 
@@ -4852,6 +4858,10 @@ class AdminController extends Controller
                     (new ImageController())->saveImageInToS3($cover_image);
                     (new ImageController())->saveWebpImageInToS3($cover_webp_image);
                 }
+
+                (new ImageController())->deleteImage($old_image_details[0]->cover_img);
+                (new ImageController())->deleteWebpImage($old_image_details[0]->cover_webp_img);
+
                 $update_query = 'cover_img = "' . $cover_image . '", cover_webp_img = "' . $cover_webp_image . '", cover_img_height = "' . $cover_image_dimension['height'] . '", cover_img_width = "' . $cover_image_dimension['width'] . '", original_cover_img_height = "' . $cover_image_dimension['org_img_height'] . '", original_cover_img_width = "' . $cover_image_dimension['org_img_width'] . '", ';
 
             } elseif ($is_cover_img_deleted) {
