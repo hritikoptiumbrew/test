@@ -2661,7 +2661,7 @@ class AdminController extends Controller
 
             $this->catalog_id = $request->catalog_id;
 
-            $redis_result = Cache::rememberforever("getDataByCatalogIdForAdmin$this->catalog_id", function () {
+            $redis_result = Cache::rememberforever("getDataByCatalogIdForAdmin:$this->catalog_id", function () {
 
                 $result = DB::select('SELECT
                                           im.id AS img_id,
@@ -2705,15 +2705,9 @@ class AdminController extends Controller
                     if ($key->json_data != "") {
                         $key->json_data = json_decode($key->json_data);
                     }
-
                 }
                 return $result;
             });
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
 
             $response = Response::json(array('code' => 200, 'message' => 'Data fetched successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -4420,8 +4414,6 @@ class AdminController extends Controller
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : NULL;
             $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
             $created_at = date('Y-m-d H:i:s');
-            $cover_image = $cover_webp_image = "";
-            $cover_image_dimension = array('height' => '', 'width' => '', 'org_img_height' => '', 'org_img_width' => '');
             $sample_image_array = array();
             $webp_image_array = array();
             $multiple_images = array();
@@ -10583,11 +10575,12 @@ class AdminController extends Controller
 
             DB::insert('INSERT
                                 INTO
-                                  images(catalog_id,image,json_data,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                                  images(catalog_id,image,json_data,is_active,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
                 $catalog_id,
                 $catalog_image,
                 json_encode($json_data),
+                0,
                 $is_free,
                 $is_ios_free,
                 $is_featured,
@@ -10820,11 +10813,12 @@ class AdminController extends Controller
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id,image,json_data,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                                  images(catalog_id,image,json_data,is_active,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
                     $catalog_id,
                     $catalog_image,
                     json_encode($all_json_data->{$pages_sequence}),
+                    0,
                     $is_free,
                     $is_ios_free,
                     $is_featured,
@@ -11159,6 +11153,7 @@ class AdminController extends Controller
                 'created_at' => $created_at,
                 'attribute1' => $multiple_images[$json_pages_sequence[0]]['webp_name'],
                 'is_auto_upload' => 1,
+                'is_active' => 0,
                 'json_pages_sequence' => implode(',',$json_pages_sequence),
                 'multiple_images' => json_encode($multiple_images),
                 'is_multipage' => 1
@@ -11783,6 +11778,37 @@ class AdminController extends Controller
         } catch (Exception $e) {
             Log::error("updateTemplateSearchingTagsByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function updateMultipleTemplateByAdmin(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'img_ids', 'is_active'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $img_ids = $request->img_ids;
+            $is_active = $request->is_active;
+
+            DB::update('UPDATE images
+                        SET
+                            updated_at = updated_at,
+                            is_active = ?
+                        WHERE
+                            id IN (' . $img_ids . ') ', [$is_active]);
+
+            Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin:$catalog_id*"), ['']));
+            $response = Response::json(array('code' => 200, 'message' => 'Multiple template updated successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("updateMultipleTemplateByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update multiple template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }

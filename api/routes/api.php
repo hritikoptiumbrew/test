@@ -167,6 +167,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
 
     //Save Search Tag Module
     Route::post('updateTemplateSearchingTagsByAdmin', 'AdminController@updateTemplateSearchingTagsByAdmin');
+    Route::post('updateMultipleTemplateByAdmin', 'AdminController@updateMultipleTemplateByAdmin');
     Route::post('getAllSearchingDetailsForAdmin', 'AdminController@getAllSearchingDetailsForAdmin');
     Route::post('searchCardsBySubCategoryIdForAdmin', 'AdminController@searchCardsBySubCategoryIdForAdmin');
     Route::post('refreshSearchCountByAdmin', 'AdminController@refreshSearchCountByAdmin');
