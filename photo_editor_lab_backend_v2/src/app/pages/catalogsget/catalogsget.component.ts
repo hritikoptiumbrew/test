@@ -301,7 +301,7 @@ export class CatalogsgetComponent implements OnInit {
   }
   getAllCatalogs() {
     this.utils.showPageLoader();
-    this.dataService.postData('getCatalogBySubCategoryId',
+    this.dataService.postData('getCatalogBySubCategoryIdForAdmin',
       {
         "sub_category_id": this.subCategoryId
       }, {
