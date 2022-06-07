@@ -1477,8 +1477,8 @@ class UserController extends Controller
 
             //Log::info('request_data', ['request_data' => $request]);
 
-            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
-                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
+                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
 
                     if ($this->catalog_id == 0) {
 
@@ -1530,7 +1530,7 @@ class UserController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
+            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -1753,7 +1753,6 @@ class UserController extends Controller
                                                                              FROM sub_category_catalog
                                                                              WHERE sub_category_id = ?) AND 
                                                               is_featured = 1 AND
-                                                              is_active = 1 AND
                                                               updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
                     $total_row = $total_row_result[0]->total;
                     $result = DB::select('SELECT
@@ -4508,7 +4507,8 @@ class UserController extends Controller
                                                   images
                                                 WHERE
                                                   catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1 AND is_featured = 1) AND
-                                                  is_featured = 1
+                                                  is_featured = 1 AND
+                                                  is_active = 1
                                                 ORDER BY updated_at DESC', [$this->sub_category_id]);
 
                     } else {
