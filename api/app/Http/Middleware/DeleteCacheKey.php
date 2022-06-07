@@ -83,7 +83,7 @@ class DeleteCacheKey
 
 
                 //getCatalogBySubCategoryId
-                Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryId*"),['']));
+                Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryIdForAdmin*"),['']));
 
                 //getCatalogBySubCategoryIdForAutoUpload
                 Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryIdForAutoUpload*"),['']));
@@ -375,7 +375,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getCorruptedFontList*"),['']));
 
                 //getCatalogBySubCategoryId
-                Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryId*"),['']));
+                Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryIdForAdmin*"),['']));
 
             }
 

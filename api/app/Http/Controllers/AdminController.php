@@ -1658,182 +1658,67 @@ class AdminController extends Controller
         return $response;
     }
 
-    /**
-     * @api {post} getCatalogBySubCategoryId   getCatalogBySubCategoryId
-     * @apiName getCatalogBySubCategoryId
-     * @apiGroup Common For All
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":1
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Catalog Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 5,
-     * "category_name": "Independence Day Stickers",
-     * "category_list": [
-     * {
-     * "catalog_id": 84,
-     * "name": "Misc",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d551036b09_catalog_img_1502434576.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d551036b09_catalog_img_1502434576.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d551036b09_catalog_img_1502434576.png",
-     * "is_free": 0,
-     * "is_featured": 1
-     * },
-     * {
-     * "catalog_id": 80,
-     * "name": "Circle",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64d7c306f_catalog_img_1502438615.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d64d7c306f_catalog_img_1502438615.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d64d7c306f_catalog_img_1502438615.png",
-     * "is_free": 0,
-     * "is_featured": 0
-     * },
-     * {
-     * "catalog_id": 81,
-     * "name": "Flag",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64c7af06f_catalog_img_1502438599.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d64c7af06f_catalog_img_1502438599.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d64c7af06f_catalog_img_1502438599.png",
-     * "is_free": 0,
-     * "is_featured": 0
-     * },
-     * {
-     * "catalog_id": 82,
-     * "name": "Map",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64afc90f8_catalog_img_1502438575.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d64afc90f8_catalog_img_1502438575.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d64afc90f8_catalog_img_1502438575.png",
-     * "is_free": 0,
-     * "is_featured": 0
-     * },
-     * {
-     * "catalog_id": 83,
-     * "name": "Text",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d649f4442e_catalog_img_1502438559.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d649f4442e_catalog_img_1502438559.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d649f4442e_catalog_img_1502438559.png",
-     * "is_free": 0,
-     * "is_featured": 0
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getCatalogBySubCategoryId(Request $request_body)
+    public function getCatalogBySubCategoryIdForAdmin(Request $request_body)
     {
         try {
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
                 return $response;
-            //Log::info('getCatalogBySubCategoryId request : ',['request' => $request]);
 
-            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $this->sub_category_id = $request->sub_category_id;
 
-            if ($is_cache_enable) {
-
-                $redis_result = Cache::remember("getCatalogBySubCategoryId:$this->sub_category_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
-
-                    //sub Category Name
-                    $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
-                    $category_name = $name[0]->name;
-
-                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
-                    $total_row = $total_row_result[0]->total;
-
-                    $result = DB::select('SELECT
-                                    ct.id as catalog_id,
-                                    ct.name,
-                                    IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                    IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                    IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
-                                    IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
-                                    IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
-                                    IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
-                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
-                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
-                                    ct.is_free,
-                                    ct.is_ios_free,
-                                    ct.catalog_type,
-                                    ct.event_date,
-                                    ct.popularity_rate,
-                                    ct.search_category,
-                                    ct.is_featured
-                                  FROM
-                                    catalog_master as ct,
-                                    sub_category_catalog as sct
-                                  WHERE
-                                    sct.sub_category_id = ? AND
-                                    sct.catalog_id=ct.id AND
-                                    sct.is_active=1
-                                  order by ct.updated_at DESC', [$this->sub_category_id]);
-
-                    return array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
-                });
-
-            } else {
+            $redis_result = Cache::rememberforever("getCatalogBySubCategoryIdForAdmin:$this->sub_category_id", function () {
 
                 //sub Category Name
-                $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
+                $name = DB::select('SELECT sc.name FROM sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
                 $category_name = $name[0]->name;
 
-                $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
+                $total_row_result = DB::select('SELECT COUNT(*) AS total FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
                 $total_row = $total_row_result[0]->total;
 
                 $result = DB::select('SELECT
-                                    ct.id as catalog_id,
-                                    ct.name,
-                                    IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                    IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                    IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
-                                    IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
-                                    IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
-                                    IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
-                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
-                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
-                                    ct.is_free,
-                                    ct.is_ios_free,
-                                    ct.catalog_type,
-                                    ct.event_date,
-                                    ct.popularity_rate,
-                                    ct.search_category,
-                                    ct.is_featured
-                                  FROM
-                                    catalog_master as ct,
-                                    sub_category_catalog as sct
-                                  WHERE
-                                    sct.sub_category_id = ? AND
-                                    sct.catalog_id=ct.id AND
-                                    sct.is_active=1
-                                  order by ct.updated_at DESC', [$this->sub_category_id]);
+                                ct.id AS catalog_id,
+                                ct.name,
+                                IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS thumbnail_img,
+                                IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS compressed_img,
+                                IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS original_img,
+                                IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") AS compressed_landscape_img,
+                                IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") AS compressed_portrait_img,
+                                IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") AS icon,
+                                IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") AS webp_thumbnail_img,
+                                IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") AS webp_original_img,
+                                ct.is_free,
+                                ct.is_ios_free,
+                                ct.catalog_type,
+                                ct.event_date,
+                                ct.popularity_rate,
+                                ct.search_category,
+                                ct.is_featured
+                              FROM
+                                catalog_master AS ct,
+                                sub_category_catalog AS sct
+                              WHERE
+                                sct.sub_category_id = ? AND
+                                sct.catalog_id = ct.id AND
+                                sct.is_active = 1
+                              ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
 
-                $redis_result = array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
-            }
+                return array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
+            });
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("getCatalogBySubCategoryIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
+
     public function getCatalogBySubCategoryId_v2(Request $request_body)
     {
         try {

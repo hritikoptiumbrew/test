@@ -82,6 +82,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('addCatalog', 'AdminController@addCatalog');
     Route::post('updateCatalog', 'AdminController@updateCatalog');
     Route::post('deleteCatalog', 'AdminController@deleteCatalog');
+    Route::post('getCatalogBySubCategoryIdForAdmin', 'AdminController@getCatalogBySubCategoryIdForAdmin');
     Route::post('searchCatalogByName', 'AdminController@searchCatalogByName');
 
     //Normal images
@@ -269,7 +270,6 @@ Route::middleware(['ability:user|admin,user_permission|admin_permission'])->grou
 
     //Sub_category & catalogs
     Route::post('getSubCategoryByCategoryId', 'AdminController@getSubCategoryByCategoryId');
-    Route::post('getCatalogBySubCategoryId', 'AdminController@getCatalogBySubCategoryId');
     Route::post('getCatalogBySubCategoryId_v2', 'AdminController@getCatalogBySubCategoryId_v2');
     Route::post('getCorruptedFontList', 'UserController@getCorruptedFontList'); //To get unused font list
 
@@ -303,6 +303,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getImagesByCatalogId', 'UserController@getImagesByCatalogId');
 
     //Get data with last_sync_date
+    Route::post('getCatalogBySubCategoryId', 'UserController@getCatalogBySubCategoryId');
     Route::post('getCatalogBySubCategoryIdWithLastSyncTime', 'UserController@getCatalogBySubCategoryIdWithLastSyncTime');
     Route::post('getCatalogBySubCategoryIdWithWebp', 'UserController@getCatalogBySubCategoryIdWithWebp'); //get list of catalogs with pagination
     Route::post('getJsonSampleDataWithLastSyncTime', 'UserController@getJsonSampleDataWithLastSyncTime');
