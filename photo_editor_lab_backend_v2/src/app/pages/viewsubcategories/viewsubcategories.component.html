@@ -44,6 +44,10 @@ Copyright 2018 - 2020 Optimumbrew Technology
     <button class="btn btn-primary normal-img-btn" (click)="addNormalImages()">Add Normal Images</button>
   </div>
   <div class="col-md-12 text-right pr-0" *ngIf="multiselectFlag">
+    <button class="btn btn-success mr-2 w-10" (click)="setActiveDeactive(1)" [disabled]='templatesArr.length == 0'>Active Selected
+    </button>
+    <button class="btn btn-danger mr-2 w-10" (click)="setActiveDeactive(0)" [disabled]='templatesArr.length == 0'>De-Active Selected
+    </button>
     <button class="btn btn-success mr-2 w-10" (click)="addMultipleTags()" [disabled]='templatesArr.length == 0'>Add
       tags</button>
     <button class="btn btn-success mr-2 w-10" (click)="uploadTemplateRankArr()">Set Rank</button>

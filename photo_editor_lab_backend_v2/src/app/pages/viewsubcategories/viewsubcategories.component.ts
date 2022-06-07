@@ -478,6 +478,56 @@ export class ViewsubcategoriesComponent implements OnInit {
       });
     }
   }
+
+  setActiveDeactive(is_active) {
+    if (this.templatesArr.length == 0) {
+      this.utils.showError("Please select templates for set rank", 6000);
+    }
+    else {
+      this.utils.showLoader();
+      this.dataService.postData('updateMultipleTemplateByAdmin', {
+        "img_ids": this.templatesArr.join(","),
+        "catalog_id": this.catalogId,
+        "is_active": is_active
+      }, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).then((results: any) => {
+
+        if (results.code == 200) {
+          this.utils.showSuccess(results.message, 4000);
+          this.utils.hideLoader();
+          this.templatesArr = []
+          this.multiselectFlag = false;
+          this.getAllCategories();
+          // var element = this.viewCatdata[indexItem];
+          // this.viewCatdata.splice(indexItem, 1);
+          // this.viewCatdata.splice(0, 0, element);
+        }
+        else if (results.code == 201) {
+          this.utils.showError(results.message, 4000);
+          this.utils.hideLoader();
+        }
+        else if (results.status || results.status == 0) {
+          this.utils.showError(ERROR.SERVER_ERR, 4000);
+          this.utils.hideLoader();
+        }
+        else {
+          this.utils.showError(results.message, 4000);
+          this.utils.hideLoader();
+        }
+      }, (error: any) => {
+        console.log(error);
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 4000);
+      }).catch((error: any) => {
+        console.log(error);
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 4000);
+      });
+    }
+  }
   
   downloadTemplateZip(page_sequence, jsonData) {
     this.utils.showLoader();
