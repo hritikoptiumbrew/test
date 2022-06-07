@@ -979,7 +979,7 @@ class BlogController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if ($is_cache_enable) {
-                $redis_result = Cache::remember("getBlogContentByIdForUser:$this->blog_id", Config::get("constant.CACHE_TIME_48_HOUR"), function () {
+                $redis_result = Cache::remember("getBlogContentByIdForUser:$this->blog_id", Config::get("constant.CACHE_TIME_24_HOUR"), function () {
 
                     return DB::select('SELECT 
                                           id AS blog_id,

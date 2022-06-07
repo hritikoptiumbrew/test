@@ -1484,7 +1484,8 @@ class UserController extends Controller
                                                               catalog_id IN (SELECT catalog_id
                                                                              FROM sub_category_catalog
                                                                              WHERE sub_category_id = ?) AND 
-                                                              is_featured = 1 AND 
+                                                              is_featured = 1 AND
+                                                              is_active = 1 AND  
                                                               updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
                         $total_row = $total_row_result[0]->total;
                         $result = DB::select('SELECT
@@ -1574,8 +1575,7 @@ class UserController extends Controller
                                                               catalog_id IN (SELECT catalog_id
                                                                              FROM sub_category_catalog
                                                                              WHERE sub_category_id = ?) AND 
-                                                              is_featured = 1 AND 
-                                                              is_active = 1 AND
+                                                              is_featured = 1 AND
                                                               updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
                     $total_row = $total_row_result[0]->total;
                     $result = DB::select('SELECT
@@ -1604,7 +1604,6 @@ class UserController extends Controller
                                             WHERE
                                               catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
                                               is_featured = 1 AND
-                                              is_active = 1 AND
                                               updated_at >= ?
                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
@@ -1637,7 +1636,6 @@ class UserController extends Controller
                                                   images
                                                 WHERE
                                                   catalog_id = ? AND
-                                                  is_active = 1 AND
                                                   updated_at >= ?
                                                 ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
                 }
@@ -2694,7 +2692,6 @@ class UserController extends Controller
                                               images
                                             WHERE
                                               catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
-                                              is_active = 1 AND
                                               is_featured = 1
                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id,$this->offset, $this->item_count]);
 
@@ -4407,8 +4404,7 @@ class UserController extends Controller
                                                   FROM
                                                     images
                                                   WHERE
-                                                    catalog_id = ? AND
-                                                    is_active = 1
+                                                    catalog_id = ?
                                                   ORDER BY updated_at DESC', [$this->catalog_id]);
 
                 }
