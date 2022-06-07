@@ -76,14 +76,14 @@ class DeleteCacheKey
             if ($api == '/api/addCatalog' or $api == '/api/updateCatalog' or $api == '/api/deleteCatalog' or $api == '/api/linkCatalog' or $api == '/api/deleteLinkedCatalog' or $api == '/api/setCatalogRankOnTheTopByAdmin') {
 
                 //searchCatalogBySubCategoryId
-                Redis::del(array_merge(Redis::keys("pel:searchCatalogBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchCatalogBySubCategoryId*"),['']));
 
                 //getFeaturedCatalogBySubCategoryId
                 Redis::del(array_merge(Redis::keys("pel:getFeaturedCatalogBySubCategoryId*"),['']));
 
 
                 //getCatalogBySubCategoryId
-                Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryId*"),['']));
 
                 //getCatalogBySubCategoryIdForAutoUpload
                 Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryIdForAutoUpload*"),['']));
@@ -128,7 +128,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:searchNormalImagesBySubCategoryId_v2*"),['']));
 
                 //searchNormalImagesBySubCategoryIdForFlyer
-                Redis::del(array_merge(Redis::keys("pel:searchNormalImagesBySubCategoryIdForFlyer*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchNormalImagesBySubCategoryIdForFlyer*"),['']));
 
                 //searchCardsBySubCategoryId
                 //Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
@@ -140,9 +140,9 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getAllFeaturedTemplatesWithShuffling*"),['']));
 
                 //searchCatalogByUser
-                Redis::del(array_merge(Redis::keys("pel:searchCatalogByUser*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchCatalogByUser*"),['']));
 
-                Redis::del(array_merge(Redis::keys("pel:getFeaturedSampleAndCatalogWithWebp*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getFeaturedSampleAndCatalogWithWebp*"),['']));
 
                 //Redis::del(array_merge(Redis::keys("pel:getPopularAndEventCatalogs*"),['']));
 
@@ -152,16 +152,16 @@ class DeleteCacheKey
             if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addMultiPageJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/setMultipleContentRankByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages' or $api == '/api/moveTemplate' or $api == '/api/addTemplateByZip' or $api == '/api/addCategoryNameAsTag' or $api == '/api/autoUploadTemplate' or $api == '/api/autoUploadTemplateV2' or $api == '/api/autoUploadTemplateV3') {
 
                 //Category Wise Images Key
-                Redis::del(array_merge(Redis::keys("pel:getImagesByCatalogId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getImagesByCatalogId*"),['']));
 
                 //getContentByCatalogId
-                Redis::del(array_merge(Redis::keys("pel:getContentByCatalogId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getContentByCatalogId*"),['']));
 
                 //getContentByCatalogId_v2
                 Redis::del(array_merge(Redis::keys("pel:getContentByCatalogId_v2*"),['']));
 
                 //getJsonSampleDataFilterBySearchTag
-                Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataFilterBySearchTag*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataFilterBySearchTag*"),['']));
 
                 //searchCardsBySubCategoryId
                 //Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
@@ -175,19 +175,19 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin*"),['']));
 
                 //getJsonData
-                Redis::del(array_merge(Redis::keys("pel:getJsonData*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getJsonData*"),['']));
 
                 //getJsonSampleData
                 Redis::del(array_merge(Redis::keys("pel:getJsonSampleData*"),['']));
 
                 //getJsonSampleDataWithLastSyncTime & getJsonSampleDataWithLastSyncTime_webp
-                Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataWithLastSyncTime*"),['']));
+                Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataWithLastSyncTime:*"),['']));
 
                 //getJsonSampleDataWithLastSyncTime_webp_v2
                 Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataWithLastSyncTime_webp_v2*"),['']));
 
                 //getAllSamplesWithWebp
-                Redis::del(array_merge(Redis::keys("pel:getAllSamplesWithWebp*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getAllSamplesWithWebp*"),['']));
 
                 //getHomePageDetail
                 Redis::del(array_merge(Redis::keys("pel:getHomePageDetail*"),['']));
@@ -211,7 +211,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getFeaturedSamplesWithCatalogs*"),['']));
 
                 //getFeaturedSampleAndCatalogWithWebp
-                Redis::del(array_merge(Redis::keys("pel:getFeaturedSampleAndCatalogWithWebp*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getFeaturedSampleAndCatalogWithWebp*"),['']));
 
                 //getAllSubCategoryToMoveTemplate
                 Redis::del(array_merge(Redis::keys("pel:getAllSubCategoryToMoveTemplate*"),['']));
@@ -232,7 +232,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:searchNormalImagesBySubCategoryId_v2*"),['']));
 
                 //searchNormalImagesBySubCategoryIdForFlyer
-                Redis::del(array_merge(Redis::keys("pel:searchNormalImagesBySubCategoryIdForFlyer*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchNormalImagesBySubCategoryIdForFlyer*"),['']));
 
                 //getFeaturedTemplatesWithWebp
                 Redis::del(array_merge(Redis::keys("pel:getFeaturedTemplatesWithWebp*"),['']));
@@ -287,7 +287,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getLinkWithoutToken*"),['']));
 
                 //getLinkWithLastSyncTime
-                Redis::del(array_merge(Redis::keys("pel:getLinkWithLastSyncTime*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getLinkWithLastSyncTime*"),['']));
 
                 //Delete Image details View Key
                 Redis::del(array_merge(Redis::keys("pel:getImageDetails*"),['']));
@@ -375,7 +375,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getCorruptedFontList*"),['']));
 
                 //getCatalogBySubCategoryId
-                Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryId*"),['']));
 
             }
 
@@ -390,7 +390,7 @@ class DeleteCacheKey
 
                 //Redis::del(array_merge(Redis::keys("pel:getSearchTagBySubCategoryId*"),['']));
 
-                Redis::del(array_merge(Redis::keys("pel:searchCatalogBySubCategoryId*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:searchCatalogBySubCategoryId*"),['']));
             }
 
             //Validations for file size
@@ -413,10 +413,10 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getBlogContent*"),['']));
 
                 //getBlogListByUser
-                Redis::del(array_merge(Redis::keys("pel:getBlogListByUser*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getBlogListByUser*"),['']));
 
                 //getBlogContentByIdForUser
-                Redis::del(array_merge(Redis::keys("pel:getBlogContentByIdForUser*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getBlogContentByIdForUser*"),['']));
             }
 
             //only use brand-maker search module
