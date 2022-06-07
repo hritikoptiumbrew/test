@@ -84,7 +84,7 @@ export class AddjsondataComponent implements OnInit {
       this.jsonImageAfter = this.upJSonData.thumbnail_after_img;
       this.jsonImageCover = this.upJSonData.cover_img;
       this.selectedType = this.upJSonData.is_featured;
-      this.selectedStyle = this.upJSonData.is_portrait?this.upJSonData.is_portrait.toString():'1';
+      this.selectedStyle = this.upJSonData.is_portrait.toString();
       this.selectedPrice = this.upJSonData.is_free.toString();
       this.is_activation = this.upJSonData.is_active == "0"?'0':'1';
       this.selectedIOSPrice = this.upJSonData.is_ios_free == 1 || this.upJSonData.is_ios_free == 0 ? this.upJSonData.is_ios_free.toString() : this.upJSonData.is_free.toString();
