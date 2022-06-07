@@ -1070,7 +1070,7 @@ class UserController extends Controller
 
             if ($is_cache_enable) {
 
-                $redis_result = Cache::rememberforever("getCatalogBySubCategoryIdWithLastSyncTime:$request->sub_category_id:$request->last_sync_time", function () {
+                $redis_result = Cache::remember("getCatalogBySubCategoryIdWithLastSyncTime:$request->sub_category_id:$request->last_sync_time", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
 
                     if ($this->last_sync_time == 0) {
@@ -1576,6 +1576,7 @@ class UserController extends Controller
                                                                              FROM sub_category_catalog
                                                                              WHERE sub_category_id = ?) AND 
                                                               is_featured = 1 AND
+                                                              is_active = 1 AND
                                                               updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
                     $total_row = $total_row_result[0]->total;
                     $result = DB::select('SELECT
@@ -2446,7 +2447,8 @@ class UserController extends Controller
                                                         FROM
                                                             images
                                                         WHERE
-                                                            catalog_id = ?
+                                                            catalog_id = ? AND
+                                                            is_active = 1
                                                         ORDER BY updated_at DESC LIMIT ?, ?', [$key->catalog_id, $this->offset, $this->item_count]);
 
                         $key->featured_cards = $featured_cards;
@@ -2673,7 +2675,6 @@ class UserController extends Controller
                                                 WHERE
                                                   sct.sub_category_id = ? AND
                                                   sct.catalog_id=ct.id AND
-                                                  sct.is_active=1 AND
                                                   ct.is_featured = 1
                                                 order by ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id,$this->offset, $this->item_count]);
 
@@ -2691,7 +2692,7 @@ class UserController extends Controller
                                             FROM
                                               images
                                             WHERE
-                                              catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                              catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ?) AND
                                               is_featured = 1
                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id,$this->offset, $this->item_count]);
 
@@ -3884,7 +3885,7 @@ class UserController extends Controller
             $this->default_sub_category_id = implode(",", $this->default_sub_category_id);
 
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("searchNormalImagesBySubCategoryIdForFlyer:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", function () {
+                $redis_result = Cache::remember("searchNormalImagesBySubCategoryIdForFlyer:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $search_category = $this->search_category;
                     $code = 200;
@@ -3918,7 +3919,7 @@ class UserController extends Controller
                                                       ORDER BY FIELD(sct.sub_category_id,' . $this->default_sub_category_id . '),ct.updated_at DESC');
                     }
 
-                    $total_row = Cache::rememberforever("searchNormalImagesBySubCategoryIdForFlyer$this->default_sub_category_id:$this->search_category", function () {
+                    $total_row = Cache::remember("searchNormalImagesBySubCategoryIdForFlyer:$this->default_sub_category_id:$this->search_category", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
                             $total_row_result = DB::select('SELECT count(DISTINCT im.id) as total
                                                             FROM
                                                             images as im,
@@ -4021,25 +4022,22 @@ class UserController extends Controller
                                                       ORDER BY FIELD(sct.sub_category_id,' . $this->default_sub_category_id . '),ct.updated_at DESC');
                 }
 
-                $total_row = Cache::rememberforever("searchNormalImagesBySubCategoryIdForFlyer$this->default_sub_category_id:$this->search_category", function () {
-                    $total_row_result = DB::select('SELECT count(DISTINCT im.id) as total
-                                                            FROM
-                                                            images as im,
-                                                            catalog_master AS cm,
-                                                            sub_category_catalog AS scc
-                                                            WHERE
-                                                            im.is_active = 1 AND
-                                                            im.catalog_id = scc.catalog_id AND
-                                                            cm.id = scc.catalog_id AND
-                                                            cm.is_featured = ? AND
-                                                            scc.sub_category_id IN(' . $this->default_sub_category_id . ') AND
-                                                            isnull(im.original_img) AND
-                                                            isnull(im.display_img) AND
-                                                            (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
-                                                            MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))', [$this->is_featured]);
+                $total_row_result = DB::select('SELECT count(DISTINCT im.id) as total
+                                                        FROM
+                                                        images as im,
+                                                        catalog_master AS cm,
+                                                        sub_category_catalog AS scc
+                                                        WHERE
+                                                        im.catalog_id = scc.catalog_id AND
+                                                        cm.id = scc.catalog_id AND
+                                                        cm.is_featured = ? AND
+                                                        scc.sub_category_id IN(' . $this->default_sub_category_id . ') AND
+                                                        isnull(im.original_img) AND
+                                                        isnull(im.display_img) AND
+                                                        (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
+                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))', [$this->is_featured]);
 
-                    return $total_row_result[0]->total;
-                });
+                $total_row = $total_row_result[0]->total;
 
                 if($total_row) {
 
@@ -4064,7 +4062,6 @@ class UserController extends Controller
                                                         catalog_master AS cm,
                                                         sub_category_catalog AS scc
                                                     WHERE
-                                                        im.is_active = 1 AND
                                                         im.catalog_id = scc.catalog_id AND
                                                         cm.id = scc.catalog_id AND
                                                         cm.is_featured = ? AND
@@ -4383,7 +4380,7 @@ class UserController extends Controller
                                                 FROM
                                                   images
                                                 WHERE
-                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1 AND is_featured = 1) AND
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_featured = 1) AND
                                                   is_featured = 1
                                                 ORDER BY updated_at DESC', [$this->sub_category_id]);
 
@@ -7229,7 +7226,6 @@ class UserController extends Controller
                                                     FROM
                                                       images as im
                                                     WHERE
-                                                      im.is_active = 1 AND
                                                       im.catalog_id = ? AND
                                                       isnull(im.original_img) AND
                                                       isnull(im.display_img)', [$this->catalog_id]);
@@ -7252,7 +7248,6 @@ class UserController extends Controller
                                                 FROM
                                                   images as im
                                                 WHERE
-                                                  im.is_active = 1 AND
                                                   im.catalog_id = ? AND
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img)
@@ -7494,7 +7489,6 @@ class UserController extends Controller
                                         FROM
                                           images as im
                                         where
-                                          im.is_active = 1 AND
                                           im.catalog_id = ? AND
                                           isnull(im.original_img) AND
                                           isnull(im.display_img)
@@ -8057,7 +8051,6 @@ class UserController extends Controller
                                                           catalog_master AS cm,
                                                           sub_category_catalog AS scc
                                                         WHERE
-                                                          im.is_active = 1 AND
                                                           im.catalog_id = scc.catalog_id AND
                                                           cm.id = scc.catalog_id AND
                                                           cm.is_featured = 1 AND
@@ -8080,7 +8073,6 @@ class UserController extends Controller
                                                   catalog_master AS cm,
                                                   sub_category_catalog AS scc
                                                 WHERE
-                                                  im.is_active = 1 AND
                                                   im.catalog_id = scc.catalog_id AND
                                                   cm.id = scc.catalog_id AND
                                                   cm.is_featured = 1 AND
@@ -8106,7 +8098,6 @@ class UserController extends Controller
                                                   catalog_master AS cm,
                                                   sub_category_catalog AS scc
                                                 WHERE
-                                                  im.is_active = 1 AND
                                                   im.catalog_id = scc.catalog_id AND
                                                   cm.id = scc.catalog_id AND
                                                   cm.is_featured = 1 AND
@@ -10720,9 +10711,8 @@ class UserController extends Controller
                                                    FROM
                                                        sub_category_tag_master
                                                    WHERE sub_category_id = ? AND
-                                                         is_template=? AND 
-                                                         is_active = ? 
-                                                   ORDER BY update_time DESC LIMIT ?,?', [$this->sub_category_id, $this->is_template, 1, $this->offset, $this->item_count_of_search_tag]);
+                                                         is_template=?
+                                                   ORDER BY update_time DESC LIMIT ?,?', [$this->sub_category_id, $this->is_template, $this->offset, $this->item_count_of_search_tag]);
 
                 $total_row_result = DB::select('SELECT COUNT(*) as total FROM sub_category_tag_master WHERE is_active=? AND sub_category_id = ? AND is_template=?', [1, $this->sub_category_id, $this->is_template]);
                 $total_row = $total_row_result[0]->total;
@@ -10785,7 +10775,7 @@ class UserController extends Controller
 
             if ($is_cache_enable) {
 
-                $redis_result = Cache::rememberforever("searchCatalogBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
+                $redis_result = Cache::remember("searchCatalogBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $search_category = $this->search_category;
                     $code = 200;
