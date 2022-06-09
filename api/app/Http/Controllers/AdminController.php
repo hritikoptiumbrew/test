@@ -4198,7 +4198,7 @@ class AdminController extends Controller
             $created_at = date('Y-m-d H:i:s');
             $content_type = Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE');
             $cover_image = $cover_webp_image = "";
-            $cover_image_dimension = array('height' => '', 'width' => '', 'org_img_height' => '', 'org_img_width' => '');
+            $cover_image_dimension = array('height' => 0, 'width' => 0, 'org_img_height' => 0, 'org_img_width' => 0);
             $deleted_file_list = array();       //stores file_name & file_path which we have upload in s3 if any exception error occurs then get all file_list & delete one by one
 
             if (($response = (new ImageController())->validateFonts($json_data)) != '')
@@ -10884,7 +10884,7 @@ class AdminController extends Controller
             $created_at = date('Y-m-d H:i:s');
 
             $resource_image_array = $sample_image_array = $webp_image_array = $multiple_images = $error_detail = array();
-            $cover_image_dimension = array('height' => '', 'width' => '', 'org_img_height' => '', 'org_img_width' => '');
+            $cover_image_dimension = array('height' => 0, 'width' => 0, 'org_img_height' => 0, 'org_img_width' => 0);
             $error_msg = $all_json_data = $webp_warning = $cover_image = $cover_webp_image = "";
 
             $zip_file_directory = '../..' . Config::get('constant.TEMP_FILE_DIRECTORY');
