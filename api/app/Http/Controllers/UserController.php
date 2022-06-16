@@ -4260,7 +4260,6 @@ class UserController extends Controller
                 $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'catalog_list' => $catalog_list, 'content_list' => $search_result);
 
                 $redis_result = array('result' => $search_result, 'code' => $code, 'message' => $message);
-                return $redis_result;
             }
 
             if($this->page == 1) {
@@ -7849,10 +7848,7 @@ class UserController extends Controller
                      }
                  }*/
 
-                return $redis_result;
-
             }
-
 
             $response = Response::json(array('code' => 200, 'message' => 'Images fetched successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
