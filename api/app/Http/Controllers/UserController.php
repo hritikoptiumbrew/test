@@ -4827,20 +4827,14 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getFeaturedSamplesWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getFeaturedSamplesWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::rememberforever("getFeaturedSamplesWithCatalogs:$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count", function () {
 
-                    $sub_category_id = $this->sub_category_id;
-                    $catalog_id = $this->catalog_id;
-                    $page = $this->page;
-                    $offset = $this->offset;
-                    $item_count = $this->item_count;
+                    if ($this->catalog_id == 0) {
 
-
-                    if ($catalog_id == 0) {
-
-                        if ($page == 1) {
+                        if ($this->page == 1) {
                             $category_list = DB::select('SELECT
                                           ct.id as catalog_id,
                                           ct.name,
@@ -4854,7 +4848,7 @@ class UserController extends Controller
                                           sct.catalog_id = ct.id AND
                                           sct.is_active = 1 AND
                                           ct.is_featured = 1
-                                        ORDER BY ct.updated_at DESC', [$sub_category_id]);
+                                        ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
                         } else {
                             $category_list = [];
                         }
@@ -4871,7 +4865,7 @@ class UserController extends Controller
                                                       sct.catalog_id = ct.id AND
                                                       sct.is_active = ? AND
                                                       ct.is_featured = ? AND
-                                                      i.is_featured = ?', [$sub_category_id, 1, 1, 1]);
+                                                      i.is_featured = ?', [$this->sub_category_id, 1, 1, 1]);
 
                         $total_row = $total_cards[0]->total;
 
@@ -4897,7 +4891,7 @@ class UserController extends Controller
                                                         sct.is_active = 1 AND
                                                         ct.is_featured = 1 AND
                                                         i.is_featured = 1
-                                                        ORDER BY i.updated_at DESC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
+                                                        ORDER BY i.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
 
                     } else {
                         $category_list = [];
@@ -4906,7 +4900,7 @@ class UserController extends Controller
                                                       FROM
                                                         images
                                                       WHERE
-                                                        catalog_id = ?', [$catalog_id]);
+                                                        catalog_id = ?', [$this->catalog_id]);
 
 
                         $total_row = $total_cards[0]->total;
@@ -4926,10 +4920,10 @@ class UserController extends Controller
                                                         images
                                                       WHERE
                                                          catalog_id = ?
-                                                      ORDER BY updated_at DESC LIMIT ?, ?', [$catalog_id, $offset, $item_count]);
+                                                      ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->offset, $this->item_count]);
                     }
 
-                    $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
                     $result_array = array(
                         'total_record' => $total_row,
@@ -4940,12 +4934,106 @@ class UserController extends Controller
 
                     return $result_array;
                 });
-            }
+            } else {
+                if ($this->catalog_id == 0) {
 
-            $redis_result = Cache::get("getFeaturedSamplesWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count");
+                    if ($this->page == 1) {
+                        $category_list = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          ct.is_featured,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 AND
+                                          ct.is_featured = 1
+                                        ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+                    } else {
+                        $category_list = [];
+                    }
 
-            if (!$redis_result) {
-                $redis_result = [];
+                    $total_cards = DB::select('SELECT
+                                                      COUNT(*) AS total
+                                                    FROM
+                                                      images as i,
+                                                      sub_category_catalog as sct,
+                                                      catalog_master as ct
+                                                    WHERE
+                                                      sct.sub_category_id = ? AND
+                                                      sct.catalog_id = i.catalog_id AND
+                                                      sct.catalog_id = ct.id AND
+                                                      sct.is_active = ? AND
+                                                      ct.is_featured = ? AND
+                                                      i.is_featured = ?', [$this->sub_category_id, 1, 1, 1]);
+
+                    $total_row = $total_cards[0]->total;
+
+                    $sample_cards = DB::select('SELECT
+                                                        i.id as json_id,
+                                                        IF(i.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",i.attribute1),"") as sample_image,
+                                                        i.is_free,
+                                                        i.is_featured,
+                                                        i.is_portrait,
+                                                        coalesce(i.height,0) AS height,
+                                                        coalesce(i.width,0) AS width,
+                                                        coalesce(i.original_img_height,0) AS original_img_height,
+                                                        coalesce(i.original_img_width,0) AS original_img_width,
+                                                        i.updated_at
+                                                        FROM
+                                                        images as i,
+                                                        sub_category_catalog as sct,
+                                                        catalog_master as ct
+                                                        WHERE
+                                                        sct.sub_category_id = ? AND
+                                                        sct.catalog_id = i.catalog_id AND
+                                                        sct.catalog_id = ct.id AND
+                                                        sct.is_active = 1 AND
+                                                        ct.is_featured = 1 AND
+                                                        i.is_featured = 1
+                                                        ORDER BY i.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                } else {
+                    $category_list = [];
+                    $total_cards = DB::select('SELECT
+                                                        COUNT(*) AS total
+                                                      FROM
+                                                        images
+                                                      WHERE
+                                                        catalog_id = ?', [$this->catalog_id]);
+
+
+                    $total_row = $total_cards[0]->total;
+
+                    $sample_cards = DB::select('SELECT
+                                                        id as json_id,
+                                                        IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                                        is_free,
+                                                        is_featured,
+                                                        is_portrait,
+                                                        coalesce(height,0) AS height,
+                                                        coalesce(width,0) AS width,
+                                                        coalesce(original_img_height,0) AS original_img_height,
+                                                        coalesce(original_img_width,0) AS original_img_width,
+                                                        updated_at
+                                                      FROM
+                                                        images
+                                                      WHERE
+                                                         catalog_id = ?
+                                                      ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->offset, $this->item_count]);
+                }
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                $redis_result = array(
+                    'total_record' => $total_row,
+                    'is_next_page' => $is_next_page,
+                    'category_list' => $category_list,
+                    'sample_cards' => $sample_cards
+                );
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'All featured cards are fetched successfully.', 'cause' => '', 'data' => $redis_result));
