@@ -54,6 +54,9 @@ export class AddjsondataComponent implements OnInit {
   token: any;
   incorrect_fonts = [];
   mismatch_fonts = [];
+  jsonImageCover: any;
+  is_activation: any = '1';
+  is_cover_image_deleted: any = 0;
   constructor(private validService: ValidationsService, private dialogRef: NbDialogRef<AddjsondataComponent>, private utils: UtilService, private dataService: DataService) {
     this.token = localStorage.getItem("at");
     this.utils.dialogref = this.dialogRef;
@@ -79,10 +82,11 @@ export class AddjsondataComponent implements OnInit {
       this.jsonImage = this.upJSonData.thumbnail_img;
       this.jsonGIF = this.upJSonData.gif_file;
       this.jsonImageAfter = this.upJSonData.thumbnail_after_img;
-
+      this.jsonImageCover = this.upJSonData.cover_img;
       this.selectedType = this.upJSonData.is_featured;
       this.selectedStyle = this.upJSonData.is_portrait.toString();
       this.selectedPrice = this.upJSonData.is_free.toString();
+      this.is_activation = this.upJSonData.is_active == "0"?'0':'1';
       this.selectedIOSPrice = this.upJSonData.is_ios_free == 1 || this.upJSonData.is_ios_free == 0 ? this.upJSonData.is_ios_free.toString() : this.upJSonData.is_free.toString();
       if (typeof this.upJSonData.search_category == "undefined" || this.upJSonData.search_category.trim() == "" || this.upJSonData.search_category == null) {
         this.selectedSearchTags = [];
@@ -227,6 +231,25 @@ export class AddjsondataComponent implements OnInit {
     }
   }
 
+  fileChangeCover(event) {
+    // this.formData = new FormData();
+    if (event.target.files && event.target.files[0]) {
+      this.is_cover_image_deleted = 0;
+      var reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.jsonImageCover = event.target.result;
+        // this.checkImageValid()
+      }
+      reader.readAsDataURL(event.target.files[0]);
+
+    }
+    this.fileList = event.target.files;
+    if (this.fileList.length > 0) {
+      this.file = this.fileList[0];
+      this.formData.append('cover_image', this.file, this.file.name);
+    }
+  }
+
   fileChangemultiple(event) {
     // this.formData = new FormData();
     this.files = [];
@@ -264,7 +287,7 @@ export class AddjsondataComponent implements OnInit {
       "type_msg": typeMsg,
       "button_check": {
         "button_id": "saveJson",
-        "successArr": ['jsonImage', 'radioCalogPriInput', 'radioCalogtypeInput', 'radioCalogstyleInput']
+        "successArr": ['jsonImage', 'radioCalogPriInput', 'radioCalogtypeInput', 'radioCalogstyleInput', 'radioCalogactiveInput']
       }
     }
     this.validService.checkValid(validObj);
@@ -356,6 +379,8 @@ export class AddjsondataComponent implements OnInit {
           "old_file": this.upJSonData.thumbnail_img ? this.upJSonData.thumbnail_img.split('/').pop() : null,
           "old_gif_file": this.upJSonData.gif_file ? this.upJSonData.gif_file.split('/').pop() : null,
           "old_after_file": this.upJSonData.thumbnail_after_img ? this.upJSonData.thumbnail_after_img.split('/').pop() : null,
+          "is_active": this.is_activation,
+          "is_cover_img_deleted": this.is_cover_image_deleted
         };
 
         apiUrl = "editJsonData";
@@ -371,7 +396,9 @@ export class AddjsondataComponent implements OnInit {
           "catalog_id": this.catalogId,
           "json_data": json_data,
           "search_category": tmp_selected_tags,
-          "sub_category_id": this.selectedSubCategory.sub_category_id
+          "sub_category_id": this.selectedSubCategory.sub_category_id,
+          "is_active": this.is_activation,
+          "is_cover_img_deleted": this.is_cover_image_deleted
         };
         apiUrl = this.selectedSubCategory.is_multi_page_support == 0 ? "addJson" : "addMultiPageJson";
       }
@@ -423,5 +450,9 @@ export class AddjsondataComponent implements OnInit {
     if (event.target.previousElementSibling != null) {
       event.target.previousElementSibling.remove();
     }
+  }
+  removeCoverImage(){
+    this.jsonImageCover = "";
+    this.is_cover_image_deleted = 1;
   }
 }
