@@ -5202,6 +5202,9 @@ class UserController extends Controller
                                                   coalesce(im.search_category,"") AS search_category,
                                                   coalesce(im.original_img_height) AS original_img_height,
                                                   coalesce(im.original_img_width) AS original_img_width,
+                                                  COALESCE(multiple_images,"") AS multiple_images,
+                                                  COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                   im.updated_at,
                                                   MATCH(im.search_category) AGAINST("' . $tag_name . '") +
                                                   MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
