@@ -1658,144 +1658,67 @@ class AdminController extends Controller
         return $response;
     }
 
-    /**
-     * @api {post} getCatalogBySubCategoryId   getCatalogBySubCategoryId
-     * @apiName getCatalogBySubCategoryId
-     * @apiGroup Common For All
-     * @apiVersion 1.0.0
-     * @apiSuccessExample Request-Header:
-     * {
-     * Key: Authorization
-     * Value: Bearer token
-     * }
-     * @apiSuccessExample Request-Body:
-     * {
-     * "sub_category_id":1
-     * }
-     * @apiSuccessExample Success-Response:
-     * {
-     * "code": 200,
-     * "message": "Catalog Fetched Successfully.",
-     * "cause": "",
-     * "data": {
-     * "total_record": 5,
-     * "category_name": "Independence Day Stickers",
-     * "category_list": [
-     * {
-     * "catalog_id": 84,
-     * "name": "Misc",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d551036b09_catalog_img_1502434576.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d551036b09_catalog_img_1502434576.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d551036b09_catalog_img_1502434576.png",
-     * "is_free": 0,
-     * "is_featured": 1
-     * },
-     * {
-     * "catalog_id": 80,
-     * "name": "Circle",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64d7c306f_catalog_img_1502438615.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d64d7c306f_catalog_img_1502438615.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d64d7c306f_catalog_img_1502438615.png",
-     * "is_free": 0,
-     * "is_featured": 0
-     * },
-     * {
-     * "catalog_id": 81,
-     * "name": "Flag",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64c7af06f_catalog_img_1502438599.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d64c7af06f_catalog_img_1502438599.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d64c7af06f_catalog_img_1502438599.png",
-     * "is_free": 0,
-     * "is_featured": 0
-     * },
-     * {
-     * "catalog_id": 82,
-     * "name": "Map",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64afc90f8_catalog_img_1502438575.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d64afc90f8_catalog_img_1502438575.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d64afc90f8_catalog_img_1502438575.png",
-     * "is_free": 0,
-     * "is_featured": 0
-     * },
-     * {
-     * "catalog_id": 83,
-     * "name": "Text",
-     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d649f4442e_catalog_img_1502438559.png",
-     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d649f4442e_catalog_img_1502438559.png",
-     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d649f4442e_catalog_img_1502438559.png",
-     * "is_free": 0,
-     * "is_featured": 0
-     * }
-     * ]
-     * }
-     * }
-     */
-    public function getCatalogBySubCategoryId(Request $request_body)
+    public function getCatalogBySubCategoryIdForAdmin(Request $request_body)
     {
         try {
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
                 return $response;
-            //Log::info('getCatalogBySubCategoryId request : ',['request' => $request]);
 
             $this->sub_category_id = $request->sub_category_id;
 
-            $redis_result = Cache::rememberforever("getCatalogBySubCategoryId$this->sub_category_id", function () {
+            $redis_result = Cache::rememberforever("getCatalogBySubCategoryIdForAdmin:$this->sub_category_id", function () {
 
                 //sub Category Name
-                $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
+                $name = DB::select('SELECT sc.name FROM sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
                 $category_name = $name[0]->name;
 
-                $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
+                $total_row_result = DB::select('SELECT COUNT(*) AS total FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
                 $total_row = $total_row_result[0]->total;
 
                 $result = DB::select('SELECT
-                                    ct.id as catalog_id,
-                                    ct.name,
-                                    IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                    IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                    IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
-                                    IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
-                                    IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
-                                    IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
-                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
-                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
-                                    ct.is_free,
-                                    ct.is_ios_free,
-                                    ct.catalog_type,
-                                    ct.event_date,
-                                    ct.popularity_rate,
-                                    ct.search_category,
-                                    ct.is_featured
-                                  FROM
-                                    catalog_master as ct,
-                                    sub_category_catalog as sct
-                                  WHERE
-                                    sct.sub_category_id = ? AND
-                                    sct.catalog_id=ct.id AND
-                                    sct.is_active=1
-                                  order by ct.updated_at DESC', [$this->sub_category_id]);
+                                ct.id AS catalog_id,
+                                ct.name,
+                                IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS thumbnail_img,
+                                IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS compressed_img,
+                                IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS original_img,
+                                IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") AS compressed_landscape_img,
+                                IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") AS compressed_portrait_img,
+                                IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") AS icon,
+                                IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") AS webp_thumbnail_img,
+                                IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") AS webp_original_img,
+                                ct.is_free,
+                                ct.is_ios_free,
+                                ct.catalog_type,
+                                ct.event_date,
+                                ct.popularity_rate,
+                                ct.search_category,
+                                ct.is_featured
+                              FROM
+                                catalog_master AS ct,
+                                sub_category_catalog AS sct
+                              WHERE
+                                sct.sub_category_id = ? AND
+                                sct.catalog_id = ct.id AND
+                                sct.is_active = 1
+                              ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
 
                 return array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
             });
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
-            Log::error("getCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("getCatalogBySubCategoryIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
+
     public function getCatalogBySubCategoryId_v2(Request $request_body)
     {
         try {
@@ -2553,7 +2476,7 @@ class AdminController extends Controller
 
             $img_id = $request->img_id;
 
-            $result = DB::select('SELECT image, multiple_images, content_type, attribute1 FROM images WHERE id = ?', [$img_id]);
+            $result = DB::select('SELECT image, cover_img, cover_webp_img, multiple_images, content_type, attribute1 FROM images WHERE id = ?', [$img_id]);
 
             DB::beginTransaction();
 
@@ -2593,6 +2516,11 @@ class AdminController extends Controller
                     if ($webp_image) {
                         (new ImageController())->deleteWebpImage("after_image_".$webp_image);
                     }
+                }
+
+                if($result[0]->cover_img && $result[0]->cover_img){
+                    (new ImageController())->deleteImage($result[0]->cover_img);
+                    (new ImageController())->deleteWebpImage($result[0]->cover_webp_img);
                 }
             }
 
@@ -2656,7 +2584,7 @@ class AdminController extends Controller
 
             $this->catalog_id = $request->catalog_id;
 
-            $redis_result = Cache::rememberforever("getDataByCatalogIdForAdmin$this->catalog_id", function () {
+            $redis_result = Cache::rememberforever("getDataByCatalogIdForAdmin:$this->catalog_id", function () {
 
                 $result = DB::select('SELECT
                                           im.id AS img_id,
@@ -2672,9 +2600,15 @@ class AdminController extends Controller
                                           IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
                                           #for gif images
                                           IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF').' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS gif_file,
+                                          #for cover images
+                                          IF(im.cover_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.cover_img),"") AS cover_thumbnail_img,
+                                          IF(im.cover_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.cover_img),"") AS cover_compressed_img,
+                                          IF(im.cover_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.cover_img),"") AS cover_img,
+                                          IF(im.cover_webp_img != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.cover_webp_img),"") AS cover_webp_img,
                                           IF(im.json_data IS NOT NULL,1,0) AS is_json_data,
                                           COALESCE(im.json_data,"") AS json_data,
                                           COALESCE(im.is_featured,"") AS is_featured,
+                                          COALESCE(im.is_active,0) AS is_active,
                                           COALESCE(im.is_free,0) AS is_free,
                                           COALESCE(im.is_ios_free,0) AS is_ios_free,
                                           COALESCE(im.is_portrait,0) AS is_portrait,
@@ -2685,7 +2619,6 @@ class AdminController extends Controller
                                         FROM
                                           images AS im
                                         WHERE
-                                          im.is_active = 1 AND
                                           im.catalog_id = ? AND
                                           ISNULL(im.original_img) AND
                                           ISNULL(im.display_img)
@@ -2695,15 +2628,9 @@ class AdminController extends Controller
                     if ($key->json_data != "") {
                         $key->json_data = json_decode($key->json_data);
                     }
-
                 }
                 return $result;
             });
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
 
             $response = Response::json(array('code' => 200, 'message' => 'Data fetched successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -4253,13 +4180,14 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_active', 'is_free', 'is_ios_free'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
             $sub_category_id = $request->sub_category_id;
             $catalog_id = $request->catalog_id;
             $json_data = $request->json_data;
+            $is_active = $request->is_active;
             $is_free = $request->is_free;
             $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
@@ -4269,8 +4197,8 @@ class AdminController extends Controller
             $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
             $created_at = date('Y-m-d H:i:s');
             $content_type = Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE');
-            $after_image_array = NULL;
-            $gif_array = NULL;
+            $cover_image = $cover_webp_image = "";
+            $cover_image_dimension = array('height' => 0, 'width' => 0, 'org_img_height' => 0, 'org_img_width' => 0);
             $deleted_file_list = array();       //stores file_name & file_path which we have upload in s3 if any exception error occurs then get all file_list & delete one by one
 
             if (($response = (new ImageController())->validateFonts($json_data)) != '')
@@ -4283,6 +4211,7 @@ class AdminController extends Controller
             $image_array = Input::file('file');
             $after_image_array = Input::file('after_file');
             $gif_array = Input::file('gif_file');
+            $cover_image_array = Input::file('cover_image');
 
             if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
                 return $response;
@@ -4345,10 +4274,30 @@ class AdminController extends Controller
                 }
             }
 
+            if ($cover_image_array) {
+
+                if (($response = (new ImageController())->verifySampleImage($cover_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                $cover_image = (new ImageController())->generateNewFileName('cover_image', $cover_image_array);
+
+                (new ImageController())->saveFileByPath($cover_image_array, $cover_image, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+                (new ImageController())->saveCompressedImage($cover_image);
+                (new ImageController())->saveThumbnailImage($cover_image);
+                $cover_webp_image = (new ImageController())->saveWebpOriginalImage($cover_image);
+                $cover_image_dimension = (new ImageController())->saveWebpThumbnailImage($cover_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($cover_image);
+                    (new ImageController())->saveWebpImageInToS3($cover_webp_image);
+                }
+
+            }
+
             DB::beginTransaction();
             DB::insert('INSERT INTO
-                              images(catalog_id, image, content_type, json_data, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, created_at, attribute1)
-                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, $content_type, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $created_at, $file_name]);
+                              images(catalog_id, image, cover_img, cover_webp_img, content_type, json_data, is_active, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, cover_img_height, cover_img_width, original_cover_img_height, original_cover_img_width, created_at, attribute1)
+                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, $cover_image, $cover_webp_image, $content_type, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $cover_image_dimension['height'], $cover_image_dimension['width'], $cover_image_dimension['org_img_height'], $cover_image_dimension['org_img_width'], $created_at, $file_name]);
             DB::commit();
 
             if (strstr($file_name, '.webp')) {
@@ -4376,12 +4325,13 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free', 'is_active'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
             $catalog_id = $request->catalog_id;
             $all_json_datas = $request->json_data;
+            $is_active = $request->is_active;
             $is_free = $request->is_free;
             $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
@@ -4408,6 +4358,7 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $images_array = Input::file('file');
+            $cover_image_array = Input::file('cover_image');
 
             if(!(count(json_decode(json_encode($all_json_data), 1)) == count($images_array) && count($json_pages_sequence) == count($images_array))){
                 return Response::json(array('code' => 201, 'message' => 'Did not match count of sample image, pages_sequence & json.', 'cause' => '', 'data' => json_decode("{}")));
@@ -4464,6 +4415,7 @@ class AdminController extends Controller
                 'catalog_id' => $catalog_id,
                 'image' => $multiple_images[$json_pages_sequence[0]]['name'],
                 'json_data' => json_encode($all_json_data),
+                'is_active' => $is_active,
                 'is_free' => $is_free,
                 'is_ios_free' => $is_ios_free,
                 'is_featured' => $is_featured,
@@ -4480,6 +4432,33 @@ class AdminController extends Controller
                 'multiple_images' => json_encode($multiple_images),
                 'is_multipage' => 1
             ];
+
+            if ($cover_image_array) {
+
+                if (($response = (new ImageController())->verifySampleImage($cover_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                $cover_image = (new ImageController())->generateNewFileName('cover_image', $cover_image_array);
+
+                (new ImageController())->saveFileByPath($cover_image_array, $cover_image, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+                (new ImageController())->saveCompressedImage($cover_image);
+                (new ImageController())->saveThumbnailImage($cover_image);
+                $cover_webp_image = (new ImageController())->saveWebpOriginalImage($cover_image);
+                $cover_image_dimension = (new ImageController())->saveWebpThumbnailImage($cover_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($cover_image);
+                    (new ImageController())->saveWebpImageInToS3($cover_webp_image);
+                }
+
+                $image_detail['cover_img'] = $cover_image;
+                $image_detail['cover_webp_img'] = $cover_webp_image;
+                $image_detail['cover_img_height'] = $cover_image_dimension['height'];
+                $image_detail['cover_img_width'] = $cover_image_dimension['width'];
+                $image_detail['original_cover_img_height'] = $cover_image_dimension['org_img_height'];
+                $image_detail['original_cover_img_width'] = $cover_image_dimension['org_img_width'];
+
+            }
 
             DB::table('images')->insert($image_detail);
 
@@ -4596,7 +4575,7 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'sub_category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_ios_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'sub_category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_active', 'is_ios_free'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
@@ -4604,22 +4583,25 @@ class AdminController extends Controller
             $is_featured_catalog = $request->is_featured_catalog;
             $is_catalog = 0;//Here we are passed 0 bcz this is not image of catalog, this is normal images
             $img_id = $request->img_id;
+            $is_active = $request->is_active;
             $is_free = $request->is_free;
             $is_ios_free = $request->is_ios_free;
             $is_featured = $request->is_featured;
             $json_data = $request->json_data;
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
+            $is_cover_img_deleted = isset($request->is_cover_img_deleted) ? $request->is_cover_img_deleted : 0;
             $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
             $search_category = implode(',', array_unique(array_filter(explode(',', $search_category))));
             $content_type = isset($request->content_type) ? $request->content_type : Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE');
             $image_array = Input::file('file');
             $gif_array = Input::file('gif_file');
             $after_image_array = Input::file('after_file');
-            $catalog_image = $file_name = NULL;
+            $cover_image_array = Input::file('cover_image');
+            $update_query = $catalog_image = $file_name = "";
             $dimension = array('height' => '', 'width' => '', 'org_img_height' => '', 'org_img_width' => '');
 
             //check this json is multi-page or single-page
-            $old_image_details = DB::select('SELECT image, content_type, json_pages_sequence, is_multipage, height, width, original_img_height, original_img_width, attribute1 FROM images WHERE id = ?',[$img_id]);
+            $old_image_details = DB::select('SELECT image, cover_img, cover_webp_img, content_type, json_pages_sequence, is_multipage, height, width, original_img_height, original_img_width, attribute1 FROM images WHERE id = ?',[$img_id]);
             $is_multi_page_json = $old_image_details[0]->is_multipage;
 
             if ((count($old_image_details) > 0) && (!$old_image_details[0]->height || !$old_image_details[0]->width || !$old_image_details[0]->attribute1)) {
@@ -4782,13 +4764,45 @@ class AdminController extends Controller
 
             }
 
+            if($cover_image_array){
+
+                if (($response = (new ImageController())->verifySampleImage($cover_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
+                    return $response;
+
+                $cover_image = (new ImageController())->generateNewFileName('cover_image', $cover_image_array);
+
+                (new ImageController())->saveFileByPath($cover_image_array, $cover_image, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+                (new ImageController())->saveCompressedImage($cover_image);
+                (new ImageController())->saveThumbnailImage($cover_image);
+                $cover_webp_image = (new ImageController())->saveWebpOriginalImage($cover_image);
+                $cover_image_dimension = (new ImageController())->saveWebpThumbnailImage($cover_image);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($cover_image);
+                    (new ImageController())->saveWebpImageInToS3($cover_webp_image);
+                }
+
+                (new ImageController())->deleteImage($old_image_details[0]->cover_img);
+                (new ImageController())->deleteWebpImage($old_image_details[0]->cover_webp_img);
+
+                $update_query = 'cover_img = "' . $cover_image . '", cover_webp_img = "' . $cover_webp_image . '", cover_img_height = "' . $cover_image_dimension['height'] . '", cover_img_width = "' . $cover_image_dimension['width'] . '", original_cover_img_height = "' . $cover_image_dimension['org_img_height'] . '", original_cover_img_width = "' . $cover_image_dimension['org_img_width'] . '", ';
+
+            } elseif ($is_cover_img_deleted) {
+
+                (new ImageController())->deleteImage($old_image_details[0]->cover_img);
+                (new ImageController())->deleteWebpImage($old_image_details[0]->cover_webp_img);
+                $update_query = 'cover_img = NULL, cover_webp_img = NULL, cover_img_height = NULL, cover_img_width = NULL, original_cover_img_height = NULL, original_cover_img_width = NULL,';
+            }
+
             DB::beginTransaction();
             DB::update('UPDATE
                             images 
                         SET 
                             image = IF(? != "", ?, image),
                             attribute1 = IF(? != "", ?, attribute1),
+                            '.$update_query.'
                             json_data = ?, 
+                            is_active = ?, 
                             is_free = ?, 
                             is_ios_free = ?, 
                             is_featured = ?, 
@@ -4800,7 +4814,7 @@ class AdminController extends Controller
                             original_img_height = IF(? != "", ?, original_img_height),
                             original_img_width = IF(? != "", ?, original_img_width)
                         WHERE 
-                            id = ?', [$catalog_image, $catalog_image, $file_name, $file_name, json_encode($json_data), $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $content_type, $dimension['height'], $dimension['height'], $dimension['width'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_height'], $dimension['org_img_width'], $dimension['org_img_width'], $img_id]);
+                            id = ?', [$catalog_image, $catalog_image, $file_name, $file_name, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $content_type, $dimension['height'], $dimension['height'], $dimension['width'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_height'], $dimension['org_img_width'], $dimension['org_img_width'], $img_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -10494,11 +10508,12 @@ class AdminController extends Controller
 
             DB::insert('INSERT
                                 INTO
-                                  images(catalog_id,image,json_data,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                                  images(catalog_id,image,json_data,is_active,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
                 $catalog_id,
                 $catalog_image,
                 json_encode($json_data),
+                0,
                 $is_free,
                 $is_ios_free,
                 $is_featured,
@@ -10731,11 +10746,12 @@ class AdminController extends Controller
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id,image,json_data,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                                  images(catalog_id,image,json_data,is_active,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
                     $catalog_id,
                     $catalog_image,
                     json_encode($all_json_data->{$pages_sequence}),
+                    0,
                     $is_free,
                     $is_ios_free,
                     $is_featured,
@@ -10848,7 +10864,8 @@ class AdminController extends Controller
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-            $request = json_decode($request_body->getContent());
+            //$request = json_decode($request_body->getContent());
+            $request = json_decode($request_body->input('request_data'));
             if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'category_id', 'catalog_id', 'is_featured', 'is_portrait', 'is_free', 'search_category', 'json_pages_sequence'), $request)) != '')
                 return $response;
 
@@ -10866,14 +10883,9 @@ class AdminController extends Controller
             $json_pages_sequence = explode(',',$request->json_pages_sequence);
             $created_at = date('Y-m-d H:i:s');
 
-            $resource_image_array = array();
-            $sample_image_array = array();
-            $webp_image_array = array();
-            $multiple_images = array();
-            $error_detail = array();
-            $error_msg = "";
-            $all_json_data = "";
-            $webp_warning = "";
+            $resource_image_array = $sample_image_array = $webp_image_array = $multiple_images = $error_detail = array();
+            $cover_image_dimension = array('height' => 0, 'width' => 0, 'org_img_height' => 0, 'org_img_width' => 0);
+            $error_msg = $all_json_data = $webp_warning = $cover_image = $cover_webp_image = "";
 
             $zip_file_directory = '../..' . Config::get('constant.TEMP_FILE_DIRECTORY');
             $zip_store_path = $zip_file_directory . $zip_name;
@@ -11027,8 +11039,35 @@ class AdminController extends Controller
                 }
             }
 
+            //upload cover_image if is exist in request
+            if ($request_body->hasFile('cover_image')) {
+
+                $cover_image_array = Input::file('cover_image');
+                $extension = $cover_image_array->extension();
+                $file_size = $cover_image_array->getSize();
+
+                if (($extension == "jpg" || $extension == "png" || $extension == "jpeg") && $file_size < $IMAGE_MAXIMUM_FILESIZE) {
+
+                    $cover_image = uniqid() . '_cover_image_' . time() . '.' . $extension;
+                    (new ImageController())->saveFileByPath($cover_image_array, $cover_image, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+
+                    (new ImageController())->saveCompressedImage($cover_image);
+                    (new ImageController())->saveThumbnailImage($cover_image);
+                    $cover_webp_image = (new ImageController())->saveWebpOriginalImage($cover_image);
+                    $cover_image_dimension = (new ImageController())->saveWebpThumbnailImage($cover_image);
+
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveImageInToS3($cover_image);
+                        (new ImageController())->saveWebpImageInToS3($cover_webp_image);
+
+                    }
+                }
+            }
+
             $image_detail = [
                 'catalog_id' => $catalog_id,
+                'cover_img' => $cover_image,
+                'cover_webp_img' => $cover_webp_image,
                 'image' => $multiple_images[$json_pages_sequence[0]]['name'],
                 'json_data' => json_encode($all_json_data),
                 'is_free' => $is_free,
@@ -11040,9 +11079,14 @@ class AdminController extends Controller
                 'width' => $multiple_images[$json_pages_sequence[0]]['width'],
                 'original_img_height' => $multiple_images[$json_pages_sequence[0]]['org_img_height'],
                 'original_img_width' => $multiple_images[$json_pages_sequence[0]]['org_img_width'],
+                'cover_img_height' => $cover_image_dimension['height'],
+                'cover_img_width' => $cover_image_dimension['width'],
+                'original_cover_img_height' => $cover_image_dimension['org_img_height'],
+                'original_cover_img_width' => $cover_image_dimension['org_img_width'],
                 'created_at' => $created_at,
                 'attribute1' => $multiple_images[$json_pages_sequence[0]]['webp_name'],
                 'is_auto_upload' => 1,
+                'is_active' => 0,
                 'json_pages_sequence' => implode(',',$json_pages_sequence),
                 'multiple_images' => json_encode($multiple_images),
                 'is_multipage' => 1
@@ -11667,6 +11711,37 @@ class AdminController extends Controller
         } catch (Exception $e) {
             Log::error("updateTemplateSearchingTagsByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function updateMultipleTemplateByAdmin(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'img_ids', 'is_active'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $img_ids = $request->img_ids;
+            $is_active = $request->is_active;
+
+            DB::update('UPDATE images
+                        SET
+                            updated_at = updated_at,
+                            is_active = ?
+                        WHERE
+                            id IN (' . $img_ids . ') ', [$is_active]);
+
+            Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin:$catalog_id*"), ['']));
+            $response = Response::json(array('code' => 200, 'message' => 'Multiple template updated successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("updateMultipleTemplateByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update multiple template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
