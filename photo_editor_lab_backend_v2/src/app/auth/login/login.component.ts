@@ -124,13 +124,13 @@ export class LoginComponent implements OnInit {
             localStorage.setItem("u_r", results.data.role);
             this.utils.hideLoader();
             if (ENV_CONFIG.ENABLE_2FA === true) {
-              if (this.admin_detail.google2fa_enable == 0 || this.admin_detail.google2fa_enable == false) {
+              if (results.data.token && results.data.token != null && results.data.token != undefined && results.data.token != "") {
                 localStorage.setItem('at', results.data.token);
                 this.admin_detail.enable_subcategory = false;
                 localStorage.setItem("u_r", results.data.role);
                 localStorage.setItem("admin_detail", JSON.stringify(this.admin_detail));
                 this.router.navigate(['/admin/categories']);
-              } else if (this.admin_detail.google2fa_enable == 1 || this.admin_detail.google2fa_enable == true) {
+              } else {
                 this.openOTPDialog(this.admin_detail);
               }
             }
