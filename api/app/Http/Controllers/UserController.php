@@ -4045,6 +4045,8 @@ class UserController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
             //$this->search_category = strtolower(trim($request->search_category));
+            //Remove '[\\\@()<>+*%"~-]' character from searching because if we add this character then mysql gives syntax error.
+            $this->search_category = mb_substr(preg_replace('/[\\\@()<>+*%"~-]/', '', mb_strtolower(trim($request->search_category))), 0, 100);
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
@@ -4059,9 +4061,6 @@ class UserController extends Controller
             //now make it unique.
             $this->default_sub_category_id = array_filter(array_unique($this->default_sub_category_id));
             $this->default_sub_category_id = implode(",", $this->default_sub_category_id);
-
-            //Remove '[\\\@()<>+*%"~-]' character from searching because if we add this character then mysql gives syntax error.
-            $this->search_category = isset($request->search_category) ? mb_substr(preg_replace('/[\\\@()<>+*%"~-]/', '', mb_strtolower(trim($request->search_category))), 0, 100) : '';
 
             if ($is_cache_enable) {
                 $redis_result = Cache::remember("searchNormalImagesBySubCategoryIdForFlyer:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
@@ -5172,13 +5171,10 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            //$this->category_name = isset($request->category_name) ? strtolower(trim($request->category_name)) : '';
+            $this->category_name = isset($request->category_name) ? strtolower(trim($request->category_name)) : '';
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
-
-            //Remove '[\\\@()<>+*%"~-]' character from searching because if we add this character then mysql gives syntax error.
-            $this->category_name = isset($request->category_name) ? mb_substr(preg_replace('/[\\\@()<>+*%"~-]/', '', mb_strtolower(trim($request->category_name))), 0, 100) : '';
 
             $redis_result = Cache::rememberforever("getTemplatesBySubCategoryTags_v2:$this->sub_category_id:$this->category_name:$this->page:$this->item_count", function () {
 

@@ -11727,14 +11727,29 @@ class AdminController extends Controller
 
             $catalog_id = $request->catalog_id;
             $img_ids = $request->img_ids;
-            $is_active = $request->is_active;
+            $query = '';
+
+            if(isset($request->is_free))
+                $query .= " , is_free = $request->is_free ";
+
+            if(isset($request->is_ios_free))
+                $query .= " , is_ios_free = $request->is_ios_free ";
+
+            if(isset($request->is_featured))
+                $query .= " , is_featured = $request->is_featured ";
+
+            if(isset($request->is_portrait))
+                $query .= " , is_portrait = $request->is_portrait ";
+
+            if(isset($request->is_active))
+                $query .= " , is_active = $request->is_active ";
 
             DB::update('UPDATE images
                         SET
-                            updated_at = updated_at,
-                            is_active = ?
+                            updated_at = updated_at
+                            ' . $query . '
                         WHERE
-                            id IN (' . $img_ids . ') ', [$is_active]);
+                            id IN (' . $img_ids . ') ');
 
             Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin:$catalog_id*"), ['']));
             $response = Response::json(array('code' => 200, 'message' => 'Multiple template updated successfully.', 'cause' => '', 'data' => json_decode("{}")));
