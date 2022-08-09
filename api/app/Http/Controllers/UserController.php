@@ -4044,7 +4044,9 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = strtolower(trim($request->search_category));
+            //$this->search_category = strtolower(trim($request->search_category));
+            //Remove '[\\\@()<>+*%"~-]' character from searching because if we add this character then mysql gives syntax error.
+            $this->search_category = mb_substr(preg_replace('/[\\\@()<>+*%"~-]/', '', mb_strtolower(trim($request->search_category))), 0, 100);
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
