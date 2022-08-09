@@ -4589,39 +4589,28 @@ class AdminController extends Controller
             $is_featured = $request->is_featured;
             $json_data = $request->json_data;
             $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
-            $is_cover_img_deleted = isset($request->is_cover_img_deleted) ? $request->is_cover_img_deleted : 0;
             $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
             $search_category = implode(',', array_unique(array_filter(explode(',', $search_category))));
             $content_type = isset($request->content_type) ? $request->content_type : Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE');
             $image_array = Input::file('file');
             $gif_array = Input::file('gif_file');
             $after_image_array = Input::file('after_file');
-            $cover_image_array = Input::file('cover_image');
-            $update_query = $catalog_image = $file_name = "";
-            $dimension = array('height' => '', 'width' => '', 'org_img_height' => '', 'org_img_width' => '');
+            $update_query = '';
 
             //check this json is multi-page or single-page
-            $old_image_details = DB::select('SELECT image, cover_img, cover_webp_img, content_type, json_pages_sequence, is_multipage, height, width, original_img_height, original_img_width, attribute1 FROM images WHERE id = ?',[$img_id]);
-            $is_multi_page_json = $old_image_details[0]->is_multipage;
+            $old_image_details = DB::select('SELECT image, content_type, height, width, original_img_height, attribute1 FROM images WHERE id = ?',[$img_id]);
 
             if ((count($old_image_details) > 0) && (!$old_image_details[0]->height || !$old_image_details[0]->width || !$old_image_details[0]->attribute1)) {
                 Log::error('editJsonData : please revert the code.', ['img_id' => $img_id, 'height' => $old_image_details[0]->height, 'width' => $old_image_details[0]->width, 'attribute1' => $old_image_details[0]->attribute1]);
             }
 
-            if($is_multi_page_json){
-                foreach ($json_data AS $i => $json) {
-                    if (($response = (new ImageController())->validateFonts($json)) != '')
-                        return $response;
-                }
-            }else{
-                if (($response = (new ImageController())->validateFonts($json_data)) != '')
-                    return $response;
-            }
+            if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                return $response;
 
             if($gif_array){
 
                 if(!$image_array){
-                    return Response::json(array('code' => 201, 'message' => 'Required field file or gif_file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+                    return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
                 }
 
                 if (($response = (new ImageController())->verifySampleGif($gif_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
@@ -4661,18 +4650,19 @@ class AdminController extends Controller
 
                 (new ImageController())->deleteImage($old_image_details[0]->image);
                 (new ImageController())->deleteWebpImage($old_image_details[0]->attribute1);
+
                 if($content_type == Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF')) {
                     $old_gif_image_name = pathinfo($old_image_details[0]->image, PATHINFO_FILENAME) . ".gif";
                     (new ImageController())->deleteFileByPath($old_gif_image_name, Config::get('constant.ORIGINAL_VIDEO_DIRECTORY'), "video");
                 }
-                $content_type = Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF');
+                $update_query .= ' image = "' . $catalog_image . '", attribute1 = "' . $file_name . '", height = "' . $dimension['height'] . '", width = "' . $dimension['width'] . '", original_img_height = "' . $dimension['org_img_height'] . '", original_img_width = "' . $dimension['org_img_width'] . '", content_type = "' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . '", ';
 
             }
 
             if($after_image_array){
 
                 if(!$image_array){
-                    return Response::json(array('code' => 201, 'message' => 'Required field file or after_file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+                    return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
                 }
 
                 if (($response = (new ImageController())->verifySampleImage($after_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
@@ -4714,11 +4704,12 @@ class AdminController extends Controller
 
                 (new ImageController())->deleteImage($old_image_details[0]->image);
                 (new ImageController())->deleteWebpImage($old_image_details[0]->attribute1);
+
                 if($content_type == Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE')) {
                     (new ImageController())->deleteImage("after_image_".$old_image_details[0]->image);
                     (new ImageController())->deleteWebpImage("after_image_".$old_image_details[0]->attribute1);
                 }
-                $content_type = Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE');
+                $update_query .= ' image = "' . $catalog_image . '", attribute1 = "' . $file_name . '", height = "' . $dimension['height'] . '", width = "' . $dimension['width'] . '", original_img_height = "' . $dimension['org_img_height'] . '", original_img_width = "' . $dimension['org_img_width'] . '", content_type = "' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . '", ';
 
             }
 
@@ -4727,15 +4718,8 @@ class AdminController extends Controller
                 if (($response = (new ImageController())->verifySampleImage($image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
                     return $response;
 
-                if($is_multi_page_json){
-                    foreach ($json_data AS $i => $json) {
-                        if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json)) != '')
-                            return $response;
-                    }
-                } else {
-                    if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
-                        return $response;
-                }
+                if (($response = (new ImageController())->validateHeightWidthOfSampleImage($image_array, $json_data)) != '')
+                    return $response;
 
                 $catalog_image = (new ImageController())->generateNewFileName('json_image', $image_array);
                 (new ImageController())->saveOriginalImage($catalog_image);
@@ -4760,11 +4744,132 @@ class AdminController extends Controller
                     (new ImageController())->deleteImage("after_image_".$old_image_details[0]->image);
                     (new ImageController())->deleteWebpImage("after_image_".$old_image_details[0]->attribute1);
                 }
-                $content_type = Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE');
+                $update_query .= ' image = "' . $catalog_image . '", attribute1 = "' . $file_name . '", height = "' . $dimension['height'] . '", width = "' . $dimension['width'] . '", original_img_height = "' . $dimension['org_img_height'] . '", original_img_width = "' . $dimension['org_img_width'] . '", content_type = "' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE') . '", ';
 
             }
 
-            if($cover_image_array){
+            DB::beginTransaction();
+            DB::update('UPDATE
+                            images 
+                        SET 
+                            '.$update_query.'
+                            json_data = ?, 
+                            is_active = ?, 
+                            is_free = ?, 
+                            is_ios_free = ?, 
+                            is_featured = ?, 
+                            is_portrait = ?, 
+                            search_category = ?
+                        WHERE 
+                            id = ?', [json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $img_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function editMultiPageJsonData(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            //Required parameter
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'sub_category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_active', 'is_ios_free'), $request)) != '')
+                return $response;
+
+            $category_id = $request->category_id;
+            $sub_category_id = $request->sub_category_id;
+            $is_featured_catalog = $request->is_featured_catalog;
+            $is_catalog = 0;//Here we are passed 0 bcz this is not image of catalog, this is normal images
+            $img_id = $request->img_id;
+            $is_active = $request->is_active;
+            $is_free = $request->is_free;
+            $is_ios_free = $request->is_ios_free;
+            $is_featured = $request->is_featured;
+            $all_json_data = $request->json_data;
+            $is_portrait = isset($request->is_portrait) ? $request->is_portrait : 0;
+            $is_cover_img_deleted = isset($request->is_cover_img_deleted) ? $request->is_cover_img_deleted : 0;
+            $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
+            $search_category = implode(',', array_unique(array_filter(explode(',', $search_category))));
+            $images_array = Input::file('file');
+            $cover_image_array = Input::file('cover_image');
+            $update_query = "";
+
+            //check this json is multi-page or single-page
+            $old_image_details = DB::select('SELECT image, multiple_images, cover_img, cover_webp_img, content_type, json_pages_sequence, is_multipage, height, width, original_img_height, original_img_width, attribute1 FROM images WHERE id = ?', [$img_id]);
+            $old_multiple_images = json_decode($old_image_details[0]->multiple_images);
+
+            if ((count($old_image_details) > 0) && (!$old_image_details[0]->height || !$old_image_details[0]->width || !$old_image_details[0]->attribute1)) {
+                Log::error('editJsonData : please revert the code.', ['img_id' => $img_id, 'height' => $old_image_details[0]->height, 'width' => $old_image_details[0]->width, 'attribute1' => $old_image_details[0]->attribute1]);
+            }
+
+            if ($images_array) {
+
+                if (count($images_array) != count(json_decode(json_encode($all_json_data), 1))) {
+                    return Response::json(array('code' => 201, 'message' => 'Did not match count of sample image & json.', 'cause' => '', 'data' => json_decode("{}")));
+                }
+
+                $all_images_array = array();
+                foreach ($images_array AS $i => $image_detail) {
+                    $all_images_array[$image_detail->getClientOriginalName()] = $image_detail;
+                }
+
+                foreach ($all_json_data AS $i => $json_data) {
+
+                    if (($response = (new ImageController())->validateFonts($json_data)) != '')
+                        return $response;
+
+                    if (($response = (new ImageController())->verifySampleImage($all_images_array[$json_data->sample_image], $category_id, $is_featured_catalog, $is_catalog)) != '')
+                        return $response;
+
+                    if (($response = (new ImageController())->validateHeightWidthOfSampleImage($all_images_array[$json_data->sample_image], $json_data)) != '')
+                        return $response;
+                }
+
+                foreach ($all_json_data AS $i => $json_data) {
+
+                    $catalog_image = (new ImageController())->generateNewFileName('json_image', $all_images_array[$json_data->sample_image]);
+                    (new ImageController())->saveOriginalImageFromArray($all_images_array[$json_data->sample_image], $catalog_image);
+                    (new ImageController())->saveCompressedImage($catalog_image);
+                    (new ImageController())->saveThumbnailImage($catalog_image);
+                    $file_name = (new ImageController())->saveWebpOriginalImage($catalog_image);
+                    $dimension = (new ImageController())->saveWebpThumbnailImage($catalog_image);
+
+                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                        (new ImageController())->saveImageInToS3($catalog_image);
+                        (new ImageController())->saveWebpImageInToS3($file_name);
+                    }
+
+                    $multiple_images[$i] = array("name" => $catalog_image, "webp_name" => $file_name, "width" => $dimension['width'], "height" => $dimension['height'], "org_img_width" => $dimension['org_img_width'], "org_img_height" => $dimension['org_img_height'], "page_id" => $i);
+                }
+
+                $first_image_value = reset($multiple_images);
+                foreach ($old_multiple_images AS $i => $images) {
+                    (new ImageController())->deleteImage($images->name);
+                    (new ImageController())->deleteWebpImage($images->webp_name);
+                }
+
+                $update_query .= ' image = "' . $first_image_value['name'] . '", attribute1 = "' . $first_image_value['webp_name'] . '", height = "' . $first_image_value['height'] . '", width = "' . $first_image_value['width'] . '", original_img_height = "' . $first_image_value['org_img_height'] . '", original_img_width = "' . $first_image_value['org_img_width'] . '", multiple_images = "' . json_encode($multiple_images) . '", ';
+
+            } else {
+                foreach ($all_json_data AS $i => $json) {
+                    if (($response = (new ImageController())->validateFonts($json)) != '')
+                        return $response;
+                }
+            }
+
+            if ($cover_image_array) {
 
                 if (($response = (new ImageController())->verifySampleImage($cover_image_array, $category_id, $is_featured_catalog, $is_catalog)) != '')
                     return $response;
@@ -4785,42 +4890,36 @@ class AdminController extends Controller
                 (new ImageController())->deleteImage($old_image_details[0]->cover_img);
                 (new ImageController())->deleteWebpImage($old_image_details[0]->cover_webp_img);
 
-                $update_query = 'cover_img = "' . $cover_image . '", cover_webp_img = "' . $cover_webp_image . '", cover_img_height = "' . $cover_image_dimension['height'] . '", cover_img_width = "' . $cover_image_dimension['width'] . '", original_cover_img_height = "' . $cover_image_dimension['org_img_height'] . '", original_cover_img_width = "' . $cover_image_dimension['org_img_width'] . '", ';
+                $update_query .= ' cover_img = "' . $cover_image . '", cover_webp_img = "' . $cover_webp_image . '", cover_img_height = "' . $cover_image_dimension['height'] . '", cover_img_width = "' . $cover_image_dimension['width'] . '", original_cover_img_height = "' . $cover_image_dimension['org_img_height'] . '", original_cover_img_width = "' . $cover_image_dimension['org_img_width'] . '", ';
+            }
 
-            } elseif ($is_cover_img_deleted) {
+            if ($is_cover_img_deleted) {
 
                 (new ImageController())->deleteImage($old_image_details[0]->cover_img);
                 (new ImageController())->deleteWebpImage($old_image_details[0]->cover_webp_img);
-                $update_query = 'cover_img = NULL, cover_webp_img = NULL, cover_img_height = NULL, cover_img_width = NULL, original_cover_img_height = NULL, original_cover_img_width = NULL,';
+                $update_query .= ' cover_img = NULL, cover_webp_img = NULL, cover_img_height = NULL, cover_img_width = NULL, original_cover_img_height = NULL, original_cover_img_width = NULL, ';
             }
 
             DB::beginTransaction();
             DB::update('UPDATE
                             images 
                         SET 
-                            image = IF(? != "", ?, image),
-                            attribute1 = IF(? != "", ?, attribute1),
-                            '.$update_query.'
+                            ' . $update_query . '
                             json_data = ?, 
                             is_active = ?, 
                             is_free = ?, 
                             is_ios_free = ?, 
                             is_featured = ?, 
                             is_portrait = ?, 
-                            search_category = ?,
-                            content_type = ?,
-                            height = IF(? != "", ?, height),
-                            width = IF(? != "", ?, width),
-                            original_img_height = IF(? != "", ?, original_img_height),
-                            original_img_width = IF(? != "", ?, original_img_width)
+                            search_category = ?
                         WHERE 
-                            id = ?', [$catalog_image, $catalog_image, $file_name, $file_name, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $content_type, $dimension['height'], $dimension['height'], $dimension['width'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_height'], $dimension['org_img_width'], $dimension['org_img_width'], $img_id]);
+                            id = ?', [json_encode($all_json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $img_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("editMultiPageJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'edit json data.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
@@ -11722,21 +11821,41 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'img_ids', 'is_active'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id', 'img_ids'), $request)) != '')
                 return $response;
 
             $catalog_id = $request->catalog_id;
             $img_ids = $request->img_ids;
-            $is_active = $request->is_active;
+            $query = '';
+
+            if (isset($request->is_free)) {
+                $query .= ' , is_free = ' . $request->is_free;
+            }
+
+            if (isset($request->is_ios_free)) {
+                $query .= ' , is_ios_free = ' . $request->is_ios_free;
+            }
+
+            if (isset($request->is_featured)) {
+                $query .= ' , is_featured = ' . $request->is_featured;
+            }
+
+            if (isset($request->is_portrait)) {
+                $query .= ' , is_portrait = ' . $request->is_portrait;
+            }
+
+            if (isset($request->is_active)) {
+                $query .= ' , is_active = ' . $request->is_active;
+            }
 
             DB::update('UPDATE images
                         SET
-                            updated_at = updated_at,
-                            is_active = ?
+                            updated_at = updated_at
+                            ' . $query . '
                         WHERE
-                            id IN (' . $img_ids . ') ', [$is_active]);
+                            id IN (' . $img_ids . ') ');
 
-            Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin:$catalog_id*"), ['']));
+            (new UserController())->deleteAllRedisKeys("getDataByCatalogIdForAdmin:$catalog_id*");
             $response = Response::json(array('code' => 200, 'message' => 'Multiple template updated successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
