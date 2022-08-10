@@ -10702,7 +10702,7 @@ class UserController extends Controller
             DB::table('sub_category_catalog')->insert($data);
             DB::commit();
 
-            $this->deleteAllRedisKeys("getCatalogBySubCategoryId$sub_category_id");
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin:$sub_category_id");
 
             $response = Response::json(array('code' => 200, 'message' => 'Multiple catalog linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
@@ -10778,7 +10778,7 @@ class UserController extends Controller
             DB::table('sub_category_catalog')->insert($sub_category_catalog_data);
             DB::commit();
 
-            $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin");
             $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
 
             $response = Response::json(array('code' => 200, 'message' => 'catalog copied successfully.', 'cause' => '', 'data' => $sub_category_catalog_data));
@@ -10813,16 +10813,21 @@ class UserController extends Controller
             if($except_image_ids){
                 $where_condition .= " AND id NOT IN ($except_image_ids) ";
             }
+            Log::info('0. copyTemplateByCatalogIds : ');
 
             DB::beginTransaction();
 
             $old_catalog_list = DB::select('SELECT id,attribute5 FROM catalog_master WHERE attribute5 IN ('.$catalog_ids.') ');
+            Log::info('1. copyTemplateByCatalogIds : ', ['old_catalog_list' => $old_catalog_list]);
 
             $old_new_catalog_list = array_column($old_catalog_list, 'id', 'attribute5');
+            Log::info('2. copyTemplateByCatalogIds : ', ['old_new_catalog_list' => $old_new_catalog_list]);
 
             $old_json_details = DB::select('SELECT * FROM images WHERE catalog_id IN ('.$catalog_ids.') '.$where_condition.' ');
+            Log::info('3. copyTemplateByCatalogIds : ', ['old_json_details' => $old_json_details]);
 
             $old_json_array = json_decode(json_encode($old_json_details), true);
+            Log::info('4. copyTemplateByCatalogIds : ', ['old_json_array' => $old_json_array]);
 
             foreach ($old_json_array AS $i => $old_json){
                 //$old_json['old_catalog_id'] = $old_json['catalog_id'];
@@ -10834,8 +10839,10 @@ class UserController extends Controller
 
             DB::commit();
 
+            Log::info('5. copyTemplateByCatalogIds : Before redis cache.');
             $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
             $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
+            Log::info('6. copyTemplateByCatalogIds : ', ['result' => $result]);
 
             $response = Response::json(array('code' => 200, 'message' => 'template copied successfully.', 'cause' => '', 'data' => count($old_json_array)));
 
