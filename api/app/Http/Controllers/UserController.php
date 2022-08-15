@@ -4044,7 +4044,9 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = strtolower(trim($request->search_category));
+            //$this->search_category = strtolower(trim($request->search_category));
+            //Remove '[\\\@()<>+*%"~-]' character from searching because if we add this character then mysql gives syntax error.
+            $this->search_category = mb_substr(preg_replace('/[\\\@()<>+*%"~-]/', '', mb_strtolower(trim($request->search_category))), 0, 100);
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
@@ -5173,13 +5175,15 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            $redis_result = Cache::rememberforever("getTemplatesBySubCategoryTags_v2:$this->sub_category_id:$this->category_name:$this->page:$this->item_count", function () {
+            if($is_cache_enable){
+                $redis_result = Cache::rememberforever("getTemplatesBySubCategoryTags_v2:$this->sub_category_id:$this->category_name:$this->page:$this->item_count", function () {
 
-                $this->tag_name = $this->category_name;
+                    $this->tag_name = $this->category_name;
 
-                if ($this->page == 1 && $this->tag_name == "") {
-                    $category_list = DB::select('SELECT
+                    if ($this->page == 1 && $this->tag_name == "") {
+                        $category_list = DB::select('SELECT
                                                       id AS sub_category_tag_id,
                                                       tag_name
                                                 FROM
@@ -5190,16 +5194,16 @@ class UserController extends Controller
                                                       is_template = ?
                                                 ORDER BY update_time DESC', [$this->sub_category_id, 1, 1]);
 
-                    $this->tag_name = (count($category_list) > 0) ? $category_list[0]->tag_name : 'Test';
+                        $this->tag_name = (count($category_list) > 0) ? $category_list[0]->tag_name : 'Test';
 
-                } else {
-                    $category_list = [];
-                }
+                    } else {
+                        $category_list = [];
+                    }
 
-                $final_tag_list = array();
-                foreach ($category_list as $key) {
+                    $final_tag_list = array();
+                    foreach ($category_list as $key) {
 
-                    $total_row_result = DB::select('SELECT
+                        $total_row_result = DB::select('SELECT
                                                           COUNT(*) AS total
                                                     FROM
                                                           images AS im
@@ -5212,17 +5216,17 @@ class UserController extends Controller
                                                           (MATCH(im.search_category) AGAINST ("' . $key->tag_name . '") OR
                                                           MATCH(im.search_category) AGAINST (REPLACE(CONCAT("' . $key->tag_name . '"," ")," ","* ") IN BOOLEAN MODE))', [$this->sub_category_id, 1]);
 
-                    $total_row = $total_row_result[0]->total;
+                        $total_row = $total_row_result[0]->total;
 
-                    if ($total_row > 0) {
-                        $final_tag_list[] = $key;
-                        $this->tag_name = $final_tag_list[0]->tag_name;
+                        if ($total_row > 0) {
+                            $final_tag_list[] = $key;
+                            $this->tag_name = $final_tag_list[0]->tag_name;
+                        }
+
                     }
 
-                }
-
-                $total_row = Cache::rememberforever("getTemplatesBySubCategoryTags_v2:$this->sub_category_id:$this->tag_name", function () {
-                    $total_row_result = DB::select('SELECT
+                    $total_row = Cache::rememberforever("getTemplatesBySubCategoryTags_v2:$this->sub_category_id:$this->tag_name", function () {
+                        $total_row_result = DB::select('SELECT
                                                         count(*) AS total
                                                      FROM
                                                         images as im
@@ -5235,10 +5239,10 @@ class UserController extends Controller
                                                         (MATCH(im.search_category) AGAINST("' . $this->tag_name . '") OR
                                                           MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE))
                                                         ', [$this->sub_category_id, 1]);
-                    return $total_row_result[0]->total;
-                });
+                        return $total_row_result[0]->total;
+                    });
 
-                $search_result = DB::select('SELECT
+                    $search_result = DB::select('SELECT
                                                 im.id AS json_id,
                                                 IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
                                                 im.is_free,
@@ -5278,7 +5282,110 @@ class UserController extends Controller
                     $result = array('result' => $search_result, 'code' => $code, 'message' => $message);
                     return $result;
 
-            });
+                });
+
+            }else{
+                    $this->tag_name = $this->category_name;
+
+                    if ($this->page == 1 && $this->tag_name == "") {
+                        $category_list = DB::select('SELECT
+                                                      id AS sub_category_tag_id,
+                                                      tag_name
+                                                FROM
+                                                      sub_category_tag_master
+                                                WHERE 
+                                                      sub_category_id = ? AND 
+                                                      is_active = ? AND
+                                                      is_template = ?
+                                                ORDER BY update_time DESC', [$this->sub_category_id, 1, 1]);
+
+                        $this->tag_name = (count($category_list) > 0) ? $category_list[0]->tag_name : 'Test';
+
+                    } else {
+                        $category_list = [];
+                    }
+
+                    $final_tag_list = array();
+                    foreach ($category_list as $key) {
+
+                        $total_row_result = DB::select('SELECT
+                                                          COUNT(*) AS total
+                                                    FROM
+                                                          images AS im
+                                                          JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                                          JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
+                                                    WHERE
+                                                          im.is_active = 1 AND
+                                                          isnull(im.original_img) AND
+                                                          isnull(im.display_img) AND
+                                                          (MATCH(im.search_category) AGAINST ("' . $key->tag_name . '") OR
+                                                          MATCH(im.search_category) AGAINST (REPLACE(CONCAT("' . $key->tag_name . '"," ")," ","* ") IN BOOLEAN MODE))', [$this->sub_category_id, 1]);
+
+                        $total_row = $total_row_result[0]->total;
+
+                        if ($total_row > 0) {
+                            $final_tag_list[] = $key;
+                            $this->tag_name = $final_tag_list[0]->tag_name;
+                        }
+
+                    }
+
+                        $total_row_result = DB::select('SELECT
+                                                        count(*) AS total
+                                                     FROM
+                                                        images as im
+                                                        JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                                        JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
+                                                     WHERE
+                                                        im.is_active = 1 AND
+                                                        isnull(im.original_img) AND
+                                                        isnull(im.display_img) AND
+                                                        (MATCH(im.search_category) AGAINST("' . $this->tag_name . '") OR
+                                                          MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE))
+                                                        ', [$this->sub_category_id, 1]);
+                         $total_row_result[0]->total;
+
+
+                    $search_result = DB::select('SELECT
+                                                im.id AS json_id,
+                                                IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
+                                                im.is_free,
+                                                im.is_featured,
+                                                im.is_portrait,
+                                                COALESCE(im.height,0) AS height,
+                                                COALESCE(im.width,0) AS width,
+                                                COALESCE(im.search_category,"") AS search_category,
+                                                COALESCE(im.original_img_height) AS original_img_height,
+                                                COALESCE(im.original_img_width) AS original_img_width,
+                                                im.updated_at,
+                                                MATCH(im.search_category) AGAINST("' . $this->tag_name . '") +
+                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
+                                            FROM
+                                                  images AS im
+                                                  JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                                  JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
+                                            WHERE
+                                                  im.is_active = ? AND
+                                                  ISNULL(im.original_img) AND
+                                                  ISNULL(im.display_img) AND
+                                                  (MATCH(im.search_category) AGAINST("' . $this->tag_name . '") OR
+                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)) 
+                                            ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, 1, 1, $this->offset, $this->item_count]);
+
+                    $code = 200;
+                    $message = "Templates fetched successfully.";
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    $search_result = array(
+                        'total_record' => $total_row_result[0]->total,
+                        'is_next_page' => $is_next_page,
+                        'category_list' => $final_tag_list,
+                        'template_list' => $search_result
+                    );
+
+                 $redis_result = array('result' => $search_result, 'code' => $code, 'message' => $message);
+
+            }
 
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -10595,7 +10702,7 @@ class UserController extends Controller
             DB::table('sub_category_catalog')->insert($data);
             DB::commit();
 
-            $this->deleteAllRedisKeys("getCatalogBySubCategoryId$sub_category_id");
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin:$sub_category_id");
 
             $response = Response::json(array('code' => 200, 'message' => 'Multiple catalog linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
@@ -10671,7 +10778,7 @@ class UserController extends Controller
             DB::table('sub_category_catalog')->insert($sub_category_catalog_data);
             DB::commit();
 
-            $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin");
             $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
 
             $response = Response::json(array('code' => 200, 'message' => 'catalog copied successfully.', 'cause' => '', 'data' => $sub_category_catalog_data));
@@ -10706,16 +10813,21 @@ class UserController extends Controller
             if($except_image_ids){
                 $where_condition .= " AND id NOT IN ($except_image_ids) ";
             }
+            Log::info('0. copyTemplateByCatalogIds : ');
 
             DB::beginTransaction();
 
             $old_catalog_list = DB::select('SELECT id,attribute5 FROM catalog_master WHERE attribute5 IN ('.$catalog_ids.') ');
+            Log::info('1. copyTemplateByCatalogIds : ', ['old_catalog_list' => $old_catalog_list]);
 
             $old_new_catalog_list = array_column($old_catalog_list, 'id', 'attribute5');
+            Log::info('2. copyTemplateByCatalogIds : ', ['old_new_catalog_list' => $old_new_catalog_list]);
 
             $old_json_details = DB::select('SELECT * FROM images WHERE catalog_id IN ('.$catalog_ids.') '.$where_condition.' ');
+            Log::info('3. copyTemplateByCatalogIds : ', ['old_json_details' => $old_json_details]);
 
             $old_json_array = json_decode(json_encode($old_json_details), true);
+            Log::info('4. copyTemplateByCatalogIds : ', ['old_json_array' => $old_json_array]);
 
             foreach ($old_json_array AS $i => $old_json){
                 //$old_json['old_catalog_id'] = $old_json['catalog_id'];
@@ -10727,8 +10839,10 @@ class UserController extends Controller
 
             DB::commit();
 
+            Log::info('5. copyTemplateByCatalogIds : Before redis cache.');
             $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
             $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
+            Log::info('6. copyTemplateByCatalogIds : ', ['result' => $result]);
 
             $response = Response::json(array('code' => 200, 'message' => 'template copied successfully.', 'cause' => '', 'data' => count($old_json_array)));
 

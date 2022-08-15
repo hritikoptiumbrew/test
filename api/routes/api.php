@@ -138,6 +138,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('addJson', 'AdminController@addJson');
     Route::post('addMultiPageJson', 'AdminController@addMultiPageJson');
     Route::post('editJsonData', 'AdminController@editJsonData');
+    Route::post('editMultiPageJsonData', 'AdminController@editMultiPageJsonData');
 
     //Link advertisement with another sub_category
     Route::post('linkAdvertisementWithSubCategory', 'AdminController@linkAdvertisementWithSubCategory');

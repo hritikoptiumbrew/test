@@ -172,15 +172,21 @@ class LoginController extends Controller
             if ($user_id == 1) {
 
                 $google2fa_enable = JWTAuth::toUser($token)->google2fa_enable;
-                if($google2fa_enable == 1){
+                if($google2fa_enable == 1 && !isset($_COOKIE[$user_id])){
                     $this->createNewSession($user_id, $token);
                     $response = Response::json(array('code' => 200, 'message' => 'Login successfully.', 'cause' => '', 'data' => ['token' => "", 'user_detail' => JWTAuth::toUser($token)]));
 
-                }
-                else
-                {
+                } elseif ($google2fa_enable != 1) {
                     $this->createNewSession($user_id, $token);
                     $response = Response::json(array('code' => 200, 'message' => 'Login successfully.', 'cause' => '', 'data' => ['token' => $token, 'user_detail' => JWTAuth::toUser($token)]));
+
+                } elseif (Hash::check($password, $_COOKIE[$user_id])) {
+                    $this->createNewSession($user_id, $token);
+                    $response = Response::json(array('code' => 200, 'message' => 'Login successfully.', 'cause' => '', 'data' => ['token' => $token, 'user_detail' => JWTAuth::toUser($token)]));
+
+                } else {
+                    $this->createNewSession($user_id, $token);
+                    $response = Response::json(array('code' => 200, 'message' => 'Login successfully.', 'cause' => '', 'data' => ['token' => "", 'user_detail' => JWTAuth::toUser($token)]));
 
                 }
 

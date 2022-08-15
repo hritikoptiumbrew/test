@@ -1825,7 +1825,7 @@ class ImageController extends Controller
             $disk->delete($original);
 
         } catch (Exception $e) {
-            Log::debug("deleteObjectFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("deleteObjectFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
     }

@@ -75,7 +75,11 @@ class TokenEntrustAbility extends BaseMiddleware
             } catch (JWTException $e) {
                 return Response::json(array('code' => $e->getStatusCode(), 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
             }
-            return Response::json(array('code' => $e->getStatusCode(), 'message' => 'Token expired.', 'cause' => '', 'data' => ['new_token' => $new_token]));
+
+            //10-Aug-2022 : Android handle the refresh token in the cause field. So we have to pass the refresh token in the cause field as well.
+            return Response::json(array('code' => $e->getStatusCode(), 'message' => 'Token expired.', 'cause' => $new_token, 'data' => ['new_token' => $new_token]));
+            //return Response::json(array('code' => $e->getStatusCode(), 'message' => 'Token expired.', 'cause' => '', 'data' => ['new_token' => $new_token]));
+
         } catch (JWTException $e) {
             return Response::json(array('code' => $e->getStatusCode(), 'message' => $e->getMessage(), 'cause' => '', 'data' => json_decode("{}")));
         }
