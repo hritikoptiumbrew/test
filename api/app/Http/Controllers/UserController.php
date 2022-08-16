@@ -9368,9 +9368,10 @@ class UserController extends Controller
                 $search_result = [];
 
                 if ($this->catalog_id) {
-                    $this->order_by = 'ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
+                    $this->order_by = ' ORDER BY search_text DESC, FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, im.updated_at DESC';
+                    //$this->order_by = ' ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
                 } else {
-                    $this->order_by = 'ORDER BY search_text DESC, im.updated_at DESC';
+                    $this->order_by = ' ORDER BY search_text DESC, im.updated_at DESC';
                 }
 
                 $total_row_result = DB::select('SELECT 
