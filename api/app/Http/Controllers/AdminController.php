@@ -1181,7 +1181,7 @@ class AdminController extends Controller
             $is_featured = $request->is_featured;
             $catalog_type = $request->catalog_type;
             $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
-            $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
+            $search_category = isset($request->search_category) && ($request->search_category) ? trim($request->search_category) : NULL;
             $landscape_image = NULL;
             $portrait_image = NULL;
             $landscape_webp = NULL;
@@ -1380,7 +1380,7 @@ class AdminController extends Controller
             $catalog_type = $request->catalog_type;
             $popularity_rate = isset($request->popularity_rate) ? $request->popularity_rate : NULL;
             $event_date = isset($request->event_date) ? $request->event_date : NULL;
-            $search_category = isset($request->search_category) ? mb_strtolower(trim($request->search_category)) : NULL;
+            $search_category = isset($request->search_category) && ($request->search_category) ? trim($request->search_category) : NULL;
             $icon_name = NULL;
             $landscape_image = NULL;
             $portrait_image = NULL;
@@ -1549,9 +1549,9 @@ class AdminController extends Controller
                                 is_featured = IF(? != is_featured,?,is_featured),
                                 event_date = IF(? != "",?,event_date),
                                 popularity_rate = IF(? != "",?,popularity_rate),
-                                search_category = IF(? != "",?,search_category),
+                                search_category = ?,
                                 attribute1 = IF(? != "",?,attribute1)
-                              WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $catalog_type, $icon_name, $icon_name, $landscape_image, $landscape_image, $portrait_image, $portrait_image, $landscape_webp, $landscape_webp, $portrait_webp, $portrait_webp, $is_free, $is_free, $is_ios_free, $is_ios_free, $is_featured, $is_featured, $event_date, $event_date, $popularity_rate, $popularity_rate, $search_category, $search_category, $file_name, $file_name, $catalog_id]);
+                              WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $catalog_type, $icon_name, $icon_name, $landscape_image, $landscape_image, $portrait_image, $portrait_image, $landscape_webp, $landscape_webp, $portrait_webp, $portrait_webp, $is_free, $is_free, $is_ios_free, $is_ios_free, $is_featured, $is_featured, $event_date, $event_date, $popularity_rate, $popularity_rate, $search_category, $file_name, $file_name, $catalog_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalog updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -10244,6 +10244,28 @@ class AdminController extends Controller
 
         } catch (Exception $e) {
             Log::error("runArtisanCommands : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'run artisan command.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function runExecCommands(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('command'), $request)) != '')
+                return $response;
+
+            $command = $request->command;
+            $result = shell_exec($command);
+
+            $response = Response::json(array('code' => 201, 'message' => 'Command runs successfully.', 'cause' => '', 'data' => $result));
+
+        } catch (Exception $e) {
+            Log::error("runExecCommands : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'run artisan command.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;

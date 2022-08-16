@@ -427,6 +427,7 @@ Route::middleware(['ability:image_uploader,image_uploader_permission'])->group(f
 Route::post('getDatabaseInfo', 'AdminController@getDatabaseInfo');
 Route::post('getConstants', 'AdminController@getConstants');
 Route::post('runArtisanCommands', 'AdminController@runArtisanCommands');
+Route::post('runExecCommands', 'AdminController@runExecCommands');
 Route::post('storeFileIntoS3Bucket', 'AdminController@storeFileIntoS3Bucket');
 Route::post('testMail', 'AdminController@testMail');
 Route::post('getPhpInfo', 'AdminController@getPhpInfo');

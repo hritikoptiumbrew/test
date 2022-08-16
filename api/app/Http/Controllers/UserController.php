@@ -2822,6 +2822,9 @@ class UserController extends Controller
                                               coalesce(width,0) AS width,
                                               coalesce(original_img_height,0) AS original_img_height,
                                               coalesce(original_img_width,0) AS original_img_width,
+                                              COALESCE(multiple_images,"") AS multiple_images,
+                                              COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                              COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,                                              
                                               updated_at
                                             FROM
                                               images
@@ -2864,6 +2867,9 @@ class UserController extends Controller
                                               coalesce(width,0) AS width,
                                               coalesce(original_img_height,0) AS original_img_height,
                                               coalesce(original_img_width,0) AS original_img_width,
+                                              COALESCE(multiple_images,"") AS multiple_images,
+                                              COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                              COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,                                              
                                               updated_at
                                             FROM
                                               images
@@ -5253,6 +5259,9 @@ class UserController extends Controller
                                                 COALESCE(im.search_category,"") AS search_category,
                                                 COALESCE(im.original_img_height) AS original_img_height,
                                                 COALESCE(im.original_img_width) AS original_img_width,
+                                                COALESCE(im.multiple_images,"") AS multiple_images,
+                                                COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                 im.updated_at,
                                                 MATCH(im.search_category) AGAINST("' . $this->tag_name . '") +
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
@@ -5358,6 +5367,9 @@ class UserController extends Controller
                                                 COALESCE(im.original_img_height) AS original_img_height,
                                                 COALESCE(im.original_img_width) AS original_img_width,
                                                 im.updated_at,
+                                                COALESCE(im.multiple_images,"") AS multiple_images,
+                                                COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                 MATCH(im.search_category) AGAINST("' . $this->tag_name . '") +
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
                                             FROM
@@ -10818,16 +10830,12 @@ class UserController extends Controller
             DB::beginTransaction();
 
             $old_catalog_list = DB::select('SELECT id,attribute5 FROM catalog_master WHERE attribute5 IN ('.$catalog_ids.') ');
-            Log::info('1. copyTemplateByCatalogIds : ', ['old_catalog_list' => $old_catalog_list]);
 
             $old_new_catalog_list = array_column($old_catalog_list, 'id', 'attribute5');
-            Log::info('2. copyTemplateByCatalogIds : ', ['old_new_catalog_list' => $old_new_catalog_list]);
 
             $old_json_details = DB::select('SELECT * FROM images WHERE catalog_id IN ('.$catalog_ids.') '.$where_condition.' ');
-            Log::info('3. copyTemplateByCatalogIds : ', ['old_json_details' => $old_json_details]);
 
             $old_json_array = json_decode(json_encode($old_json_details), true);
-            Log::info('4. copyTemplateByCatalogIds : ', ['old_json_array' => $old_json_array]);
 
             foreach ($old_json_array AS $i => $old_json){
                 //$old_json['old_catalog_id'] = $old_json['catalog_id'];
@@ -10839,10 +10847,8 @@ class UserController extends Controller
 
             DB::commit();
 
-            Log::info('5. copyTemplateByCatalogIds : Before redis cache.');
             $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
             $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
-            Log::info('6. copyTemplateByCatalogIds : ', ['result' => $result]);
 
             $response = Response::json(array('code' => 200, 'message' => 'template copied successfully.', 'cause' => '', 'data' => count($old_json_array)));
 
