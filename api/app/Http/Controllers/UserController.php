@@ -9366,9 +9366,10 @@ class UserController extends Controller
             $this->catalog_id = $catalog_id;
 
             if ($this->catalog_id) {
-                $this->order_by = 'ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
+                $this->order_by = ' ORDER BY search_text DESC, FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, im.updated_at DESC';
+                //$this->order_by = ' ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
             } else {
-                $this->order_by = 'ORDER BY search_text DESC, im.updated_at DESC';
+                $this->order_by = ' ORDER BY search_text DESC, im.updated_at DESC';
             }
 
             run_same_query:
