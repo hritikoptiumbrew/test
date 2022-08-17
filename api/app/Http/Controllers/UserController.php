@@ -5429,7 +5429,8 @@ class UserController extends Controller
                                                         (MATCH(im.search_category) AGAINST("' . $this->tag_name . '") OR
                                                           MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE))
                                                         ', [$this->sub_category_id, 1]);
-                         $total_row_result[0]->total;
+
+                        $total_row = $total_row_result[0]->total;
 
 
                     $search_result = DB::select('SELECT
