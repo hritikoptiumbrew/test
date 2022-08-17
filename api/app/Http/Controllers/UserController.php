@@ -1854,24 +1854,22 @@ class UserController extends Controller
             $this->item_count = $request->item_count;
             $this->page = $request->page;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             $last_sync_time = date("Y-m-d H:i:s");
 
 
-            //Log::info('request_data', ['request_data' => $request]);
+            if ($is_cache_enable){
+                $redis_result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
 
-            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp_v2$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
-                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+                        $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+                        $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
 
-                    $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
-                    $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
+                        //to pass compress image(jpg/png) only for certificate_maker app because webp is not supported there into iOS
+                        $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
 
-                    //to pass compress image(jpg/png) only for certificate_maker app because webp is not supported there into iOS
-                    $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
-
-                    if ($this->catalog_id == 0) {
-                        if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date")) {
-                            $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date", function () {
+                        if ($this->catalog_id == 0) {
+                            $total_row = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date", function () {
                                 $total_row_result = DB::select('SELECT COUNT(*) AS total
                                                             FROM images
                                                             WHERE 
@@ -1880,10 +1878,10 @@ class UserController extends Controller
                                                                              WHERE sub_category_id = ?) AND 
                                                               is_featured = 1 AND 
                                                               updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
-                                return $total_row_result[0]->total;
+                                return $total_row = $total_row_result[0]->total;
                             });
-                        }
-                        $result = DB::select('SELECT
+
+                            $result = DB::select('SELECT
                                               id AS json_id,
                                               '. $image_url .'
                                               is_free,
@@ -1903,15 +1901,13 @@ class UserController extends Controller
                                               updated_at >= ?
                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
-                    } else {
-                        if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date")) {
-                            $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date", function () {
-                                $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
-                                return $total_row_result[0]->total;
-                            });
-                        }
+                        } else {
+                                $total_row = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date", function () {
+                                    $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
+                                    return $total_row = $total_row_result[0]->total;
+                                });
 
-                        $result = DB::select('SELECT
+                            $result = DB::select('SELECT
                                                   id AS json_id,
                                                   '. $image_url .'
                                                   is_free,
@@ -1929,15 +1925,77 @@ class UserController extends Controller
                                                   catalog_id = ? AND
                                                   updated_at >= ?
                                                 ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
+                        }
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
+
+                    });
+            }else {
+
+                    $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+                    $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
+
+                    //to pass compress image(jpg/png) only for certificate_maker app because webp is not supported there into iOS
+                    $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
+
+                    if ($this->catalog_id == 0) {
+                        $total_row_result = DB::select('SELECT COUNT(*) AS total
+                                                            FROM images
+                                                            WHERE 
+                                                              catalog_id IN (SELECT catalog_id
+                                                                             FROM sub_category_catalog
+                                                                             WHERE sub_category_id = ?) AND 
+                                                              is_featured = 1 AND 
+                                                              updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
+                        $total_row = $total_row_result[0]->total;
+
+                        $result = DB::select('SELECT
+                                              id AS json_id,
+                                              ' . $image_url . '
+                                              is_free,
+                                              is_featured,
+                                              is_portrait,
+                                              coalesce(height,0) AS height,
+                                              coalesce(width,0) AS width,
+                                              coalesce(search_category,"") AS search_category,
+                                              coalesce(original_img_height,0) AS original_img_height,
+                                              coalesce(original_img_width,0) AS original_img_width,
+                                              updated_at
+                                            FROM
+                                              images
+                                            WHERE
+                                              catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                              is_featured = 1 AND
+                                              updated_at >= ?
+                                            ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+                    } else {
+                        $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
+                        $total_row = $total_row_result[0]->total;
+
+                        $result = DB::select('SELECT
+                                                  id AS json_id,
+                                                  ' . $image_url . '
+                                                  is_free,
+                                                  is_featured,
+                                                  is_portrait,
+                                                  coalesce(height,0) AS height,
+                                                  coalesce(width,0) AS width,
+                                                  coalesce(search_category,"") AS search_category,
+                                                  coalesce(original_img_height,0) AS original_img_height,
+                                                  coalesce(original_img_width,0) AS original_img_width,
+                                                  updated_at
+                                                FROM
+                                                  images
+                                                WHERE
+                                                  catalog_id = ? AND
+                                                  updated_at >= ?
+                                                ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
                     }
-                    $total_row = Cache::get("getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date");
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
+                    $redis_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
 
-                });
             }
-
-            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webp_v2$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -7851,16 +7909,15 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getContentByCatalogId_v2$this->catalog_id:$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getContentByCatalogId_v2$this->catalog_id:$this->page:$this->item_count", function () {
+            if($is_cache_enable){
+                $redis_result = Cache::rememberforever("getContentByCatalogId_v2$this->catalog_id:$this->page:$this->item_count", function () {
 
+                        $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
 
-                    $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
-
-                    if (!Cache::has("pel:getContentByCatalogId_v2$this->catalog_id")) {
-                        $result = Cache::rememberforever("getContentByCatalogId_v2$this->catalog_id", function () {
-                            $total_row_result = DB::select('SELECT
+                        $total_row = Cache::rememberforever("getContentByCatalogId_v2$this->catalog_id", function () {
+                                $total_row_result = DB::select('SELECT
                                                       count(im.id) as total
                                                     FROM
                                                       images as im
@@ -7869,10 +7926,51 @@ class UserController extends Controller
                                                       im.catalog_id = ? AND
                                                       isnull(im.original_img) AND
                                                       isnull(im.display_img)', [$this->catalog_id]);
-                            return $total_row_result[0]->total;
+                                return $total_row = $total_row_result[0]->total;
                         });
-                    }
-                    $total_row = Cache::get("getContentByCatalogId_v2$this->catalog_id");
+
+                        $content_list = DB::select('SELECT
+                                                  im.id as img_id,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                                  coalesce(im.is_featured,"") as is_featured,
+                                                  coalesce(im.is_free,0) as is_free,
+                                                  coalesce(im.is_portrait,0) as is_portrait,
+                                                  coalesce(im.search_category,"") as search_category
+                                                FROM
+                                                  images as im
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img)
+                                                ORDER BY im.updated_at DESC LIMIT ?,?', [$this->catalog_id, $this->offset, $this->item_count]);
+                        $c = 0;
+                        foreach ($content_list as $key) {
+                            if ($c <= $free_content_count && $this->page == 1) {
+                                $key->is_free = 1;
+                            }
+                            $c++;
+                        }
+
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
+
+                    });
+            }else{
+                $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
+
+                    $total_row_result = DB::select('SELECT
+                                                      count(im.id) as total
+                                                    FROM
+                                                      images as im
+                                                    WHERE
+                                                      im.is_active = 1 AND
+                                                      im.catalog_id = ? AND
+                                                      isnull(im.original_img) AND
+                                                      isnull(im.display_img)', [$this->catalog_id]);
+                    $total_row = $total_row_result[0]->total;
 
                     $content_list = DB::select('SELECT
                                                   im.id as img_id,
@@ -7891,20 +7989,17 @@ class UserController extends Controller
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img)
                                                 ORDER BY im.updated_at DESC LIMIT ?,?', [$this->catalog_id, $this->offset, $this->item_count]);
-                    $c = 0;
-                    foreach ($content_list as $key) {
-                        if ($c <= $free_content_count && $this->page == 1) {
-                            $key->is_free = 1;
-                        }
-                        $c++;
+                $c = 0;
+                foreach ($content_list as $key) {
+                    if ($c <= $free_content_count && $this->page == 1) {
+                        $key->is_free = 1;
                     }
+                    $c++;
+                }
 
-                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
-
-                });
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $redis_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
             }
-            $redis_result = Cache::get("getContentByCatalogId_v2$this->catalog_id:$this->page:$this->item_count");
 
             if (!$redis_result) {
                 $redis_result = [];
