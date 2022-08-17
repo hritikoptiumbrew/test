@@ -1860,7 +1860,7 @@ class UserController extends Controller
 
 
             if ($is_cache_enable){
-                $redis_result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+                $redis_result = Cache::remember("getJsonSampleDataWithLastSyncTime_webp_v2:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time",config('constant.CACHE_TIME_6_HOUR'), function () {
 
                         $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
                         $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
@@ -1869,7 +1869,7 @@ class UserController extends Controller
                         $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
 
                         if ($this->catalog_id == 0) {
-                            $total_row = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date", function () {
+                            $total_row = Cache::remember("getJsonSampleDataWithLastSyncTime_webp_v2:$this->catalog_id:$this->sub_category_id:$this->last_sync_date",config('constant.CACHE_TIME_6_HOUR'), function () {
                                 $total_row_result = DB::select('SELECT COUNT(*) AS total
                                                             FROM images
                                                             WHERE 
@@ -1902,7 +1902,7 @@ class UserController extends Controller
                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
                         } else {
-                                $total_row = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date", function () {
+                                $total_row = Cache::remember("getJsonSampleDataWithLastSyncTime_webp_v2:$this->catalog_id:$this->sub_category_id:$this->last_sync_date",config('constant.CACHE_TIME_6_HOUR'), function () {
                                     $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
                                     return $total_row = $total_row_result[0]->total;
                                 });
@@ -7912,11 +7912,11 @@ class UserController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if($is_cache_enable){
-                $redis_result = Cache::rememberforever("getContentByCatalogId_v2$this->catalog_id:$this->page:$this->item_count", function () {
+                $redis_result = Cache::remember("getContentByCatalogId_v2:$this->catalog_id:$this->page:$this->item_count",config('constant,CACHE_TIME_6_HOUR'), function () {
 
                         $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
 
-                        $total_row = Cache::rememberforever("getContentByCatalogId_v2$this->catalog_id", function () {
+                        $total_row = Cache::remember("getContentByCatalogId_v2:$this->catalog_id",config('constant,CACHE_TIME_6_HOUR'), function () {
                                 $total_row_result = DB::select('SELECT
                                                       count(im.id) as total
                                                     FROM

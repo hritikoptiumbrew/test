@@ -1735,10 +1735,10 @@ class AdminController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if ($is_cache_enable){
-                $redis_result = Cache::rememberforever("getCatalogBySubCategoryId_v2$this->sub_category_id", function () {
+                $redis_result = Cache::remember("getCatalogBySubCategoryId_v2:$this->sub_category_id",config('constant.CACHE_TIME_6_HOUR'), function () {
 
                     //sub Category Name
-                        $name = Cache::rememberforever("getCatalogBySubCategoryId_v2$this->sub_category_id:1", function () {
+                        $name = Cache::remember("getCatalogBySubCategoryId_v2:$this->sub_category_id:1",config('constant.CACHE_TIME_6_HOUR'), function () {
                             return  DB::select('SELECT
                                                COUNT(scc.id) as total,
                                                sc.name 
