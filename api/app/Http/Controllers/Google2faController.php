@@ -161,6 +161,9 @@ class Google2faController extends Controller
                         $response = Response::json(array('code' => 201, 'message' => 'Invalid verification, You have to login first.', 'cause' => '', 'data' => json_decode("{}")));
                     } else {
                         $token = $user_token[0]->token;
+                        if (!isset($_COOKIE[$user_detail[0]->id])) {
+                            setcookie($user_detail[0]->id, $user_detail[0]->password, time() + Config::get('constant.EXPIRATION_TIME_OF_2FA_COOKIE'), "/");
+                        }
                         $response = Response::json(array('code' => 200, 'message' => 'OTP verified successfully.', 'cause' => '', 'data' => ['token' => $token, 'user_detail' => JWTAuth::toUser($token)]));
                     }
                 } else {

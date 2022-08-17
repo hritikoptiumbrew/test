@@ -384,6 +384,7 @@ export class AddjsondataComponent implements OnInit {
         };
 
         apiUrl = "editJsonData";
+        apiUrl = this.selectedSubCategory.is_multi_page_support == 0 ? "editJsonData" : "editMultiPageJsonData";
       }
       else {
         requestData = {

@@ -2822,6 +2822,9 @@ class UserController extends Controller
                                               coalesce(width,0) AS width,
                                               coalesce(original_img_height,0) AS original_img_height,
                                               coalesce(original_img_width,0) AS original_img_width,
+                                              COALESCE(multiple_images,"") AS multiple_images,
+                                              COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                              COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,                                              
                                               updated_at
                                             FROM
                                               images
@@ -2864,6 +2867,9 @@ class UserController extends Controller
                                               coalesce(width,0) AS width,
                                               coalesce(original_img_height,0) AS original_img_height,
                                               coalesce(original_img_width,0) AS original_img_width,
+                                              COALESCE(multiple_images,"") AS multiple_images,
+                                              COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                              COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,                                              
                                               updated_at
                                             FROM
                                               images
@@ -4044,7 +4050,9 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = strtolower(trim($request->search_category));
+            //$this->search_category = strtolower(trim($request->search_category));
+            //Remove '[\\\@()<>+*%"~-]' character from searching because if we add this character then mysql gives syntax error.
+            $this->search_category = mb_substr(preg_replace('/[\\\@()<>+*%"~-]/', '', mb_strtolower(trim($request->search_category))), 0, 100);
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
@@ -5339,6 +5347,9 @@ class UserController extends Controller
                                                 COALESCE(im.search_category,"") AS search_category,
                                                 COALESCE(im.original_img_height) AS original_img_height,
                                                 COALESCE(im.original_img_width) AS original_img_width,
+                                                COALESCE(im.multiple_images,"") AS multiple_images,
+                                                COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                 im.updated_at,
                                                 MATCH(im.search_category) AGAINST("' . $this->tag_name . '") +
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
@@ -5445,6 +5456,9 @@ class UserController extends Controller
                                                 COALESCE(im.original_img_height) AS original_img_height,
                                                 COALESCE(im.original_img_width) AS original_img_width,
                                                 im.updated_at,
+                                                COALESCE(im.multiple_images,"") AS multiple_images,
+                                                COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                 MATCH(im.search_category) AGAINST("' . $this->tag_name . '") +
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
                                             FROM
@@ -9443,9 +9457,10 @@ class UserController extends Controller
                 $search_result = [];
 
                 if ($this->catalog_id) {
-                    $this->order_by = 'ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
+                    $this->order_by = ' ORDER BY search_text DESC, FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, im.updated_at DESC';
+                    //$this->order_by = ' ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
                 } else {
-                    $this->order_by = 'ORDER BY search_text DESC, im.updated_at DESC';
+                    $this->order_by = ' ORDER BY search_text DESC, im.updated_at DESC';
                 }
 
                 $total_row_result = DB::select('SELECT 
@@ -10789,7 +10804,7 @@ class UserController extends Controller
             DB::table('sub_category_catalog')->insert($data);
             DB::commit();
 
-            $this->deleteAllRedisKeys("getCatalogBySubCategoryId$sub_category_id");
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin:$sub_category_id");
 
             $response = Response::json(array('code' => 200, 'message' => 'Multiple catalog linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
@@ -10865,7 +10880,7 @@ class UserController extends Controller
             DB::table('sub_category_catalog')->insert($sub_category_catalog_data);
             DB::commit();
 
-            $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin");
             $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
 
             $response = Response::json(array('code' => 200, 'message' => 'catalog copied successfully.', 'cause' => '', 'data' => $sub_category_catalog_data));
@@ -10900,6 +10915,7 @@ class UserController extends Controller
             if($except_image_ids){
                 $where_condition .= " AND id NOT IN ($except_image_ids) ";
             }
+            Log::info('0. copyTemplateByCatalogIds : ');
 
             DB::beginTransaction();
 

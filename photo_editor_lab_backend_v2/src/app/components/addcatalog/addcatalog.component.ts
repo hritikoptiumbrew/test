@@ -128,7 +128,7 @@ export class AddcatalogComponent implements OnInit {
       for (let i = 0; i < newList.length; i++) {
         this.listOfTag.push(newList[i]);
       }
-    }else{
+    } else {
       this.listOfTag = [];
     }
   }
@@ -445,7 +445,7 @@ export class AddcatalogComponent implements OnInit {
     else {
       for (let l = 0; l < newName.length; l++) {
         if (this.listOfTag.indexOf(newName[l])) {
-          this.listOfTag.push(newName[l].trim().toLowerCase());
+          this.listOfTag.push(newName[l].trim());
         }
       }
       this.tagName = '';
@@ -454,17 +454,38 @@ export class AddcatalogComponent implements OnInit {
     const unique = (value, index, self) => {
       return self.indexOf(value) === index
     }
-    const uniqueTags = this.listOfTag.filter(unique)
+    
+    const uniqueTags = this.dedupe(this.listOfTag);
 
     this.listOfTag = uniqueTags;
+  }
+
+  dedupe(string_array) {
+    const entries = string_array
+      .slice()
+      .reverse()
+      .map((string, index) => [
+        string.toLowerCase(),
+        {
+          string,
+          index: string_array.length - 1 - index
+        }
+      ]);
+    const case_insensitively_deduped_string_array = Array
+      .from((new Map(entries)).values())
+      .sort((a:any, b:any) => (a.index - b.index))
+      .map((item:any) => item.string);
+    return case_insensitively_deduped_string_array;
+    // Takes the first occurrences, keeping the insertion order.
+    // Doesn’t modify the input array.
   }
   removeTag(tag) {
     let index = this.listOfTag.indexOf(tag);
     this.listOfTag.splice(index, 1);
   }
 
-  removeDoblecoma(event){
-    event.target.value = event.target.value.replace(/"/g,"");
+  removeDoblecoma(event) {
+    event.target.value = event.target.value.replace(/"/g, "");
   }
-  
+
 }

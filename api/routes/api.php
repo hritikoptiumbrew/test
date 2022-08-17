@@ -138,6 +138,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('addJson', 'AdminController@addJson');
     Route::post('addMultiPageJson', 'AdminController@addMultiPageJson');
     Route::post('editJsonData', 'AdminController@editJsonData');
+    Route::post('editMultiPageJsonData', 'AdminController@editMultiPageJsonData');
 
     //Link advertisement with another sub_category
     Route::post('linkAdvertisementWithSubCategory', 'AdminController@linkAdvertisementWithSubCategory');
@@ -426,6 +427,7 @@ Route::middleware(['ability:image_uploader,image_uploader_permission'])->group(f
 Route::post('getDatabaseInfo', 'AdminController@getDatabaseInfo');
 Route::post('getConstants', 'AdminController@getConstants');
 Route::post('runArtisanCommands', 'AdminController@runArtisanCommands');
+Route::post('runExecCommands', 'AdminController@runExecCommands');
 Route::post('storeFileIntoS3Bucket', 'AdminController@storeFileIntoS3Bucket');
 Route::post('testMail', 'AdminController@testMail');
 Route::post('getPhpInfo', 'AdminController@getPhpInfo');
