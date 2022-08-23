@@ -148,6 +148,10 @@ export class CategoriesComponent implements OnInit  {
   addCategory(){
     this.open(false, '');
   }
+  selectAllCat()
+  {
+    console.log("hello");
+  }
   protected open(closeOnBackdropClick: boolean, data) {
     this.dialog.open(EditcategoryComponent, {
       closeOnBackdropClick,closeOnEsc: false, context: {
