@@ -285,4 +285,8 @@ export class ViewcategoriesComponent implements OnInit {
   viewCorruptedFonts(){
     this.dialog.open(ViewcorruptedfontsComponent,{ closeOnBackdropClick: true });
   }
+  selectAllCat()
+  {
+    console.log("hello");
+  }
 }
