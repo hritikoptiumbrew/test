@@ -298,6 +298,7 @@ export class ViewcategoriesComponent implements OnInit {
     console.log("remove All");
   }
   cancelCat(){
+    this.isselect = false;
     console.log("cancel");
   }
 }
