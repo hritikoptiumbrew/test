@@ -290,7 +290,7 @@ export class ViewcategoriesComponent implements OnInit {
   {
     console.log("hello");
     this.isselect = true;
-    console.log(this.categoryId);
+    console.log(this.categoryId,this.broadItem);
   }
   selectAll(){
     console.log("selectAll");
