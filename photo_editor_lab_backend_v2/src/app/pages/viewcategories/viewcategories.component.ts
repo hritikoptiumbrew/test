@@ -45,6 +45,7 @@ export class ViewcategoriesComponent implements OnInit {
   searchQuery: any;
   errormsg = ERROR;
   paginstatus = "true";
+  isselect:any=false;
 
   constructor(private validService: ValidationsService, private actRoute: ActivatedRoute, private dialog: NbDialogService, private dataService: DataService, private utils: UtilService, private route: Router) {
     this.broadItem = JSON.parse(localStorage.getItem('selected_category')).name;
@@ -288,5 +289,15 @@ export class ViewcategoriesComponent implements OnInit {
   selectAllCat()
   {
     console.log("hello");
+    this.isselect = true;
+  }
+  selectAll(){
+    console.log("selectAll");
+  }
+  removeAllCat(){
+    console.log("remove All");
+  }
+  cancelCat(){
+    console.log("cancel");
   }
 }

@@ -70,7 +70,10 @@ Copyright 2018 - 2020 Optimumbrew Technology
         </nb-select>
         <button class="btn btn-primary ml-2" (click)="viewCorruptedFonts()" *ngIf="categoryId == 4" nbTooltip="Click here to view Corrupted Fonts" nbTooltipPlacement="bottom" nbTooltipStatus="primary">Corrupted Fonts</button>
         <button class="btn btn-primary ml-2" (click)="addSubCategory()">Add Sub Category</button>
-        <button class="btn btn-primary ml-2" (click)="selectAllCat()">Select Category</button>
+        <button class="btn btn-primary ml-2" (click)="selectAllCat()" *ngIf="isselect==false">Select Category</button>
+        <button class="btn btn-primary ml-2" (click)="selectAll()" *ngIf="isselect==true">select all</button>
+        <button class="btn btn-primary ml-2" (click)="removeAllCat()" *ngIf="isselect==true">Remove All</button>
+        <button class="btn btn-primary ml-2" (click)="cancelCat()" *ngIf="isselect==true">cancel</button>
       </div>
     </div>
   </div>
