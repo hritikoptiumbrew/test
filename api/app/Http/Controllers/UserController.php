@@ -7593,7 +7593,9 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
+            $this->cover_sub_category_id = 924;
             $this->template_item = Config::get('constant.TEMPLATE_COUNT_FOR_HOME_PAGE');
+            $this->cover_template_item = Config::get('constant.COVER_TEMPLATE_COUNT_FOR_HOME_PAGE');
             $this->video_item = Config::get('constant.VIDEO_COUNT_FOR_HOME_PAGE');
             $this->job_news_item = Config::get('constant.JOB_NEWS_COUNT_FOR_HOME_PAGE');
             $this->question_type_item = Config::get('constant.QUESTION_TYPE_COUNT_FOR_HOME_PAGE');
@@ -7620,6 +7622,25 @@ class UserController extends Controller
                                     catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) and
                                     is_featured = 1
                                     order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, 0, $this->template_item]);
+
+                    $cover_template = DB::select('SELECT
+                                                        id as json_id,
+                                                        IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                                        is_free,
+                                                        is_featured,
+                                                        is_portrait,
+                                                        coalesce(height,0) AS height,
+                                                        coalesce(width,0) AS width,
+                                                        COALESCE(multiple_images,"") AS multiple_images,
+                                                        COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                                        COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                        updated_at
+                                                    FROM
+                                                        images
+                                                    WHERE
+                                                        catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) and
+                                                        is_featured = 1
+                                                        order by updated_at DESC LIMIT ?, ?', [$this->cover_sub_category_id, 0, $this->cover_template_item]);
 
                     $video = DB::select('SELECT id video_id,
                                          youtube_video_id,
@@ -7695,7 +7716,7 @@ class UserController extends Controller
                                   where qm.is_active = ?
                                   ORDER BY update_time DESC LIMIT ?, ?', [$this->is_active, 0, $this->question_type_item]);
 
-                    return ['template' => $template, 'video' => $video, 'job_news' => $this->job_news, 'interview_que_ans' => $interview_que_ans, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/'];
+                    return ['template' => $template, 'cover_template' => $cover_template, 'video' => $video, 'job_news' => $this->job_news, 'interview_que_ans' => $interview_que_ans, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/'];
 
                 });
             }
