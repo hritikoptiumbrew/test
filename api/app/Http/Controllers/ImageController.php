@@ -400,7 +400,7 @@ class ImageController extends Controller
             $path = $original_path . $img;
             $this->saveImageDetails($path, $dir_name);
         } catch (Exception $e) {
-            Log::error("saveFileWithFileNameAndPath : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("saveFileByPath : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
 
@@ -1825,7 +1825,7 @@ class ImageController extends Controller
             $disk->delete($original);
 
         } catch (Exception $e) {
-            Log::debug("deleteObjectFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("deleteObjectFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
         }
     }

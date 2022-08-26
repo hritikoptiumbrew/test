@@ -214,4 +214,7 @@ return [
     'CACHE_TIME_48_HOUR' => '2880',
     'CACHE_TIME_7_DAYS' => '10080',
 
+    //Expiration time of 2fa cookie for 30 days
+    'EXPIRATION_TIME_OF_2FA_COOKIE' => env('EXPIRATION_TIME_OF_2FA_COOKIE'),
+
 ];

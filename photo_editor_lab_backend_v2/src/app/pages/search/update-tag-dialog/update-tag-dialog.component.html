@@ -11,6 +11,11 @@
                         (click)="searchByTags()">
                         <nb-icon icon="search"></nb-icon>
                     </button>
+                  
+                </div>
+                <div class="d-block mt-2">
+                    <button class="btn btn-primary mr-1" (click)="selectAll()">Select All</button>
+                    <button class="btn btn-danger" [disabled]="listOfId.length == 0" (click)="listOfId = []">Remove All</button>
                 </div>
                 <div class="mt-2">
                     <div class="height-30">
@@ -22,6 +27,7 @@
                         </button>
                     </div>
                 </div>
+                
             </div>
             <div class="col-6">
                 <div class="row border py-2">
@@ -45,7 +51,7 @@
                         *ngFor="let img of imgData">
                         <div class="d-flex justify-content-center align-items-center border-box position-relative ">
                             <img (click)="viewImage(img.sample_image);" src="{{ img.sample_image }}" alt="img" class="img_temp">
-                            <input type="checkbox" class="positio-absolute check pointer"
+                            <input type="checkbox" class="positio-absolute check pointer" [checked]="listOfId.includes(img.json_id)"
                                 (change)="addImgId(img.json_id , $event)">
                         </div>
                     </div>

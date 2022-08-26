@@ -24,6 +24,25 @@
   .catalog-card{
     width: 640px;
   }
+  .c-add-tag-catalog{
+    border: none !important;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-right: 8px;
+    padding-left: 12px;
+    background-color: #e0e0e0 !important;
+    color: rgba(0, 0, 0, 0.87) !important;
+    border: none !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    height: 32px;
+    position: relative;
+  }
+  .c-add-tag-catalog nb-icon{
+    height: 20px;
+    width: 20px;
+    margin-top: 0px !important;
+  }
 ::ng-deep .catalog-card nb-card-body{
     max-height: calc(100vh - 191px);
   }

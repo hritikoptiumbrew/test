@@ -22,6 +22,7 @@ export const environment = {
   production: false,
   apiUrls: {
     // BASE_URL: 'http://192.168.0.116/photo_editor_lab_backend/api/public/api/',
+    // BASE_URL: 'http://192.168.0.105/photo_editor_lab_backend/api/public/api/',
     BASE_URL: 'http://192.168.0.105/photo_editor_lab_backend/api/public/api/',
     // BASE_URL: 'http://192.168.0.104/photo_editor_lab_backend/api/public/api/',
     // BASE_URL: 'https://local104.ngrok.io/photo_editor_lab_backend/api/public/api/',

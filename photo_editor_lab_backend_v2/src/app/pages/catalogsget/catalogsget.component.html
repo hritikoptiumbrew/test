@@ -43,7 +43,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
       </nb-card-header>
     </nb-card> -->
     <div class="row">
-      <div class="col-md-5">
+      <div class="col-md-4">
         <div class="form-group">
           <input type="text" style="background:#fff" nbInput placeholder="Search catalog name here" valid-status="false"
             id="calogSearchInput" [(ngModel)]="searchQuery"
@@ -52,17 +52,34 @@ Copyright 2018 - 2020 Optimumbrew Technology
           <p id="catCalogError" style="color: red;margin-bottom: 0px;height: 14px;"></p>
         </div>
       </div>
-      <div class="col-md-2">
+      <div class="col-md-1">
         <div class="form-group">
           <button id="subCalogButton" class="btn btn-primary w-100" (click)="searchCategory()">Search</button>
         </div>
       </div>
-      <div class="col-md-2 col-3">
+      <div class="col-md-1 col-3">
         <button class="btn btn-refresh" nbTooltip="Refresh" nbTooltipPlacement="bottom" nbTooltipStatus="default"
           (click)="refreshPage()"><i class="fas fa-sync-alt"></i></button>
       </div>
-      <div class="col-md-3 col-9 text-right pr-0">
+      <div class="col-md-6 col-9 text-right pr-0" *ngIf="!multiselectFlag">
+        <button class="btn btn-primary btn-add-cat mr-3" (click)="catalogIdArr = [];multiselectFlag = true;selectedCatalogType = '1'">Select Catalogs</button>
         <button class="btn btn-primary btn-add-cat mr-3" (click)="addCatalog();">Add Catalog</button>
+      </div>
+      <div class="col-md-6 text-right pr-0" *ngIf="multiselectFlag" style="position: relative;">
+        <div class="form-group">
+          <nb-radio-group style="display: flex;position: absolute;" [(ngModel)]="selectedCatalogType" id="radioCalogPriInput" name="my-radio-group4">
+            <nb-radio value="1">Featured
+            </nb-radio>
+            <nb-radio value="2">Normal
+            </nb-radio>
+          </nb-radio-group>
+        </div>
+        <button class="btn btn-success mr-2 w-10" (click)="setRankForAllCatalog()">Set Rank</button>
+        <button class="btn btn-primary mr-2" (click)="selectAllCatalog()" [disabled]='(selectedCatalogType == "1" && featuredCatalogList.length == 0) || (selectedCatalogType == "2" && normalCatalogList.length == 0)'>Select
+          All</button>
+        <button class="btn btn-primary mr-2" (click)="catalogIdArr = []" [disabled]='catalogIdArr.length == 0'>Remove
+          All</button>
+        <button class="btn btn-danger mr-2 w-10" (click)="catalogIdArr = [];multiselectFlag = false;selectedCatalogType = '1'">Cancel</button>
       </div>
     </div>
   </div>
@@ -89,7 +106,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
                 *ngFor="let item of featuredCatalogList ; let i = index">
                 <nb-card class="card-content">
                   <div class="picture text-center" style="position: relative;overflow: hidden;"
-                    (click)="viewCatalog(item)">
+                    (click)="!multiselectFlag && selectedCatalogType == '1'?viewCatalog(item):addCatalogRank($event,item.catalog_id)">
                     <img class="placeholder-img">
                     <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
                       [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
@@ -110,6 +127,10 @@ Copyright 2018 - 2020 Optimumbrew Technology
                       nbTooltipTrigger="hint">
                       <img src="./assets/event-icon.jpg">
                     </div>
+                    <span class="rank-icon" style="opacity: 0.6;"
+                        *ngIf="multiselectFlag && selectedCatalogType == '1' && catalogIdArr.indexOf(item.catalog_id) == -1"></span>
+                    <span class="rank-icon"
+                        *ngIf="multiselectFlag && selectedCatalogType == '1' && catalogIdArr.indexOf(item.catalog_id) != -1">{{ catalogIdArr.indexOf(item.catalog_id) + 1 }}</span>    
                   </div>
                   <div class="details">
                     <div [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom"
@@ -139,7 +160,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
                   </nb-card-footer>
                 </nb-card>
                 <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
-                <div class="fullscreen-icon"
+                <div class="fullscreen-icon" *ngIf="!multiselectFlag"
                   style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;"
                   (click)="viewImage(item.compressed_img)">
                   <img src="./assets/expand.png" style="width: 25px">
@@ -174,7 +195,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
               <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" *ngFor="let item of normalCatalogList;let i = index;">
                 <nb-card class="card-content">
                   <div class="picture text-center" style="position: relative;overflow: hidden;"
-                    (click)="viewCatalog(item)">
+                  (click)="!multiselectFlag && selectedCatalogType == '1'?viewCatalog(item):addCatalogRank($event,item.catalog_id)">
                     <img class="placeholder-img">
                     <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
                       [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
@@ -195,6 +216,10 @@ Copyright 2018 - 2020 Optimumbrew Technology
                       nbTooltipTrigger="hint">
                       <img src="./assets/event-icon.jpg">
                     </div>
+                    <span class="rank-icon" style="opacity: 0.6;"
+                        *ngIf="multiselectFlag && selectedCatalogType == '2' && catalogIdArr.indexOf(item.catalog_id) == -1"></span>
+                    <span class="rank-icon"
+                        *ngIf="multiselectFlag && selectedCatalogType == '2' && catalogIdArr.indexOf(item.catalog_id) != -1">{{ catalogIdArr.indexOf(item.catalog_id) + 1 }}</span>    
                   </div>
                   <div class="details">
                     <div [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom"
@@ -224,7 +249,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
                   </nb-card-footer>
                 </nb-card>
                 <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
-                <div class="fullscreen-icon"
+                <div class="fullscreen-icon" *ngIf="!multiselectFlag"
                   style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;"
                   (click)="viewImage(item.compressed_img)">
                   <img src="./assets/expand.png" style="width: 25px">

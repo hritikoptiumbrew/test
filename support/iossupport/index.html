@@ -217,6 +217,11 @@
                         changelogo(app_data);
                         changeFavicon(app_data);
                         break;
+                    case 'poa12l':
+                        app_data = JSON.parse(JSON.stringify(data)).poa12l;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
                     default:
                         app_data = JSON.parse(JSON.stringify(data)).enaup0;
                         changelogo(app_data);

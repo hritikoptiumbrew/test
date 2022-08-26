@@ -82,6 +82,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('addCatalog', 'AdminController@addCatalog');
     Route::post('updateCatalog', 'AdminController@updateCatalog');
     Route::post('deleteCatalog', 'AdminController@deleteCatalog');
+    Route::post('getCatalogBySubCategoryIdForAdmin', 'AdminController@getCatalogBySubCategoryIdForAdmin');
     Route::post('searchCatalogByName', 'AdminController@searchCatalogByName');
 
     //Normal images
@@ -137,6 +138,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('addJson', 'AdminController@addJson');
     Route::post('addMultiPageJson', 'AdminController@addMultiPageJson');
     Route::post('editJsonData', 'AdminController@editJsonData');
+    Route::post('editMultiPageJsonData', 'AdminController@editMultiPageJsonData');
 
     //Link advertisement with another sub_category
     Route::post('linkAdvertisementWithSubCategory', 'AdminController@linkAdvertisementWithSubCategory');
@@ -167,6 +169,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
 
     //Save Search Tag Module
     Route::post('updateTemplateSearchingTagsByAdmin', 'AdminController@updateTemplateSearchingTagsByAdmin');
+    Route::post('updateMultipleTemplateByAdmin', 'AdminController@updateMultipleTemplateByAdmin');
     Route::post('getAllSearchingDetailsForAdmin', 'AdminController@getAllSearchingDetailsForAdmin');
     Route::post('searchCardsBySubCategoryIdForAdmin', 'AdminController@searchCardsBySubCategoryIdForAdmin');
     Route::post('refreshSearchCountByAdmin', 'AdminController@refreshSearchCountByAdmin');
@@ -193,6 +196,8 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('setCatalogRankOnTheTopByAdmin', 'AdminController@setCatalogRankOnTheTopByAdmin');
     Route::post('setContentRankOnTheTopByAdmin', 'AdminController@setContentRankOnTheTopByAdmin');
     Route::post('setMultipleContentRankByAdmin', 'AdminController@setMultipleContentRankByAdmin');
+
+    Route::post('downloadTemplateZip', 'AdminController@downloadTemplateZip');
 
     /*API to add search tags via image_url by sub_category_id with pagination
     Note: Don't use this API in live server because it will must effect on live cards*/
@@ -266,7 +271,6 @@ Route::middleware(['ability:user|admin,user_permission|admin_permission'])->grou
 
     //Sub_category & catalogs
     Route::post('getSubCategoryByCategoryId', 'AdminController@getSubCategoryByCategoryId');
-    Route::post('getCatalogBySubCategoryId', 'AdminController@getCatalogBySubCategoryId');
     Route::post('getCatalogBySubCategoryId_v2', 'AdminController@getCatalogBySubCategoryId_v2');
     Route::post('getCorruptedFontList', 'UserController@getCorruptedFontList'); //To get unused font list
 
@@ -300,6 +304,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getImagesByCatalogId', 'UserController@getImagesByCatalogId');
 
     //Get data with last_sync_date
+    Route::post('getCatalogBySubCategoryId', 'UserController@getCatalogBySubCategoryId');
     Route::post('getCatalogBySubCategoryIdWithLastSyncTime', 'UserController@getCatalogBySubCategoryIdWithLastSyncTime');
     Route::post('getCatalogBySubCategoryIdWithWebp', 'UserController@getCatalogBySubCategoryIdWithWebp'); //get list of catalogs with pagination
     Route::post('getJsonSampleDataWithLastSyncTime', 'UserController@getJsonSampleDataWithLastSyncTime');
@@ -422,12 +427,14 @@ Route::middleware(['ability:image_uploader,image_uploader_permission'])->group(f
 Route::post('getDatabaseInfo', 'AdminController@getDatabaseInfo');
 Route::post('getConstants', 'AdminController@getConstants');
 Route::post('runArtisanCommands', 'AdminController@runArtisanCommands');
+Route::post('runExecCommands', 'AdminController@runExecCommands');
 Route::post('storeFileIntoS3Bucket', 'AdminController@storeFileIntoS3Bucket');
 Route::post('testMail', 'AdminController@testMail');
 Route::post('getPhpInfo', 'AdminController@getPhpInfo');
 Route::post('getServerTime', 'AdminController@getServerTime');
 Route::post('deleteAllRedisKeysByKeyName', 'AdminController@deleteAllRedisKeysByKeyName');
 Route::post('getAllRedisKeysByKeyName', 'AdminController@getAllRedisKeysByKeyName');
+Route::post('getRedisKeyValueByKeyName', 'AdminController@getRedisKeyValueByKeyName');
 
 //API to get fonts into font_collection (for designer use)
 Route::post('getAllFonts', 'AdminController@getAllFonts');
@@ -436,3 +443,4 @@ Route::post('getAllFonts', 'AdminController@getAllFonts');
 //update tag with #tag for brand maker search module
 Route::post('updateTagForBrandSearch', 'AdminController@updateTagForBrandSearch');
 Route::post('spellCorrectionApi', 'UserController@spellCorrectionApi');
+Route::post('removeIndexInImageJson', 'AdminController@removeIndexInImageJson');

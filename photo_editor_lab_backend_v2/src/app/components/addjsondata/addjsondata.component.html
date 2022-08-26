@@ -20,7 +20,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
   </nb-card-header>
   <nb-card-body>
     <div class="row json-form-data">
-      <div class="col-md-5 pt-4">
+      <div class="col-md-6 pt-4">
         <div class="d-flex justify-content-between">
           <div class="img-preview" id="jsonGIF">
             <!-- <img *ngIf="jsonImage" class="placeholder-img"> -->
@@ -59,8 +59,20 @@ Copyright 2018 - 2020 Optimumbrew Technology
               (change)="fileChangeAfter($event)" accept="image/png, image/gif, image/jpeg"
               [disabled]="disableInputAfter">
           </div>
-
-
+          <div class="img-preview" id="jsonCoverAfter">
+            <!-- <img *ngIf="jsonImage" class="placeholder-img"> -->
+            <img *ngIf="jsonImageCover" [src]="jsonImageCover"
+              onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';" (load)="imageLoad($event)">
+            <label for="fileInputCover">
+              <i class="fa fa-camera" title="Click here to choose image"></i>
+            </label>
+            <p class="input-label">Cover Image <a *ngIf="jsonImageCover" nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" style="cursor:pointer;color: red;margin-left: 15px;" (click)="removeCoverImage()">
+              <nb-icon icon="trash-2" pack="eva"></nb-icon>
+            </a></p>
+            <input type="file" id="fileInputCover" autofocus="true" style="display: none;"
+              (change)="fileChangeCover($event)" accept="image/png, image/gif, image/jpeg"
+              [disabled]="disableInputAfter">
+          </div>
         </div>
         <p id="imageError" style="color: red;margin-bottom: 0px;margin-top: 4px;text-align: center;height: 14px;"></p>
         <div class="row mt-4">
@@ -131,6 +143,23 @@ Copyright 2018 - 2020 Optimumbrew Technology
             </div>
           </div>
         </div>
+        <div class="row ">
+          <div class="col-md-4 pr-0">
+            <label class="d-block form-label">Activation</label>
+          </div>
+          <div class="col-md-8 pl-0">
+            <div class="form-group">
+              <nb-radio-group [(ngModel)]="is_activation" [attr.valid-status]="upJSonData?true:false"
+                id="radioCalogactiveInput" name="my-radio-group4">
+                <nb-radio value="1">
+                  Active</nb-radio>
+                <nb-radio value="0">
+                  Deactive</nb-radio>
+              </nb-radio-group>
+              <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+            </div>
+          </div>
+        </div>
         <div class="row">
           <div class="col-md-12">
             <div class="form-group">
@@ -148,7 +177,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
           </div>
         </div>
       </div>
-      <div class="col-md-7">
+      <div class="col-md-6">
         <div class="form-group mb-0">
           <input type="file" accept='text/plain' title="Choose JSON File" class="form-control height-45"
             (change)="openFile($event)">

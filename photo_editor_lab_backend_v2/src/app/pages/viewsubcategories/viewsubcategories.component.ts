@@ -50,9 +50,9 @@ export class ViewsubcategoriesComponent implements OnInit {
   //this variable is use for check multi selction is on or not
   multiselectFlag: any = false;
   copyURLS = [
-    { title: 'Copy Thumbnail Image URL', img_url: 'hello', img_type: 'Thumbnail Image' },
-    { title: 'Copy Compressed Image URL', img_url: 'hello', img_type: 'Compressed Image' },
-    { title: 'Copy Original Image URL', img_url: 'hello', img_type: 'Original Image' }
+    { title: 'Copy Thumbnail Image URL', img_url: 'hello', img_type: 'Thumbnail Image'},
+    { title: 'Copy Compressed Image URL', img_url: 'hello', img_type: 'Compressed Image'},
+    { title: 'Copy Original Image URL', img_url: 'hello', img_type: 'Original Image'}
   ];
   constructor(private menuService: NbMenuService, private dialog: NbDialogService, private route: Router, private actRoute: ActivatedRoute, private dataService: DataService, public utils: UtilService) {
     this.token = localStorage.getItem('at');
@@ -477,6 +477,104 @@ export class ViewsubcategoriesComponent implements OnInit {
         this.utils.showError(ERROR.SERVER_ERR, 4000);
       });
     }
+  }
+
+  setActiveDeactive(is_active) {
+    if (this.templatesArr.length == 0) {
+      this.utils.showError("Please select templates for set rank", 6000);
+    }
+    else {
+      this.utils.showLoader();
+      this.dataService.postData('updateMultipleTemplateByAdmin', {
+        "img_ids": this.templatesArr.join(","),
+        "catalog_id": this.catalogId,
+        "is_active": is_active
+      }, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).then((results: any) => {
+
+        if (results.code == 200) {
+          this.utils.showSuccess(results.message, 4000);
+          this.utils.hideLoader();
+          this.templatesArr = []
+          this.multiselectFlag = false;
+          this.getAllCategories();
+          // var element = this.viewCatdata[indexItem];
+          // this.viewCatdata.splice(indexItem, 1);
+          // this.viewCatdata.splice(0, 0, element);
+        }
+        else if (results.code == 201) {
+          this.utils.showError(results.message, 4000);
+          this.utils.hideLoader();
+        }
+        else if (results.status || results.status == 0) {
+          this.utils.showError(ERROR.SERVER_ERR, 4000);
+          this.utils.hideLoader();
+        }
+        else {
+          this.utils.showError(results.message, 4000);
+          this.utils.hideLoader();
+        }
+      }, (error: any) => {
+        console.log(error);
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 4000);
+      }).catch((error: any) => {
+        console.log(error);
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 4000);
+      });
+    }
+  }
+  
+  downloadTemplateZip(page_sequence, jsonData) {
+    this.utils.showLoader();
+      this.dataService.postData('downloadTemplateZip', {
+        "json_data": jsonData,
+        "pages_sequence": page_sequence,
+      }, {
+        headers: {
+          'Authorization': 'Bearer ' + this.token
+        }
+      }).then((results: any) => {
+
+        if (results.code == 200) {
+          this.utils.hideLoader();
+        let element = document.createElement('a');
+        element.setAttribute('href', results.data.url);
+        element.setAttribute('target', "_blank");
+        // element.setAttribute('download', parts[parts.length - 1] || "filename.zip");
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+          // var element = this.viewCatdata[indexItem];
+          // this.viewCatdata.splice(indexItem, 1);
+          // this.viewCatdata.splice(0, 0, element);
+        }
+        else if (results.code == 201) {
+          this.utils.showError(results.message, 4000);
+          this.utils.hideLoader();
+        }
+        else if (results.status || results.status == 0) {
+          this.utils.showError(ERROR.SERVER_ERR, 4000);
+          this.utils.hideLoader();
+        }
+        else {
+          this.utils.showError(results.message, 4000);
+          this.utils.hideLoader();
+        }
+      }, (error: any) => {
+        console.log(error);
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 4000);
+      }).catch((error: any) => {
+        console.log(error);
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 4000);
+      });
   }
 
   SelectAllTemplate() {

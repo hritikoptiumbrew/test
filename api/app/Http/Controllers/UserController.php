@@ -132,6 +132,183 @@ class UserController extends Controller
     }
 
     /**
+     * @api {post} getCatalogBySubCategoryId   getCatalogBySubCategoryId
+     * @apiName getCatalogBySubCategoryId
+     * @apiGroup Common For All
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":1
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Catalog Fetched Successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 5,
+     * "category_name": "Independence Day Stickers",
+     * "category_list": [
+     * {
+     * "catalog_id": 84,
+     * "name": "Misc",
+     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d551036b09_catalog_img_1502434576.png",
+     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d551036b09_catalog_img_1502434576.png",
+     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d551036b09_catalog_img_1502434576.png",
+     * "is_free": 0,
+     * "is_featured": 1
+     * },
+     * {
+     * "catalog_id": 80,
+     * "name": "Circle",
+     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64d7c306f_catalog_img_1502438615.png",
+     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d64d7c306f_catalog_img_1502438615.png",
+     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d64d7c306f_catalog_img_1502438615.png",
+     * "is_free": 0,
+     * "is_featured": 0
+     * },
+     * {
+     * "catalog_id": 81,
+     * "name": "Flag",
+     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64c7af06f_catalog_img_1502438599.png",
+     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d64c7af06f_catalog_img_1502438599.png",
+     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d64c7af06f_catalog_img_1502438599.png",
+     * "is_free": 0,
+     * "is_featured": 0
+     * },
+     * {
+     * "catalog_id": 82,
+     * "name": "Map",
+     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d64afc90f8_catalog_img_1502438575.png",
+     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d64afc90f8_catalog_img_1502438575.png",
+     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d64afc90f8_catalog_img_1502438575.png",
+     * "is_free": 0,
+     * "is_featured": 0
+     * },
+     * {
+     * "catalog_id": 83,
+     * "name": "Text",
+     * "thumbnail_img": "http://localhost/ob_photolab_backend/image_bucket/thumbnail/598d649f4442e_catalog_img_1502438559.png",
+     * "compressed_img": "http://localhost/ob_photolab_backend/image_bucket/compressed/598d649f4442e_catalog_img_1502438559.png",
+     * "original_img": "http://localhost/ob_photolab_backend/image_bucket/original/598d649f4442e_catalog_img_1502438559.png",
+     * "is_free": 0,
+     * "is_featured": 0
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getCatalogBySubCategoryId(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id'), $request)) != '')
+                return $response;
+            //Log::info('getCatalogBySubCategoryId request : ',['request' => $request]);
+
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
+            $this->sub_category_id = $request->sub_category_id;
+
+            if ($is_cache_enable) {
+
+                $redis_result = Cache::remember("getCatalogBySubCategoryId:$this->sub_category_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
+
+                    //sub Category Name
+                    $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
+                    $category_name = $name[0]->name;
+
+                    $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
+                    $total_row = $total_row_result[0]->total;
+
+                    $result = DB::select('SELECT
+                                    ct.id as catalog_id,
+                                    ct.name,
+                                    IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                    IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                    IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                    IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                    IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                    IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
+                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                    ct.is_free,
+                                    ct.is_ios_free,
+                                    ct.catalog_type,
+                                    ct.event_date,
+                                    ct.popularity_rate,
+                                    ct.search_category,
+                                    ct.is_featured
+                                  FROM
+                                    catalog_master as ct,
+                                    sub_category_catalog as sct
+                                  WHERE
+                                    sct.sub_category_id = ? AND
+                                    sct.catalog_id=ct.id AND
+                                    sct.is_active=1
+                                  order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                    return array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
+                });
+
+            } else {
+
+                //sub Category Name
+                $name = DB::select('SELECT sc.name FROM  sub_category as sc WHERE sc.id = ? AND sc.is_active = ?', [$this->sub_category_id, 1]);
+                $category_name = $name[0]->name;
+
+                $total_row_result = DB::select('SELECT COUNT(*) as total FROM  sub_category_catalog WHERE sub_category_id = ? AND is_active = ?', [$this->sub_category_id, 1]);
+                $total_row = $total_row_result[0]->total;
+
+                $result = DB::select('SELECT
+                                    ct.id as catalog_id,
+                                    ct.name,
+                                    IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                    IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                    IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                    IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                    IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                    IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
+                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                    IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                    ct.is_free,
+                                    ct.is_ios_free,
+                                    ct.catalog_type,
+                                    ct.event_date,
+                                    ct.popularity_rate,
+                                    ct.search_category,
+                                    ct.is_featured
+                                  FROM
+                                    catalog_master as ct,
+                                    sub_category_catalog as sct
+                                  WHERE
+                                    sct.sub_category_id = ? AND
+                                    sct.catalog_id=ct.id AND
+                                    sct.is_active=1
+                                  order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                $redis_result = array('total_record' => $total_row, 'category_name' => $category_name, 'category_list' => $result);
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getCatalogBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
      * @api {post} getCatalogsByTypeInWebp   getCatalogsByTypeInWebp
      * @apiName getCatalogsByTypeInWebp
      * @apiGroup User
@@ -519,10 +696,11 @@ class UserController extends Controller
             $this->sub_category_id = $request->sub_category_id;
             $this->last_sync_time = $request->last_sync_time;
             $this->advertise_id_list = $request->advertise_id_list;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $new_array = array();
 
-            if (!Cache::has("pel:getLinkWithLastSyncTime$this->platform:$this->sub_category_id:$this->last_sync_time")) {
-                $result = Cache::rememberforever("getLinkWithLastSyncTime$this->platform:$this->sub_category_id:$this->last_sync_time", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getLinkWithLastSyncTime:$this->platform:$this->sub_category_id:$this->last_sync_time", Config::get("constant.CACHE_TIME_24_HOUR"), function () {
 
                     if (count($this->advertise_id_list) > 0) {
 
@@ -570,14 +748,53 @@ class UserController extends Controller
 
                     return $result_array;
                 });
+
+            } else {
+
+                if (count($this->advertise_id_list) > 0) {
+
+                    foreach ($this->advertise_id_list as $key) {
+
+                        $result = DB::select('SELECT advertise_link_id
+                                            FROM sub_category_advertise_links
+                                            WHERE advertise_link_id = ? AND
+                                            sub_category_id = ?', [$key, $this->sub_category_id]);
+
+                        if (count($result) == 0) {
+                            $new_array[] = $key;
+                        }
+                    }
+                }
+
+
+                $result = DB::select('SELECT
+                                        adl.id as advertise_link_id,
+                                        adl.name,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as thumbnail_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as compressed_img,
+                                        IF(adl.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.image),"") as original_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_thumbnail_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_compressed_img,
+                                        IF(adl.app_logo_img != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",adl.app_logo_img),"") as app_logo_original_img,
+                                        adl.url,
+                                        adl.platform,
+                                        if(adl.app_description!="",adl.app_description,"") as app_description,
+                                        sadl.updated_at
+                                      FROM
+                                        advertise_links as adl,
+                                        sub_category_advertise_links as sadl
+                                      WHERE
+                                        adl.platform = ? AND
+                                        sadl.advertise_link_id=adl.id AND
+                                        sadl.sub_category_id = ? AND
+                                        sadl.is_active = 1 AND
+                                        sadl.updated_at >= ?
+                                      order by sadl.updated_at DESC', [$this->platform, $this->sub_category_id, $this->last_sync_time]);
+
+
+                $redis_result = array('link_list' => $result, 'advertise_id_list' => $new_array);
+
             }
-
-            $redis_result = Cache::get("getLinkWithLastSyncTime$this->platform:$this->sub_category_id:$this->last_sync_time");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
 
             /*if (count($redis_result) >= 1) {
                 $result = $redis_result['link_list'];
@@ -1026,9 +1243,11 @@ class UserController extends Controller
 
             $this->last_sync_time = $request->last_sync_time;
             $this->sub_category_id = $request->sub_category_id;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getCatalogBySubCategoryIdWithLastSyncTime$request->sub_category_id:$request->last_sync_time")) {
-                $result = Cache::rememberforever("getCatalogBySubCategoryIdWithLastSyncTime$request->sub_category_id:$request->last_sync_time", function () {
+            if ($is_cache_enable) {
+
+                $redis_result = Cache::remember("getCatalogBySubCategoryIdWithLastSyncTime:$request->sub_category_id:$request->last_sync_time", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
 
                     if ($this->last_sync_time == 0) {
@@ -1076,12 +1295,51 @@ class UserController extends Controller
 
                 });
 
-            }
+            } else {
 
-            $redis_result = Cache::get("getCatalogBySubCategoryIdWithLastSyncTime$request->sub_category_id:$request->last_sync_time");
+                if ($this->last_sync_time == 0) {
+                    $redis_result = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                          ct.is_free,
+                                          ct.is_featured,
+                                          ct.search_category,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id=ct.id AND
+                                          sct.is_active=1
+                                        order by ct.updated_at DESC', [$this->sub_category_id]);
+                } else {
+                    $redis_result = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                          ct.is_free,
+                                          ct.is_featured,
+                                          ct.search_category,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id=ct.id AND
+                                          sct.is_active=1 AND
+                                          (ct.updated_at >= ? OR
+                                          sct.created_at >= ?)
+                                        order by ct.updated_at DESC', [$this->sub_category_id, $this->last_sync_time, $this->last_sync_time]);
 
-            if (!$redis_result) {
-                $redis_result = [];
+                }
+
             }
 
             /*if (count($redis_result) >= 1) {
@@ -1219,8 +1477,8 @@ class UserController extends Controller
 
             //Log::info('request_data', ['request_data' => $request]);
 
-            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
-                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
+                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
 
                     if ($this->catalog_id == 0) {
 
@@ -1272,7 +1530,7 @@ class UserController extends Controller
                 });
             }
 
-            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
+            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -1372,6 +1630,7 @@ class UserController extends Controller
             $this->item_count = $request->item_count;
             $this->page = $request->page;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             //$last_created_record = DB::select('SELECT updated_at FROM images WHERE catalog_id = ? ORDER BY updated_at DESC LIMIT 1', [$this->catalog_id]);
 
@@ -1385,8 +1644,8 @@ class UserController extends Controller
 
             //Log::info('request_data', ['request_data' => $request]);
 
-            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
-                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getJsonSampleDataWithLastSyncTime_webp:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
                     $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
@@ -1402,7 +1661,8 @@ class UserController extends Controller
                                                               catalog_id IN (SELECT catalog_id
                                                                              FROM sub_category_catalog
                                                                              WHERE sub_category_id = ?) AND 
-                                                              is_featured = 1 AND 
+                                                              is_featured = 1 AND
+                                                              is_active = 1 AND  
                                                               updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
                         $total_row = $total_row_result[0]->total;
                         $result = DB::select('SELECT
@@ -1431,6 +1691,7 @@ class UserController extends Controller
                                             WHERE
                                               catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
                                               is_featured = 1 AND
+                                              is_active = 1 AND
                                               updated_at >= ?
                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
@@ -1463,6 +1724,7 @@ class UserController extends Controller
                                                   images
                                                 WHERE
                                                   catalog_id = ? AND
+                                                  is_active = 1 AND
                                                   updated_at >= ?
                                                 ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
                     }
@@ -1471,14 +1733,95 @@ class UserController extends Controller
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/');
 
                 });
-            }
 
-            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webp$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            } else {
                 $redis_result['last_sync_time'] = $last_sync_time;
+
+            } else {
+
+                $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+                $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
+
+                //to pass compress image(jpg/png) only for certificate_maker app because webp is not supported there into iOS
+                $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
+
+                if ($this->catalog_id == 0) {
+
+                    $total_row_result = DB::select('SELECT COUNT(*) AS total
+                                                            FROM images
+                                                            WHERE 
+                                                              catalog_id IN (SELECT catalog_id
+                                                                             FROM sub_category_catalog
+                                                                             WHERE sub_category_id = ?) AND 
+                                                              is_featured = 1 AND
+                                                              updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
+                    $total_row = $total_row_result[0]->total;
+                    $result = DB::select('SELECT
+                                              id AS json_id,
+                                              '. $image_url .'
+                                              IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS webp_original_img,
+                                              IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS after_image,
+                                              IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
+                                              IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF').' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS sample_gif,
+                                              is_free,
+                                              is_ios_free,
+                                              is_featured,
+                                              is_portrait,
+                                              coalesce(height,0) AS height,
+                                              coalesce(width,0) AS width,
+                                              coalesce(search_category,"") AS search_category,
+                                              coalesce(original_img_height,0) AS original_img_height,
+                                              coalesce(original_img_width,0) AS original_img_width,
+                                              COALESCE(multiple_images,"") AS multiple_images,
+                                              COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                              COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                              content_type,
+                                              updated_at
+                                            FROM
+                                              images
+                                            WHERE
+                                              catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                              is_featured = 1 AND
+                                              updated_at >= ?
+                                            ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+                } else {
+
+                    $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
+                    $total_row = $total_row_result[0]->total;
+                    $result = DB::select('SELECT
+                                                  id AS json_id,
+                                                  '. $image_url .'
+                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS webp_original_img,
+                                                  IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS after_image,
+                                                  IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
+                                                  IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF').' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS sample_gif,
+                                                  is_free,
+                                                  is_ios_free,
+                                                  is_featured,
+                                                  is_portrait,
+                                                  coalesce(height,0) AS height,
+                                                  coalesce(width,0) AS width,
+                                                  coalesce(search_category,"") AS search_category,
+                                                  coalesce(original_img_height,0) AS original_img_height,
+                                                  coalesce(original_img_width,0) AS original_img_width,
+                                                  COALESCE(multiple_images,"") AS multiple_images,
+                                                  COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                  content_type,
+                                                  updated_at
+                                                FROM
+                                                  images
+                                                WHERE
+                                                  catalog_id = ? AND
+                                                  updated_at >= ?
+                                                ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
+                }
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $redis_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/');
+
+            $redis_result['last_sync_time'] = $last_sync_time;
+
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Samples fetched successfully.', 'cause' => '', 'data' => $redis_result));
@@ -1511,24 +1854,22 @@ class UserController extends Controller
             $this->item_count = $request->item_count;
             $this->page = $request->page;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             $last_sync_time = date("Y-m-d H:i:s");
 
 
-            //Log::info('request_data', ['request_data' => $request]);
+            if ($is_cache_enable){
+                $redis_result = Cache::remember("getJsonSampleDataWithLastSyncTime_webp_v2:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time",config('constant.CACHE_TIME_6_HOUR'), function () {
 
-            if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp_v2$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time")) {
-                $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time", function () {
+                        $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+                        $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
 
-                    $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
-                    $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
+                        //to pass compress image(jpg/png) only for certificate_maker app because webp is not supported there into iOS
+                        $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
 
-                    //to pass compress image(jpg/png) only for certificate_maker app because webp is not supported there into iOS
-                    $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
-
-                    if ($this->catalog_id == 0) {
-                        if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date")) {
-                            $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date", function () {
+                        if ($this->catalog_id == 0) {
+                            $total_row = Cache::remember("getJsonSampleDataWithLastSyncTime_webp_v2:$this->catalog_id:$this->sub_category_id:$this->last_sync_date",config('constant.CACHE_TIME_6_HOUR'), function () {
                                 $total_row_result = DB::select('SELECT COUNT(*) AS total
                                                             FROM images
                                                             WHERE 
@@ -1537,10 +1878,10 @@ class UserController extends Controller
                                                                              WHERE sub_category_id = ?) AND 
                                                               is_featured = 1 AND 
                                                               updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
-                                return $total_row_result[0]->total;
+                                return $total_row = $total_row_result[0]->total;
                             });
-                        }
-                        $result = DB::select('SELECT
+
+                            $result = DB::select('SELECT
                                               id AS json_id,
                                               '. $image_url .'
                                               is_free,
@@ -1560,15 +1901,13 @@ class UserController extends Controller
                                               updated_at >= ?
                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
 
-                    } else {
-                        if (!Cache::has("pel:getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date")) {
-                            $result = Cache::rememberforever("getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date", function () {
-                                $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
-                                return $total_row_result[0]->total;
-                            });
-                        }
+                        } else {
+                                $total_row = Cache::remember("getJsonSampleDataWithLastSyncTime_webp_v2:$this->catalog_id:$this->sub_category_id:$this->last_sync_date",config('constant.CACHE_TIME_6_HOUR'), function () {
+                                    $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
+                                    return $total_row = $total_row_result[0]->total;
+                                });
 
-                        $result = DB::select('SELECT
+                            $result = DB::select('SELECT
                                                   id AS json_id,
                                                   '. $image_url .'
                                                   is_free,
@@ -1586,15 +1925,77 @@ class UserController extends Controller
                                                   catalog_id = ? AND
                                                   updated_at >= ?
                                                 ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
+                        }
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
+
+                    });
+            }else {
+
+                    $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+                    $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
+
+                    //to pass compress image(jpg/png) only for certificate_maker app because webp is not supported there into iOS
+                    $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
+
+                    if ($this->catalog_id == 0) {
+                        $total_row_result = DB::select('SELECT COUNT(*) AS total
+                                                            FROM images
+                                                            WHERE 
+                                                              catalog_id IN (SELECT catalog_id
+                                                                             FROM sub_category_catalog
+                                                                             WHERE sub_category_id = ?) AND 
+                                                              is_featured = 1 AND 
+                                                              updated_at >= ?', [$this->sub_category_id, $this->last_sync_date]);
+                        $total_row = $total_row_result[0]->total;
+
+                        $result = DB::select('SELECT
+                                              id AS json_id,
+                                              ' . $image_url . '
+                                              is_free,
+                                              is_featured,
+                                              is_portrait,
+                                              coalesce(height,0) AS height,
+                                              coalesce(width,0) AS width,
+                                              coalesce(search_category,"") AS search_category,
+                                              coalesce(original_img_height,0) AS original_img_height,
+                                              coalesce(original_img_width,0) AS original_img_width,
+                                              updated_at
+                                            FROM
+                                              images
+                                            WHERE
+                                              catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                              is_featured = 1 AND
+                                              updated_at >= ?
+                                            ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->last_sync_date, $this->offset, $this->item_count]);
+
+                    } else {
+                        $total_row_result = DB::select('SELECT COUNT(*) AS total FROM images WHERE catalog_id = ? AND updated_at >= ?', [$this->catalog_id, $this->last_sync_date]);
+                        $total_row = $total_row_result[0]->total;
+
+                        $result = DB::select('SELECT
+                                                  id AS json_id,
+                                                  ' . $image_url . '
+                                                  is_free,
+                                                  is_featured,
+                                                  is_portrait,
+                                                  coalesce(height,0) AS height,
+                                                  coalesce(width,0) AS width,
+                                                  coalesce(search_category,"") AS search_category,
+                                                  coalesce(original_img_height,0) AS original_img_height,
+                                                  coalesce(original_img_width,0) AS original_img_width,
+                                                  updated_at
+                                                FROM
+                                                  images
+                                                WHERE
+                                                  catalog_id = ? AND
+                                                  updated_at >= ?
+                                                ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->last_sync_date, $this->offset, $this->item_count]);
                     }
-                    $total_row = Cache::get("getJsonSampleDataWithLastSyncTime_webp_v2$this->catalog_id:$this->sub_category_id:$this->last_sync_date");
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
+                    $redis_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result);
 
-                });
             }
-
-            $redis_result = Cache::get("getJsonSampleDataWithLastSyncTime_webp_v2$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$request->last_sync_time");
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -2228,70 +2629,121 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_JSON');
             $this->offset = 0;
 
-            $redis_result = Cache::remember("getFeaturedJsonSampleData_webp:$this->item_count:$this->sub_category_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
+            if ($is_cache_enable) {
+
+                $redis_result = Cache::remember("getFeaturedJsonSampleData_webp:$this->item_count:$this->sub_category_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $catalogs = DB::select('SELECT
-                                                  ct.id as catalog_id,
-                                                  ct.name,
-                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
-                                                  IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") AS icon,
-                                                  ct.is_free,
-                                                  ct.is_ios_free,
-                                                  ct.is_featured,
-                                                  ct.updated_at
-                                                FROM
-                                                  catalog_master as ct,
-                                                  sub_category_catalog as sct
-                                                WHERE
-                                                  sct.sub_category_id = ? AND
-                                                  sct.catalog_id=ct.id AND
-                                                  sct.is_active=1 AND
-                                                  ct.is_featured = 1
-                                                order by ct.updated_at DESC', [$this->sub_category_id]);
+                                                ct.id AS catalog_id,
+                                                ct.name,
+                                                IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS thumbnail_img,
+                                                IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS compressed_img,
+                                                IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS original_img,
+                                                IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") AS icon,
+                                                ct.is_free,
+                                                ct.is_ios_free,
+                                                ct.is_featured,
+                                                ct.updated_at
+                                            FROM
+                                                catalog_master AS ct,
+                                                sub_category_catalog AS sct
+                                            WHERE
+                                                sct.sub_category_id = ? AND
+                                                sct.catalog_id = ct.id AND
+                                                sct.is_active = 1 AND
+                                                ct.is_featured = 1
+                                            ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
 
-                    foreach ($catalogs as $key) {
+                    foreach ($catalogs as $i => $key) {
+
                         $featured_cards = DB::select('SELECT
-                                               id as json_id,
-                                               IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
-                                               IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as webp_original_img,
-                                               IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF').' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS sample_gif,
-                                               IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS after_image,
-                                               IF(content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
-                                               is_free,
-                                               is_ios_free,
-                                               is_featured,
-                                               is_portrait,
-                                               coalesce(height,0) AS height,
-                                               coalesce(width,0) AS width,
-                                               COALESCE(multiple_images,"") AS multiple_images,
-                                               COALESCE(json_pages_sequence,"") AS pages_sequence,
-                                               COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
-                                               content_type,
-                                               updated_at
-                                                FROM
-                                                images
-                                                WHERE
-                                                catalog_id = ?
-                                                order by updated_at DESC LIMIT ?, ?', [$key->catalog_id, $this->offset, $this->item_count]);
+                                                            id AS json_id,
+                                                            IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS sample_image,
+                                                            IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS webp_original_img,
+                                                            IF(content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS sample_gif,
+                                                            IF(content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS after_image,
+                                                            IF(content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
+                                                            is_free,
+                                                            is_ios_free,
+                                                            is_featured,
+                                                            is_portrait,
+                                                            COALESCE(height,0) AS height,
+                                                            COALESCE(width,0) AS width,
+                                                            COALESCE(multiple_images,"") AS multiple_images,
+                                                            COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                                            COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                            content_type,
+                                                            updated_at
+                                                        FROM
+                                                            images
+                                                        WHERE
+                                                            catalog_id = ? AND
+                                                            is_active = 1
+                                                        ORDER BY updated_at DESC LIMIT ?, ?', [$key->catalog_id, $this->offset, $this->item_count]);
 
                         $key->featured_cards = $featured_cards;
-
                     }
-
-
                     return $catalogs;
-            });
+                });
 
-            if (!$redis_result) {
-                $redis_result = [];
+            } else {
+
+                $redis_result = DB::select('SELECT
+                                                ct.id AS catalog_id,
+                                                ct.name,
+                                                IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS thumbnail_img,
+                                                IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS compressed_img,
+                                                IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS original_img,
+                                                IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") AS icon,
+                                                ct.is_free,
+                                                ct.is_ios_free,
+                                                ct.is_featured,
+                                                ct.updated_at
+                                            FROM
+                                                catalog_master AS ct,
+                                                sub_category_catalog AS sct
+                                            WHERE
+                                                sct.sub_category_id = ? AND
+                                                sct.catalog_id = ct.id AND
+                                                sct.is_active = 1 AND
+                                                ct.is_featured = 1
+                                            ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+
+                foreach ($redis_result as $i => $key) {
+
+                    $featured_cards = DB::select('SELECT
+                                                            id AS json_id,
+                                                            IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS sample_image,
+                                                            IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS webp_original_img,
+                                                            IF(content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS sample_gif,
+                                                            IF(content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS after_image,
+                                                            IF(content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
+                                                            is_free,
+                                                            is_ios_free,
+                                                            is_featured,
+                                                            is_portrait,
+                                                            COALESCE(height,0) AS height,
+                                                            COALESCE(width,0) AS width,
+                                                            COALESCE(multiple_images,"") AS multiple_images,
+                                                            COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                                            COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                            content_type,
+                                                            updated_at
+                                                        FROM
+                                                            images
+                                                        WHERE
+                                                            catalog_id = ?
+                                                        ORDER BY updated_at DESC LIMIT ?, ?', [$key->catalog_id, $this->offset, $this->item_count]);
+
+                    $key->featured_cards = $featured_cards;
+                }
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Featured cards fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/']));
+            $response = Response::json(array('code' => 200, 'message' => 'Featured cards fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB') . '/']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
 
@@ -2391,11 +2843,13 @@ class UserController extends Controller
             $this->sub_category_id = $request->sub_category_id;
             $this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_CATALOGS_AND_TEMPLATES');
             $this->offset = 0;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
+
 
             //Log::info('request_data', ['request_data' => $request]);
 
-            if (!Cache::has("pel:getFeaturedSampleAndCatalogWithWebp$this->item_count:$this->sub_category_id")) {
-                $result = Cache::rememberforever("getFeaturedSampleAndCatalogWithWebp$this->item_count:$this->sub_category_id", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getFeaturedSampleAndCatalogWithWebp:$this->item_count:$this->sub_category_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $category_list = DB::select('SELECT
                                                   ct.id as catalog_id,
@@ -2426,22 +2880,64 @@ class UserController extends Controller
                                               coalesce(width,0) AS width,
                                               coalesce(original_img_height,0) AS original_img_height,
                                               coalesce(original_img_width,0) AS original_img_width,
+                                              COALESCE(multiple_images,"") AS multiple_images,
+                                              COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                              COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,                                              
                                               updated_at
                                             FROM
                                               images
                                             WHERE
                                               catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) AND
+                                              is_active = 1 AND
                                               is_featured = 1
                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id,$this->offset, $this->item_count]);
 
                     return array("category_list" => $category_list ,'sample_cards' => $sample_cards);
                 });
-            }
 
-            $redis_result = Cache::get("getFeaturedSampleAndCatalogWithWebp$this->item_count:$this->sub_category_id");
+            } else {
 
-            if (!$redis_result) {
-                $redis_result = [];
+                $category_list = DB::select('SELECT
+                                                  ct.id as catalog_id,
+                                                  ct.name,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                                  ct.is_free,
+                                                  ct.is_featured,
+                                                  ct.updated_at
+                                                FROM
+                                                  catalog_master as ct,
+                                                  sub_category_catalog as sct
+                                                WHERE
+                                                  sct.sub_category_id = ? AND
+                                                  sct.catalog_id=ct.id AND
+                                                  ct.is_featured = 1
+                                                order by ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id,$this->offset, $this->item_count]);
+
+                $sample_cards = DB::select('SELECT
+                                              id AS json_id,
+                                              IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                              is_free,
+                                              is_featured,
+                                              is_portrait,
+                                              coalesce(height,0) AS height,
+                                              coalesce(width,0) AS width,
+                                              coalesce(original_img_height,0) AS original_img_height,
+                                              coalesce(original_img_width,0) AS original_img_width,
+                                              COALESCE(multiple_images,"") AS multiple_images,
+                                              COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                              COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,                                              
+                                              updated_at
+                                            FROM
+                                              images
+                                            WHERE
+                                              catalog_id IN(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ?) AND
+                                              is_featured = 1
+                                            ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id,$this->offset, $this->item_count]);
+
+                $redis_result = array("category_list" => $category_list ,'sample_cards' => $sample_cards);
+
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Featured cards fetched successfully.', 'cause' => '', 'data' => $redis_result));
@@ -2523,13 +3019,14 @@ class UserController extends Controller
             $this->offset = ($this->page - 1) * $this->item_count;
             $this->is_free = isset($request->is_free) ? ' AND ct.is_free = ' . $request->is_free : '';
             $this->is_featured = isset($request->is_featured) ? ' AND ct.is_featured = ' . $request->is_featured : '';
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
 
             //validate search text
             $this->is_verified = (new VerificationController())->verifySearchText($this->search_category);
 
-            if (!Cache::has("pel:searchCatalogByUser$this->sub_category_id:$this->search_category:$this->offset:$this->item_count:$this->is_free:$this->is_featured")) {
-                $result = Cache::rememberforever("searchCatalogByUser$this->sub_category_id:$this->search_category:$this->offset:$this->item_count:$this->is_free:$this->is_featured", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("searchCatalogByUser:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count:$this->is_free:$this->is_featured", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $search_category = $this->search_category;
                     $code = 200;
@@ -2623,12 +3120,98 @@ class UserController extends Controller
                     return $result;
                 });
 
-            }
+            } else {
 
-            $redis_result = Cache::get("searchCatalogByUser$this->sub_category_id:$this->search_category:$this->offset:$this->item_count:$this->is_free:$this->is_featured");
+                $search_category = $this->search_category;
+                $code = 200;
+                $message = "Bundles fetched successfully.";
+                if ($this->is_verified == 1) {
 
-            if (!$redis_result) {
-                $redis_result = [];
+                    $total_row_result = DB::select('SELECT
+                                                      count(ct.id) as total
+                                                    FROM
+                                                      catalog_master as ct,
+                                                      sub_category_catalog as sct
+                                                    WHERE
+                                                      sct.sub_category_id = ? AND
+                                                      (MATCH(ct.name) AGAINST("' . $search_category . '") OR 
+                                                       MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) AND
+                                                      sct.catalog_id = ct.id AND
+                                                      sct.is_active = 1 AND 
+                                                      ct.is_featured = 1 ' . $this->is_free . '
+                                                    ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+
+                    $total_row = $total_row_result[0]->total;
+
+                    $catalog_list = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          MATCH(ct.name) AGAINST("' . $search_category . '") +
+                                          MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                          ct.is_featured,
+                                          ct.is_free,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          (MATCH(ct.name) AGAINST("' . $search_category . '") OR 
+                                          MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) AND
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 AND 
+                                          ct.is_featured = 1 ' . $this->is_free . '
+                                        ORDER BY ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                } else {
+                    $catalog_list = [];
+                }
+
+                if (count($catalog_list) <= 0) {
+
+                    $total_row_result = DB::select('SELECT
+                                                      count(ct.id) as total
+                                                    FROM
+                                                      catalog_master as ct,
+                                                      sub_category_catalog as sct
+                                                    WHERE
+                                                      sct.sub_category_id = ? AND
+                                                      sct.catalog_id = ct.id AND
+                                                      sct.is_active = 1 AND 
+                                                      ct.is_featured = 1 ' . $this->is_free . '
+                                                    ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+
+                    $total_row = $total_row_result[0]->total;
+
+                    $catalog_list = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                          ct.is_featured,
+                                          ct.is_free,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 AND 
+                                          ct.is_featured = 1 ' . $this->is_free . '
+                                        ORDER BY ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                    $code = 427;
+                    $message = "Sorry, we couldn't find any bundles for '$search_category', but we found some other bundles you might like:";
+                }
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $catalog_list);
+
+                $redis_result = array('result' => $search_result, 'code' => $code, 'message' => $message);
+
             }
 
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
@@ -2878,15 +3461,10 @@ class UserController extends Controller
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
-            $is_user_search_tag = isset($request->is_user_search_tag) ? $request->is_user_search_tag : 1;       //In some applications we have put search tags instead of catalog lists, So if user clicks that search tag that time we don't need to insert this tag in DB.
             $is_featured = isset($request->is_featured) ? $request->is_featured : 1;   //is_featured is use for finding a proper data from DB.
             $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');    //Category id to find, Which category is use.
-            //$is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
-            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 0;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $catalog_id = isset($request->catalog_id) ? $request->catalog_id : '';    //Catalog id to give a priority template.
-            //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
-            //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
-
 
             if ($is_cache_enable == 1) {
                 $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
@@ -2894,7 +3472,7 @@ class UserController extends Controller
                 $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
             }
 
-            if($page == 1 && $is_user_search_tag == 1) {
+            if($page == 1) {
                 if($redis_result['code'] != 200){
                     SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0, $is_featured, $category_id);
                 }else{
@@ -2919,7 +3497,7 @@ class UserController extends Controller
     */
     public function searchCardsBySubCategoryIdWithTranslate(Request $request_body)
     {
-        $time_start = microtime(true);
+        //$time_start = microtime(true);
         try {
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
@@ -2958,9 +3536,9 @@ class UserController extends Controller
             Log::error("searchCardsBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
-        $time_end = microtime(true);
-        $execution_time = $time_end - $time_start;
-        Log::info('searchCardsBySubCategoryIdWithTranslate : total execution time in milli-seconds is :',[$execution_time]);
+        //$time_end = microtime(true);
+        //$execution_time = $time_end - $time_start;
+        //Log::info('searchCardsBySubCategoryIdWithTranslate : total execution time in milli-seconds is :',[$execution_time]);
         return $response;
     }
 
@@ -2984,14 +3562,10 @@ class UserController extends Controller
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
-            $is_user_search_tag = isset($request->is_user_search_tag) ? $request->is_user_search_tag : 1;       //In some applications we have put search tags instead of catalog lists, So if user clicks that search tag that time we don't need to insert this tag in DB.
             $is_featured = isset($request->is_featured) ? $request->is_featured : 1;                //is_featured is use for finding a proper data from DB.
             $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');               //Category id to find, Which category is use.
-            //$is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
-            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 0;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $catalog_id = isset($request->catalog_id) ? $request->catalog_id : '';         //Catalog id to give a priority template.
-            //$this->is_template = isset($request->is_template) ? $request->is_template : 1;      //1=for template, 2=for sticker,shape,background.
-            //$search_category_language_code = isset($request->search_category_language_code) ? $request->search_category_language_code : "";     //if user text language is in english that in "en" that time we don't need to call translate API.
 
             if ($is_cache_enable == 1) {
                 $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
@@ -2999,7 +3573,7 @@ class UserController extends Controller
                 $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
             }
 
-            if($page == 1 && $is_user_search_tag == 1) {
+            if($page == 1) {
                 if($redis_result['code'] != 200){
                     SaveSearchTagJob::dispatch(0, $search_category, $sub_category_id, 0, $is_featured, $category_id);
                 }else{
@@ -3534,12 +4108,15 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->search_category = strtolower(trim($request->search_category));
+            //$this->search_category = strtolower(trim($request->search_category));
+            //Remove '[\\\@()<>+*%"~-]' character from searching because if we add this character then mysql gives syntax error.
+            $this->search_category = mb_substr(preg_replace('/[\\\@()<>+*%"~-]/', '', mb_strtolower(trim($request->search_category))), 0, 100);
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
             $this->is_featured = isset($request->is_featured) ? $request->is_featured : 0;
             $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             $this->default_sub_category_id = array(Config::get('constant.SUB_CATEGORY_ID_OF_GRAPHICS'),Config::get('constant.SUB_CATEGORY_ID_OF_SHAPES'),Config::get('constant.SUB_CATEGORY_ID_OF_TEXT_ART'));
 
@@ -3549,8 +4126,8 @@ class UserController extends Controller
             $this->default_sub_category_id = array_filter(array_unique($this->default_sub_category_id));
             $this->default_sub_category_id = implode(",", $this->default_sub_category_id);
 
-            if (!Cache::has("pel:searchNormalImagesBySubCategoryIdForFlyer:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count")) {
-                $result = Cache::rememberforever("searchNormalImagesBySubCategoryIdForFlyer:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("searchNormalImagesBySubCategoryIdForFlyer:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $search_category = $this->search_category;
                     $code = 200;
@@ -3584,7 +4161,7 @@ class UserController extends Controller
                                                       ORDER BY FIELD(sct.sub_category_id,' . $this->default_sub_category_id . '),ct.updated_at DESC');
                     }
 
-                    $total_row = Cache::rememberforever("searchNormalImagesBySubCategoryIdForFlyer$this->default_sub_category_id:$this->search_category", function () {
+                    $total_row = Cache::remember("searchNormalImagesBySubCategoryIdForFlyer:$this->default_sub_category_id:$this->search_category", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
                             $total_row_result = DB::select('SELECT count(DISTINCT im.id) as total
                                                             FROM
                                                             images as im,
@@ -3652,9 +4229,104 @@ class UserController extends Controller
                     $result = array('result' => $search_result, 'code' => $code, 'message' => $message);
                     return $result;
                 });
-            }
 
-            $redis_result = Cache::get("searchNormalImagesBySubCategoryIdForFlyer:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count");
+            } else {
+
+                $search_category = $this->search_category;
+                $code = 200;
+                $message = "Content fetched successfully.";
+
+                $catalog_list = [];
+                if ($this->page == 1) {
+                    DB::statement("SET sql_mode = '' ");
+                    $catalog_list = DB::select('SELECT
+                                                      ct.id as catalog_id,
+                                                      ct.name,
+                                                      IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
+                                                      IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                      IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                                      IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                                      IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                                      ct.is_featured,
+                                                      sct.sub_category_id,
+                                                      ct.is_free,
+                                                      ct.updated_at
+                                                    FROM
+                                                      catalog_master as ct,
+                                                      sub_category_catalog as sct
+                                                    WHERE
+                                                      sct.sub_category_id IN(' . $this->default_sub_category_id . ') AND
+                                                      sct.catalog_id = ct.id AND
+                                                      (MATCH(ct.name) AGAINST("' . $search_category . '") OR 
+                                                      MATCH(ct.name) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) AND
+                                                      sct.is_active = 1
+                                                      GROUP BY catalog_id
+                                                      ORDER BY FIELD(sct.sub_category_id,' . $this->default_sub_category_id . '),ct.updated_at DESC');
+                }
+
+                $total_row_result = DB::select('SELECT count(DISTINCT im.id) as total
+                                                        FROM
+                                                        images as im,
+                                                        catalog_master AS cm,
+                                                        sub_category_catalog AS scc
+                                                        WHERE
+                                                        im.catalog_id = scc.catalog_id AND
+                                                        cm.id = scc.catalog_id AND
+                                                        cm.is_featured = ? AND
+                                                        scc.sub_category_id IN(' . $this->default_sub_category_id . ') AND
+                                                        isnull(im.original_img) AND
+                                                        isnull(im.display_img) AND
+                                                        (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
+                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))', [$this->is_featured]);
+
+                $total_row = $total_row_result[0]->total;
+
+                if($total_row) {
+
+                    DB::statement("SET sql_mode = '' ");
+                    $search_result = DB::select('SELECT
+                                                        im.id AS img_id,
+                                                        IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
+                                                        IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS thumbnail_img,
+                                                        IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
+                                                        IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS original_img,
+                                                        IF(cm.is_free=1,1,0) AS is_free,
+                                                        scc.sub_category_id,
+                                                        im.is_featured,
+                                                        im.is_portrait,
+                                                        coalesce(im.height,0) AS height,
+                                                        coalesce(im.width,0) AS width,
+                                                        im.updated_at,
+                                                        MATCH(im.search_category) AGAINST("' . $search_category . '") +
+                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text 
+                                                    FROM
+                                                        images as im,
+                                                        catalog_master AS cm,
+                                                        sub_category_catalog AS scc
+                                                    WHERE
+                                                        im.catalog_id = scc.catalog_id AND
+                                                        cm.id = scc.catalog_id AND
+                                                        cm.is_featured = ? AND
+                                                        scc.sub_category_id IN(' . $this->default_sub_category_id . ') AND
+                                                        isnull(im.original_img) AND
+                                                        isnull(im.display_img) AND
+                                                        (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
+                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE))
+                                                    GROUP BY img_id
+                                                    ORDER BY FIELD(scc.sub_category_id,' . $this->default_sub_category_id . '),im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+                } else {
+                    $code = 427;
+                    $message = "Sorry, we couldn't find any templates for '$this->search_category'";
+                    $catalog_list = [];
+                    $search_result = [];
+                }
+
+                $total_row = isset($total_row) ? $total_row : 0;
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'catalog_list' => $catalog_list, 'content_list' => $search_result);
+
+                $redis_result = array('result' => $search_result, 'code' => $code, 'message' => $message);
+            }
 
             if($this->page == 1) {
                 if($redis_result['code'] != 200){
@@ -3877,9 +4549,10 @@ class UserController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
             $this->catalog_id = $request->catalog_id;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getAllSamplesWithWebp$this->sub_category_id:$this->catalog_id")) {
-                $result = Cache::rememberforever("getAllSamplesWithWebp$this->sub_category_id:$this->catalog_id", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getAllSamplesWithWebp:$this->sub_category_id:$this->catalog_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     if ($this->catalog_id == 0) {
 
@@ -3899,9 +4572,9 @@ class UserController extends Controller
                                                   images
                                                 WHERE
                                                   catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1 AND is_featured = 1) AND
-                                                  is_featured = 1
+                                                  is_featured = 1 AND
+                                                  is_active = 1
                                                 ORDER BY updated_at DESC', [$this->sub_category_id]);
-
 
                     } else {
 
@@ -3920,21 +4593,63 @@ class UserController extends Controller
                                                   FROM
                                                     images
                                                   WHERE
-                                                    catalog_id = ?
+                                                    catalog_id = ? AND 
+                                                    is_active = 1
                                                   ORDER BY updated_at DESC', [$this->catalog_id]);
 
                     }
 
                     return array('total_record' => count($result), 'result' => $result);
 
-
                 });
-            }
 
-            $redis_result = Cache::get("getAllSamplesWithWebp$this->sub_category_id:$this->catalog_id");
+            } else {
 
-            if (!$redis_result) {
-                $redis_result = [];
+                if ($this->catalog_id == 0) {
+
+                    $result = DB::select('SELECT
+                                                  id as json_id,
+                                                  IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                                  is_free,
+                                                  is_featured,
+                                                  is_portrait,
+                                                  coalesce(height,0) AS height,
+                                                  coalesce(width,0) AS width,
+                                                  SUBSTRING_INDEX(SUBSTRING_INDEX(search_category, "#", -1), ",", 1) AS search_category,
+                                                  original_img_height,
+                                                  original_img_width,
+                                                  updated_at
+                                                FROM
+                                                  images
+                                                WHERE
+                                                  catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_featured = 1) AND
+                                                  is_featured = 1
+                                                ORDER BY updated_at DESC', [$this->sub_category_id]);
+
+                } else {
+
+                    $result = DB::select('SELECT
+                                                   id as json_id,
+                                                   IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                                   is_free,
+                                                   is_featured,
+                                                   is_portrait,
+                                                   coalesce(height,0) AS height,
+                                                   coalesce(width,0) AS width,
+                                                   SUBSTRING_INDEX(SUBSTRING_INDEX(search_category, "#", -1), ",", 1) AS search_category,
+                                                   original_img_height,
+                                                   original_img_width,
+                                                   updated_at
+                                                  FROM
+                                                    images
+                                                  WHERE
+                                                    catalog_id = ?
+                                                  ORDER BY updated_at DESC', [$this->catalog_id]);
+
+                }
+
+                $redis_result = array('total_record' => count($result), 'result' => $result);
+
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Samples fetched successfully.', 'cause' => '', 'data' => $redis_result));
@@ -4016,9 +4731,10 @@ class UserController extends Controller
             $this->offset = ($this->page - 1) * $this->item_count;
             $this->is_free = isset($request->is_free) ? ' AND ct.is_free = ' . $request->is_free : '';
             $this->is_featured = isset($request->is_featured) ? ' AND ct.is_featured = ' . $request->is_featured : '';
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getCatalogBySubCategoryIdWithWebp$this->sub_category_id:$this->page:$this->item_count:$this->is_free:$this->is_featured")) {
-                $result = Cache::rememberforever("getCatalogBySubCategoryIdWithWebp$this->sub_category_id:$this->page:$this->item_count:$this->is_free:$this->is_featured", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getCatalogBySubCategoryIdWithWebp:$this->sub_category_id:$this->page:$this->item_count:$this->is_free:$this->is_featured", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $total_row_result = DB::select('SELECT
                                                       count(ct.id) as total
@@ -4055,12 +4771,41 @@ class UserController extends Controller
 
                 });
 
-            }
+            } else {
 
-            $redis_result = Cache::get("getCatalogBySubCategoryIdWithWebp$this->sub_category_id:$this->page:$this->item_count:$this->is_free:$this->is_featured");
+                $total_row_result = DB::select('SELECT
+                                                      count(ct.id) as total
+                                                    FROM
+                                                      catalog_master as ct,
+                                                      sub_category_catalog as sct
+                                                    WHERE
+                                                      sct.sub_category_id = ? AND
+                                                      sct.catalog_id = ct.id AND
+                                                      sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '
+                                                    ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
 
-            if (!$redis_result) {
-                $redis_result = [];
+                $total_row = $total_row_result[0]->total;
+
+                $catalog_list = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                          ct.is_featured,
+                                          ct.is_free,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '
+                                        ORDER BY ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $redis_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $catalog_list);
+
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => $redis_result));
@@ -4148,20 +4893,14 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getFeaturedSamplesWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getFeaturedSamplesWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::rememberforever("getFeaturedSamplesWithCatalogs:$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count", function () {
 
-                    $sub_category_id = $this->sub_category_id;
-                    $catalog_id = $this->catalog_id;
-                    $page = $this->page;
-                    $offset = $this->offset;
-                    $item_count = $this->item_count;
+                    if ($this->catalog_id == 0) {
 
-
-                    if ($catalog_id == 0) {
-
-                        if ($page == 1) {
+                        if ($this->page == 1) {
                             $category_list = DB::select('SELECT
                                           ct.id as catalog_id,
                                           ct.name,
@@ -4175,7 +4914,7 @@ class UserController extends Controller
                                           sct.catalog_id = ct.id AND
                                           sct.is_active = 1 AND
                                           ct.is_featured = 1
-                                        ORDER BY ct.updated_at DESC', [$sub_category_id]);
+                                        ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
                         } else {
                             $category_list = [];
                         }
@@ -4192,7 +4931,7 @@ class UserController extends Controller
                                                       sct.catalog_id = ct.id AND
                                                       sct.is_active = ? AND
                                                       ct.is_featured = ? AND
-                                                      i.is_featured = ?', [$sub_category_id, 1, 1, 1]);
+                                                      i.is_featured = ?', [$this->sub_category_id, 1, 1, 1]);
 
                         $total_row = $total_cards[0]->total;
 
@@ -4218,7 +4957,7 @@ class UserController extends Controller
                                                         sct.is_active = 1 AND
                                                         ct.is_featured = 1 AND
                                                         i.is_featured = 1
-                                                        ORDER BY i.updated_at DESC LIMIT ?, ?', [$sub_category_id, $offset, $item_count]);
+                                                        ORDER BY i.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
 
                     } else {
                         $category_list = [];
@@ -4227,7 +4966,7 @@ class UserController extends Controller
                                                       FROM
                                                         images
                                                       WHERE
-                                                        catalog_id = ?', [$catalog_id]);
+                                                        catalog_id = ?', [$this->catalog_id]);
 
 
                         $total_row = $total_cards[0]->total;
@@ -4247,10 +4986,10 @@ class UserController extends Controller
                                                         images
                                                       WHERE
                                                          catalog_id = ?
-                                                      ORDER BY updated_at DESC LIMIT ?, ?', [$catalog_id, $offset, $item_count]);
+                                                      ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->offset, $this->item_count]);
                     }
 
-                    $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
                     $result_array = array(
                         'total_record' => $total_row,
@@ -4261,12 +5000,106 @@ class UserController extends Controller
 
                     return $result_array;
                 });
-            }
+            } else {
+                if ($this->catalog_id == 0) {
 
-            $redis_result = Cache::get("getFeaturedSamplesWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count");
+                    if ($this->page == 1) {
+                        $category_list = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          ct.is_featured,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 AND
+                                          ct.is_featured = 1
+                                        ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+                    } else {
+                        $category_list = [];
+                    }
 
-            if (!$redis_result) {
-                $redis_result = [];
+                    $total_cards = DB::select('SELECT
+                                                      COUNT(*) AS total
+                                                    FROM
+                                                      images as i,
+                                                      sub_category_catalog as sct,
+                                                      catalog_master as ct
+                                                    WHERE
+                                                      sct.sub_category_id = ? AND
+                                                      sct.catalog_id = i.catalog_id AND
+                                                      sct.catalog_id = ct.id AND
+                                                      sct.is_active = ? AND
+                                                      ct.is_featured = ? AND
+                                                      i.is_featured = ?', [$this->sub_category_id, 1, 1, 1]);
+
+                    $total_row = $total_cards[0]->total;
+
+                    $sample_cards = DB::select('SELECT
+                                                        i.id as json_id,
+                                                        IF(i.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",i.attribute1),"") as sample_image,
+                                                        i.is_free,
+                                                        i.is_featured,
+                                                        i.is_portrait,
+                                                        coalesce(i.height,0) AS height,
+                                                        coalesce(i.width,0) AS width,
+                                                        coalesce(i.original_img_height,0) AS original_img_height,
+                                                        coalesce(i.original_img_width,0) AS original_img_width,
+                                                        i.updated_at
+                                                        FROM
+                                                        images as i,
+                                                        sub_category_catalog as sct,
+                                                        catalog_master as ct
+                                                        WHERE
+                                                        sct.sub_category_id = ? AND
+                                                        sct.catalog_id = i.catalog_id AND
+                                                        sct.catalog_id = ct.id AND
+                                                        sct.is_active = 1 AND
+                                                        ct.is_featured = 1 AND
+                                                        i.is_featured = 1
+                                                        ORDER BY i.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                } else {
+                    $category_list = [];
+                    $total_cards = DB::select('SELECT
+                                                        COUNT(*) AS total
+                                                      FROM
+                                                        images
+                                                      WHERE
+                                                        catalog_id = ?', [$this->catalog_id]);
+
+
+                    $total_row = $total_cards[0]->total;
+
+                    $sample_cards = DB::select('SELECT
+                                                        id as json_id,
+                                                        IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
+                                                        is_free,
+                                                        is_featured,
+                                                        is_portrait,
+                                                        coalesce(height,0) AS height,
+                                                        coalesce(width,0) AS width,
+                                                        coalesce(original_img_height,0) AS original_img_height,
+                                                        coalesce(original_img_width,0) AS original_img_width,
+                                                        updated_at
+                                                      FROM
+                                                        images
+                                                      WHERE
+                                                         catalog_id = ?
+                                                      ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->offset, $this->item_count]);
+                }
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                $redis_result = array(
+                    'total_record' => $total_row,
+                    'is_next_page' => $is_next_page,
+                    'category_list' => $category_list,
+                    'sample_cards' => $sample_cards
+                );
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'All featured cards are fetched successfully.', 'cause' => '', 'data' => $redis_result));
@@ -4435,6 +5268,9 @@ class UserController extends Controller
                                                   coalesce(im.search_category,"") AS search_category,
                                                   coalesce(im.original_img_height) AS original_img_height,
                                                   coalesce(im.original_img_width) AS original_img_width,
+                                                  COALESCE(multiple_images,"") AS multiple_images,
+                                                  COALESCE(json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                   im.updated_at,
                                                   MATCH(im.search_category) AGAINST("' . $tag_name . '") +
                                                   MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
@@ -4491,13 +5327,15 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            $redis_result = Cache::rememberforever("getTemplatesBySubCategoryTags_v2:$this->sub_category_id:$this->category_name:$this->page:$this->item_count", function () {
+            if($is_cache_enable){
+                $redis_result = Cache::rememberforever("getTemplatesBySubCategoryTags_v2:$this->sub_category_id:$this->category_name:$this->page:$this->item_count", function () {
 
-                $this->tag_name = $this->category_name;
+                    $this->tag_name = $this->category_name;
 
-                if ($this->page == 1 && $this->tag_name == "") {
-                    $category_list = DB::select('SELECT
+                    if ($this->page == 1 && $this->tag_name == "") {
+                        $category_list = DB::select('SELECT
                                                       id AS sub_category_tag_id,
                                                       tag_name
                                                 FROM
@@ -4508,16 +5346,16 @@ class UserController extends Controller
                                                       is_template = ?
                                                 ORDER BY update_time DESC', [$this->sub_category_id, 1, 1]);
 
-                    $this->tag_name = (count($category_list) > 0) ? $category_list[0]->tag_name : 'Test';
+                        $this->tag_name = (count($category_list) > 0) ? $category_list[0]->tag_name : 'Test';
 
-                } else {
-                    $category_list = [];
-                }
+                    } else {
+                        $category_list = [];
+                    }
 
-                $final_tag_list = array();
-                foreach ($category_list as $key) {
+                    $final_tag_list = array();
+                    foreach ($category_list as $key) {
 
-                    $total_row_result = DB::select('SELECT
+                        $total_row_result = DB::select('SELECT
                                                           COUNT(*) AS total
                                                     FROM
                                                           images AS im
@@ -4530,17 +5368,17 @@ class UserController extends Controller
                                                           (MATCH(im.search_category) AGAINST ("' . $key->tag_name . '") OR
                                                           MATCH(im.search_category) AGAINST (REPLACE(CONCAT("' . $key->tag_name . '"," ")," ","* ") IN BOOLEAN MODE))', [$this->sub_category_id, 1]);
 
-                    $total_row = $total_row_result[0]->total;
+                        $total_row = $total_row_result[0]->total;
 
-                    if ($total_row > 0) {
-                        $final_tag_list[] = $key;
-                        $this->tag_name = $final_tag_list[0]->tag_name;
+                        if ($total_row > 0) {
+                            $final_tag_list[] = $key;
+                            $this->tag_name = $final_tag_list[0]->tag_name;
+                        }
+
                     }
 
-                }
-
-                $total_row = Cache::rememberforever("getTemplatesBySubCategoryTags_v2:$this->sub_category_id:$this->tag_name", function () {
-                    $total_row_result = DB::select('SELECT
+                    $total_row = Cache::rememberforever("getTemplatesBySubCategoryTags_v2:$this->sub_category_id:$this->tag_name", function () {
+                        $total_row_result = DB::select('SELECT
                                                         count(*) AS total
                                                      FROM
                                                         images as im
@@ -4553,10 +5391,10 @@ class UserController extends Controller
                                                         (MATCH(im.search_category) AGAINST("' . $this->tag_name . '") OR
                                                           MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE))
                                                         ', [$this->sub_category_id, 1]);
-                    return $total_row_result[0]->total;
-                });
+                        return $total_row_result[0]->total;
+                    });
 
-                $search_result = DB::select('SELECT
+                    $search_result = DB::select('SELECT
                                                 im.id AS json_id,
                                                 IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
                                                 im.is_free,
@@ -4567,6 +5405,9 @@ class UserController extends Controller
                                                 COALESCE(im.search_category,"") AS search_category,
                                                 COALESCE(im.original_img_height) AS original_img_height,
                                                 COALESCE(im.original_img_width) AS original_img_width,
+                                                COALESCE(im.multiple_images,"") AS multiple_images,
+                                                COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
                                                 im.updated_at,
                                                 MATCH(im.search_category) AGAINST("' . $this->tag_name . '") +
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
@@ -4596,7 +5437,114 @@ class UserController extends Controller
                     $result = array('result' => $search_result, 'code' => $code, 'message' => $message);
                     return $result;
 
-            });
+                });
+
+            }else{
+                    $this->tag_name = $this->category_name;
+
+                    if ($this->page == 1 && $this->tag_name == "") {
+                        $category_list = DB::select('SELECT
+                                                      id AS sub_category_tag_id,
+                                                      tag_name
+                                                FROM
+                                                      sub_category_tag_master
+                                                WHERE 
+                                                      sub_category_id = ? AND 
+                                                      is_active = ? AND
+                                                      is_template = ?
+                                                ORDER BY update_time DESC', [$this->sub_category_id, 1, 1]);
+
+                        $this->tag_name = (count($category_list) > 0) ? $category_list[0]->tag_name : 'Test';
+
+                    } else {
+                        $category_list = [];
+                    }
+
+                    $final_tag_list = array();
+                    foreach ($category_list as $key) {
+
+                        $total_row_result = DB::select('SELECT
+                                                          COUNT(*) AS total
+                                                    FROM
+                                                          images AS im
+                                                          JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                                          JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
+                                                    WHERE
+                                                          im.is_active = 1 AND
+                                                          isnull(im.original_img) AND
+                                                          isnull(im.display_img) AND
+                                                          (MATCH(im.search_category) AGAINST ("' . $key->tag_name . '") OR
+                                                          MATCH(im.search_category) AGAINST (REPLACE(CONCAT("' . $key->tag_name . '"," ")," ","* ") IN BOOLEAN MODE))', [$this->sub_category_id, 1]);
+
+                        $total_row = $total_row_result[0]->total;
+
+                        if ($total_row > 0) {
+                            $final_tag_list[] = $key;
+                            $this->tag_name = $final_tag_list[0]->tag_name;
+                        }
+
+                    }
+
+                        $total_row_result = DB::select('SELECT
+                                                        count(*) AS total
+                                                     FROM
+                                                        images as im
+                                                        JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                                        JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
+                                                     WHERE
+                                                        im.is_active = 1 AND
+                                                        isnull(im.original_img) AND
+                                                        isnull(im.display_img) AND
+                                                        (MATCH(im.search_category) AGAINST("' . $this->tag_name . '") OR
+                                                          MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE))
+                                                        ', [$this->sub_category_id, 1]);
+
+                        $total_row = $total_row_result[0]->total;
+
+
+                    $search_result = DB::select('SELECT
+                                                im.id AS json_id,
+                                                IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
+                                                im.is_free,
+                                                im.is_featured,
+                                                im.is_portrait,
+                                                COALESCE(im.height,0) AS height,
+                                                COALESCE(im.width,0) AS width,
+                                                COALESCE(im.search_category,"") AS search_category,
+                                                COALESCE(im.original_img_height) AS original_img_height,
+                                                COALESCE(im.original_img_width) AS original_img_width,
+                                                im.updated_at,
+                                                COALESCE(im.multiple_images,"") AS multiple_images,
+                                                COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                MATCH(im.search_category) AGAINST("' . $this->tag_name . '") +
+                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text
+                                            FROM
+                                                  images AS im
+                                                  JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                                  JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
+                                            WHERE
+                                                  im.is_active = ? AND
+                                                  ISNULL(im.original_img) AND
+                                                  ISNULL(im.display_img) AND
+                                                  (MATCH(im.search_category) AGAINST("' . $this->tag_name . '") OR
+                                                  MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)) 
+                                            ORDER BY search_text DESC,im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, 1, 1, $this->offset, $this->item_count]);
+
+                    $code = 200;
+                    $message = "Templates fetched successfully.";
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    $search_result = array(
+                        'total_record' => $total_row_result[0]->total,
+                        'is_next_page' => $is_next_page,
+                        'category_list' => $final_tag_list,
+                        'template_list' => $search_result
+                    );
+
+                 $redis_result = array('result' => $search_result, 'code' => $code, 'message' => $message);
+
+            }
 
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => '', 'data' => $redis_result['result']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -4812,7 +5760,6 @@ class UserController extends Controller
      */
     public function getTemplateWithCatalogs(Request $request_body)
     {
-
         try {
 
             $token = JWTAuth::getToken();
@@ -4828,14 +5775,17 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getTemplateWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count:$this->is_get_data_for_1st_catalog")) {
-                $result = Cache::rememberforever("getTemplateWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count:$this->is_get_data_for_1st_catalog", function () {
+            if ($is_cache_enable) {
+
+                $redis_result = Cache::rememberforever("getTemplateWithCatalogs:$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count:$this->is_get_data_for_1st_catalog", function () {
 
                     $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
                     $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
 
                     $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(i.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",i.image),"") as sample_image,' : 'IF(i.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",i.attribute1),"") as sample_image,';
+
                     if ($this->catalog_id == 0) {
 
                         $category_list = DB::select('SELECT
@@ -4857,21 +5807,27 @@ class UserController extends Controller
                                           sct.is_active = 1 AND
                                           ct.is_featured = 1
                                         ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+
                         if ($this->is_get_data_for_1st_catalog == 1) {
-                            $total_cards = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ?', [$category_list[0]->catalog_id]);
+                            $total_cards = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ? AND is_active = 1', [$category_list[0]->catalog_id]);
                             $total_row = $total_cards[0]->total;
 
                             $sample_cards = DB::select('SELECT
                                                   i.id AS json_id,
-                                                  '. $image_url .'
+                                                  ' . $image_url . '
                                                   i.is_free,
                                                   i.is_featured,
                                                   i.is_portrait,
-                                                  coalesce(i.height,0) AS height,
-                                                  coalesce(i.width,0) AS width,
-                                                  coalesce(i.search_category,"") AS search_category,
-                                                  coalesce(i.original_img_height,0) AS original_img_height,
-                                                  coalesce(i.original_img_width,0) AS original_img_width,
+                                                  IF(i.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", i.cover_webp_img), "") AS cover_webp_img,
+                                                  COALESCE(i.cover_img_height,0) AS cover_img_height,
+                                                  COALESCE(i.cover_img_width,0) AS cover_img_width,
+                                                  COALESCE(i.original_cover_img_height,0) AS original_cover_img_height,
+                                                  COALESCE(i.original_cover_img_width,0) AS original_cover_img_width,
+                                                  COALESCE(i.height,0) AS height,
+                                                  COALESCE(i.width,0) AS width,
+                                                  COALESCE(i.original_img_height,0) AS original_img_height,
+                                                  COALESCE(i.original_img_width,0) AS original_img_width,
+                                                  COALESCE(i.search_category,"") AS search_category,
                                                   COALESCE(i.multiple_images,"") AS multiple_images,
                                                   COALESCE(i.json_pages_sequence,"") AS pages_sequence,
                                                   COALESCE(LENGTH(i.json_pages_sequence) - LENGTH(REPLACE(i.json_pages_sequence, ",","")) + 1,1) AS total_pages,
@@ -4879,7 +5835,8 @@ class UserController extends Controller
                                                   FROM
                                                     images as i
                                                   WHERE
-                                                    i.catalog_id = ?
+                                                    i.catalog_id = ? AND
+                                                    i.is_active = 1
                                                   ORDER BY updated_at DESC LIMIT ?, ?', [$category_list[0]->catalog_id, $this->offset, $this->item_count]);
 
                             $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -4897,21 +5854,193 @@ class UserController extends Controller
                                                             FROM images
                                                             WHERE catalog_id IN (SELECT catalog_id
                                                                                  FROM sub_category_catalog
-                                                                                 WHERE sub_category_id = ?) AND is_featured = 1', [$this->sub_category_id]);
+                                                                                 WHERE sub_category_id = ?) AND is_featured = 1 AND is_active = 1', [$this->sub_category_id]);
 
 
                             $total_row = $total_cards[0]->total;
                             $sample_cards = DB::select('SELECT
                                                             i.id as json_id,
-                                                             '. $image_url .'
+                                                             ' . $image_url . '
                                                             i.is_free,
                                                             i.is_featured,
                                                             i.is_portrait,
-                                                            coalesce(i.height,0) AS height,
-                                                            coalesce(i.width,0) AS width,
-                                                            coalesce(i.search_category,"") AS search_category,
-                                                            coalesce(i.original_img_height,0) AS original_img_height,
-                                                            coalesce(i.original_img_width,0) AS original_img_width,
+                                                            IF(i.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", i.cover_webp_img), "") AS cover_webp_img,
+                                                            COALESCE(i.cover_img_height,0) AS cover_img_height,
+                                                            COALESCE(i.cover_img_width,0) AS cover_img_width,
+                                                            COALESCE(i.original_cover_img_height,0) AS original_cover_img_height,
+                                                            COALESCE(i.original_cover_img_width,0) AS original_cover_img_width,
+                                                            COALESCE(i.height,0) AS height,
+                                                            COALESCE(i.width,0) AS width,
+                                                            COALESCE(i.original_img_height,0) AS original_img_height,
+                                                            COALESCE(i.original_img_width,0) AS original_img_width,
+                                                            COALESCE(i.search_category,"") AS search_category,
+                                                            COALESCE(i.multiple_images,"") AS multiple_images,
+                                                            COALESCE(i.json_pages_sequence,"") AS pages_sequence,
+                                                            COALESCE(LENGTH(i.json_pages_sequence) - LENGTH(REPLACE(i.json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                            i.updated_at
+                                                            FROM
+                                                            images as i,
+                                                            sub_category_catalog as sct,
+                                                            catalog_master as ct
+                                                            WHERE
+                                                            sct.sub_category_id = ? AND
+                                                            sct.catalog_id = i.catalog_id AND
+                                                            sct.catalog_id = ct.id AND
+                                                            sct.is_active = 1 AND
+                                                            ct.is_featured = 1 AND
+                                                            i.is_featured = 1 AND
+                                                            i.is_active = 1
+                                                            ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                            $result_array = array(
+                                'total_record' => $total_row,
+                                'is_next_page' => $is_next_page,
+                                'category_list' => $category_list,
+                                'sample_cards' => $sample_cards
+                            );
+                        }
+
+                    } else {
+                        $total_cards = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ? AND is_active = 1', [$this->catalog_id]);
+                        $total_row = $total_cards[0]->total;
+
+                        $sample_cards = DB::select('SELECT
+                                                  i.id AS json_id,
+                                                  ' . $image_url . '
+                                                  i.is_free,
+                                                  i.is_featured,
+                                                  i.is_portrait,
+                                                  IF(i.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", i.cover_webp_img), "") AS cover_webp_img,
+                                                  COALESCE(i.cover_img_height,0) AS cover_img_height,
+                                                  COALESCE(i.cover_img_width,0) AS cover_img_width,
+                                                  COALESCE(i.original_cover_img_height,0) AS original_cover_img_height,
+                                                  COALESCE(i.original_cover_img_width,0) AS original_cover_img_width,
+                                                  COALESCE(i.height,0) AS height,
+                                                  COALESCE(i.width,0) AS width,
+                                                  COALESCE(i.original_img_height,0) AS original_img_height,
+                                                  COALESCE(i.original_img_width,0) AS original_img_width,
+                                                  COALESCE(i.search_category,"") AS search_category,
+                                                  COALESCE(i.multiple_images,"") AS multiple_images,
+                                                  COALESCE(i.json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(i.json_pages_sequence) - LENGTH(REPLACE(i.json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                  i.updated_at
+                                                  FROM
+                                                    images AS i
+                                                  WHERE
+                                                    i.catalog_id = ? AND
+                                                    i.is_active = 1
+                                                  ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->offset, $this->item_count]);
+
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                        $result_array = array(
+                            'total_record' => $total_row,
+                            'is_next_page' => $is_next_page,
+                            'category_list' => [],
+                            'sample_cards' => $sample_cards
+                        );
+                    }
+                    $result_array['prefix_url'] = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB') . '/';
+
+                    return $result_array;
+                });
+
+            } else {
+
+                $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+                $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
+
+                $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(i.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",i.image),"") as sample_image,' : 'IF(i.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",i.attribute1),"") as sample_image,';
+
+                if ($this->catalog_id == 0) {
+
+                    $category_list = DB::select('SELECT
+                                          ct.id AS catalog_id,
+                                          ct.name,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS thumbnail_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS compressed_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS original_img,
+                                          IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") AS icon,
+                                          ct.is_free,
+                                          ct.is_featured,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master AS ct,
+                                          sub_category_catalog AS sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 AND
+                                          ct.is_featured = 1
+                                        ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+
+                    if ($this->is_get_data_for_1st_catalog == 1) {
+                        $total_cards = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ?', [$category_list[0]->catalog_id]);
+                        $total_row = $total_cards[0]->total;
+
+                        $sample_cards = DB::select('SELECT
+                                                  i.id AS json_id,
+                                                  ' . $image_url . '
+                                                  i.is_free,
+                                                  i.is_featured,
+                                                  i.is_portrait,
+                                                  IF(i.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", i.cover_webp_img), "") AS cover_webp_img,
+                                                  COALESCE(i.cover_img_height,0) AS cover_img_height,
+                                                  COALESCE(i.cover_img_width,0) AS cover_img_width,
+                                                  COALESCE(i.original_cover_img_height,0) AS original_cover_img_height,
+                                                  COALESCE(i.original_cover_img_width,0) AS original_cover_img_width,
+                                                  COALESCE(i.height,0) AS height,
+                                                  COALESCE(i.width,0) AS width,
+                                                  COALESCE(i.original_img_height,0) AS original_img_height,
+                                                  COALESCE(i.original_img_width,0) AS original_img_width,
+                                                  COALESCE(i.search_category,"") AS search_category,
+                                                  COALESCE(i.multiple_images,"") AS multiple_images,
+                                                  COALESCE(i.json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(i.json_pages_sequence) - LENGTH(REPLACE(i.json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                  i.updated_at
+                                                  FROM
+                                                    images as i
+                                                  WHERE
+                                                    i.catalog_id = ?
+                                                  ORDER BY updated_at DESC LIMIT ?, ?', [$category_list[0]->catalog_id, $this->offset, $this->item_count]);
+
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                        $result_array = array(
+                            'total_record' => $total_row,
+                            'is_next_page' => $is_next_page,
+                            'category_list' => $category_list,
+                            'sample_cards' => $sample_cards
+                        );
+
+                    } else {
+
+                        $total_cards = DB::select('SELECT COUNT(*) AS total
+                                                            FROM images
+                                                            WHERE catalog_id IN (SELECT catalog_id
+                                                                                 FROM sub_category_catalog
+                                                                                 WHERE sub_category_id = ?) AND is_featured = 1', [$this->sub_category_id]);
+
+
+                        $total_row = $total_cards[0]->total;
+                        $sample_cards = DB::select('SELECT
+                                                            i.id as json_id,
+                                                             ' . $image_url . '
+                                                            i.is_free,
+                                                            i.is_featured,
+                                                            i.is_portrait,
+                                                            IF(i.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", i.cover_webp_img), "") AS cover_webp_img,
+                                                            COALESCE(i.cover_img_height,0) AS cover_img_height,
+                                                            COALESCE(i.cover_img_width,0) AS cover_img_width,
+                                                            COALESCE(i.original_cover_img_height,0) AS original_cover_img_height,
+                                                            COALESCE(i.original_cover_img_width,0) AS original_cover_img_width,
+                                                            COALESCE(i.height,0) AS height,
+                                                            COALESCE(i.width,0) AS width,
+                                                            COALESCE(i.original_img_height,0) AS original_img_height,
+                                                            COALESCE(i.original_img_width,0) AS original_img_width,
+                                                            COALESCE(i.search_category,"") AS search_category,
                                                             COALESCE(i.multiple_images,"") AS multiple_images,
                                                             COALESCE(i.json_pages_sequence,"") AS pages_sequence,
                                                             COALESCE(LENGTH(i.json_pages_sequence) - LENGTH(REPLACE(i.json_pages_sequence, ",","")) + 1,1) AS total_pages,
@@ -4929,31 +6058,36 @@ class UserController extends Controller
                                                             i.is_featured = 1
                                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->offset, $this->item_count]);
 
-                            $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
-                            $result_array = array(
-                                'total_record' => $total_row,
-                                'is_next_page' => $is_next_page,
-                                'category_list' => $category_list,
-                                'sample_cards' => $sample_cards
-                            );
-                        }
+                        $result_array = array(
+                            'total_record' => $total_row,
+                            'is_next_page' => $is_next_page,
+                            'category_list' => $category_list,
+                            'sample_cards' => $sample_cards
+                        );
+                    }
 
-                    } else {
-                        $total_cards = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ?', [$this->catalog_id]);
-                        $total_row = $total_cards[0]->total;
+                } else {
+                    $total_cards = DB::select('SELECT COUNT(*) as total FROM images WHERE catalog_id = ?', [$this->catalog_id]);
+                    $total_row = $total_cards[0]->total;
 
-                        $sample_cards = DB::select('SELECT
+                    $sample_cards = DB::select('SELECT
                                                   i.id AS json_id,
-                                                  '. $image_url .'
+                                                  ' . $image_url . '
                                                   i.is_free,
                                                   i.is_featured,
                                                   i.is_portrait,
-                                                  coalesce(i.height,0) AS height,
-                                                  coalesce(i.width,0) AS width,
-                                                  coalesce(i.search_category,"") AS search_category,
-                                                  coalesce(i.original_img_height,0) AS original_img_height,
-                                                  coalesce(i.original_img_width,0) AS original_img_width,
+                                                  IF(i.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", i.cover_webp_img), "") AS cover_webp_img,
+                                                  COALESCE(i.cover_img_height,0) AS cover_img_height,
+                                                  COALESCE(i.cover_img_width,0) AS cover_img_width,
+                                                  COALESCE(i.original_cover_img_height,0) AS original_cover_img_height,
+                                                  COALESCE(i.original_cover_img_width,0) AS original_cover_img_width,
+                                                  COALESCE(i.height,0) AS height,
+                                                  COALESCE(i.width,0) AS width,
+                                                  COALESCE(i.original_img_height,0) AS original_img_height,
+                                                  COALESCE(i.original_img_width,0) AS original_img_width,
+                                                  COALESCE(i.search_category,"") AS search_category,
                                                   COALESCE(i.multiple_images,"") AS multiple_images,
                                                   COALESCE(i.json_pages_sequence,"") AS pages_sequence,
                                                   COALESCE(LENGTH(i.json_pages_sequence) - LENGTH(REPLACE(i.json_pages_sequence, ",","")) + 1,1) AS total_pages,
@@ -4964,33 +6098,26 @@ class UserController extends Controller
                                                     i.catalog_id = ?
                                                   ORDER BY updated_at DESC LIMIT ?, ?', [$this->catalog_id, $this->offset, $this->item_count]);
 
-                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
-                        $result_array = array(
-                            'total_record' => $total_row,
-                            'is_next_page' => $is_next_page,
-                            'category_list' => [],
-                            'sample_cards' => $sample_cards
-                        );
-                    }
-                    $result_array['prefix_url'] = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
+                    $result_array = array(
+                        'total_record' => $total_row,
+                        'is_next_page' => $is_next_page,
+                        'category_list' => [],
+                        'sample_cards' => $sample_cards
+                    );
+                }
+                $result_array['prefix_url'] = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB') . '/';
 
-                    return $result_array;
-                });
-            }
+                $redis_result = $result_array;
 
-            $redis_result = Cache::get("getTemplateWithCatalogs$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count:$this->is_get_data_for_1st_catalog");
-
-            if (!$redis_result) {
-                $redis_result = [];
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'All templates are fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
 
-        } catch
-        (Exception $e) {
+        } catch (Exception $e) {
             Log::error("getTemplateWithCatalogs : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
@@ -6672,9 +7799,10 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getContentByCatalogId$this->catalog_id:$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getContentByCatalogId$this->catalog_id:$this->page:$this->item_count", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getContentByCatalogId:$this->catalog_id:$this->page:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
 
                     $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
@@ -6726,13 +7854,56 @@ class UserController extends Controller
                     return array('prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/', 'total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
 
                 });
-            }
-            $redis_result = Cache::get("getContentByCatalogId$this->catalog_id:$this->page:$this->item_count");
 
-            if (!$redis_result) {
-                $redis_result = [];
-            }
+            } else {
 
+                $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
+
+                $total_row_result = DB::select('SELECT
+                                                      count(im.id) as total
+                                                    FROM
+                                                      images as im
+                                                    WHERE
+                                                      im.catalog_id = ? AND
+                                                      isnull(im.original_img) AND
+                                                      isnull(im.display_img)', [$this->catalog_id]);
+
+                $total_row = $total_row_result[0]->total;
+
+                $content_list = DB::select('SELECT
+                                                  im.id as img_id,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                                  coalesce(im.is_featured,"") as is_featured,
+                                                  coalesce(im.is_free,0) as is_free,
+                                                  coalesce(im.is_ios_free,0) as is_ios_free,
+                                                  coalesce(im.is_portrait,0) as is_portrait,
+                                                  COALESCE(im.multiple_images,"") AS multiple_images,
+                                                  COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                                  COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                  coalesce(im.search_category,"") as search_category
+                                                FROM
+                                                  images as im
+                                                WHERE
+                                                  im.catalog_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img)
+                                                ORDER BY im.updated_at DESC LIMIT ?,?', [$this->catalog_id, $this->offset, $this->item_count]);
+                $c = 0;
+                foreach ($content_list as $key) {
+
+                    if ($c <= $free_content_count && $this->page == 1) {
+                        $key->is_free = 1;
+                        $key->is_ios_free = 1;
+                    }
+                    $c++;
+                }
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $redis_result = array('prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/', 'total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
+
+            }
 
             $response = Response::json(array('code' => 200, 'message' => 'Content fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -6759,16 +7930,15 @@ class UserController extends Controller
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getContentByCatalogId_v2$this->catalog_id:$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getContentByCatalogId_v2$this->catalog_id:$this->page:$this->item_count", function () {
+            if($is_cache_enable){
+                $redis_result = Cache::remember("getContentByCatalogId_v2:$this->catalog_id:$this->page:$this->item_count",config('constant,CACHE_TIME_6_HOUR'), function () {
 
+                        $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
 
-                    $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
-
-                    if (!Cache::has("pel:getContentByCatalogId_v2$this->catalog_id")) {
-                        $result = Cache::rememberforever("getContentByCatalogId_v2$this->catalog_id", function () {
-                            $total_row_result = DB::select('SELECT
+                        $total_row = Cache::remember("getContentByCatalogId_v2:$this->catalog_id",config('constant,CACHE_TIME_6_HOUR'), function () {
+                                $total_row_result = DB::select('SELECT
                                                       count(im.id) as total
                                                     FROM
                                                       images as im
@@ -6777,10 +7947,51 @@ class UserController extends Controller
                                                       im.catalog_id = ? AND
                                                       isnull(im.original_img) AND
                                                       isnull(im.display_img)', [$this->catalog_id]);
-                            return $total_row_result[0]->total;
+                                return $total_row = $total_row_result[0]->total;
                         });
-                    }
-                    $total_row = Cache::get("getContentByCatalogId_v2$this->catalog_id");
+
+                        $content_list = DB::select('SELECT
+                                                  im.id as img_id,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
+                                                  IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                                  coalesce(im.is_featured,"") as is_featured,
+                                                  coalesce(im.is_free,0) as is_free,
+                                                  coalesce(im.is_portrait,0) as is_portrait,
+                                                  coalesce(im.search_category,"") as search_category
+                                                FROM
+                                                  images as im
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  im.catalog_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img)
+                                                ORDER BY im.updated_at DESC LIMIT ?,?', [$this->catalog_id, $this->offset, $this->item_count]);
+                        $c = 0;
+                        foreach ($content_list as $key) {
+                            if ($c <= $free_content_count && $this->page == 1) {
+                                $key->is_free = 1;
+                            }
+                            $c++;
+                        }
+
+                        $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
+
+                    });
+            }else{
+                $free_content_count = Config::get('constant.FREE_CONTENT_COUNT');
+
+                    $total_row_result = DB::select('SELECT
+                                                      count(im.id) as total
+                                                    FROM
+                                                      images as im
+                                                    WHERE
+                                                      im.is_active = 1 AND
+                                                      im.catalog_id = ? AND
+                                                      isnull(im.original_img) AND
+                                                      isnull(im.display_img)', [$this->catalog_id]);
+                    $total_row = $total_row_result[0]->total;
 
                     $content_list = DB::select('SELECT
                                                   im.id as img_id,
@@ -6799,20 +8010,17 @@ class UserController extends Controller
                                                   isnull(im.original_img) AND
                                                   isnull(im.display_img)
                                                 ORDER BY im.updated_at DESC LIMIT ?,?', [$this->catalog_id, $this->offset, $this->item_count]);
-                    $c = 0;
-                    foreach ($content_list as $key) {
-                        if ($c <= $free_content_count && $this->page == 1) {
-                            $key->is_free = 1;
-                        }
-                        $c++;
+                $c = 0;
+                foreach ($content_list as $key) {
+                    if ($c <= $free_content_count && $this->page == 1) {
+                        $key->is_free = 1;
                     }
+                    $c++;
+                }
 
-                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
-                    return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
-
-                });
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $redis_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $content_list);
             }
-            $redis_result = Cache::get("getContentByCatalogId_v2$this->catalog_id:$this->page:$this->item_count");
 
             if (!$redis_result) {
                 $redis_result = [];
@@ -6891,9 +8099,10 @@ class UserController extends Controller
                 return $response;
 
             $this->catalog_id = $request->catalog_id;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getImagesByCatalogId$this->catalog_id")) {
-                $result = Cache::rememberforever("getImagesByCatalogId$this->catalog_id", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getImagesByCatalogId:$this->catalog_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
                     $result = DB::select('SELECT
                                           im.id as img_id,
                                           IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
@@ -6930,13 +8139,43 @@ class UserController extends Controller
 
                     return $result;
                 });
-            }
-            $redis_result = Cache::get("getImagesByCatalogId$this->catalog_id");
 
-            if (!$redis_result) {
-                $redis_result = [];
-            }
+            } else {
 
+                $redis_result = DB::select('SELECT
+                                          im.id as img_id,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
+                                          IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                          coalesce(im.height,0) AS height,
+                                          coalesce(im.width,0) AS width,
+                                          coalesce(im.original_img_height,0) AS original_img_height,
+                                          coalesce(im.original_img_width,0) AS original_img_width,
+                                          IF(im.json_data IS NOT NULL,1,0) as is_json_data,
+                                          coalesce(im.json_data,"") as json_data,
+                                          coalesce(im.is_featured,"") as is_featured,
+                                          coalesce(im.is_free,0) as is_free,
+                                          coalesce(im.is_ios_free,0) as is_ios_free,
+                                          coalesce(im.is_portrait,0) as is_portrait,
+                                          COALESCE(im.multiple_images,"") AS multiple_images,
+                                          COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                          COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                          coalesce(im.search_category,"") as search_category
+                                        FROM
+                                          images as im
+                                        where
+                                          im.catalog_id = ? AND
+                                          isnull(im.original_img) AND
+                                          isnull(im.display_img)
+                                        order by im.updated_at DESC', [$this->catalog_id]);
+
+                /*foreach ($result as $key) {
+                     if ($key->json_data != "") {
+                         $key->json_data = json_decode($key->json_data);
+                     }
+                 }*/
+
+            }
 
             $response = Response::json(array('code' => 200, 'message' => 'Images fetched successfully.', 'cause' => '', 'data' => ['image_list' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -7254,10 +8493,11 @@ class UserController extends Controller
             $this->page = isset($request->page) ? $request->page : 1;
             $this->item_count = isset($request->item_count) ? $request->item_count : 20;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
 
-            if (!Cache::has("pel:getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count")) {
-                $result = Cache::rememberforever("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getJsonSampleDataFilterBySearchTag:$this->sub_category_id:$this->search_category:$this->page:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
 
                     if ($this->search_category == "") {
@@ -7404,12 +8644,147 @@ class UserController extends Controller
                     return $result;
 
                 });
-            }
 
-            $redis_result = Cache::get("getJsonSampleDataFilterBySearchTag$this->sub_category_id:$this->search_category:$this->page:$this->item_count");
+            } else {
 
-            if (!$redis_result) {
-                $redis_result = [];
+                if ($this->search_category == "") {
+                    //$category_list = array("Flyers", "Business Card", "Brochures", "Banners", "Social Media Post");
+                    $category_list = array(
+                        "Logos",
+                        "Posters",
+                        "Brochures",
+                        "Infographic",
+                        "Flyers",
+                        "Instagram Posts",
+                        "Instagram Story",
+                        "Facebook Posts",
+                        "Twitter Post",
+                        "LinkedIn Post",
+                        "Pinterest Pins",
+                        "Snapchat Geofilter",
+                        "Business Cards",
+                        "Invitation",
+                        "Presentation",
+                        "Storyboard",
+                        "Photo Book",
+                        "Photo Collage",
+                        "Festivals",
+                        "Blog Graphics",
+                        "Blog Images",
+                        "Quotes",
+                        "Gift Cards",
+                        "Hiring",
+                        "A4 Letterhead",
+                        "Bio Data",
+                        "Menu",
+                        "Proposal",
+                        "Invoice",
+                        "Planner",
+                        "Twitter Header",
+                        "Email Header",
+                        "Page Cover",
+                        "Facebook Event Cover",
+                        "Facebook Group Cover",
+                        "Youtube Channel Arts",
+                        "Youtube Thumbnails",
+                        "Announcements",
+                        "Book Cover",
+                        "Black And White",
+                        "T Shirt",
+                        "Comics",
+                        "Coupon",
+                        "Billboard",
+                        "Roll Up Banner",
+                        "Interstitial",
+                        "Large Rectangle",
+                        "Watercolor Logo",
+                        "Medium Rectangle",
+                        "Leaderboard Ad",
+                        "Skyscraper Ad",
+                        "Miscellaneous"
+                    );
+                    $item_count_of_templates = Config::get('constant.ITEM_COUNT_OF_TEMPLATES');
+
+                    $categories_data = array();
+                    foreach ($category_list as $key) {
+
+                        $search_text = "%#$key%";
+                        $content_list = DB::select('SELECT
+                                                          im.id as json_id,
+                                                          IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                          im.is_free,
+                                                          im.is_featured,
+                                                          im.is_portrait,
+                                                          coalesce(im.height,0) AS height,
+                                                          coalesce(im.width,0) AS width,
+                                                          im.updated_at
+                                                        FROM
+                                                          images as im,
+                                                          catalog_master AS cm,
+                                                          sub_category_catalog AS scc
+                                                        WHERE
+                                                          im.catalog_id = scc.catalog_id AND
+                                                          cm.id = scc.catalog_id AND
+                                                          cm.is_featured = 1 AND
+                                                          scc.sub_category_id = ? AND
+                                                          isnull(im.original_img) AND
+                                                          isnull(im.display_img) AND
+                                                          im.search_category LIKE ?
+                                                        ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, 0, $item_count_of_templates]);
+
+                        $categories_data[] = array('category_name' => $key, 'content_list' => $content_list);
+
+                    }
+                    $total_row = count($category_list);
+                    $search_result = [];
+                } else {
+                    $search_text = "%#$this->search_category%";
+                    $total_row_result = DB::select('SELECT count(*) as total
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img) AND
+                                                  im.search_category LIKE ?
+                                                ORDER BY im.updated_at DESC', [$this->sub_category_id, $search_text]);
+
+                    $total_row = $total_row_result[0]->total;
+
+                    $search_result = DB::select('SELECT
+                                                  im.id as json_id,
+                                                  IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,
+                                                  im.is_free,
+                                                  im.is_featured,
+                                                  im.is_portrait,
+                                                  coalesce(im.height,0) AS height,
+                                                  coalesce(im.width,0) AS width,
+                                                  im.updated_at
+                                                FROM
+                                                  images as im,
+                                                  catalog_master AS cm,
+                                                  sub_category_catalog AS scc
+                                                WHERE
+                                                  im.catalog_id = scc.catalog_id AND
+                                                  cm.id = scc.catalog_id AND
+                                                  cm.is_featured = 1 AND
+                                                  scc.sub_category_id = ? AND
+                                                  isnull(im.original_img) AND
+                                                  isnull(im.display_img) AND
+                                                  im.search_category LIKE ?
+                                                ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $search_text, $this->offset, $this->item_count]);
+                    $categories_data = [];
+
+                }
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                $redis_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'templates_with_categories' => $categories_data, 'template_list' => $search_result);
+
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Templates fetched successfully.', 'cause' => '', 'data' => $redis_result));
@@ -7666,12 +9041,15 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-//            $this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_CATALOGS_AND_TEMPLATES');
-//            $this->offset = 0;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
+            //$this->item_count = Config::get('constant.ITEM_COUNT_OF_FEATURED_CATALOGS_AND_TEMPLATES');
+            //$this->offset = 0;
 
             $this->time_of_expired_redis_key = Config::get('constant.EXPIRATION_TIME_OF_REDIS_KEY_TO_GET_ALL_FEATURED_TEMPLATES');
 
-            $redis_result = Cache::remember("getPopularAndEventCatalogs:$this->sub_category_id", $this->time_of_expired_redis_key, function () {
+            if ($is_cache_enable) {
+
+                $redis_result = Cache::remember("getPopularAndEventCatalogs:$this->sub_category_id", $this->time_of_expired_redis_key, function () {
 
                     $popular_catalogs = DB::select('SELECT
                                                   ct.id as catalog_id,
@@ -7798,14 +9176,141 @@ class UserController extends Controller
                                                 order by ct.updated_at DESC', [$this->sub_category_id]);
 
                     return array("popular_category" => $popular_catalogs, 'event_category' => $event_catalogs, 'all_category' => $all_category);
-            });
+                });
 
-            if (!$redis_result) {
-                $redis_result = [];
+            } else {
+
+                $popular_catalogs = DB::select('SELECT
+                                                  ct.id as catalog_id,
+                                                  ct.name,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                  IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
+                                                  IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                                  IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                                  IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                                  IF(ct.landscape_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_webp),"") as webp_original_landscape_img,
+                                                  IF(ct.portrait_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_webp),"") as webp_original_portrait_img,
+                                                  ct.is_free,
+                                                  ct.is_featured,
+                                                  ct.updated_at
+                                                FROM
+                                                  catalog_master as ct,
+                                                  sub_category_catalog as sct
+                                                WHERE
+                                                  sct.sub_category_id = ? AND
+                                                  sct.catalog_id=ct.id AND
+                                                  sct.is_active=1 AND
+                                                  ct.catalog_type = ? AND
+                                                  ct.popularity_rate = ? AND
+                                                  ct.is_featured = 1
+                                                order by ct.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, 1, 5, 0, 5]);
+
+                //query to get random records by 3:6 ratio on value of "is_free" column within current_date
+                $event_catalogs = DB::select('SELECT
+                                                      id as catalog_id,
+                                                      name,
+                                                      IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as compressed_img,
+                                                      IF(icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",icon),"") as icon,
+                                                      IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as webp_original_img,
+                                                      IF(landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",landscape_image),"") as compressed_landscape_img,
+                                                      IF(portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",portrait_image),"") as compressed_portrait_img,
+                                                      IF(landscape_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",landscape_webp),"") as webp_original_landscape_img,
+                                                      IF(portrait_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",portrait_webp),"") as webp_original_portrait_img,
+                                                      is_free,
+                                                      event_date,
+                                                      is_featured,
+                                                      updated_at
+                                                    FROM (
+                                                              (SELECT
+                                                                   ct.*
+                                                                FROM
+                                                                   catalog_master as ct,
+                                                                   sub_category_catalog as sct
+                                                                WHERE
+                                                                   sct.sub_category_id = ? AND
+                                                                   sct.catalog_id=ct.id AND
+                                                                   sct.is_active=1 AND
+                                                                   ct.catalog_type = ? AND
+                                                                   ct.is_featured = 1 AND
+                                                                   ct.event_date >= NOW() AND 
+                                                                   ct.event_date <=  NOW() + INTERVAL 45 DAY
+                                                                   #DATE_FORMAT(ct.event_date, "%m-%d") >= DATE_FORMAT(NOW(),"%m-%d") AND
+                                                                   #DATE_FORMAT(ct.event_date, "%m-%d") <= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL +45 DAY),"%m-%d")
+                                                                ORDER BY ct.updated_at DESC)
+                                                           UNION
+                                                              (SELECT
+                                                                    ct.*
+                                                                    FROM
+                                                                      catalog_master as ct,
+                                                                      sub_category_catalog as sct
+                                                                    WHERE
+                                                                      sct.sub_category_id = ? AND
+                                                                      sct.catalog_id=ct.id AND
+                                                                      sct.is_active=1 AND
+                                                                      ct.catalog_type = ? AND
+                                                                      ct.event_date >= NOW() AND 
+                                                                      ct.event_date <=  NOW() + INTERVAL 45 DAY AND
+                                                                      ct.is_featured = 1
+                                                                    ORDER BY ct.updated_at DESC)
+                                                                ) derived_table
+                                                    ORDER BY catalog_type,DATE_FORMAT(event_date, "%m-%d"),updated_at DESC', [$this->sub_category_id, 2, $this->sub_category_id, 3]);
+
+                $non_date_category = DB::select('SELECT
+                                                  ct.id as catalog_id,
+                                                  ct.name,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                  IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
+                                                  IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                                  IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                                  IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                                  IF(ct.landscape_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_webp),"") as webp_original_landscape_img,
+                                                  IF(ct.portrait_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_webp),"") as webp_original_portrait_img,
+                                                  ct.is_free,
+                                                  ct.is_featured,
+                                                  ct.updated_at
+                                                FROM
+                                                  catalog_master as ct,
+                                                  sub_category_catalog as sct
+                                                WHERE
+                                                  sct.sub_category_id = ? AND
+                                                  sct.catalog_id=ct.id AND
+                                                  sct.is_active = 1 AND
+                                                  ct.catalog_type = ? AND                                                  
+                                                  ct.is_featured = 1
+                                               ORDER BY ct.popularity_rate ASC,ct.updated_at DESC', [$this->sub_category_id, 4]);
+
+                $event_catalogs = array_merge($event_catalogs, $non_date_category);
+
+                $all_category = DB::select('SELECT
+                                                  ct.id as catalog_id,
+                                                  ct.name,
+                                                  IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
+                                                  IF(ct.icon != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.icon),"") as icon,
+                                                  IF(ct.landscape_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_image),"") as compressed_landscape_img,
+                                                  IF(ct.portrait_image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_image),"") as compressed_portrait_img,
+                                                  IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_original_img,
+                                                  IF(ct.landscape_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.landscape_webp),"") as webp_original_landscape_img,
+                                                  IF(ct.portrait_webp != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.portrait_webp),"") as webp_original_portrait_img,
+                                                  ct.is_free,
+                                                  ct.is_featured,
+                                                  ct.updated_at
+                                                FROM
+                                                  catalog_master as ct,
+                                                  sub_category_catalog as sct
+                                                WHERE
+                                                  sct.sub_category_id = ? AND
+                                                  sct.catalog_id=ct.id AND
+                                                  sct.is_active=1 AND
+                                                  ct.is_featured = 1
+                                                order by ct.updated_at DESC', [$this->sub_category_id]);
+
+                $redis_result = array("popular_category" => $popular_catalogs, 'event_category' => $event_catalogs, 'all_category' => $all_category);
+
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Categories fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
         } catch (Exception $e) {
             Log::error("getPopularAndEventCatalogs : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get categories.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
@@ -7826,6 +9331,20 @@ class UserController extends Controller
         }
     }
 
+    public function deleteMultipleRedisKeys($key_name)
+    {
+        try {
+            foreach ($key_name as $i => $name){
+                Redis::del(array_merge(Redis::keys(Config::get("constant.REDIS_KEY").":$name*"), ['']));
+            }
+            return 1;
+
+        } catch (Exception $e) {
+            Log::error("deleteMultipleRedisKeys : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return 0;
+        }
+    }
+
     public function getAllRedisKeys($key_name)
     {
         try {
@@ -7834,6 +9353,18 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             Log::error("getAllRedisKeys : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return json_decode('{}');
+        }
+    }
+
+    public function getRedisKeyValue($key_name)
+    {
+        try {
+            $redis_value = Cache::get($key_name);
+            return $redis_value;
+
+        } catch (Exception $e) {
+            Log::error("getRedisKeyValue : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return json_decode('{}');
         }
     }
@@ -7856,15 +9387,15 @@ class UserController extends Controller
             $this->catalog_id = $catalog_id;
 
             if ($this->catalog_id) {
-                $this->order_by = 'ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
+                $this->order_by = ' ORDER BY search_text DESC, FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, im.updated_at DESC';
+                //$this->order_by = ' ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
             } else {
-                $this->order_by = 'ORDER BY search_text DESC, im.updated_at DESC';
+                $this->order_by = ' ORDER BY search_text DESC, im.updated_at DESC';
             }
 
             run_same_query:
             $code = 200;
             $message = "Templates fetched successfully.";
-            $search_result = [];
 
             $total_row_result = DB::select('SELECT 
                                                 COUNT(DISTINCT(im.id)) AS total
@@ -7893,7 +9424,11 @@ class UserController extends Controller
                                             IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS after_image,
                                             IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS webp_original_after_img,
                                             IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(im.image,".",1),".gif"),"") AS sample_gif,
+                                            IF(im.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.cover_webp_img), "") AS cover_webp_img,
+                                            COALESCE(im.cover_img_height,0) AS cover_img_height,
+                                            COALESCE(im.cover_img_width,0) AS cover_img_width,
                                             im.is_free,
+                                            im.is_ios_free,
                                             im.is_featured,
                                             im.is_portrait,
                                             COALESCE(im.height,0) AS height,
@@ -7934,13 +9469,13 @@ class UserController extends Controller
 
                 $translate_data = $this->translateLanguage($this->search_category, "en");
 
-                if($translate_data['data']['text'] && $translate_data['data']['text'] != $this->search_category) {
+                if(isset($translate_data['data']['text']) && $translate_data['data']['text'] && $translate_data['data']['text'] != $this->search_category) {
                     $this->search_category = $translate_data['data']['text'];
                     goto run_same_query;
                 }
             }
 
-            if($this->fail_over_sub_category_id) {
+            if(!$total_row && $this->is_search_category_changed && $this->fail_over_sub_category_id) {
                 $this->sub_category_id = $this->fail_over_sub_category_id;
                 $this->search_category = $this->search_category . " " . $this->db_search_category;
                 $this->fail_over_sub_category_id = NULL;
@@ -7951,7 +9486,6 @@ class UserController extends Controller
 
                 $code = 427;
                 $message = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";
-                $search_result = [];
 
                 $total_row_result = DB::select('SELECT
                                                     COUNT(DISTINCT(im.id)) AS total
@@ -7969,15 +9503,18 @@ class UserController extends Controller
                                                     ISNULL(im.display_img) ', [$this->is_featured]);
                 $total_row = $total_row_result[0]->total;
 
-                if($total_row){
-                    $search_result = DB::select('SELECT
+                $search_result = DB::select('SELECT
                                                     DISTINCT im.id AS json_id,
                                                     IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS sample_image,
                                                     IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS webp_original_img,
                                                     IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS after_image,
                                                     IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS webp_original_after_img,
                                                     IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(im.image,".",1),".gif"),"") AS sample_gif,
+                                                    IF(im.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.cover_webp_img), "") AS cover_webp_img,
+                                                    COALESCE(im.cover_img_height,0) AS cover_img_height,
+                                                    COALESCE(im.cover_img_width,0) AS cover_img_width,
                                                     im.is_free,
+                                                    im.is_ios_free,
                                                     im.is_featured,
                                                     im.is_portrait,
                                                     COALESCE(im.height,0) AS height,
@@ -8000,7 +9537,6 @@ class UserController extends Controller
                                                     ISNULL(im.original_img) AND
                                                     ISNULL(im.display_img)
                                                 ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
-                }
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                 $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
@@ -8008,7 +9544,7 @@ class UserController extends Controller
             }
 
         } catch (Exception $e) {
-            Log::error("searchTemplatesBySearchCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("searchTemplatesByDisableCache : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}"));
         }
     }
@@ -8031,16 +9567,17 @@ class UserController extends Controller
             $this->catalog_id = $catalog_id;
 
             run_same_query:
-            $redis_result = Cache::rememberforever("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id", function () {
+            $redis_result = Cache::remember("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id", config('constant.CACHE_TIME_48_HOUR'), function () {
 
                 $code = 200;
                 $message = "Templates fetched successfully.";
                 $search_result = [];
 
                 if ($this->catalog_id) {
-                    $this->order_by = 'ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
+                    $this->order_by = ' ORDER BY search_text DESC, FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, im.updated_at DESC';
+                    //$this->order_by = ' ORDER BY FIELD(im.catalog_id, "'. $this->catalog_id .'") DESC, search_text DESC, im.updated_at DESC';
                 } else {
-                    $this->order_by = 'ORDER BY search_text DESC, im.updated_at DESC';
+                    $this->order_by = ' ORDER BY search_text DESC, im.updated_at DESC';
                 }
 
                 $total_row_result = DB::select('SELECT 
@@ -8070,7 +9607,11 @@ class UserController extends Controller
                                                 IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS after_image,
                                                 IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS webp_original_after_img,
                                                 IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(im.image,".",1),".gif"),"") AS sample_gif,
+                                                IF(im.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.cover_webp_img), "") AS cover_webp_img,
+                                                COALESCE(im.cover_img_height,0) AS cover_img_height,
+                                                COALESCE(im.cover_img_width,0) AS cover_img_width,
                                                 im.is_free,
+                                                im.is_ios_free,
                                                 im.is_featured,
                                                 im.is_portrait,
                                                 COALESCE(im.height,0) AS height,
@@ -8097,6 +9638,7 @@ class UserController extends Controller
                                                 (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
                                                 MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
                                             '. $this->order_by .' LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+
                 }
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -8119,31 +9661,18 @@ class UserController extends Controller
                 }
             }
 
-            if($this->is_search_category_changed = 1 && $redis_result['data']['total_record']){
-                if ($offset == 0){
-                    $old_data = Cache::get('translationReport');
-                    $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 1, "sub_category_id" => $this->sub_category_id);
-                    Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
-                }
-            }elseif($this->is_search_category_changed = 1 && !$redis_result['data']['total_record']){
-                if ($offset == 0){
-                    $old_data = Cache::get('translationReport');
-                    $old_data[] = array("user_tag" => $this->db_search_category, "translate_tag" => $this->search_category, "is_success" => 0, "sub_category_id" => $this->sub_category_id);
-                    Cache::forever('translationReport', array_map("unserialize", array_unique(array_map("serialize", $old_data))));
-                }
+            if($this->is_search_category_changed && !$redis_result['data']['total_record'] && $this->fail_over_sub_category_id){
 
-                if($this->fail_over_sub_category_id) {
-                    $this->sub_category_id = $this->fail_over_sub_category_id;
-                    $this->search_category = $this->search_category . " " . $this->db_search_category;
-                    $this->fail_over_sub_category_id = NULL;
-                    goto run_same_query;
-                }
+                $this->sub_category_id = $this->fail_over_sub_category_id;
+                $this->search_category = $this->search_category . " " . $this->db_search_category;
+                $this->fail_over_sub_category_id = NULL;
+                goto run_same_query;
             }
 
             if (!$redis_result['data']['total_record']) {
 
-                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count");
-                $redis_result = Cache::remember("default:searchCardsBySubCategoryId:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", 10080, function () {
+                Redis::del("pel:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id");
+                $redis_result = Cache::remember("default:searchCardsBySubCategoryId:$this->db_sub_category_id:$this->is_featured:$this->offset:$this->item_count", config('constant.CACHE_TIME_7_DAYS'), function () {
 
                     $code = 427;
                     $message = "Sorry, we couldn't find any templates for '$this->db_search_category', but we found some other templates you might like:";
@@ -8173,7 +9702,11 @@ class UserController extends Controller
                                                         IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS after_image,
                                                         IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS webp_original_after_img,
                                                         IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(im.image,".",1),".gif"),"") AS sample_gif,
+                                                        IF(im.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.cover_webp_img), "") AS cover_webp_img,
+                                                        COALESCE(im.cover_img_height,0) AS cover_img_height,
+                                                        COALESCE(im.cover_img_width,0) AS cover_img_width,
                                                         im.is_free,
+                                                        im.is_ios_free,
                                                         im.is_featured,
                                                         im.is_portrait,
                                                         COALESCE(im.height,0) AS height,
@@ -8196,6 +9729,7 @@ class UserController extends Controller
                                                         ISNULL(im.original_img) AND
                                                         ISNULL(im.display_img)
                                                     ORDER BY im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+
                     }
 
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
@@ -8477,7 +10011,7 @@ class UserController extends Controller
             return $redis_result;
 
         } catch (Exception $e) {
-            Log::error("searchTemplatesBySearchCategory : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("searchTemplatesBySearchCategory_V2 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             return array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get template.', 'cause' => $e->getMessage(), 'data' => json_decode("{}"));
         }
     }
@@ -8508,7 +10042,7 @@ class UserController extends Controller
             $message = "Sorry, we couldn't find any templates for '$this->search_category', but we found some other templates you might like:";
             $search_result = [];
 
-            Log::info('DB hit For 427');
+            //Log::info('DB hit For 427');
 
             $total_row_result = DB::select('SELECT 
                                                         COUNT(DISTINCT(im.id)) AS total
@@ -9387,7 +10921,7 @@ class UserController extends Controller
             DB::table('sub_category_catalog')->insert($data);
             DB::commit();
 
-            $this->deleteAllRedisKeys("getCatalogBySubCategoryId$sub_category_id");
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin:$sub_category_id");
 
             $response = Response::json(array('code' => 200, 'message' => 'Multiple catalog linked successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
@@ -9463,7 +10997,7 @@ class UserController extends Controller
             DB::table('sub_category_catalog')->insert($sub_category_catalog_data);
             DB::commit();
 
-            $this->deleteAllRedisKeys("getCatalogBySubCategoryId");
+            $this->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin");
             $this->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
 
             $response = Response::json(array('code' => 200, 'message' => 'catalog copied successfully.', 'cause' => '', 'data' => $sub_category_catalog_data));
@@ -9498,6 +11032,7 @@ class UserController extends Controller
             if($except_image_ids){
                 $where_condition .= " AND id NOT IN ($except_image_ids) ";
             }
+            Log::info('0. copyTemplateByCatalogIds : ');
 
             DB::beginTransaction();
 
@@ -9825,16 +11360,19 @@ class UserController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id','item_count','page'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'item_count', 'page'), $request)) != '')
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $this->is_template = isset($request->is_template) ? $request->is_template : 1;
             $this->item_count_of_search_tag = Config::get("constant.ITEM_COUNT_OF_GET_DYNAMIC_SEARCH_TAG");
             $this->page = $request->page;
             $this->offset = ($this->page - 1) * $this->item_count_of_search_tag;
 
-            $redis_result = Cache::remember("getSearchTagBySubCategoryId:$this->sub_category_id:$this->is_template:$this->item_count_of_search_tag:$this->page", Config::get("constant.CACHE_TIME_6_HOUR"), function () {
+            if ($is_cache_enable) {
+
+                $redis_result = Cache::remember("getSearchTagBySubCategoryId:$this->sub_category_id:$this->is_template:$this->item_count_of_search_tag:$this->page", Config::get("constant.CACHE_TIME_24_HOUR"), function () {
 
                     $search_tag_list = DB::select('SELECT
                                                       id,
@@ -9852,10 +11390,27 @@ class UserController extends Controller
                     $is_next_page = ($total_row > ($this->offset + $this->item_count_of_search_tag)) ? true : false;
 
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'tag_list' => $search_tag_list);
-            });
+                });
 
-            if (!$redis_result) {
-                $redis_result = [];
+            } else {
+
+                $search_tag_list = DB::select('SELECT
+                                                      id,
+                                                      tag_name
+                                                   FROM
+                                                       sub_category_tag_master
+                                                   WHERE sub_category_id = ? AND
+                                                         is_template=? AND 
+                                                         is_active = ?
+                                                   ORDER BY update_time DESC LIMIT ?,?', [$this->sub_category_id, $this->is_template, 1, $this->offset, $this->item_count_of_search_tag]);
+
+                $total_row_result = DB::select('SELECT COUNT(*) as total FROM sub_category_tag_master WHERE is_active=? AND sub_category_id = ? AND is_template=?', [1, $this->sub_category_id, $this->is_template]);
+                $total_row = $total_row_result[0]->total;
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count_of_search_tag)) ? true : false;
+
+                $redis_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'tag_list' => $search_tag_list);
+
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'search tags fetched successfully.', 'cause' => '', 'data' => $redis_result));
@@ -9906,8 +11461,73 @@ class UserController extends Controller
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
             $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_FONTS');
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            $redis_result = Cache::rememberforever("searchCatalogBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", function () {
+            if ($is_cache_enable) {
+
+                $redis_result = Cache::remember("searchCatalogBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
+
+                    $search_category = $this->search_category;
+                    $code = 200;
+                    $message = "Catalog fetched successfully.";
+
+                    $total_row_result = DB::select('SELECT
+                                                      COUNT(*) AS total
+                                                    FROM
+                                                      catalog_master AS cm,
+                                                      sub_category_catalog AS sct
+                                                    WHERE
+                                                      sct.sub_category_id = ? AND
+                                                      sct.catalog_id = cm.id AND
+                                                      cm.is_featured = ? AND
+                                                      sct.is_active = 1 AND
+                                                      (MATCH(cm.search_category) AGAINST("' . $search_category . '") OR 
+                                                        MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE))',
+                        [$this->sub_category_id,$this->is_featured]);
+
+                    $total_row = $total_row_result[0]->total;
+
+                    if($total_row){
+                        $search_result = DB::select('SELECT
+                                                    cm.id AS catalog_id,
+                                                    cm.name,
+                                                    IF(cm.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as thumbnail_img,
+                                                    IF(cm.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as compressed_img,
+                                                    IF(cm.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.image),"") as original_img,
+                                                    IF(cm.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",cm.attribute1),"") as webp_thumbnail_img,
+                                                    cm.is_free,
+                                                    cm.is_featured,
+                                                    MATCH(cm.search_category) AGAINST("' . $search_category . '") +
+                                                    MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE) AS search_text,
+                                                    cm.updated_at
+                                                FROM
+                                                   catalog_master AS cm,
+                                                   sub_category_catalog as sct
+                                                WHERE
+                                                    sct.sub_category_id = ? AND
+                                                    sct.catalog_id = cm.id AND
+                                                    cm.is_featured = ? AND
+                                                    sct.is_active = 1 AND
+                                                    (MATCH(cm.search_category) AGAINST("' . $search_category . '") OR 
+                                                    MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE))
+                                                ORDER BY search_text DESC,cm.updated_at DESC LIMIT ?, ?', [$this->sub_category_id, $this->is_featured, $this->offset, $this->item_count]);
+
+                    } else {
+                        $search_result = [];
+                        $total_row = 0;
+                        $code = 427;
+                        $message = "Sorry, we couldn't find any templates for '$search_category'";
+                    }
+
+                    $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+                    $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
+
+                    $result = array('category_list' => $search_result, 'code' => $code, 'message' => $message);
+
+                    return $result;
+                });
+
+            } else {
 
                 $search_category = $this->search_category;
                 $code = 200;
@@ -9925,7 +11545,7 @@ class UserController extends Controller
                                                       sct.is_active = 1 AND
                                                       (MATCH(cm.search_category) AGAINST("' . $search_category . '") OR 
                                                         MATCH(cm.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ")  IN BOOLEAN MODE))',
-                        [$this->sub_category_id,$this->is_featured]);
+                    [$this->sub_category_id,$this->is_featured]);
 
                 $total_row = $total_row_result[0]->total;
 
@@ -9964,10 +11584,11 @@ class UserController extends Controller
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                 $search_result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $search_result);
 
-                $result = array('category_list' => $search_result, 'code' => $code, 'message' => $message);
+                $redis_result = array('category_list' => $search_result, 'code' => $code, 'message' => $message);
 
-                return $result;
-            });
+                return $redis_result;
+
+            }
 
             if($this->page == 1) {
                 if($redis_result['code'] != 200){
