@@ -4424,6 +4424,7 @@ class UserController extends Controller
                         $search_result = DB::select('SELECT
                                                     DISTINCT im.id AS img_id,
                                                     IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
+                                                    IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
                                                     IF(cm.is_free=1,1,0) AS is_free,
                                                     im.is_featured,
                                                     im.is_portrait,
