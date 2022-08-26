@@ -156,10 +156,11 @@ return [
 
     /*=============================| Home page |===============================*/
 
-    'TEMPLATE_COUNT_FOR_HOME_PAGE' => 6,
-    'VIDEO_COUNT_FOR_HOME_PAGE' => 6,
-    'JOB_NEWS_COUNT_FOR_HOME_PAGE' => 6,
-    'QUESTION_TYPE_COUNT_FOR_HOME_PAGE' => 6,
+    'TEMPLATE_COUNT_FOR_HOME_PAGE' => 10,
+    'COVER_TEMPLATE_COUNT_FOR_HOME_PAGE' => 10,
+    'VIDEO_COUNT_FOR_HOME_PAGE' => 10,
+    'JOB_NEWS_COUNT_FOR_HOME_PAGE' => 10,
+    'QUESTION_TYPE_COUNT_FOR_HOME_PAGE' => 10,
 
     'APP_ENV' => env('APP_ENV'), //get app environment to store files into s3_bucket
     'AWS_BUCKET' => env('AWS_BUCKET'), //s3_bucket name from env to store/retrieve file from s3
