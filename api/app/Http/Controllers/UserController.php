@@ -7593,7 +7593,7 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = $request->sub_category_id;
-            $this->cover_sub_category_id = 924;
+            $this->cover_catalog_id = 924;
             $this->template_item = Config::get('constant.TEMPLATE_COUNT_FOR_HOME_PAGE');
             $this->cover_template_item = Config::get('constant.COVER_TEMPLATE_COUNT_FOR_HOME_PAGE');
             $this->video_item = Config::get('constant.VIDEO_COUNT_FOR_HOME_PAGE');
@@ -7626,7 +7626,7 @@ class UserController extends Controller
 
                     //Take templates for cover letter from all template list
                     $cover_template = array_filter($template, function($element) {
-                        return $element->catalog_id === $this->cover_sub_category_id;
+                        return $element->catalog_id === $this->cover_catalog_id;
                     });
 
                     $video = DB::select('SELECT id video_id,
