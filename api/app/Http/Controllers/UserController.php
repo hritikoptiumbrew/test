@@ -7605,6 +7605,7 @@ class UserController extends Controller
 
                     $template = DB::select('SELECT
                                     id as json_id,
+                                    catalog_id,
                                     IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
                                     is_free,
                                     is_featured,
@@ -7622,24 +7623,10 @@ class UserController extends Controller
                                     is_featured = 1
                                     order by updated_at DESC LIMIT ?, ?', [$this->sub_category_id, 0, $this->template_item]);
 
-                    $cover_template = DB::select('SELECT
-                                                        id as json_id,
-                                                        IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
-                                                        is_free,
-                                                        is_featured,
-                                                        is_portrait,
-                                                        coalesce(height,0) AS height,
-                                                        coalesce(width,0) AS width,
-                                                        COALESCE(multiple_images,"") AS multiple_images,
-                                                        COALESCE(json_pages_sequence,"") AS pages_sequence,
-                                                        COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
-                                                        updated_at
-                                                    FROM
-                                                        images
-                                                    WHERE
-                                                        catalog_id in(select catalog_id FROM sub_category_catalog WHERE sub_category_id = ? AND is_active = 1) and
-                                                        is_featured = 1
-                                                        order by updated_at DESC LIMIT ?, ?', [$this->cover_sub_category_id, 0, $this->cover_template_item]);
+                    //Take templates for cover letter from all template list
+                    $cover_template = array_filter($template, function($element) {
+                        return $element->catalog_id === $this->cover_sub_category_id;
+                    });
 
                     $video = DB::select('SELECT id video_id,
                                          youtube_video_id,
