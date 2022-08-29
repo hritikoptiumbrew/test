@@ -51,7 +51,7 @@ class VideoController extends Controller
 
             $video_url = $request->url;
             $create_at = date('Y-m-d H:i:s');
-            $API_key = 'AIzaSyB_MvXChn1z1PG_WihzIJ-s-iJQcsGH9KM';
+            $API_key = 'AIzaSyCKZ3s781QvJXEbKaJy6UxBKk8oDPdic64';
 
             if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $video_url, $match)) {
                 $video_id = $match[1];
@@ -144,7 +144,7 @@ class VideoController extends Controller
             $id = $request->video_id;
             $title = isset($request->title) ? $request->title : '';
             $video_url = isset($request->url) ? $request->url : '';
-            $API_key = 'AIzaSyB_MvXChn1z1PG_WihzIJ-s-iJQcsGH9KM';
+            $API_key = 'AIzaSyCKZ3s781QvJXEbKaJy6UxBKk8oDPdic64';
 
             if ($video_url) {
 

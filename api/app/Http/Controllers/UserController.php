@@ -7640,8 +7640,7 @@ class UserController extends Controller
                                                     FROM
                                                         images
                                                     WHERE
-                                                        catalog_id = '. $this->cover_catalog_id .' AND
-                                                        is_featured = 1
+                                                        catalog_id = '. $this->cover_catalog_id .'
                                                         order by updated_at DESC LIMIT ?, ?', [0, $this->template_item]);
 
                     $video = DB::select('SELECT id video_id,
