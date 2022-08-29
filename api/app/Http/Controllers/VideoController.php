@@ -72,9 +72,9 @@ class VideoController extends Controller
                 $publishedAt = isset($jd_client_result['items'][0]['snippet']['publishedAt']) ? date("Y-m-d H:i:s", strtotime($jd_client_result['items'][0]['snippet']['publishedAt'])) : '';
                 $title = $jd_client_result['items'][0]['snippet']['title'];
                 $channelTitle = $jd_client_result['items'][0]['snippet']['channelTitle'];
-                $thumbnail_url = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['url'];
-                $thumbnail_width = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['width'];
-                $thumbnail_height = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['height'];
+                $thumbnail_url = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['url'];
+                $thumbnail_width = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['width'];
+                $thumbnail_height = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['height'];
 
                 DB::beginTransaction();
 
@@ -167,9 +167,9 @@ class VideoController extends Controller
                     $publishedAt = isset($jd_client_result['items'][0]['snippet']['publishedAt']) ? date("Y-m-d H:i:s", strtotime($jd_client_result['items'][0]['snippet']['publishedAt'])) : '';
                     $Video_title = $jd_client_result['items'][0]['snippet']['title'];
                     $channelTitle = $jd_client_result['items'][0]['snippet']['channelTitle'];
-                    $thumbnail_url = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['url'];
-                    $thumbnail_width = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['width'];
-                    $thumbnail_height = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['height'];
+                    $thumbnail_url = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['url'];
+                    $thumbnail_width = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['width'];
+                    $thumbnail_height = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['height'];
                     DB::beginTransaction();
 
                     DB::update('UPDATE youtube_video_master
