@@ -19,6 +19,7 @@ return [
     'DATE_FORMAT' => 'Y-m-d H:i:s',
 
     /* For live server */
+    'SUPER_ADMIN_EMAIL_ID' => env('SUPER_ADMIN_EMAIL_ID'),
     'ADMIN_EMAIL_ID' => env('ADMIN_EMAIL_ID'),
     'SUB_ADMIN_EMAIL_ID' => env('SUB_ADMIN_EMAIL_ID'),
     'SUPPORTER_EMAIL_ID' => env('SUPPORTER_EMAIL_ID'),
