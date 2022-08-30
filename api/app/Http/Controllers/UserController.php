@@ -7606,7 +7606,6 @@ class UserController extends Controller
 
                     $template = DB::select('SELECT
                                     id as json_id,
-                                    catalog_id,
                                     IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,
                                     is_free,
                                     is_featured,
@@ -7626,7 +7625,6 @@ class UserController extends Controller
 
                     $cover_template = DB::select('SELECT
                                                         id AS json_id,
-                                                        catalog_id,
                                                         IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS sample_image,
                                                         is_free,
                                                         is_featured,
