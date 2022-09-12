@@ -51,7 +51,9 @@ class VideoController extends Controller
 
             $video_url = $request->url;
             $create_at = date('Y-m-d H:i:s');
-            $API_key = 'AIzaSyB_MvXChn1z1PG_WihzIJ-s-iJQcsGH9KM';
+            //old api key is expired
+            //$old_API_key = 'AIzaSyB_MvXChn1z1PG_WihzIJ-s-iJQcsGH9KM';
+            $API_key = 'AIzaSyCKZ3s781QvJXEbKaJy6UxBKk8oDPdic64';
 
             if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $video_url, $match)) {
                 $video_id = $match[1];
@@ -72,9 +74,9 @@ class VideoController extends Controller
                 $publishedAt = isset($jd_client_result['items'][0]['snippet']['publishedAt']) ? date("Y-m-d H:i:s", strtotime($jd_client_result['items'][0]['snippet']['publishedAt'])) : '';
                 $title = $jd_client_result['items'][0]['snippet']['title'];
                 $channelTitle = $jd_client_result['items'][0]['snippet']['channelTitle'];
-                $thumbnail_url = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['url'];
-                $thumbnail_width = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['width'];
-                $thumbnail_height = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['height'];
+                $thumbnail_url = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['url'];
+                $thumbnail_width = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['width'];
+                $thumbnail_height = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['height'];
 
                 DB::beginTransaction();
 
@@ -144,7 +146,9 @@ class VideoController extends Controller
             $id = $request->video_id;
             $title = isset($request->title) ? $request->title : '';
             $video_url = isset($request->url) ? $request->url : '';
-            $API_key = 'AIzaSyB_MvXChn1z1PG_WihzIJ-s-iJQcsGH9KM';
+            //old api key is expired
+            //$old_API_key = 'AIzaSyB_MvXChn1z1PG_WihzIJ-s-iJQcsGH9KM';
+            $API_key = 'AIzaSyCKZ3s781QvJXEbKaJy6UxBKk8oDPdic64';
 
             if ($video_url) {
 
@@ -167,9 +171,9 @@ class VideoController extends Controller
                     $publishedAt = isset($jd_client_result['items'][0]['snippet']['publishedAt']) ? date("Y-m-d H:i:s", strtotime($jd_client_result['items'][0]['snippet']['publishedAt'])) : '';
                     $Video_title = $jd_client_result['items'][0]['snippet']['title'];
                     $channelTitle = $jd_client_result['items'][0]['snippet']['channelTitle'];
-                    $thumbnail_url = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['url'];
-                    $thumbnail_width = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['width'];
-                    $thumbnail_height = $jd_client_result['items'][0]['snippet']['thumbnails']['high']['height'];
+                    $thumbnail_url = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['url'];
+                    $thumbnail_width = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['width'];
+                    $thumbnail_height = $jd_client_result['items'][0]['snippet']['thumbnails']['maxres']['height'];
                     DB::beginTransaction();
 
                     DB::update('UPDATE youtube_video_master
