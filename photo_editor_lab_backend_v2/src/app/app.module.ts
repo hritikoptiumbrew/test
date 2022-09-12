@@ -71,8 +71,9 @@ import { ViewcorruptedfontsComponent } from './components/viewcorruptedfonts/vie
 import { NgxPaginationModule } from 'ngx-pagination';
 import { AddMultipleTagsComponent } from './components/add-multiple-tags/add-multiple-tags.component';
 import { MenubarComponent } from './components/menubar/menubar.component';
+import { ViewCatalogTypeComponent } from './view-catalog-type/view-catalog-type.component';
 @NgModule({
-  declarations: [AppComponent, LoadingComponent, ViewimageComponent, AddsearchtagsComponent, AddsubcategoryComponent, EditcategoryComponent, AddcatalogComponent, LinkcatalogComponent, AddblogsComponent, MovetocatalogComponent, AddjsonimagesComponent, ExistingimageslistComponent, AddjsondataComponent, UpdatesubcategoryimagebyidComponent, AddsubcategoryimagesbyidComponent, EditfontComponent, PopularsampleaddComponent, StatisticsDetailsComponent, EnterotpComponent, AddvalidationsComponent, AddserverurlComponent, ViewcorruptedfontsComponent, AddMultipleTagsComponent, MenubarComponent],
+  declarations: [AppComponent, LoadingComponent, ViewimageComponent, AddsearchtagsComponent, AddsubcategoryComponent, EditcategoryComponent, AddcatalogComponent, LinkcatalogComponent, AddblogsComponent, MovetocatalogComponent, AddjsonimagesComponent, ExistingimageslistComponent, AddjsondataComponent, UpdatesubcategoryimagebyidComponent, AddsubcategoryimagesbyidComponent, EditfontComponent, PopularsampleaddComponent, StatisticsDetailsComponent, EnterotpComponent, AddvalidationsComponent, AddserverurlComponent, ViewcorruptedfontsComponent, AddMultipleTagsComponent, MenubarComponent, ViewCatalogTypeComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

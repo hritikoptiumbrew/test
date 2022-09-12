@@ -98,7 +98,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
           <div class="picture text-center" (click)="viewCatalog(item)" style="position: relative;">
             <img class="placeholder-img">
             <img class="categImg" [lazyLoad]="item.thumbnail_img" [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
-            <span>hello</span>
+            <!-- <span>hello</span> -->
           </div>
           <div class="details">
             <div [nbTooltip]="item.sub_category_id+'. '+item.name" nbTooltipPlacement="bottom" nbTooltipStatus="primary">{{item.sub_category_id}}. {{item.name}}</div>

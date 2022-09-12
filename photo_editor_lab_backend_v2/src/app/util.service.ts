@@ -108,7 +108,8 @@ export class UtilService {
         allowOutsideClick: false,
         allowEscapeKey: false
       }).then((result) => {
-        if (result.isConfirmed) {
+        if (result.isConfirmed) 
+        {
           resolve(result);
         }
       });
