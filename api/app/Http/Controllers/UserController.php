@@ -1233,7 +1233,6 @@ class UserController extends Controller
     public function getCatalogBySubCategoryIdWithLastSyncTime(Request $request_body)
     {
         try {
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
@@ -1244,112 +1243,61 @@ class UserController extends Controller
             $this->last_sync_time = $request->last_sync_time;
             $this->sub_category_id = $request->sub_category_id;
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
+            $this->where_condition = NULL;
+
+            if ($this->last_sync_time) {
+                $this->where_condition = ' AND (ct.updated_at >= "' . $this->last_sync_time . '" OR sct.created_at >= "' . $this->last_sync_time . '")';
+            }
 
             if ($is_cache_enable) {
 
                 $redis_result = Cache::remember("getCatalogBySubCategoryIdWithLastSyncTime:$request->sub_category_id:$request->last_sync_time", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
-
-                    if ($this->last_sync_time == 0) {
-                        return DB::select('SELECT
-                                          ct.id as catalog_id,
+                    return DB::select('SELECT
+                                          ct.id AS catalog_id,
                                           ct.name,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS thumbnail_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS compressed_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS original_img,
                                           ct.is_free,
                                           ct.is_featured,
                                           ct.search_category,
                                           ct.updated_at
                                         FROM
-                                          catalog_master as ct,
-                                          sub_category_catalog as sct
+                                          catalog_master AS ct,
+                                          sub_category_catalog AS sct
                                         WHERE
                                           sct.sub_category_id = ? AND
-                                          sct.catalog_id=ct.id AND
-                                          sct.is_active=1
-                                        order by ct.updated_at DESC', [$this->sub_category_id]);
-                    } else {
-                        return DB::select('SELECT
-                                          ct.id as catalog_id,
-                                          ct.name,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
-                                          ct.is_free,
-                                          ct.is_featured,
-                                          ct.search_category,
-                                          ct.updated_at
-                                        FROM
-                                          catalog_master as ct,
-                                          sub_category_catalog as sct
-                                        WHERE
-                                          sct.sub_category_id = ? AND
-                                          sct.catalog_id=ct.id AND
-                                          sct.is_active=1 AND
-                                          (ct.updated_at >= ? OR
-                                          sct.created_at >= ?)
-                                        order by ct.updated_at DESC', [$this->sub_category_id, $this->last_sync_time, $this->last_sync_time]);
-
-                    }
-
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 
+                                          ' . $this->where_condition . '
+                                        ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
                 });
 
             } else {
 
-                if ($this->last_sync_time == 0) {
-                    $redis_result = DB::select('SELECT
-                                          ct.id as catalog_id,
+                $redis_result = DB::select('SELECT
+                                          ct.id AS catalog_id,
                                           ct.name,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS thumbnail_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS compressed_img,
+                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS original_img,
                                           ct.is_free,
                                           ct.is_featured,
                                           ct.search_category,
                                           ct.updated_at
                                         FROM
-                                          catalog_master as ct,
-                                          sub_category_catalog as sct
+                                          catalog_master AS ct,
+                                          sub_category_catalog AS sct
                                         WHERE
                                           sct.sub_category_id = ? AND
-                                          sct.catalog_id=ct.id AND
-                                          sct.is_active=1
-                                        order by ct.updated_at DESC', [$this->sub_category_id]);
-                } else {
-                    $redis_result = DB::select('SELECT
-                                          ct.id as catalog_id,
-                                          ct.name,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
-                                          ct.is_free,
-                                          ct.is_featured,
-                                          ct.search_category,
-                                          ct.updated_at
-                                        FROM
-                                          catalog_master as ct,
-                                          sub_category_catalog as sct
-                                        WHERE
-                                          sct.sub_category_id = ? AND
-                                          sct.catalog_id=ct.id AND
-                                          sct.is_active=1 AND
-                                          (ct.updated_at >= ? OR
-                                          sct.created_at >= ?)
-                                        order by ct.updated_at DESC', [$this->sub_category_id, $this->last_sync_time, $this->last_sync_time]);
-
-                }
-
+                                          sct.catalog_id = ct.id AND
+                                          sct.is_active = 1 
+                                          ' . $this->where_condition . '
+                                        ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
             }
 
-            /*if (count($redis_result) >= 1) {
-                $last_sync_time = $redis_result[0]->updated_at;
-
-            } else {*/
             $last_sync_time = date("Y-m-d H:i:s");
-            /*}*/
-
-
             $response = Response::json(array('code' => 200, 'message' => 'Catalog fetched successfully.', 'cause' => '', 'data' => ['total_record' => count($redis_result), 'last_sync_time' => $last_sync_time, 'category_list' => $redis_result]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
@@ -1614,9 +1562,7 @@ class UserController extends Controller
      */
     public function getJsonSampleDataWithLastSyncTime_webp(Request $request_body)
     {
-
         try {
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
@@ -9567,7 +9513,7 @@ class UserController extends Controller
             $this->catalog_id = $catalog_id;
 
             run_same_query:
-            $redis_result = Cache::remember("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id", config('constant.CACHE_TIME_48_HOUR'), function () {
+            $redis_result = Cache::remember("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id", config('constant.CACHE_TIME_6_HOUR'), function () {
 
                 $code = 200;
                 $message = "Templates fetched successfully.";
