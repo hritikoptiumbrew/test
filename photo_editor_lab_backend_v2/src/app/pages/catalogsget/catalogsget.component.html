@@ -68,9 +68,9 @@ Copyright 2018 - 2020 Optimumbrew Technology
       <div class="col-md-6 text-right pr-0" *ngIf="multiselectFlag" style="position: relative;">
         <div class="form-group">
           <nb-radio-group style="display: flex;position: absolute;" [(ngModel)]="selectedCatalogType" id="radioCalogPriInput" name="my-radio-group4">
-            <nb-radio value="1">Featured
+            <nb-radio value="1" (click)="catalogIdArr = []">Featured
             </nb-radio>
-            <nb-radio value="2">Normal
+            <nb-radio value="2" (click)="catalogIdArr = []">Normal
             </nb-radio>
           </nb-radio-group>
         </div>

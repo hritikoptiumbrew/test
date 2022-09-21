@@ -1,0 +1,99 @@
+<nb-card class="add-json-data-card">
+    <nb-card-header style="position: relative;">
+        <h5 class="text-center header-text">Change Catalog Type</h5>
+        <i class="fa fa-times close-icon" title="Close" (click)="closeDialog()"></i>
+    </nb-card-header>
+    <nb-card-body>
+        <div class="row json-form-data">
+            <div class="col-12">
+                <div class="row mt-2">
+                    <div class="col-md-4 pr-0">
+                        <label class="d-block form-label">Android Pricing</label>
+                    </div>
+                    <div class="col-md-8 pl-0">
+                        <div class="form-group">
+                            <nb-radio-group id="radioCalogPriInput" name="my-radio-group1" [(ngModel)]="is_free">
+                                <nb-radio value="1">Free
+                                </nb-radio>
+                                <nb-radio value="0">Paid
+                                </nb-radio>
+                            </nb-radio-group>
+                            <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 pr-0 ">
+                        <label class="d-block form-label ">IOS Pricing</label>
+                    </div>
+                    <div class="col-md-8 pl-0">
+                        <div class="form-group">
+                            <nb-radio-group id="radioCalogPriInputIOS" name="my-radio-groupios" [(ngModel)]="is_ios_free">
+                                <nb-radio value="1">Free
+                                </nb-radio>
+                                <nb-radio value="0">Paid
+                                </nb-radio>
+                            </nb-radio-group>
+                            <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 pr-0 ">
+                        <label class="d-block form-label">Type</label>
+                    </div>
+                    <div class="col-md-8 pl-0">
+                        <div class="form-group">
+                            <nb-radio-group id="radioCalogtypeInput" name="my-radio-group2" [(ngModel)]="is_featured">
+                                <nb-radio value="1">
+                                    Featured</nb-radio>
+                                <nb-radio value="0">
+                                    Normal</nb-radio>
+                            </nb-radio-group>
+                            <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row ">
+                    <div class="col-md-4 pr-0 ">
+                        <label class="d-block form-label ">Orientation</label>
+                    </div>
+                    <div class="col-md-8 pl-0">
+                        <div class="form-group">
+                            <nb-radio-group id="radioCalogstyleInput" name="my-radio-group3" [(ngModel)]="is_portrait">
+                                <nb-radio value="1">
+                                    Portrait</nb-radio>
+                                <nb-radio value="0">
+                                    Landscape</nb-radio>
+                            </nb-radio-group>
+                            <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row ">
+                    <div class="col-md-4 pr-0 ">
+                        <label class="d-block form-label ">Activation</label>
+                    </div>
+                    <div class="col-md-8 pl-0">
+                        <div class="form-group">
+                            <nb-radio-group id="radioCalogactiveInput" name="my-radio-group4" [(ngModel)]="is_active">
+                                <nb-radio value="1">
+                                    Active</nb-radio>
+                                <nb-radio value="0">
+                                    Deactive</nb-radio>
+                            </nb-radio-group>
+                            <p id="radioPlaError" style="color: red;margin-bottom: 0px;margin-top: 4px;"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row text-center">
+            <div class="col-6 offset-3">
+                <button mat-raised-button class="btn btn-lg bg-success mr-2 text-light font-size-10"
+                    (click)="saveCatlogData()">save</button><button class="btn font-size-10 bg-secondary text-light"
+                    (click)="closeDialog()">cancel</button>
+            </div>
+        </div>
+    </nb-card-body>
+</nb-card>

@@ -12,6 +12,7 @@
  */
 
 
+import { C } from '@angular/cdk/keycodes';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NbDialogService, NbMenuService } from '@nebular/theme';
@@ -25,6 +26,7 @@ import { UpdatesubcategoryimagebyidComponent } from 'app/components/updatesubcat
 import { ViewimageComponent } from 'app/components/viewimage/viewimage.component';
 import { DataService } from 'app/data.service';
 import { UtilService } from 'app/util.service';
+import { ViewCatalogTypeComponent } from 'app/view-catalog-type/view-catalog-type.component';
 import { ERROR, ENV_CONFIG } from '../../app.constants';
 @Component({
   selector: 'ngx-viewsubcategories',
@@ -303,6 +305,7 @@ export class ViewsubcategoriesComponent implements OnInit {
         imgIds: ids_arr
       }
     }).onClose.subscribe((result) => {
+      console.log(result,'result');
       if (result && result.res == "add") {
         this.multiselectFlag = false;
         this.templatesArr = [];
@@ -582,5 +585,45 @@ export class ViewsubcategoriesComponent implements OnInit {
     for (let i = 0; i < this.viewCatdata.length; i++) {
       this.templatesArr.push(this.viewCatdata[i].img_id);
     }
+  }
+  selecteCatalogType(){
+    // console.log("hello");
+    console.log('data',this.templatesArr);
+    console.log(this.viewCatdata,this.catalogId);
+    this.changeCtlgType(false, this.catalogId, this.templatesArr);
+  //  this.dialog.open(ViewCatalogTypeComponent,{
+  //     closeOnBackdropClick: false,
+  //     closeOnEsc: false,
+  //     autoFocus: false,
+  //     context: {
+  //       catlogId:this.catalogId,
+  //       img_ids:this.templatesArr
+  //   },
+  // })
+  // .onClose.subscribe((res) => {
+  //   console.log(res,'res');
+  //   if (!res) {
+  //     console.log('true');
+  //     this.multiselectFlag = false;
+  //     this.templatesArr = [];
+  //     this.getAllCategories();
+  //   }
+  // });
+
+  }
+  protected changeCtlgType(closeOnBackdropClick: boolean, data2, ids_arr2) {
+    this.dialog.open(ViewCatalogTypeComponent, {
+      closeOnBackdropClick, closeOnEsc: false, autoFocus: false, context: {
+        catlogId: data2,
+        img_ids: ids_arr2
+      }
+    }).onClose.subscribe((result) => {
+      console.log(result,'result');
+      if (result && result.res == "add") {
+        this.multiselectFlag = false;
+        this.templatesArr = [];
+        this.getAllCategories();
+      }
+    });
   }
 }

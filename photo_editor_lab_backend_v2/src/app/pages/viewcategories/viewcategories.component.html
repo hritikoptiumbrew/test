@@ -45,7 +45,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
             </nb-card-body>
     </nb-card>-->
     <div class="row mb-2">
-      <div class="col-md-5 col-12">
+      <div class="col-md-5 col-12" *ngIf="isselect==false">
         <div class="form-group">
           <input type="text" style="background: #fff;" nbInput placeholder="Search category name here" valid-status="false" id="subCatInput"
             [(ngModel)]="searchQuery"
@@ -54,22 +54,28 @@ Copyright 2018 - 2020 Optimumbrew Technology
           <p id="catError" style="color: red;margin-bottom: 0px;height: 14px;"></p>
         </div>
       </div>
-      <div class="col-md-2 col-12">
+      <div class="col-md-2 col-12" *ngIf="isselect==false">
         <div class="form-group">
           <button id="subCatButton" class="btn btn-primary w-100"
             (click)="searchCategory()">Search</button>
         </div>
       </div>
-      <div class="col-md-1 col-sm-1 col-1">
+      <div class="col-md-1 col-sm-1 col-1" *ngIf="isselect==false">
         <button class="btn btn-refresh" nbTooltip="Refresh" nbTooltipPlacement="bottom" nbTooltipStatus="default"
           nbTooltipTrigger="hint" (click)="refreshPage()"><i class="fas fa-sync-alt"></i></button>
       </div>
-      <div class="col-md-4 text-right col-11 col-sm-11 pl-0">
+      <div class="col-md-4 text-right col-11 col-sm-11 pl-0" *ngIf="isselect==false">
         <nb-select class="pegin" [(selected)]="selectedPageSize" (selectedChange)="setPageSize($event)" [attr.pagin-status]="paginstatus">
           <nb-option *ngFor="let item of pageSize" value="{{item}}">{{ item }}</nb-option>
         </nb-select>
         <button class="btn btn-primary ml-2" (click)="viewCorruptedFonts()" *ngIf="categoryId == 4" nbTooltip="Click here to view Corrupted Fonts" nbTooltipPlacement="bottom" nbTooltipStatus="primary">Corrupted Fonts</button>
-        <button class="btn btn-primary ml-2" (click)="addSubCategory()">Add Sub Category</button>
+        <button class="btn btn-primary ml-2" (click)="addSubCategory()" >Add Sub Category</button>
+        <button class="btn btn-primary ml-2" (click)="selectAllCat()" >Select Category</button>
+      </div>
+      <div class="col-md-12 xol-12 text-right" *ngIf="isselect==true">
+        <button class="btn btn-primary ml-2" (click)="selectAll()" >select all</button>
+        <button class="btn btn-primary ml-2" (click)="removeAllCat()" disabled>Remove All</button>
+        <button class="btn btn-danger ml-2" (click)="cancelCat()" >cancel</button>
       </div>
     </div>
   </div>
@@ -92,6 +98,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
           <div class="picture text-center" (click)="viewCatalog(item)" style="position: relative;">
             <img class="placeholder-img">
             <img class="categImg" [lazyLoad]="item.thumbnail_img" [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
+            <!-- <span>hello</span> -->
           </div>
           <div class="details">
             <div [nbTooltip]="item.sub_category_id+'. '+item.name" nbTooltipPlacement="bottom" nbTooltipStatus="primary">{{item.sub_category_id}}. {{item.name}}</div>

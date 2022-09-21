@@ -45,6 +45,7 @@ export class ViewcategoriesComponent implements OnInit {
   searchQuery: any;
   errormsg = ERROR;
   paginstatus = "true";
+  isselect:any=false;
 
   constructor(private validService: ValidationsService, private actRoute: ActivatedRoute, private dialog: NbDialogService, private dataService: DataService, private utils: UtilService, private route: Router) {
     this.broadItem = JSON.parse(localStorage.getItem('selected_category')).name;
@@ -284,5 +285,22 @@ export class ViewcategoriesComponent implements OnInit {
   }
   viewCorruptedFonts(){
     this.dialog.open(ViewcorruptedfontsComponent,{ closeOnBackdropClick: true });
+  }
+  selectAllCat()
+  {
+    console.log("hello");
+    this.isselect = true;
+    console.log(this.categoryData);
+  }
+  selectAll(){
+    console.log("selectAll");
+    
+  }
+  removeAllCat(){
+    console.log("remove All");
+  }
+  cancelCat(){
+    this.isselect = false;
+    console.log("cancel");
   }
 }
