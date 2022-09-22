@@ -90,7 +90,7 @@ export class SearchComponent implements OnInit {
   multiSelectAppName = [];
 
   isAutoCompOpen: boolean = false;
-  is_free:any= 0;
+  is_free:any= 1;
   select_category:any=2;
   currentPage:any=1;
   catedata:any;
