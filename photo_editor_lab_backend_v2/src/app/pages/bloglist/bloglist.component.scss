@@ -15,19 +15,19 @@
 .va-middle {
   vertical-align: middle;
 }
-// :host /deep/ .ngx-pagination .pagination-previous::before{
+// :host ::ng-deep .ngx-pagination .pagination-previous::before{
 //   content: unset !important;
 // }
-// :host /deep/ .ngx-pagination .pagination-next.disabled::after{
+// :host ::ng-deep .ngx-pagination .pagination-next.disabled::after{
 //   content: unset !important;
 // }
-// :host /deep/ .ngx-pagination .pagination-previous a::before{
+// :host ::ng-deep .ngx-pagination .pagination-previous a::before{
 //   content: unset !important;
 // }
-// :host /deep/ .ngx-pagination .pagination-next a::after{
+// :host ::ng-deep .ngx-pagination .pagination-next a::after{
 //   content: unset !important;
 // }
-// :host /deep/ .ngx-pagination li a{
+// :host ::ng-deep .ngx-pagination li a{
 //   padding: 0px !important;
 //   color: #3366FF;
 //   &:hover{
@@ -39,11 +39,11 @@
 //     outline: none !important;
 //   }
 // }
-// :host /deep/ .ngx-pagination .current {
+// :host ::ng-deep .ngx-pagination .current {
 //   background: #3366FF !important;
 //   color: #fff !important;
 // }
-// :host /deep/ .ngx-pagination .disabled {
+// :host ::ng-deep .ngx-pagination .disabled {
 //   color: #cacaca !important;
 //   cursor: default !important;
 // }

@@ -86,7 +86,7 @@
   .img-det-card{
     height: 94px;
   }
-  :host /deep/ table thead tr {
+  :host ::ng-deep table thead tr {
     &:first-child {
       th {
         top: -5px !important;
