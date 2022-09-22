@@ -71,19 +71,19 @@
   display: none;
 }
 
-:host /deep/ .ng2-smart-action-multiple-select>input {
+:host ::ng-deep .ng2-smart-action-multiple-select>input {
   width: 25px;
   height: 25px;
   display: unset;
 }
 
-:host /deep/ .ng2-smart-titles th>input {
+:host ::ng-deep .ng2-smart-titles th>input {
   width: 25px;
   height: 25px;
   display: unset;
 }
 
-:host /deep/ .table-card-font .ng2-smart-titles th {
+:host ::ng-deep .table-card-font .ng2-smart-titles th {
   &:first-child {
     text-align: center;
     width: 75px !important;
