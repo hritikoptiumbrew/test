@@ -29,13 +29,13 @@ import { ViewsubcategoriesModule } from './viewsubcategories/viewsubcategories.m
 import { FontlistModule } from './fontlist/fontlist.module';
 import { PopularsamplesModule } from './popularsamples/popularsamples.module';
 import { BloglistModule } from './bloglist/bloglist.module';
-
+import { MatChipsModule } from '@angular/material/chips';
 import { StatisticsModule } from './statistics/statistics.module';
 import { ImagedetailsModule } from './imagedetails/imagedetails.module';
 import { RediscacheModule } from './rediscache/rediscache.module';
 import { SettingsModule } from './settings/settings.module';
 import { SearchComponent } from './search/search.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule,ReactiveFormsModule} from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Daterangepicker } from 'ng2-daterangepicker';
 import { UpdateTagDialogComponent } from './search/update-tag-dialog/update-tag-dialog.component';
@@ -43,7 +43,9 @@ import { UpdateTagDialogComponent } from './search/update-tag-dialog/update-tag-
 @NgModule({
   imports: [
     PagesRoutingModule,
+    ReactiveFormsModule,
     ThemeModule,
+    MatChipsModule,
     NbMenuModule,
     DashboardModule,
     CategoriesModule,
