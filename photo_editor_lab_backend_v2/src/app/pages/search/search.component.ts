@@ -41,6 +41,9 @@ export class SearchComponent implements OnInit {
 
   catagoryList: [];
 
+  cat_id:number;
+  is_featured;
+
   inputValSub: string = "All Templates";
 
   androidControl = new FormControl();
@@ -68,6 +71,7 @@ export class SearchComponent implements OnInit {
   selectedTag: string = "";
 
   subCatId: number = 66;
+
 
   token: string = localStorage.getItem('at');
 
@@ -359,10 +363,13 @@ export class SearchComponent implements OnInit {
 
   //function for opening the dialog
   openDia() {
+    console.log(this.select_category,this.is_free);
     let dialogRef = this.dialogService.open(UpdateTagDialogComponent, {
       closeOnBackdropClick: false,
       context: {
         //data that send to dialog
+        cat_id:this.select_category,
+        is_featured:this.is_free,
         dataFromPage: this.DataForDialog,
         startDate: this.start,
         endDate: this.end,
