@@ -10,10 +10,10 @@
         <nb-icon class="mr-3 mt-1" icon="options-2-outline"></nb-icon> Select catalog Type
       </nb-option> -->
       <nb-option [value]="1">
-        <nb-icon class="mr-3 mt-1" icon="clipboard-outline"></nb-icon> Template
+        <nb-icon class="mr-3 mt-1" icon="clipboard-outline"></nb-icon> Featured
       </nb-option>
       <nb-option [value]="0">
-        <nb-icon class="mr-3 mt-1" icon="pricetags"></nb-icon> Normal Img
+        <nb-icon class="mr-3 mt-1" icon="pricetags"></nb-icon> Non-Featured
       </nb-option>
     </nb-select>
     <nb-select  placeholder="Select Category" fullWidth (selectedChange)="displaySubcat()" [(ngModel)]="select_category" class="col px-1">
