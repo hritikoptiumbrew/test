@@ -421,6 +421,8 @@ export class SearchComponent implements OnInit {
       "search_category": dataDetails.tag,
       "sub_category_id": this.multiSelectedApps.join(","),
       'search_tag_id': dataDetails.id,
+      "category_id":this.select_category,
+      "is_featured":this.is_free
       // 'is_template': dataDetails.is_template.toString(),
     }
     this.api.postData('refreshSearchCountByAdmin', data, { headers: { 'Authorization': 'Bearer ' + this.token } })
