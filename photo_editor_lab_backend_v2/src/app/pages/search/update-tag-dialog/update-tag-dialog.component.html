@@ -65,10 +65,10 @@
                     <div class="col-lg-2 col-md-3 col-sm-4 col-6 my-3 d-flex justify-content-center"
                         *ngFor="let img of imgData">
                         <div class="d-flex justify-content-center align-items-center border-box position-relative ">
-                            <img (click)="viewImage(img.sample_image);" src="{{ img.sample_image }}" alt="img"
+                            <img (click)="viewImage(img.sample_image?img.sample_image:img.compressed_img);" [src]="img.sample_image?img.sample_image:img.compressed_img" alt="img"
                                 class="img_temp">
                             <input type="checkbox" class="positio-absolute check pointer"
-                                [checked]="listOfId.includes(img.json_id)" (change)="addImgId(img.json_id , $event)">
+                                [checked]="listOfId.includes(is_catalog?img.catalog_id:img.json_id)" (change)="addImgId(is_catalog?img.catalog_id:img.json_id , $event)">
                         </div>
                     </div>
                 </nb-list-item>
