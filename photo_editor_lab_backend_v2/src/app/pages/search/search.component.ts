@@ -417,6 +417,8 @@ export class SearchComponent implements OnInit {
     this.util.showPageLoader()
     let data = {
       "page": 1,
+      "category_id":this.select_category,
+      "is_featured":this.is_free,
       "item_count": this.numberOfItems,
       "search_category": dataDetails.tag,
       "sub_category_id": this.multiSelectedApps.join(","),
