@@ -11641,7 +11641,10 @@ class AdminController extends Controller
                                             ON 
                                                 scm.id = tam.sub_category_id
                                             WHERE
-                                                tam.sub_category_id = ? AND
+                                                tam.category_id = ? AND
+                                                #tam.sub_category_id = ? AND
+                                                tam.main_sub_category_id = ? AND
+                                                tam.is_featured = ? AND
                                                 DATE(tam.update_time) BETWEEN ? AND ?
                                                 ' . $this->where_condition . '
                                             ORDER BY ' . $this->order_by_clause . '
