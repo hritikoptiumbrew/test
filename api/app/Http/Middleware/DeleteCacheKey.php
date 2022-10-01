@@ -95,7 +95,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getOfflineFontCatalogs*"),['']));
 
                 //remove keys of getCatalogsByType & getCatalogsByTypeInWebp api
-                Redis::del(array_merge(Redis::keys("pel:getCatalogsByType*"),['']));
+                Redis::del(array_merge(Redis::keys("pel:getCatalogsByType:*"),['']));
 
                 //getFeaturedJsonSampleData_webp
                 //Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonSampleData_webp*"),['']));
@@ -181,7 +181,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getJsonSampleData*"),['']));
 
                 //getJsonSampleDataWithLastSyncTime & getJsonSampleDataWithLastSyncTime_webp
-                Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataWithLastSyncTime:*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataWithLastSyncTime:*"),['']));
 
                 //getJsonSampleDataWithLastSyncTime_webp_v2
                 Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataWithLastSyncTime_webp_v2*"),['']));

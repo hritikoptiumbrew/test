@@ -86,40 +86,29 @@ class UserController extends Controller
             $this->is_free = isset($request->is_free) ? ' AND ct.is_free = ' . $request->is_free : '';
             $this->is_featured = isset($request->is_featured) ? ' AND ct.is_featured = ' . $request->is_featured : '';
 
-            if (!Cache::has("pel:getCatalogsByType$this->sub_category_id:$this->is_free:$this->is_featured")) {
-                $result = Cache::rememberforever("getCatalogsByType$this->sub_category_id:$this->is_free:$this->is_featured", function () {
+            $redis_result = Cache::rememberforever("getCatalogsByType:$this->sub_category_id:$this->is_free:$this->is_featured", function () {
 
-                    $catalog_ids = Config::get('constant.OFFLINE_CATALOG_IDS_OF_FONT');
+                $catalog_ids = Config::get('constant.OFFLINE_CATALOG_IDS_OF_FONT');
 
-                    return DB::select('SELECT
-                                          ct.id as catalog_id,
-                                          ct.name,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as thumbnail_img,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as compressed_img,
-                                          IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") as original_img,
-                                          ct.is_featured,
-                                          ct.is_free,
-                                          ct.updated_at
-                                        FROM
-                                          catalog_master as ct,
-                                          sub_category_catalog as sct
-                                        WHERE
-                                          sct.sub_category_id = ? AND
-                                          sct.catalog_id = ct.id AND
-                                          NOT find_in_set(ct.id,"' . $catalog_ids . '") AND
-                                          sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+                return DB::select('SELECT
+                                      ct.id AS catalog_id,
+                                      ct.name,
+                                      IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS thumbnail_img,
+                                      IF(ct.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS compressed_img,
+                                      IF(ct.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS original_img,
+                                      ct.is_featured,
+                                      ct.is_free,
+                                      ct.updated_at
+                                    FROM
+                                      catalog_master AS ct,
+                                      sub_category_catalog AS sct
+                                    WHERE
+                                      sct.sub_category_id = ? AND
+                                      sct.catalog_id = ct.id AND
+                                      NOT find_in_set(ct.id,"' . $catalog_ids . '") AND
+                                      sct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
 
-                });
-
-
-            }
-
-            $redis_result = Cache::get("getCatalogsByType$this->sub_category_id:$this->is_free:$this->is_featured");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
+            });
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -321,7 +310,7 @@ class UserController extends Controller
      * @apiSuccessExample Request-Body:
      *{
      * "sub_category_id":94, //compulsory
-     * "is_free":1 //optional, 1=free & 0=paid
+     * "is_free":1, //optional, 1=free & 0=paid
      * "is_featured":1 //optional, 1=featured & 0=normal
      * }
      * @apiSuccessExample Success-Response:
@@ -354,7 +343,6 @@ class UserController extends Controller
     public function getCatalogsByTypeInWebp(Request $request)
     {
         try {
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
@@ -365,9 +353,10 @@ class UserController extends Controller
             $this->sub_category_id = $request->sub_category_id;
             $this->is_free = isset($request->is_free) ? ' AND ct.is_free = ' . $request->is_free : '';
             $this->is_featured = isset($request->is_featured) ? ' AND ct.is_featured = ' . $request->is_featured : '';
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getCatalogsByTypeInWebp$this->sub_category_id:$this->is_free:$this->is_featured")) {
-                $result = Cache::rememberforever("getCatalogsByTypeInWebp$this->sub_category_id:$this->is_free:$this->is_featured", function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getCatalogsByTypeInWebp:$this->sub_category_id:$this->is_free:$this->is_featured", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $catalog_ids = Config::get('constant.OFFLINE_CATALOG_IDS_OF_FONT');
 
@@ -387,21 +376,29 @@ class UserController extends Controller
                                           sct.catalog_id = ct.id AND
                                           NOT find_in_set(ct.id,"' . $catalog_ids . '") AND
                                           sct.is_active = 1 AND ct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  order by ct.updated_at DESC', [$this->sub_category_id]);
-
-
                 });
 
-
+            } else {
+                $catalog_ids = Config::get('constant.OFFLINE_CATALOG_IDS_OF_FONT');
+                $redis_result = DB::select('SELECT
+                                          ct.id as catalog_id,
+                                          ct.name,
+                                          IF(ct.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.attribute1),"") as webp_thumbnail_img,
+                                          ct.is_featured,
+                                          ct.is_free,
+                                          ct.is_ios_free,
+                                          ct.updated_at
+                                        FROM
+                                          catalog_master as ct,
+                                          sub_category_catalog as sct
+                                        WHERE
+                                          sct.sub_category_id = ? AND
+                                          sct.catalog_id = ct.id AND
+                                          NOT find_in_set(ct.id,"' . $catalog_ids . '") AND
+                                          sct.is_active = 1 AND ct.is_active = 1 ' . $this->is_free . ' ' . $this->is_featured . '  order by ct.updated_at DESC', [$this->sub_category_id]);
             }
 
-            $redis_result = Cache::get("getCatalogsByTypeInWebp$this->sub_category_id:$this->is_free:$this->is_featured");
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
-
-
-            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/']));
+            $response = Response::json(array('code' => 200, 'message' => 'Catalogs fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB') . '/']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
@@ -5954,7 +5951,7 @@ class UserController extends Controller
 
             if ($is_cache_enable) {
 
-                $redis_result = Cache::rememberforever("getTemplateWithCatalogs:$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count:$this->is_get_data_for_1st_catalog", function () {
+                $redis_result = Cache::remember("getTemplateWithCatalogs:$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count:$this->is_get_data_for_1st_catalog", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
                     $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
@@ -8416,11 +8413,12 @@ class UserController extends Controller
                 return $response;
 
             $this->catalog_id = $request->catalog_id;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if (!Cache::has("pel:getAllFontsByCatalogId$this->catalog_id")) {
-                $result = Cache::rememberforever("getAllFontsByCatalogId$this->catalog_id", function () {
+            if ($is_cache_enable){
+                $redis_result = Cache::remember("getAllFontsByCatalogId$this->catalog_id", Config::get('constant.CACHE_TIME_24_HOUR'), function () {
 
-                    return $result = DB::select('SELECT
+                        return DB::select('SELECT
                                               fm.id as font_id,
                                               fm.catalog_id,
                                               fm.font_name,
@@ -8435,11 +8433,20 @@ class UserController extends Controller
                                             order by fm.update_time DESC', [$this->catalog_id]);
 
                 });
-            }
-            $redis_result = Cache::get("getAllFontsByCatalogId$this->catalog_id");
-
-            if (!$redis_result) {
-                $redis_result = [];
+            }else{
+                 $redis_result = DB::select('SELECT
+                                              fm.id as font_id,
+                                              fm.catalog_id,
+                                              fm.font_name,
+                                              fm.font_file,
+                                              IF(fm.font_file != "",CONCAT("' . Config::get('constant.FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . '",fm.font_file),"") as font_url,
+                                              fm.ios_font_name
+                                            FROM
+                                              font_master as fm
+                                            where
+                                              fm.is_active = 1 AND
+                                              fm.catalog_id = ?
+                                            order by fm.update_time DESC', [$this->catalog_id]);
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Fonts fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/']));
