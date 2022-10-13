@@ -95,7 +95,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getOfflineFontCatalogs*"),['']));
 
                 //remove keys of getCatalogsByType & getCatalogsByTypeInWebp api
-                Redis::del(array_merge(Redis::keys("pel:getCatalogsByType*"),['']));
+                Redis::del(array_merge(Redis::keys("pel:getCatalogsByType:*"),['']));
 
                 //getFeaturedJsonSampleData_webp
                 //Redis::del(array_merge(Redis::keys("pel:getFeaturedJsonSampleData_webp*"),['']));
@@ -181,7 +181,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getJsonSampleData*"),['']));
 
                 //getJsonSampleDataWithLastSyncTime & getJsonSampleDataWithLastSyncTime_webp
-                Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataWithLastSyncTime:*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataWithLastSyncTime:*"),['']));
 
                 //getJsonSampleDataWithLastSyncTime_webp_v2
                 Redis::del(array_merge(Redis::keys("pel:getJsonSampleDataWithLastSyncTime_webp_v2*"),['']));
@@ -427,13 +427,14 @@ class DeleteCacheKey
             }
 
             //save search module
-            if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/searchCardsBySubCategoryId' or $api == '/api/searchCardsByMultipleSubCategoryId' or $api == '/api/searchCardsBySubCategoryIdFailOver' or $api == '/api/searchCardsBySubCategoryId_v2' or $api == '/api/refreshSearchCountByAdmin'){
+            if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/searchCardsBySubCategoryId' or $api == '/api/searchCardsByMultipleSubCategoryId' or $api == '/api/searchCardsBySubCategoryIdFailOver' or $api == '/api/searchCardsBySubCategoryId_v2' or $api == '/api/refreshSearchCountByAdmin' or $api == '/api/searchCatalogBySubCategoryId' or $api == '/api/searchNormalImagesBySubCategoryIdForFlyer'){
                 Redis::del(array_merge(Redis::keys("pel:getAllSearchingDetailsForAdmin*"),['']));
             }
 
             if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/refreshSearchCountByAdmin'){
                 //Redis::del(array_merge(Redis::keys("pel:searchCardsBySubCategoryId*"),['']));
                 Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin*"),['']));
+                Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryIdForAdmin*"),['']));
             }
 
 

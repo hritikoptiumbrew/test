@@ -1,0 +1,33 @@
+
+
+
+.close-icon {
+    position: absolute;
+    right: 19px;
+    font-size: 23px;
+    top: 21px;
+    cursor: pointer;
+  }
+
+.add-json-data-card
+{
+    width: 35vw;
+    height:55vh;
+
+    .json-form-data {
+        height: 35vh;
+        overflow-x: hidden;
+        overflow-y: scroll;
+    
+        &::-webkit-scrollbar {
+          display: none;
+        }
+        nb-radio-group {
+            display: flex;
+        }
+        label{
+            line-height: 2.2;
+        }
+        
+      }
+}

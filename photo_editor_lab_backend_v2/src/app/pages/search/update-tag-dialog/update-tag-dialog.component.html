@@ -1,21 +1,22 @@
-<nb-card class="dialog mb-0" (keyup.enter)="onsubmit()">
+<nb-card class="dialog mb-0" >
     <nb-card-header class="position-relative">
         <h5 class="mb-4 pb-2 text-center">Upadate Template's Tag</h5>
         <i class="fa fa-times close-icon position-absolute close" title="Close" (click)="close()"></i>
         <div class="row mr-2">
             <div class="col-6">
                 <div class="d-flex align-items-center">
-                    <input type="text" class="searchInput" nbInput fullWidth [(ngModel)]="inputVal" status="basic"
+                    <input type="text" (keyup.enter)="onsubmit()" class="searchInput" nbInput fullWidth [(ngModel)]="inputVal" status="basic"
                         placeholder="Enter Tag to Search Template">
                     <button nbButton size="small" class="mx-2 border searchButton" shape="squer"
                         (click)="searchByTags()">
                         <nb-icon icon="search"></nb-icon>
                     </button>
-                  
+
                 </div>
                 <div class="d-block mt-2">
                     <button class="btn btn-primary mr-1" (click)="selectAll()">Select All</button>
-                    <button class="btn btn-danger" [disabled]="listOfId.length == 0" (click)="listOfId = []">Remove All</button>
+                    <button class="btn btn-danger" [disabled]="listOfId.length == 0" (click)="listOfId = []">Remove
+                        All</button>
                 </div>
                 <div class="mt-2">
                     <div class="height-30">
@@ -27,16 +28,30 @@
                         </button>
                     </div>
                 </div>
-                
+
             </div>
             <div class="col-6">
-                <div class="row border py-2">
+                <!-- <div class="row border py-2">
                     <div class="col-12 text-center border-bottom mb-2 pb-1">
                         <span class="mb-0 my-1 tag">Selected Tags </span>
                     </div>
                     <div class="col-12 height-30">
                         <button nbButton shape="round" class="mx-1 my-1" *ngFor="let data of filterDataFromPage"
                             size="tiny" status="info">{{ data }}</button>
+                    </div>
+                </div> -->
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <input nbInput (keyup.enter)="add($event)" fullwidth type="text" class="mw-100 w-100 mb-1"
+                            [formControl]="searchINputControl" placeholder="Select / Enter new tag">
+                        <p id="tagInputError" style="color: red;margin-bottom: 3px;"></p>
+                        <mat-chip-list #chipList aria-label="Fruit selection">
+                            <mat-chip *ngFor="let fruit of selectedSearchTags" style="background-color: #e0e0e0">
+                                {{fruit}} 
+                                <i class="fa fa-times" style="margin-top: 5px;color:red;cursor: pointer;" matChipRemove
+                                    (click)="remove(fruit)"></i>
+                            </mat-chip>
+                        </mat-chip-list>
                     </div>
                 </div>
             </div>
@@ -50,9 +65,10 @@
                     <div class="col-lg-2 col-md-3 col-sm-4 col-6 my-3 d-flex justify-content-center"
                         *ngFor="let img of imgData">
                         <div class="d-flex justify-content-center align-items-center border-box position-relative ">
-                            <img (click)="viewImage(img.sample_image);" src="{{ img.sample_image }}" alt="img" class="img_temp">
-                            <input type="checkbox" class="positio-absolute check pointer" [checked]="listOfId.includes(img.json_id)"
-                                (change)="addImgId(img.json_id , $event)">
+                            <img (click)="viewImage(img.sample_image?img.sample_image:img.compressed_img);" [src]="img.sample_image?img.sample_image:img.compressed_img" alt="img"
+                                class="img_temp">
+                            <input type="checkbox" class="positio-absolute check pointer"
+                                [checked]="listOfId.includes(is_catalog?img.catalog_id:img.json_id)" (change)="addImgId(is_catalog?img.catalog_id:img.json_id , $event)">
                         </div>
                     </div>
                 </nb-list-item>

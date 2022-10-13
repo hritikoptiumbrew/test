@@ -31,6 +31,7 @@ export class SearchComponent implements OnInit {
   optionForCatagory: any;
 
   filterOptions$: Observable<string[]>;
+  filterCategory$: Observable<string[]>;
 
   start = moment().subtract(7, 'days').format('YYYY-MM-DD');
 
@@ -39,6 +40,9 @@ export class SearchComponent implements OnInit {
   dataForTable: any = [];
 
   catagoryList: [];
+
+  cat_id:number;
+  is_featured;
 
   inputValSub: string = "All Templates";
 
@@ -68,6 +72,7 @@ export class SearchComponent implements OnInit {
 
   subCatId: number = 66;
 
+
   token: string = localStorage.getItem('at');
 
   sortByTagName: any;
@@ -89,6 +94,11 @@ export class SearchComponent implements OnInit {
   multiSelectAppName = [];
 
   isAutoCompOpen: boolean = false;
+  is_free:any= 1;
+  select_category:any=2;
+  currentPage:any=1;
+  catedata:any;
+  catopt:any;
 
   public optionsD: any = {
     locale: { format: 'YYYY-MM-DD' },
@@ -106,14 +116,24 @@ export class SearchComponent implements OnInit {
     private router: Router, private util: UtilService) {
 
     this.getSubCategory();
+    this.getAllcategory();
     // this.onserch();
   }
 
   ngOnInit() {
     this.optionForCatagory = [];
+    this.catedata = [];
+    // this.catopt = this.catedata;
+   
+    this.filterCategory$ = of(this.catedata);
     this.filterOptions$ = of(this.optionForCatagory);
   }
-
+  displaySubcat(){
+    this.optionForCatagory = [];
+    this.filterOptions$ = of(this.optionForCatagory);
+    this.getSubCategory();
+   
+  }
   // function for date selection
   public selectedDate(value: any, datepicker?: any) {
     datepicker.start = value.start;
@@ -129,18 +149,20 @@ export class SearchComponent implements OnInit {
 
   //Get list of subcategories
   getSubCategory() {
-    const dataForCat = {
-      "category_id": 2
+    let dataForCat = {
+      "category_id": this.select_category
     }
     this.api.postData("getAllSubCategory", dataForCat, { headers: { 'Authorization': 'Bearer ' + this.token } })
       .then(response => {
         if (response.code == 200) {
           this.allSubData = response.data.category_list;
-          for (var i = 0; i < response.data.category_list.length; i++) {
+          for (var i = 0; i < response.data.category_list.length; i++)
+          {
             this.optionForCatagory.push(response.data.category_list[i]);
           }
           this.inputValSub = this.optionForCatagory[0].sub_category_name;
           this.subCatId = this.optionForCatagory[0].sub_category_id;
+         
           this.onserch();
         } else if (response.code == 201) {
           this.util.showError(response.message, 3000);
@@ -156,6 +178,42 @@ export class SearchComponent implements OnInit {
         this.util.showError(ERROR.SERVER_ERR, 3000);
       });
 
+  }
+  getAllcategory(){
+    this.api.postData('getAllCategory',
+      {
+        "page": this.currentPage
+      }, {
+      headers: {
+        'Authorization': 'Bearer ' + this.token
+      }
+    }).then((results: any) => {
+
+      if (results.code == 200) {
+      
+        let len = results.data.category_list.length
+        for(let i=0;i<len;i++)
+        {
+          this.catedata.push(results.data.category_list[i]);
+        }
+        this.onserch();
+        console.log(this.catedata,"catdata");
+       
+       }
+       else if (results.code == 201) {
+        this.util.showError(results.message, 3000);
+      } 
+      else {
+        this.util.showError(ERROR.SERVER_ERR, 3000);
+      }
+      }, (error: any) => {
+       console.log(error);
+        this.util.showError(ERROR.SERVER_ERR, 3000);
+    })
+    .catch(error => {
+      console.log(error);
+      this.util.showError(ERROR.SERVER_ERR, 3000);
+    });
   }
 
   //Select and deselect tags
@@ -257,16 +315,21 @@ export class SearchComponent implements OnInit {
       this.multiSelectedApps.push(this.subCatId);
       this.setMultiSelectAppName(this.subCatId);
     }
+    console.log(this.multiSelectedApps.join(','),'sub-cat-id');
+    //this.numberOfItems,this.multiSelectedApps.join(",")
     let data = {
       "page": this.pageNum,
-      "item_count": this.numberOfItems,
+      "item_count":this.numberOfItems,
       "start_date": this.start,
       "end_date": this.end,
-      "sub_category_id": this.multiSelectedApps.join(","),
+      "sub_category_id":  this.multiSelectedApps.join(','),
       "search_type": this.serchTage,
       "search_query": this.serchQuery,
       "order_by": this.sortByTagName,
       "order_type": this.order_type_val,
+      // "is_free":this.is_free,
+      "is_featured":this.is_free,
+      "category_id":this.select_category
     }
     this.util.showPageLoader()
     this.api.postData("getAllSearchingDetailsForAdmin", data, { headers: { 'Authorization': 'Bearer ' + this.token } })
@@ -294,14 +357,19 @@ export class SearchComponent implements OnInit {
         this.util.hidePageLoader();
         this.util.showError(ERROR.SERVER_ERR, 3000);
       })
+     
+      
   }
 
   //function for opening the dialog
   openDia() {
+    console.log(this.select_category,this.is_free);
     let dialogRef = this.dialogService.open(UpdateTagDialogComponent, {
       closeOnBackdropClick: false,
       context: {
         //data that send to dialog
+        cat_id:this.select_category,
+        is_featured:this.is_free,
         dataFromPage: this.DataForDialog,
         startDate: this.start,
         endDate: this.end,
@@ -353,6 +421,8 @@ export class SearchComponent implements OnInit {
       "search_category": dataDetails.tag,
       "sub_category_id": this.multiSelectedApps.join(","),
       'search_tag_id': dataDetails.id,
+      "category_id":this.select_category,
+      "is_featured":this.is_free
       // 'is_template': dataDetails.is_template.toString(),
     }
     this.api.postData('refreshSearchCountByAdmin', data, { headers: { 'Authorization': 'Bearer ' + this.token } })

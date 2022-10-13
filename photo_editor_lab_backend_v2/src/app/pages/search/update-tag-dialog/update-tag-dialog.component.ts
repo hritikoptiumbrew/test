@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { NbDialogRef, NbDialogService } from '@nebular/theme';
 import { ERROR } from 'app/app.constants';
 import { ViewimageComponent } from 'app/components/viewimage/viewimage.component';
@@ -17,6 +18,7 @@ export class UpdateTagDialogComponent implements OnInit {
   inputVal: string = "";
 
   dataFromPage = [];
+  cat_id:any;
 
   filterDataFromPage = [];
 
@@ -24,6 +26,7 @@ export class UpdateTagDialogComponent implements OnInit {
   endDate: string;
 
   subCatId: string;
+  is_featured:any;
 
   imgData: any[] = [];
 
@@ -42,9 +45,12 @@ export class UpdateTagDialogComponent implements OnInit {
   checked: boolean;
 
   pageLoader: boolean = false;
+  selectedSearchTags: string[] = [];
+  searchINputControl = new FormControl();
+
+  is_catalog:boolean = false;
 
   constructor(protected dialogRef: NbDialogRef<any>, public api: DataService, public util: UtilService, private dialog: NbDialogService) {
-
   }
 
   ngOnInit(): void {
@@ -57,6 +63,7 @@ export class UpdateTagDialogComponent implements OnInit {
       temp_array.push(element);
     });
     this.filterDataFromPage = temp_array;
+    this.selectedSearchTags = this.filterDataFromPage;
   }
 
   //for closing dialog
@@ -79,6 +86,10 @@ export class UpdateTagDialogComponent implements OnInit {
     else {
       this.showInputError = true;
     }
+  }
+  remove(fruit) {
+    var i = this.selectedSearchTags.indexOf(fruit);
+    this.selectedSearchTags.splice(i, 1);
   }
 
   //remove tag from list of tag
@@ -105,7 +116,53 @@ export class UpdateTagDialogComponent implements OnInit {
       this.util.showError('Please enter tag name', 2000);
     }
   }
+//add tag
+add(event) {
+  if (typeof event == "object") {
+    if (event.target.value.trim() != "") {
+      // if (!this.validateString(event.target.value)) {
+      //   document.getElementById("tagInputError").innerHTML = "Special characters not allowed, only alphanumeric, ' & , #' is allowed in tag name.";
+      //   return;
+      // }
+      // else {
+      var newStr = event.target.value;
+      var newArr = newStr.split(",");
+      for (let i = 0; i < newArr.length; i++) {
+        if ((newArr[i] || '').trim()) {
+          this.selectedSearchTags.push(newArr[i].trim().toLowerCase());
+        }
+      }
+      document.getElementById("tagInputError").innerHTML = "";
+      this.searchINputControl.setValue("");
+      // }
+    }
+    else {
+      document.getElementById("tagInputError").innerHTML = "please enter valid tag";
+      this.searchINputControl.setValue("");
+    }
+  }
+  else {
+    if (event != "") {
+      // if (!this.validateString(event)) {
+      //   document.getElementById("tagInputError").innerHTML = "Special characters not allowed, only alphanumeric, '&' is allowed in tag name.";
+      //   return;
+      // }
+      // else {
+      document.getElementById("tagInputError").innerHTML = "";
+      this.selectedSearchTags.push(event.toLowerCase());
+      this.searchINputControl.setValue("");
+      // }
+    }
+  }
+  const unique = (value, index, self) => {
+    return self.indexOf(value) === index
+  }
 
+  const uniqueTags = this.selectedSearchTags.filter(unique)
+
+  this.selectedSearchTags = uniqueTags;
+}
+//
   //callin search API for list of Img
   searchByTag() {
     if (this.pagNum == 1) {
@@ -114,6 +171,8 @@ export class UpdateTagDialogComponent implements OnInit {
     const data = {
       "page": this.pagNum,
       "item_count": 18,
+      "category_id":this.cat_id,
+      "is_featured":this.is_featured,
       "sub_category_id": this.subCatId,
       // "search_category": this.tagList.join(",")
       "search_category": this.inputVal
@@ -124,6 +183,7 @@ export class UpdateTagDialogComponent implements OnInit {
           for (let i = 0; i < resoponse.data.result.length; i++) {
             this.imgData.push(resoponse.data.result[i]);
           }
+          this.is_catalog = resoponse.data.is_catalog == 0?false:true;
           this.searchByTagData = resoponse.data;
           this.checked = false;
           this.pageLoader = false;
@@ -172,11 +232,21 @@ export class UpdateTagDialogComponent implements OnInit {
   //function for adding images to the tag name
   updateTag() {
     if (this.listOfId.length > 0) {
-      const data = {
-        "img_ids": this.listOfId.join(','),
-        "search_category": this.filterDataFromPage.join(','),
-        "sub_category_id": this.subCatId,
+      let data;
+      if(this.is_catalog == true){
+        data = {
+          "catalog_ids": this.listOfId.join(','),
+          "search_category": this.filterDataFromPage.join(','),
+          "sub_category_id": this.subCatId,
+        }
+      }else{
+        data = {
+          "img_ids": this.listOfId.join(','),
+          "search_category": this.filterDataFromPage.join(','),
+          "sub_category_id": this.subCatId,
+        }
       }
+      
       this.util.showLoader()
       this.api.postData("updateTemplateSearchingTagsByAdmin", data, { headers: { 'Authorization': 'Bearer ' + this.token } })
         .then(response => {
@@ -227,7 +297,11 @@ export class UpdateTagDialogComponent implements OnInit {
   selectAll() {
     this.listOfId = [];
       for (let i = 0; i < this.imgData.length; i++) {
+        if(this.is_catalog){
+          this.listOfId.push(this.imgData[i].catalog_id);
+        }else{
           this.listOfId.push(this.imgData[i].json_id);
+        }
       }
   }
 }

@@ -124,7 +124,7 @@
     
   }
   
-  :host /deep/ .static-detail-card ng2-smart-table table thead tr {
+  :host ::ng-deep .static-detail-card ng2-smart-table table thead tr {
 
     &:first-child {
       th {
@@ -140,7 +140,7 @@
   }
 }
 
-:host /deep/ .ngx-pagination li a {
+:host ::ng-deep .ngx-pagination li a {
   padding: 0.75rem 1.25rem !important;
   border: #edf1f7 solid 1px !important;
   margin-right: 0px !important;
@@ -148,27 +148,27 @@
   // background: red !important;
 }
 
-:host /deep/ .ngx-pagination .pagination-previous::before {
+:host ::ng-deep .ngx-pagination .pagination-previous::before {
   content: unset !important;
 }
 
-:host /deep/ .ngx-pagination .pagination-next.disabled::after {
+:host ::ng-deep .ngx-pagination .pagination-next.disabled::after {
   content: unset !important;
 }
 
-:host /deep/ .ngx-pagination .pagination-previous a::before {
+:host ::ng-deep .ngx-pagination .pagination-previous a::before {
   content: unset !important;
 }
 
-:host /deep/ .ngx-pagination .pagination-next a::after {
+:host ::ng-deep .ngx-pagination .pagination-next a::after {
   content: unset !important;
 }
 
-:host /deep/ .ngx-pagination li {
+:host ::ng-deep .ngx-pagination li {
   margin-right: 0px !important;
 }
 
-:host /deep/ .ngx-pagination li a {
+:host ::ng-deep .ngx-pagination li a {
   color: #3366FF;
   text-decoration: none !important;
 
@@ -183,19 +183,19 @@
   }
 }
 
-:host /deep/ .ngx-pagination {
+:host ::ng-deep .ngx-pagination {
   margin-bottom: 0px !important;
   padding-inline-start: 0px !important;
 }
 
-:host /deep/ .ngx-pagination .current {
+:host ::ng-deep .ngx-pagination .current {
   padding: 0.75rem 1.25rem !important;
   border: #edf1f7 solid 1px !important;
   background: #3366FF !important;
   color: #fff !important;
 }
 
-:host /deep/ .ngx-pagination .disabled {
+:host ::ng-deep .ngx-pagination .disabled {
   // padding: 0.1875rem 0.625rem;
   color: #cacaca !important;
   // cursor: default;
@@ -207,21 +207,21 @@
   bottom: 0;
 }
 
-:host /deep/ .ngx-pagination li.pagination-previous {
+:host ::ng-deep .ngx-pagination li.pagination-previous {
   padding: 0.75rem 1.25rem !important;
   border: #edf1f7 solid 1px !important;
 }
 
-:host /deep/ .ngx-pagination li.pagination-next {
+:host ::ng-deep .ngx-pagination li.pagination-next {
   padding: 0.75rem 1.25rem !important;
   border: #edf1f7 solid 1px !important;
 }
 
-:host /deep/ .ngx-pagination li.pagination-previous a {
+:host ::ng-deep .ngx-pagination li.pagination-previous a {
   padding: 0px !important;
 }
 
-:host /deep/ .ngx-pagination li.pagination-next a {
+:host ::ng-deep .ngx-pagination li.pagination-next a {
   padding: 0px !important;
 }
 

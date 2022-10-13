@@ -5,7 +5,21 @@
 <nb-card class="w-100 bg-lightgrey mb-0 main">
   <nb-card-header class="row">
     <button class="btn py-0 font-17" disabled><i class="fas fa-sliders-h"></i></button>
-    <nb-select placeholder="Select Showcase" fullWidth [(selected)]="selectedItem" class="col px-2">
+    <nb-select placeholder="Select Showcase" fullWidth [(selected)]="is_free" class="col px-1">
+      <!-- <nb-option value="">
+        <nb-icon class="mr-3 mt-1" icon="options-2-outline"></nb-icon> Select catalog Type
+      </nb-option> -->
+      <nb-option [value]="1">
+        <nb-icon class="mr-3 mt-1" icon="clipboard-outline"></nb-icon> Featured
+      </nb-option>
+      <nb-option [value]="0">
+        <nb-icon class="mr-3 mt-1" icon="pricetags"></nb-icon> Non-Featured
+      </nb-option>
+    </nb-select>
+    <nb-select  placeholder="Select Category" fullWidth (selectedChange)="displaySubcat()" [(ngModel)]="select_category" class="col px-1">
+      <nb-option *ngFor="let catopt of filterCategory$ | async" [value]="catopt.category_id">{{catopt.name}}</nb-option>
+    </nb-select>
+    <nb-select placeholder="Select Showcase" [(selected)]="selectedItem" class="col px-0">
       <nb-option value="">
         <nb-icon class="mr-3 mt-1" icon="options-2-outline"></nb-icon> Select Search Type
       </nb-option>
@@ -16,6 +30,7 @@
         <nb-icon class="mr-3 mt-1" icon="pricetags"></nb-icon> Tag
       </nb-option>
     </nb-select>
+   
     <div class="col " *ngIf="selectedItem == '0'">
       <nb-radio-group class="d-flex justify-content-around" [(ngModel)]="selectedStauts">
         <nb-radio value="1">Success</nb-radio>
@@ -25,10 +40,10 @@
     <div class="col" *ngIf="selectedItem == '1'">
       <input type="text" nbInput fullWidth placeholder="Enter Tag Name" [(ngModel)]="selectedTag">
     </div>
-    <div class="col px-0 mx-2">
-      <input #CatInput nbInput [(ngModel)]="inputValSub" type="text" (input)="onGetValue($event)" fullWidth
-      focusInputOnValueChange="false" [nbAutocomplete]="auto" />
-      <nb-autocomplete #auto (selectedChange)="SelectionChange($event)" (click)="$event.stopPropagation();">
+    <div class="col px-0 mx-1">
+      <input #CatInput nbInput [(ngModel)]="inputValSub"  type="text" (input)="onGetValue($event)" fullWidth
+      focusInputOnValueChange="false" [nbAutocomplete]="auto" style="padding: 0.4375rem;"/>
+      <nb-autocomplete #auto (selectedChange)="SelectionChange($event)" (click)="$event.stopPropagation();" >
         <nb-option *ngFor="let options of filterOptions$ | async" [value]="options.sub_category_name"
           class="app-list-wrapper" (click)="addCategoryInArray(options)">
           <div class="wc-31" (click)="$event.stopPropagation();" (change)="multiSelectApp($event,options)">
@@ -38,9 +53,9 @@
         </nb-option>
       </nb-autocomplete>
     </div>
-    <div class="col px-0 mx-2">
+    <div class="col-2 px-0 mx-1">
       <input type="text" #date nbInput class="" fullWidth name="daterangeInput" daterangepicker [options]="optionsD"
-        (selected)="selectedDate($event, daterange)" value="{{ start }} - {{ end }}" />
+        (selected)="selectedDate($event, daterange)" value="{{ start }} - {{ end }}"  style="padding: 0.4375rem;text-align: center;"/>
     </div>
     <div class="">
       <button class="btn border mx-1 bg-white" (click)="onSerchButton()">
@@ -49,8 +64,8 @@
       <button class="btn border ml-1 mr-2 py-2 bg-white" (click)="openDia()" [disabled]="!checked">
         <b>ADD</b>
       </button>
-      <nb-select placeholder="10" class="itemsOnPage" [(selected)]="selectedNumberOfItems"
-        (selectedChange)="typeChange()" class="">
+      <nb-select placeholder="10" class="itemsOnPage itemopt" [(selected)]="selectedNumberOfItems"
+        (selectedChange)="typeChange()">
         <nb-option value="25">25</nb-option>
         <nb-option value="50">50</nb-option>
         <nb-option value="75">75</nb-option>
@@ -59,7 +74,7 @@
     </div>
   </nb-card-header>
   <nb-card-body class="p-0">
-    <p class="ml-2"><b>Selected Apps:</b> {{multiSelectAppName.join(", ")}}</p>
+    <p class="ml-2"><b>Selected Apps:</b> {{multiSelectAppName.join(", ")}} </p>
     <table class="text-center table-striped position-relative">
       <thead class="">
         <tr class="mx-0 ">

@@ -302,7 +302,7 @@ label[for=no] {
   .switch{
     left: 33%;
   }
-  :host /deep/ .table-body-td{
+  :host ::ng-deep .table-body-td{
     &:nth-child(1){
       width: 65px;
     }

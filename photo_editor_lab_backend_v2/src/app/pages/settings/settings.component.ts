@@ -142,7 +142,7 @@ export class SettingsComponent implements OnInit {
         this.openOTPDialog(this.lgRep, 'change-pwd');
       }
     });
-    // console.log(document.querySelectorAll(":host /deep/.validation-config-card ng2-smart-table"));
+    // console.log(document.querySelectorAll(":host ::ng-deep.validation-config-card ng2-smart-table"));
     
   }
   passwordToggle(type) {

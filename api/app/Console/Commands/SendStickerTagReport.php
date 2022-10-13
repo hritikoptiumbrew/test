@@ -101,6 +101,7 @@ class SendStickerTagReport extends Command
 
                 Mail::send($data['template'], $data, function ($message) use ($data) {
                     $message->to(Config::get('constant.SUPPORTER_EMAIL_ID'))->subject($data['subject']);
+                    $message->bcc(Config::get('constant.SUPER_ADMIN_EMAIL_ID'))->subject($data['subject']);
                     $message->bcc(Config::get('constant.ADMIN_EMAIL_ID'))->subject($data['subject']);
                     $message->bcc(Config::get('constant.SUB_ADMIN_EMAIL_ID'))->subject($data['subject']);
                 });

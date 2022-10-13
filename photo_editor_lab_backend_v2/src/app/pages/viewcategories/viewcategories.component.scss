@@ -92,6 +92,15 @@
   &::-webkit-scrollbar-thumb {
     background: #E4E9F2;
   }
+
+  .btn-primary:disabled{
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  .btn:disabled{
+    opacity: 0.65;
+  }
 }
 .picture {
   height: 118px;
