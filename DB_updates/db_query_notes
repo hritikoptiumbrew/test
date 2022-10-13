@@ -227,3 +227,8 @@ ALTER TABLE `images` ADD `cover_webp_img` VARCHAR(100) CHARACTER SET utf8mb4 COL
 ------------------------------------------------------------------------------------------------------------------------
 ALTER TABLE `images` CHANGE `search_category` `search_category` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
 UPDATE catalog_master SET updated_at = updated_at, search_category = NULL WHERE search_category = ''
+
+46) Photo_editor_lab : perform following query on database (23 Sep, 2022) to manage data country wise.
+------------------------------------------------------------------------------------------------------
+ALTER TABLE `youtube_video_master` ADD `country_code` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL AFTER `url`;
+UPDATE `youtube_video_master` SET `country_code` = 'us' WHERE ISNULL(`country_code`);

@@ -7594,15 +7594,15 @@ class UserController extends Controller
 
             $this->sub_category_id = $request->sub_category_id;
             $this->cover_catalog_id = 924;
+            $this->country_code = isset($request->country_code) && isset(Config::get('constant.TWITTER_USER_LIST_FOR_TWITTER_TIMELINE')[mb_strtolower($request->country_code)]) ? mb_strtolower($request->country_code) : 'us';
             $this->template_item = Config::get('constant.TEMPLATE_COUNT_FOR_HOME_PAGE');
             $this->cover_template_item = Config::get('constant.COVER_TEMPLATE_COUNT_FOR_HOME_PAGE');
             $this->video_item = Config::get('constant.VIDEO_COUNT_FOR_HOME_PAGE');
             $this->job_news_item = Config::get('constant.JOB_NEWS_COUNT_FOR_HOME_PAGE');
             $this->question_type_item = Config::get('constant.QUESTION_TYPE_COUNT_FOR_HOME_PAGE');
 
-
-            if (!Cache::has("pel:getHomePageDetail:$this->sub_category_id")) {
-                $result = Cache::remember("getHomePageDetail:$this->sub_category_id", 1440, function () {
+            if (!Cache::has("pel:getHomePageDetail:$this->sub_category_id:$this->country_code")) {
+                $result = Cache::remember("getHomePageDetail:$this->sub_category_id:$this->country_code", 1440, function () {
 
                     $template = DB::select('SELECT
                                     id as json_id,
@@ -7646,12 +7646,14 @@ class UserController extends Controller
                                          title,
                                          channel_name,
                                          url,
+                                         country_code,
                                          thumbnail_url,
                                          thumbnail_width,
                                          thumbnail_height,
                                          published_at
                                          FROM youtube_video_master
-                                         ORDER BY update_time DESC LIMIT ?, ?', [0, $this->video_item]);
+                                         WHERE country_code = ?
+                                         ORDER BY update_time DESC LIMIT ?, ?', [$this->country_code, 0, $this->video_item]);
 
 
                     $consumerKey = Config::get('constant.twitter_consumer_Key');
@@ -7659,7 +7661,7 @@ class UserController extends Controller
                     $accessToken = Config::get('constant.twitter_access_Token');
                     $accessTokenSecret = Config::get('constant.twitter_access_Token_Secret');
                     $post_list = [];
-                    $twitter_list = Config::get('constant.TWITTER_USER_LIST_FOR_TWITTER_TIMELINE');
+                    $twitter_list = Config::get('constant.TWITTER_USER_LIST_FOR_TWITTER_TIMELINE.'.$this->country_code);
                     $twitter = explode(',', $twitter_list);
                     $twit_user_count = count($twitter);
                     $i = 0;
@@ -7719,9 +7721,9 @@ class UserController extends Controller
 
                 });
             }
-            $redis_result = Cache::get("getHomePageDetail:$this->sub_category_id");
+            $redis_result = Cache::get("getHomePageDetail:$this->sub_category_id:$this->country_code");
 
-            Redis::expire("getHomePageDetail:$this->sub_category_id", 1);
+            Redis::expire("getHomePageDetail:$this->sub_category_id:$this->country_code", 1);
 
             $response = Response::json(array('code' => 200, 'message' => 'Home page detail fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
