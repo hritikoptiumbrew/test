@@ -227,14 +227,16 @@ class ImageController extends Controller
             $is_valid = preg_match ('/[[:alpha:]_]+/', $key);
             if($is_valid == 0)
             {
-                return $response = Response::json(array('code' => 201, 'message' => 'Special characters (except underscore) & numeric value are not allowed into the file name.', 'cause' => '', 'data' => json_decode("{}")));
+                return Response::json(array('code' => 201, 'message' => 'Special characters (except underscore) & numeric value are not allowed into the file name.', 'cause' => '', 'data' => json_decode("{}")));
             }
         }
 
         /* there is no specific mimetype for otf & ttf so here we used 2 popular type */
 
         //if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/vnd.ms-opentype'))
-        if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/font-sfnt' || $file_type == 'application/vnd.ms-opentype' || $file_type == 'application/x-font-opentype'))
+        //if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/font-sfnt' || $file_type == 'application/vnd.ms-opentype' || $file_type == 'application/x-font-opentype'))
+        //Galada_Regular.ttf file extension is font/sfnt mime in php 7.4 & application/font-sfnt in php <= 7.3 that's why we add one more condition.
+        if (!($file_type == 'application/x-font-ttf' || $file_type == 'application/font-sfnt' || $file_type == 'font/sfnt' || $file_type == 'application/vnd.ms-opentype' || $file_type == 'application/x-font-opentype'))
             $response = Response::json(array('code' => 201, 'message' => 'Please select TTF or OTF file.', 'cause' => '', 'data' => json_decode("{}")));
         elseif ($file_size > $MAXIMUM_FILESIZE)
             $response = Response::json(array('code' => 201, 'message' => 'File size is greater then '.$validations.'KB.', 'cause' => '', 'data' => json_decode("{}")));
