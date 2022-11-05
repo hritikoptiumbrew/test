@@ -1,0 +1,509 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <!--====== Title ======-->
+    <title> Flyer Maker, Poster Maker, Banner Maker, Graphic Design With Templates </title>
+
+    <meta name="description"
+        content="Design high-quality custom flyers by using flyer maker. Choose from a wide array of promotional flyer design templates for your every need.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="canonical" href="" />
+
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:site_name" content="" />
+
+    <meta name="twitter:title" content="" />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:image" content="" />
+    <meta name="twitter:url" content="">
+    <meta http-equiv="Expires" content="1" />
+    <!--====== Favicon Icon ======-->
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="preload" href="../../assets/fonts/LineIcons.woff2" as="font" crossorigin>
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/animate.css">
+
+    <!--====== Magnific Popup CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/magnific-popup.css">
+
+    <!--====== Slick CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/slick.css">
+
+    <!--====== Swiper CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/swiper.min.css">
+
+    <!--====== lineicons CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/lineicons.css">
+
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/bootstrap.min.css">
+
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/default.css">
+
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/style.css?1.0">
+    <style type="text/css" media="screen, projection">
+        @import url(https://s3.amazonaws.com/assets.freshdesk.com/widget/freshwidget.css);
+    </style>
+
+    <script>
+        var json_data;
+        function init() {
+            switch (window.location.href) {
+                case 'https://flyerbuilder.app/support/':
+                    $.getJSON('../../assets/json/flyerbuilder.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+                case 'https://postermaker.co.in/support/':
+                    $.getJSON('../../assets/json/postermaker.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+
+                    break;
+                case 'https://photoeditorlab.co.in/support/':
+                    $.getJSON('../../assets/json/photoeditorlab.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+                case 'https://graphicdesigns.co.in/support/':
+                    $.getJSON('../../assets/json/graphicdesigns.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+
+                    break;
+                default:
+                    $.getJSON('../../assets/json/photoeditorlab.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+            }
+            const urlParams = new URLSearchParams(location.search);
+            let temp = {};
+            for (const [key, value] of urlParams) {
+                temp[key] = value;
+            }
+
+            $.getJSON('../../assets/json/IOSPrivacy.json', function (data) {
+                switch (temp['id']) {
+                    case 'f5a475':
+                        app_data = JSON.parse(JSON.stringify(data)).f5a475;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'f5ag76':
+                        app_data = JSON.parse(JSON.stringify(data)).f5ag76;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'elei9m':
+                        app_data = JSON.parse(JSON.stringify(data)).elei9m;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'o5ynka':
+                        app_data = JSON.parse(JSON.stringify(data)).o5ynka;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'f0l9o1':
+                        app_data = JSON.parse(JSON.stringify(data)).f0l9o1;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'i49f5a':
+                        app_data = JSON.parse(JSON.stringify(data)).i49f5a;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nx14d0':
+                        app_data = JSON.parse(JSON.stringify(data)).nx14d0;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nw2y5v':
+                        app_data = JSON.parse(JSON.stringify(data)).nw2y5v;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'ety26j':
+                        app_data = JSON.parse(JSON.stringify(data)).ety26j;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'euw8e8':
+                        app_data = JSON.parse(JSON.stringify(data)).euw8e8;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nt8fir':
+                        app_data = JSON.parse(JSON.stringify(data)).nt8fir;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'j60cq4':
+                        app_data = JSON.parse(JSON.stringify(data)).j60cq4;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nu6lqg':
+                        app_data = JSON.parse(JSON.stringify(data)).nu6lqg;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nml819':
+                        app_data = JSON.parse(JSON.stringify(data)).nml819;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'wlvld5':
+                        app_data = JSON.parse(JSON.stringify(data)).wlvld5;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'wmtrl7':
+                        app_data = JSON.parse(JSON.stringify(data)).wmtrl7;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nln1tj':
+                        app_data = JSON.parse(JSON.stringify(data)).nln1tj;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'o50hct':
+                        app_data = JSON.parse(JSON.stringify(data)).o50hct;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'ep7748':
+                        app_data = JSON.parse(JSON.stringify(data)).ep7748;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nohk86':
+                        app_data = JSON.parse(JSON.stringify(data)).nohk86;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'pfqo54':
+                        app_data = JSON.parse(JSON.stringify(data)).pfqo54;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'enaup0':
+                        app_data = JSON.parse(JSON.stringify(data)).enaup0;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'sw108t':
+                        app_data = JSON.parse(JSON.stringify(data)).sw108t;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'poa12l':
+                        app_data = JSON.parse(JSON.stringify(data)).poa12l;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    default:
+                        app_data = JSON.parse(JSON.stringify(data)).enaup0;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                }
+            });
+
+
+        }
+
+        window.onload = init;
+
+        function changeFavicon(data) {
+            $('head').append('<link rel="apple-touch-icon" sizes="57x57" href="../../assets/images/' + data.favicon + '/apple-icon-57x57.png">' +
+                '<link rel="apple-touch-icon" sizes="60x60" href="../../assets/images/' + data.favicon + '/apple-icon-60x60.png">' +
+                '<link rel="apple-touch-icon" sizes="72x72" href="../../assets/images/' + data.favicon + '/apple-icon-72x72.png">' +
+                '<link rel="apple-touch-icon" sizes="76x76" href="../../assets/images/' + data.favicon + '/apple-icon-76x76.png">' +
+                '<link rel="apple-touch-icon" sizes="114x114" href="../../assets/images/' + data.favicon + '/apple-icon-114x114.png">' +
+                '<link rel="apple-touch-icon" sizes="120x120" href="../../assets/images/' + data.favicon + '/apple-icon-120x120.png">' +
+                '<link rel="apple-touch-icon" sizes="144x144" href="../../assets/images/' + data.favicon + '/apple-icon-144x144.png">' +
+                '<link rel="apple-touch-icon" sizes="152x152" href="../../assets/images/' + data.favicon + '/apple-icon-152x152.png">' +
+                '<link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/' + data.favicon + '/apple-icon-180x180.png">' +
+                '<link rel="icon" type="image/png" sizes="192x192" href="../../assets/images/' + data.favicon + '/android-icon-192x192.png">' +
+                '<link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/' + data.favicon + '/favicon-32x32.png">' +
+                '<link rel="icon" type="image/png" sizes="96x96" href="../../assets/images/' + data.favicon + '/favicon-96x96.png">' +
+                '<link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/' + data.favicon + '/favicon-16x16.png">' +
+                '<link rel="shortcut icon" type="image/icon" href="../../assets/images/' + data.favicon + '/favicon.ico">' +
+                '<link rel="icon" type="image/icon" href="../../assets/images/' + data.favicon + '/favicon.ico">' +
+                '<link rel="manifest" href="../../assets/images/' + data.favicon + '/manifest.json">' +
+                '<meta name="msapplication-TileImage" content="../../assets/images/' + data.favicon + '/ms-icon-144x144.png">' +
+                '<meta name="msapplication-config" content="../../assets/images/' + data.favicon + '/browserconfig.xml">');
+        }
+
+        function changeMetadata(json_data) {
+            // document.title = json_data.meta_detail.title;
+            // $('link[rel="canonical"]').attr("href", json_data.meta_detail.support);
+            // $('meta[property="og:url"]').attr("content", json_data.meta_detail.canonical);
+            // $('meta[name="twitter:url"]').attr("content", json_data.meta_detail.canonical);
+            $('meta[property="og:site_name"]').attr("content", json_data.meta_detail.site_name);
+            $('meta[property="og:image"]').attr("content", json_data.meta_detail.thumbnail_image);
+            $('meta[name="twitter:image"]').attr("content", json_data.meta_detail.thumbnail_image);
+            // $('meta[property="og:title"]').attr("content", json_data.meta_detail.title);
+            // $('meta[name="twitter:title"]').attr("content", json_data.meta_detail.title);
+            $('meta[name="description"]').attr("content", json_data.meta_detail.description);
+            $('meta[property="og:description"]').attr("content", json_data.meta_detail.description);
+            $('meta[name="twitter:description"]').attr("content", json_data.meta_detail.description);
+            // $(".navbar-brand").append('<img class="my-2" src="../' + json_data.meta_detail.webp_logo + '" onerror=' + "'this.src=" + '"../' + json_data.meta_detail.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo">');
+            // $(".footer-logo").append('<img src="../' + json_data.meta_detail.webp_logo + '" onerror=' + "'this.src=" + '"../' + json_data.meta_detail.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo" class="img-fluid">');
+        }
+
+        function changelogo(app_data) {
+            $('link[rel="canonical"]').attr("href", app_data.privacy_policy);
+            $('meta[property="og:url"]').attr("content", app_data.canonical);
+            $('meta[name="twitter:url"]').attr("content", app_data.canonical);
+            document.title = app_data.title;
+            $('meta[property="og:title"]').attr("content", app_data.title);
+            $('meta[name="twitter:title"]').attr("content", app_data.title);
+            $('#link_hm').attr("href", app_data.canonical);
+            $('#link_privacy').attr("href", app_data.privacy_policy);
+            $('#link_terms').attr("href", app_data.terms);
+            $('#ftr_privacy').attr("href", app_data.privacy_policy);
+            $('#ftr_terms').attr("href", app_data.terms);
+            $(".navbar-brand").append('<img class="my-2 privacy_img" src="../../' + app_data.webp_logo + '" onerror=' + "'this.src=" + '"../../' + app_data.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo">');
+            $(".footer-logo").append('<img src="../../' + app_data.webp_logo + '" onerror=' + "'this.src=" + '"../../' + app_data.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo" class="privacy_img">');
+        }
+    </script>
+
+</head>
+
+<body>
+    <!--[if IE]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+  <![endif]-->
+
+    <!--====== PRELOADER PART START ======-->
+
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--====== PRELOADER PART ENDS ======-->
+
+    <!--====== HEADER PART START ======-->
+
+    <header class="header-area">
+        <div class="navbar-area">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="../">
+
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                                data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                                aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                            </button>
+
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ml-auto">
+                                    <li class="nav-item">
+                                        <a class="" id="link_hm" target="_blank" href="../">Home</a>
+                                    </li>
+                                    <li class="nav-item ">
+                                        <a class="" id="link_privacy" target="_blank" href="../privacy-policy/">Privacy
+                                            Policy</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" id="link_terms" target="_blank" href="../terms-of-use/">Terms Of
+                                            Use</a>
+                                    </li>
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav> <!-- navbar -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- navbar area -->
+
+        <div id="home" class="header-hero bg_cover d-lg-flex align-items-center h-100 ">
+
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+            <div class="shape shape-6"></div>
+
+            <div class="container ">
+                <div class="row align-items-center justify-content-center justify-content-lg-between  content-section">
+                    <div class="col-lg-10 col-md-10 mx-auto">
+                        <div class="header-hero-content p-0">
+                            <h1 class="header-title wow fadeInLeftBig text-center content_title"
+                                data-wow-duration="1.3s" data-wow-delay="0.2s">
+                                Support</h1>
+                            <h5 class="text text-center"> Welcome to our Online Helpdesk</h5>
+                            <p class="text text-center"> Thanks for reaching out! We would be more than happy to help
+                                you. Please send your support query & we will get back to you as soon as possible.</p>
+                            <div class="form_parent">
+                                <iframe title="Feedback Form" class="freshwidget-embedded-form mt-3 form-style"
+                                    id="freshwidget-embedded-form"
+                                    src="https://helpphotoadking.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&screenshot=No&attachFile=no&searchArea=no"
+                                    scrolling="no" height="500px" frameborder="0">
+                                </iframe>
+                            </div>
+
+                        </div> <!-- header hero content -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+            <div class="header-shape-1 d-none d-md-block"></div> <!-- header shape -->
+            <div class="header-shape-2">
+                <img src="../../assets/images/header-shape-2.svg" alt="shape">
+            </div> <!-- header shape -->
+        </div> <!-- header hero -->
+    </header>
+
+    <!--====== HEADER PART ENDS ======-->
+    <!--======FOOTER PART START ======-->
+
+    <footer id="footer" class="footer-area">
+        <div class="footer-shape shape-1"></div>
+        <div class="footer-shape shape-2"></div>
+        <div class="footer-shape shape-3"></div>
+        <div class="footer-shape shape-4"></div>
+        <div class="footer-shape shape-5"></div>
+        <div class="footer-shape shape-6"></div>
+        <div class="footer-shape shape-7"></div>
+        <div class="footer-shape shape-8">
+            <img class="svg" src="../../assets/images/footer-shape.svg" alt="Shape">
+        </div>
+        <div class="footer-widget pb-80">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="footer-about mt-50 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.2s">
+                            <a class="logo footer-logo" href="../">
+                            </a>
+                            <ul class="social">
+                                <li><a target="_blank" href="https://www.facebook.com/photoadking/"><i
+                                            class="lni lni-facebook"></i></a></li>
+                                <li><a target="_blank" href="https://www.instagram.com/photoadking/"><i
+                                            class="lni lni-instagram"></i></a></li>
+                                <li><a target="_blank" href="https://twitter.com/photoadking"><i
+                                            class="lni lni-twitter"></i></a></li>
+                                <li><a target="_blank" href="https://in.linkedin.com/showcase/photoadking"><i
+                                            class="lni lni-linkedin"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 text-center">
+                        <div class="footer-link d-flex flex-wrap">
+                            <div class="footer-link-wrapper mt-45 wow fadeIn" data-wow-duration="1.3s"
+                                data-wow-delay="0.6s">
+                                <div class="footer-title">
+                                    <h4 class="title">Support</h4>
+                                </div>
+                                <ul class="link">
+                                    <li><a class="" id="ftr_privacy" target="_blank" href="../privacy-policy/">Privacy
+                                            Policy</a>
+                                    </li>
+                                    <li><a class="" id="ftr_terms" target="_blank" href="../terms-of-use/">Terms
+                                            Of Use</a></li>
+                                    <li class=""><a class="activepage" href="#">Contact Us</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="copyright d-sm-flex justify-content-between">
+                            <div class="copyright-text w-100 text-center">
+                                <p class="text small text-center">Copyright © 2019-
+                                    <script>document.write(new Date().getFullYear())</script> all rights reserved
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!--====== Jquery js ======-->
+    <script src="../../assets/js/vendor/jquery-1.12.4.min.js"></script>
+    <!-- <script src="../../assets/js/vendor/modernizr-3.7.1.min.js"></script> -->
+
+    <!--====== Bootstrap js ======-->
+    <script src="../../assets/js/popper.min.js"></script>
+    <script src="../../assets/js/bootstrap.min.js"></script>
+
+    <!--====== Slick js ======-->
+    <!-- <script src="../../assets/js/slick.min.js"></script> -->
+
+    <!--====== freshwidget js ======-->
+    <script type="text/javascript" src="https://s3.amazonaws.com/assets.freshdesk.com/widget/freshwidget.js"></script>
+
+    <!--====== Magnific Popup js ======-->
+    <script src="../../assets/js/jquery.magnific-popup.min.js"></script>
+
+    <!--====== WOW js ======-->
+    <script src="../../assets/js/wow.min.js"></script>
+
+    <!--====== Swiper js ======-->
+    <!-- <script src="../../assets/js/swiper.min.js"></script> -->
+
+    <!--====== Scrolling Nav js ======-->
+    <!-- <script src="../../assets/js/jquery.easing.min.js"></script> -->
+    <!-- <script src="../../assets/js/scrolling-nav.js"></script> -->
+
+    <!--====== Main js ======-->
+    <script src="../../assets/js/main.js"></script>
+
+</body>
+
+</html>

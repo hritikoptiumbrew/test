@@ -10,6 +10,17 @@
     "privacy_policy": "../../privacy-policy/iosprivacy-flyer/?id=f5a475",
     "terms": "../../terms-of-use/iosterms/?id=f5a475"
   },
+  "f5ag76": {
+    "app_name": "Brochure Maker BG",
+    "canonical": "https://flyerbuilder.app",
+    "webp_logo": "assets/images/ios_app_logos/Brochure_BG.webp",
+    "png_logo": "assets/images/ios_app_logos/Brochure_BG.png",
+    "favicon": "ios_favicon/Brochure_BG",
+    "title": "Brochure Maker",
+    "contact_us": "../../support/androidsupport/?id=f5ag76",
+    "privacy_policy": "../../privacy-policy/androidprivacy-brochure/?id=f5ag76",
+    "terms": "../../terms-of-use/androidterms/?id=f5ag76"
+  },
   "elei9m": {
     "app_name": "Logo Maker BG",
     "canonical": "https://flyerbuilder.app",

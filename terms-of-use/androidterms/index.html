@@ -1,0 +1,1142 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <!--====== Title ======-->
+    <title> Flyer Maker, Poster Maker, Banner Maker, Graphic Design With Templates </title>
+
+    <meta name="description"
+        content="Design high-quality custom flyers by using flyer maker. Choose from a wide array of promotional flyer design templates for your every need.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="canonical" href="" />
+
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:site_name" content="" />
+
+    <meta name="twitter:title" content="" />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:image" content="" />
+    <meta name="twitter:url" content="">
+    <meta http-equiv="Expires" content="1" />
+
+    <!--====== Favicon Icon ======-->
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="preload" href="../../assets/fonts/LineIcons.woff2" as="font" crossorigin>
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/animate.css">
+
+    <!--====== Magnific Popup CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/magnific-popup.css">
+
+    <!--====== Slick CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/slick.css">
+
+    <!--====== Swiper CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/swiper.min.css">
+
+    <!--====== lineicons CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/lineicons.css">
+
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/bootstrap.min.css">
+
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/default.css">
+
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="../../assets/css/style.css?v1.0">
+    <script>
+        var json_data;
+        function init() {
+
+
+            switch (window.location.href) {
+                case 'https://flyerbuilder.app/terms-of-use/':
+                    $.getJSON('../../assets/json/flyerbuilder.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+                case 'https://postermaker.co.in/terms-of-use/':
+                    $.getJSON('../../assets/json/postermaker.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+                case 'https://photoeditorlab.co.in/terms-of-use/':
+                    $.getJSON('../../assets/json/photoeditorlab.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+                    break;
+                case 'https://graphicdesigns.co.in/terms-of-use/':
+                    $.getJSON('../../assets/json/graphicdesigns.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        changeFavicon();
+                        changeMetadata(json_data);
+                    });
+
+                    break;
+                default:
+                    $.getJSON('../../assets/json/photoeditorlab.json', function (data) {
+                        json_data = JSON.parse(JSON.stringify(data));
+                        // changeFavicon();
+                        // changeMetadata(json_data);
+                    });
+                    break;
+            }
+            const urlParams = new URLSearchParams(location.search);
+            let temp = {};
+            for (const [key, value] of urlParams) {
+                temp[key] = value;
+            }
+
+            $.getJSON('../../assets/json/IOSPrivacy.json', function (data) {
+                switch (temp['id']) {
+                    case 'f5a475':
+                        app_data = JSON.parse(JSON.stringify(data)).f5a475;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'f5ag76':
+                        app_data = JSON.parse(JSON.stringify(data)).f5ag76;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'o5ynka':
+                        app_data = JSON.parse(JSON.stringify(data)).o5ynka;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'f0l9o1':
+                        app_data = JSON.parse(JSON.stringify(data)).f0l9o1;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'i49f5a':
+                        app_data = JSON.parse(JSON.stringify(data)).i49f5a;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nx14d0':
+                        app_data = JSON.parse(JSON.stringify(data)).nx14d0;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nw2y5v':
+                        app_data = JSON.parse(JSON.stringify(data)).nw2y5v;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'ety26j':
+                        app_data = JSON.parse(JSON.stringify(data)).ety26j;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'euw8e8':
+                        app_data = JSON.parse(JSON.stringify(data)).euw8e8;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nt8fir':
+                        app_data = JSON.parse(JSON.stringify(data)).nt8fir;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'j60cq4':
+                        app_data = JSON.parse(JSON.stringify(data)).j60cq4;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nu6lqg':
+                        app_data = JSON.parse(JSON.stringify(data)).nu6lqg;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nml819':
+                        app_data = JSON.parse(JSON.stringify(data)).nml819;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'wlvld5':
+                        app_data = JSON.parse(JSON.stringify(data)).wlvld5;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'wmtrl7':
+                        app_data = JSON.parse(JSON.stringify(data)).wmtrl7;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nln1tj':
+                        app_data = JSON.parse(JSON.stringify(data)).nln1tj;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'o50hct':
+                        app_data = JSON.parse(JSON.stringify(data)).o50hct;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'ep7748':
+                        app_data = JSON.parse(JSON.stringify(data)).ep7748;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'nohk86':
+                        app_data = JSON.parse(JSON.stringify(data)).nohk86;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'pfqo54':
+                        app_data = JSON.parse(JSON.stringify(data)).pfqo54;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'enaup0':
+                        app_data = JSON.parse(JSON.stringify(data)).enaup0;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'sw108t':
+                        app_data = JSON.parse(JSON.stringify(data)).sw108t;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'poa12l':
+                        app_data = JSON.parse(JSON.stringify(data)).poa12l;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    default:
+                        app_data = JSON.parse(JSON.stringify(data)).enaup0;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                }
+            });
+
+        }
+
+        window.onload = init;
+        function changeFavicon(data) {
+            $('head').append('<link rel="apple-touch-icon" sizes="57x57" href="../../assets/images/' + data.favicon + '/apple-icon-57x57.png">' +
+                '<link rel="apple-touch-icon" sizes="60x60" href="../../assets/images/' + data.favicon + '/apple-icon-60x60.png">' +
+                '<link rel="apple-touch-icon" sizes="72x72" href="../../assets/images/' + data.favicon + '/apple-icon-72x72.png">' +
+                '<link rel="apple-touch-icon" sizes="76x76" href="../../assets/images/' + data.favicon + '/apple-icon-76x76.png">' +
+                '<link rel="apple-touch-icon" sizes="114x114" href="../../assets/images/' + data.favicon + '/apple-icon-114x114.png">' +
+                '<link rel="apple-touch-icon" sizes="120x120" href="../../assets/images/' + data.favicon + '/apple-icon-120x120.png">' +
+                '<link rel="apple-touch-icon" sizes="144x144" href="../../assets/images/' + data.favicon + '/apple-icon-144x144.png">' +
+                '<link rel="apple-touch-icon" sizes="152x152" href="../../assets/images/' + data.favicon + '/apple-icon-152x152.png">' +
+                '<link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/' + data.favicon + '/apple-icon-180x180.png">' +
+                '<link rel="icon" type="image/png" sizes="192x192" href="../../assets/images/' + data.favicon + '/android-icon-192x192.png">' +
+                '<link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/' + data.favicon + '/favicon-32x32.png">' +
+                '<link rel="icon" type="image/png" sizes="96x96" href="../../assets/images/' + data.favicon + '/favicon-96x96.png">' +
+                '<link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/' + data.favicon + '/favicon-16x16.png">' +
+                '<link rel="shortcut icon" type="image/icon" href="../../assets/images/' + data.favicon + '/favicon.ico">' +
+                '<link rel="icon" type="image/icon" href="../../assets/images/' + data.favicon + '/favicon.ico">' +
+                '<link rel="manifest" href="../../assets/images/' + data.favicon + '/manifest.json">' +
+                '<meta name="msapplication-TileImage" content="../../assets/images/' + data.favicon + '/ms-icon-144x144.png">' +
+                '<meta name="msapplication-config" content="../../assets/images/' + data.favicon + '/browserconfig.xml">');
+        }
+
+        function changeMetadata(json_data) {
+            // document.title = json_data.meta_detail.title;
+            // $('link[rel="canonical"]').attr("href", json_data.meta_detail.contact_us);
+            // $('meta[property="og:url"]').attr("content", json_data.meta_detail.canonical);
+            // $('meta[name="twitter:url"]').attr("content", json_data.meta_detail.canonical);
+            $('meta[property="og:site_name"]').attr("content", json_data.meta_detail.site_name);
+            $('meta[property="og:image"]').attr("content", json_data.meta_detail.thumbnail_image);
+            $('meta[name="twitter:image"]').attr("content", json_data.meta_detail.thumbnail_image);
+            // $('meta[property="og:title"]').attr("content", json_data.meta_detail.title);
+            // $('meta[name="twitter:title"]').attr("content", json_data.meta_detail.title);
+            $('meta[name="description"]').attr("content", json_data.meta_detail.description);
+            $('meta[property="og:description"]').attr("content", json_data.meta_detail.description);
+            $('meta[name="twitter:description"]').attr("content", json_data.meta_detail.description);
+            // $(".navbar-brand").append('<img class="my-2" src="../../' + json_data.meta_detail.webp_logo + '" onerror=' + "'this.src=" + '"../../' + json_data.meta_detail.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo">');
+            // $(".footer-logo").append('<img src="../../' + json_data.meta_detail.webp_logo + '" onerror=' + "'this.src=" + '"../../' + json_data.meta_detail.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo" class="img-fluid">');
+        }
+
+        function changelogo(app_data) {
+            $('link[rel="canonical"]').attr("href", app_data.privacy_policy);
+            $('meta[property="og:url"]').attr("content", app_data.canonical);
+            $('meta[name="twitter:url"]').attr("content", app_data.canonical);
+            document.title = app_data.title;
+            $('meta[property="og:title"]').attr("content", app_data.title);
+            $('meta[name="twitter:title"]').attr("content", app_data.title);
+            $('#link_hm').attr("href", app_data.canonical);
+            $('#link_privacy').attr("href", app_data.privacy_policy);
+            $('#link_suport').attr("href", app_data.contact_us);
+            $('#cntnt_support').attr("href", app_data.contact_us);
+            $('#ftr_privacy').attr("href", app_data.privacy_policy);
+            $('#ftr_support').attr("href", app_data.contact_us);
+            $(".navbar-brand").append('<img class="my-2 privacy_img" src="../../' + app_data.webp_logo + '" onerror=' + "'this.src=" + '"../../' + app_data.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo">');
+            $(".footer-logo").append('<img src="../../' + app_data.webp_logo + '" onerror=' + "'this.src=" + '"../../' + app_data.png_logo + '"' + "; this.onerror= null'alt=" + '"Logo" class="privacy_img">');
+        }
+    </script>
+
+
+</head>
+
+<body>
+    <!--[if IE]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+  <![endif]-->
+
+    <!--====== PRELOADER PART START ======-->
+
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--====== PRELOADER PART ENDS ======-->
+
+    <!--====== HEADER PART START ======-->
+
+    <header class="header-area">
+        <div class="navbar-area">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="../../">
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                                data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                                aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                            </button>
+
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ml-auto">
+                                    <li class="nav-item">
+                                        <a class="" target="_blank" id="link_hm" href="../../">Home</a>
+                                    </li>
+                                    <li class="nav-item ">
+                                        <a class="" target="_blank" id="link_privacy"
+                                            href="../../privacy-policy/">Privacy Policy</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" target="_blank" id="link_suport" href="../../support/">Contact
+                                            Us</a>
+                                    </li>
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav> <!-- navbar -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- navbar area -->
+
+        <div class="header-hero bg_cover d-lg-flex align-items-center h-100 ">
+
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+            <div class="shape shape-6"></div>
+
+            <div class="container ">
+                <div class="row align-items-center justify-content-center justify-content-lg-between   content-section">
+                    <div class="col-lg-10 col-md-10 mx-auto">
+                        <div class=" p-0">
+                            <!--  <p class="text " >Terms & Conditions</p> -->
+                            <div id="wbars_all">
+                                <div class="iub_container iub_base_container">
+                                    <div id="wbars">
+                                        <div class="iub_content legal_pp header-hero-content content-wrapper">
+                                            <div class="iub_header">
+                                                <h1 class="header-title wow fadeInLeftBig text-center content_title"
+                                                    data-wow-duration="1.3s" data-wow-delay="0.2s">Terms and Conditions
+                                                </h1>
+                                                <p class="text">These Terms govern</p>
+                                                <ul style="list-style-type: disc;">
+                                                    <li class="ml-50 text">the use of this Application, and,</li>
+                                                    <li class="ml-50 text">any other related Agreement or legal
+                                                        relationship with the Owner
+                                                    </li>
+                                                </ul>
+                                                <p class="text">in a legally binding way. Capitalized words are defined
+                                                    in the
+                                                    relevant dedicated section of this document.</p>
+                                                <br />
+                                                <p class="text">The User must read this document carefully.</p>
+                                            </div>
+                                            <hr>
+                                            <p class="text">Although the entire contractual relationship relating to
+                                                these Products
+                                                is entered into solely by the Owner and Users, Users acknowledge and
+                                                agree that, where this Application has been provided to them via the
+                                                Apple App Store, Apple may enforce these Terms as a third-party
+                                                beneficiary.</p>
+                                            <div class="one_line_col header-hero-content content-wrapper pt-0">
+                                                <hr>
+                                                <h2 class="second_title mb-30"><a id="cntnt_support" href="../../support/">Contact Us</a>
+                                                </h2>
+                                                <hr>
+
+                                            </div>
+
+                                            <h2 class="second_title text-left"
+                                                id="what-the-user-should-know-at-a-glance">What the User should know at
+                                                a glance</h2>
+                                            <ul style="list-style-type: disc;">
+                                                <li class="ml-50 text">Please note that some provisions in these Terms
+                                                    may only apply to
+                                                    certain categories of Users. In particular, certain provisions may
+                                                    only apply to Consumers or to those Users that do not qualify as
+                                                    Consumers. Such limitations are always explicitly mentioned within
+                                                    each affected clause. In the absence of any such mention, clauses
+                                                    apply to all Users.</li>
+                                            </ul>
+                                            <hr>
+                                            <h2 class="second_title text-left" id="terms-of-use">TERMS OF USE</h2>
+                                            <p class="text">Unless otherwise specified, the terms of use detailed in
+                                                this section
+                                                apply generally when using this Application.</p>
+                                            <p class="text">Single or additional conditions of use or access may apply
+                                                in specific
+                                                scenarios and in such cases are additionally indicated within this
+                                                document.</p>
+                                            <p class="text">By using this Application, Users confirm to meet the
+                                                following
+                                                requirements:</p>
+                                            <ul style="list-style-type: disc;">
+                                                <li class="ml-50 text">There are no restrictions for Users in terms of
+                                                    being Consumers or
+                                                    Business Users;</li>
+                                            </ul>
+                                            <ul style="list-style-type: disc;">
+                                                <li class="ml-50 text">Users aren&rsquo;t located in a country that is
+                                                    subject to a U.S.
+                                                    Government embargo, or that has been designated by the U.S.
+                                                    Government as a &ldquo;terrorist-supporting&rdquo; country;</li>
+                                                <li class="ml-50 text">Users aren&rsquo;t listed on any U.S. Government
+                                                    list of prohibited
+                                                    or restricted parties;</li>
+                                            </ul>
+                                            <hr>
+                                            <h2 class="second_title text-left" id="content-on-this_application">Content
+                                                on this
+                                                Application</h2>
+                                            <p class="text">Unless where otherwise specified or clearly recognizable,
+                                                all content
+                                                available on this Application is owned or provided by the Owner or its
+                                                licensors.</p>
+                                            <p class="text">The Owner undertakes its utmost effort to ensure that the
+                                                content
+                                                provided on this Application infringes no applicable legal provisions or
+                                                third-party rights. However, it may not always be possible to achieve
+                                                such a result.<br />In such cases, without prejudice to any legal
+                                                prerogatives of Users to enforce their rights, Users are kindly asked to
+                                                preferably report related complaints using the contact details provided
+                                                in this document.</p>
+                                            <h4 class="text"
+                                                id="rights-regarding-content-on-this_application-all-rights-reserved">
+                                                Rights regarding content on this Application - All rights reserved</h4>
+                                            <p class="text">The Owner holds and reserves all intellectual property
+                                                rights for any
+                                                such content.</p>
+                                            <p class="text">Users may not therefore use such content in any way that is
+                                                not necessary
+                                                or implicit in the proper use of the Service.</p>
+                                            <p class="text">In particular, but without limitation, Users may not copy,
+                                                download,
+                                                share (beyond the limits set forth below), modify, translate, transform,
+                                                publish, transmit, sell, sublicense, edit, transfer/assign to third
+                                                parties or create derivative works from the content available on this
+                                                Application, nor allow any third party to do so through the User or
+                                                their device, even without the User's knowledge.</p>
+                                            <p class="text">Where explicitly stated on this Application, the User may
+                                                download, copy
+                                                and/or share some content available through this Application for its
+                                                sole personal and non-commercial use and provided that the copyright
+                                                attributions and all the other attributions requested by the Owner are
+                                                correctly implemented.</p>
+                                            <p class="text">Any applicable statutory limitation or exception to
+                                                copyright shall stay
+                                                unaffected.</p>
+                                            <h4 class="text"
+                                                id="removal-of-content-from-parts-of-this_application-available-through-the-app-store">
+                                                Removal of content from parts of this Application available through the
+                                                App Store</h4>
+                                            <p class="text">If the reported content is deemed objectionable, it will be
+                                                removed
+                                                within 24 hours and the User who provided the content will be barred
+                                                from using the Service.</p>
+                                            <h4 class="text" id="access-to-provided-content">Access to provided content
+                                            </h4>
+                                            <p class="text">Content that Users provide to this Application is made
+                                                available
+                                                according to the criteria outlined within this section.</p>
+                                            <h5 class="text" id="private-content">Private content</h5>
+                                            <p class="text">Private content provided by Users shall stay private and
+                                                will not be
+                                                shared with any third parties or accessed by the Owner without the
+                                                User&rsquo;s explicit consent.</p>
+                                            <p class="text">Users may (and are encouraged to) check on this Application
+                                                to find
+                                                details of who can access the content they provide.</p>
+                                            <h3 class="text" id="access-to-external-resources">Access to external
+                                                resources</h3>
+                                            <p class="text">Through this Application Users may have access to external
+                                                resources
+                                                provided by third parties. Users acknowledge and accept that the Owner
+                                                has no control over such resources and is therefore not responsible for
+                                                their content and availability.</p>
+                                            <p class="text">Conditions applicable to any resources provided by third
+                                                parties,
+                                                including those applicable to any possible grant of rights in content,
+                                                result from each such third parties&rsquo; terms and conditions or, in
+                                                the absence of those, applicable statutory law.</p>
+                                            <p class="text">In particular, on this Application Users may see
+                                                advertisements provided
+                                                by third parties. The Owner does not control or moderate the
+                                                advertisements displayed via this Application. If Users click on any
+                                                such advertisement, they will be interacting with any third party
+                                                responsible for that advertisement.</p>
+                                            <p class="text">The Owner is not responsible for any matters resulting from
+                                                such
+                                                interaction with third parties, such as anything resulting from visiting
+                                                third-party websites or using third-party content.</p>
+                                            <h3 class="text" id="how-to-file-a-takedown-notice-called-a-dmca-notice">How
+                                                to file a
+                                                takedown notice (called a &ldquo;DMCA notice&rdquo;)</h3>
+                                            <p class="text">If copyright holders or their agents believe that any
+                                                content on this
+                                                Application infringes upon their copyrights, they may submit a
+                                                notification pursuant to the Digital Millennium Copyright Act ("DMCA")
+                                                by providing the Owner&rsquo;s Copyright Agent with the following
+                                                information in writing (see 17 U.S.C 512(c)(3) for further detail):</p>
+                                            <ul style="list-style-type: disc;">
+                                                <li class="ml-50 text">A physical or electronic signature of a person
+                                                    authorized to act on
+                                                    behalf of the holder of an exclusive right that is allegedly
+                                                    infringed;</li>
+                                                <li class="ml-50 text">Identification of the copyrighted work claimed to
+                                                    have been
+                                                    infringed, or, if multiple copyrighted works at a single online site
+                                                    are covered by a single notification, a representative list of such
+                                                    works at that site;</li>
+                                                <li class="ml-50 text">Identification of the material that is claimed to
+                                                    be infringing or
+                                                    to be the subject of infringing activity and that is to be removed
+                                                    or access to which is to be disabled and information reasonably
+                                                    sufficient to permit the Owner to locate the material;</li>
+                                                <li class="ml-50 text">Information reasonably sufficient to permit the
+                                                    Owner to contact the
+                                                    notifying party, such as an address, telephone number, and, if
+                                                    available, an electronic mail;</li>
+                                                <li class="ml-50 text">A statement that the notifying party has a good
+                                                    faith belief that
+                                                    use of the material in the manner complained of is not authorized by
+                                                    the copyright owner, its agent, or the law; and</li>
+                                                <li class="ml-50 text">A statement that the information in the
+                                                    notification is accurate,
+                                                    and under penalty of perjury, that the notifying party is authorized
+                                                    to act on behalf of the owner of an exclusive right that is
+                                                    allegedly infringed.</li>
+                                            </ul>
+                                            <p class="text">Failure to comply with all of the requirements outlined
+                                                above may result
+                                                in invalidity of the DMCA notice.</p>
+                                            <p class="text">Copyright infringement notifications may be addressed to the
+                                                Owner&rsquo;s Copyright Agent at the contact details specified in this
+                                                document.</p>
+                                            <h3 class="text" id="acceptable-use">Acceptable use</h3>
+                                            <p class="text">This Application and the Service may only be used within the
+                                                scope of
+                                                what they are provided for, under these Terms and applicable law.</p>
+                                            <p class="text">Users are solely responsible for making sure that their use
+                                                of this
+                                                Application and/or the Service violates no applicable law, regulations
+                                                or third-party rights.</p>
+                                            <p class="text">Therefore, the Owner reserves the right to take any
+                                                appropriate measure
+                                                to protect its legitimate interests including by denying Users access to
+                                                this Application or the Service, terminating contracts, reporting any
+                                                misconduct performed through this Application or the Service to the
+                                                competent authorities &ndash; such as judicial or administrative
+                                                authorities - whenever Users engage or are suspected to engage in any of
+                                                the following activities:</p>
+                                            <ul style="list-style-type: disc;">
+                                                <li class="ml-50 text">violate laws, regulations and/or these Terms;
+                                                </li>
+                                                <li class="ml-50 text">infringe any third-party rights;</li>
+                                                <li class="ml-50 text">considerably impair the Owner&rsquo;s legitimate
+                                                    interests;</li>
+                                                <li class="ml-50 text">offend the Owner or any third party.</li>
+                                            </ul>
+                                            <h3 class="text" id="purchase-via-app-store">Purchase via app store</h3>
+                                            <p class="text">This Application or specific Products available for sale on
+                                                this
+                                                Application must be purchased via a third-party app store. To access
+                                                such purchases, Users must follow the instructions provided on the
+                                                relevant online store (such as "Apple App Store" or "Google Play"),
+                                                which may vary depending on the particular device in use.</p>
+                                            <p class="text">Unless otherwise specified, purchases done via third-party
+                                                online stores
+                                                are also subject to such third-parties&rsquo; terms and conditions,
+                                                which, in case of any inconsistency or conflict, shall always prevail
+                                                upon these Terms.</p>
+                                            <p class="text">Users purchasing through such third-party online stores must
+                                                therefore
+                                                read such terms and conditions of sale carefully and accept them.</p>
+                                            <h3 class="second_title text-left" id="contract-duration">Contract duration
+                                            </h3>
+                                            <h4 class="text" id="subscriptions">Subscriptions</h4>
+                                            <p class="text">Subscriptions allow Users to receive a Product continuously
+                                                or regularly
+                                                over a determined period of time.</p>
+                                            <p class="text">Paid subscriptions begin on the day the payment is received
+                                                by the Owner.
+                                            </p>
+                                            <p class="text">In order to maintain subscriptions, Users must pay the
+                                                required recurring
+                                                fee in a timely manner. Failure to do so may cause service
+                                                interruptions.</p>
+                                            <h4 class="text" id="subscriptions-handled-via-apple-id">Subscriptions
+                                                handled via Apple
+                                                ID</h4>
+                                            <p class="text">Users may subscribe to a Product using the Apple ID
+                                                associated with their
+                                                Apple App Store account by using the relevant process on this
+                                                Application. When doing so, Users acknowledge and accept that</p>
+                                            <ul style="list-style-type: disc;">
+                                                <li class="ml-50 text">any payment due shall be charged to their Apple
+                                                    ID account;</li>
+                                                <li class="ml-50 text">subscriptions are automatically renewed for the
+                                                    same duration unless
+                                                    the User cancels at least 24 hours before the current period
+                                                    expires;</li>
+                                                <li class="ml-50 text">any and all fees or payments due for renewal will
+                                                    be charged within
+                                                    24-hours before the end of the current period;</li>
+                                                <li class="ml-50 text">subscriptions can be managed or cancelled in the
+                                                    Users&rsquo; Apple
+                                                    App Store account settings.</li>
+                                            </ul>
+                                            <p class="text">The above shall prevail upon any conflicting or diverging
+                                                provision of
+                                                these Terms.</p>
+                                            <hr>
+                                            <h2 class="second_title text-left" id="liability-and-indemnification">
+                                                Liability and indemnification</h2>
+                                            <h3 class="second_title text-left" id="australian-users">Australian Users
+                                            </h3>
+                                            <h4 class="text" id="limitation-of-liability">Limitation of liability</h4>
+                                            <p class="text">Nothing in these Terms excludes, restricts or modifies any
+                                                guarantee,
+                                                condition, warranty, right or remedy which the User may have under the
+                                                Competition and Consumer Act 2010 (Cth) or any similar State and
+                                                Territory legislation and which cannot be excluded, restricted or
+                                                modified (non-excludable right). To the fullest extent permitted by law,
+                                                our liability to the User, including liability for a breach of a
+                                                non-excludable right and liability which is not otherwise excluded under
+                                                these Terms of Use, is limited, at the Owner&rsquo;s sole discretion, to
+                                                the re-performance of the services or the payment of the cost of having
+                                                the services supplied again.</p>
+                                            <h3 class="text" id="us-users">US Users</h3>
+                                            <h4 class="text" id="disclaimer-of-warranties">Disclaimer of Warranties</h4>
+                                            <p class="text">This Application is provided strictly on an
+                                                &ldquo;as is&rdquo;
+                                                and &ldquo;as available&rdquo; basis. Use of the Service is at
+                                                Users&rsquo; own risk. To the maximum extent permitted by applicable
+                                                law, the Owner expressly disclaims all conditions, representations,
+                                                and warranties &mdash; whether express, implied, statutory or
+                                                otherwise, including, but not limited to, any implied warranty of
+                                                merchantability, fitness for a particular purpose, or
+                                                non-infringement of third-party rights. No advice or information,
+                                                whether oral or written, obtained by user from owner or through the
+                                                Service will create any warranty not expressly stated
+                                                herein.</p>
+                                            <p class="text">Without limiting the foregoing, the Owner, its
+                                                subsidiaries,
+                                                affiliates, licensors, officers, directors, agents, co-branders,
+                                                partners, suppliers and employees do not warrant that the content is
+                                                accurate, reliable or correct; that the Service will meet
+                                                Users&rsquo; requirements; that the Service will be available at any
+                                                particular time or location, uninterrupted or secure; that any
+                                                defects or errors will be corrected; or that the Service is free of
+                                                viruses or other harmful components. Any content downloaded or
+                                                otherwise obtained through the use of the Service is downloaded at
+                                                users own risk and users shall be solely responsible for any damage
+                                                to Users&rsquo; computer system or mobile device or loss of data
+                                                that results from such download or Users&rsquo; use of the
+                                                Service.</p>
+                                            <p class="text">The Owner does not warrant, endorse, guarantee, or
+                                                assume
+                                                responsibility for any product or service advertised or offered by a
+                                                third party through the Service or any hyperlinked website or
+                                                service, and the Owner shall not be a party to or in any way monitor
+                                                any transaction between Users and third-party providers of products
+                                                or services.</p>
+                                            <p class="text">The Service may become inaccessible or it may not
+                                                function
+                                                properly with Users&rsquo; web browser, mobile device, and/or
+                                                operating system. The owner cannot be held liable for any perceived
+                                                or actual damages arising from Service content, operation, or use of
+                                                this Service.</p>
+                                            <p class="text">Federal law, some states, and other jurisdictions,
+                                                do not allow
+                                                the exclusion and limitations of certain implied warranties. The
+                                                above exclusions may not apply to Users. This Agreement gives Users
+                                                specific legal rights, and Users may also have other rights which
+                                                vary from state to state. The disclaimers and exclusions under this
+                                                agreement shall not apply to the extent prohibited by applicable
+                                                law.</p>
+                                            <h4 class="text" id="limitations-of-liability">Limitations of liability</h4>
+                                            <p class="text">To the maximum extent permitted by applicable law,
+                                                in no event
+                                                shall the Owner, and its subsidiaries, affiliates, officers,
+                                                directors, agents, co-branders, partners, suppliers and employees be
+                                                liable for</p>
+                                            <ul style="list-style-type: disc;">
+                                                <li class="ml-50 text">any indirect, punitive, incidental,
+                                                    special, consequential
+                                                    or exemplary damages, including without limitation damages for
+                                                    loss of profits, goodwill, use, data or other intangible losses,
+                                                    arising out of or relating to the use of, or inability to use,
+                                                    the Service; and</li>
+                                                <li class="ml-50 text">any damage, loss or injury resulting from
+                                                    hacking, tampering
+                                                    or other unauthorized access or use of the Service or User
+                                                    account or the information contained therein;</li>
+                                                <li class="ml-50 text">any errors, mistakes, or inaccuracies of
+                                                    content;
+                                                </li>
+                                                <li class="ml-50 text">personal injury or property damage, of
+                                                    any nature
+                                                    whatsoever, resulting from User access to or use of the
+                                                    Service;</li>
+                                                <li class="ml-50 text">any unauthorized access to or use of the
+                                                    Owner&rsquo;s
+                                                    secure servers and/or any and all personal information stored
+                                                    therein;</li>
+                                                <li class="ml-50 text">any interruption or cessation of
+                                                    transmission to or from the
+                                                    Service;</li>
+                                                <li class="ml-50 text">any bugs, viruses, trojan horses, or the
+                                                    like that may be
+                                                    transmitted to or through the Service;</li>
+                                                <li class="ml-50 text">any errors or omissions in any content or
+                                                    for any loss or
+                                                    damage incurred as a result of the use of any content posted,
+                                                    emailed, transmitted, or otherwise made available through the
+                                                    Service; and/or</li>
+                                                <li class="ml-50 text">the defamatory, offensive, or illegal
+                                                    conduct of any User or
+                                                    third party. In no event shall the Owner, and its subsidiaries,
+                                                    affiliates, officers, directors, agents, co-branders, partners,
+                                                    suppliers and employees be liable for any claims, proceedings,
+                                                    liabilities, obligations, damages, losses or costs in an amount
+                                                    exceeding the amount paid by User to the Owner hereunder in the
+                                                    preceding 12 months, or the period of duration of this agreement
+                                                    between the Owner and User, whichever is shorter.</li>
+                                            </ul>
+                                            <p class="text">This limitation of liability section shall apply to
+                                                the fullest
+                                                extent permitted by law in the applicable jurisdiction whether the
+                                                alleged liability is based on contract, tort, negligence, strict
+                                                liability, or any other basis, even if company has been advised of
+                                                the possibility of such damage.</p>
+                                            <p class="text">Some jurisdictions do not allow the exclusion or
+                                                limitation of
+                                                incidental or consequential damages, therefore the above limitations
+                                                or exclusions may not apply to User. The terms give User specific
+                                                legal rights, and User may also have other rights which vary from
+                                                jurisdiction to jurisdiction. The disclaimers, exclusions, and
+                                                limitations of liability under the terms shall not apply to the
+                                                extent prohibited by applicable law.</p>
+                                            <h4 class="text" id="indemnification">Indemnification</h4>
+                                            <p class="text">The User agrees to defend, indemnify and hold the
+                                                Owner and its
+                                                subsidiaries, affiliates, officers, directors, agents, co-branders,
+                                                partners, suppliers and employees harmless from and against any and
+                                                all claims or demands, damages, obligations, losses, liabilities,
+                                                costs or debt, and expenses, including, but not limited to, legal
+                                                fees and expenses, arising from</p>
+                                            <ul style="list-style-type: disc;">
+                                                <li class="ml-50 text">User&rsquo;s use of and access to the
+                                                    Service, including any
+                                                    data or content transmitted or received by User;</li>
+                                                <li class="ml-50 text">User&rsquo;s violation of these terms,
+                                                    including, but not
+                                                    limited to, User&rsquo;s breach of any of the representations
+                                                    and warranties set forth in these terms;</li>
+                                                <li class="ml-50 text">User&rsquo;s violation of any third-party
+                                                    rights, including,
+                                                    but not limited to, any right of privacy or intellectual
+                                                    property rights;</li>
+                                                <li class="ml-50 text">User&rsquo;s violation of any statutory
+                                                    law, rule, or
+                                                    regulation;</li>
+                                                <li class="ml-50 text">any content that is submitted from
+                                                    User&rsquo;s account,
+                                                    including third party access with User&rsquo;s unique username,
+                                                    password or other security measure, if applicable, including,
+                                                    but not limited to, misleading, false, or inaccurate
+                                                    information;</li>
+                                                <li class="ml-50 text">User&rsquo;s wilful misconduct;
+                                                    or</li>
+                                                <li class="ml-50 text">statutory provision by User or its
+                                                    affiliates, officers,
+                                                    directors, agents, co-branders, partners, suppliers and
+                                                    employees to the extent allowed by applicable law.</li>
+                                            </ul>
+                                            <hr>
+                                            <h2 class="second_title text-left" id="common-provisions">Common
+                                                provisions</h2>
+                                            <h3 class="second_title text-left" id="no-waiver">No Waiver</h3>
+                                            <p class="text">The Owner&rsquo;s failure to assert any right or provision
+                                                under these
+                                                Terms shall not constitute a waiver of any such right or provision. No
+                                                waiver shall be considered a further or continuing waiver of such term
+                                                or any other term.</p>
+                                            <h3 class="second_title text-left" id="service-interruption">Service
+                                                interruption</h3>
+                                            <p class="text">To ensure the best possible service level, the Owner
+                                                reserves the right
+                                                to interrupt the Service for maintenance, system updates or any other
+                                                changes, informing the Users appropriately.</p>
+                                            <p class="text">Within the limits of law, the Owner may also decide to
+                                                suspend or
+                                                terminate the Service altogether. If the Service is terminated, the
+                                                Owner will cooperate with Users to enable them to withdraw Personal Data
+                                                or information in accordance with applicable law.</p>
+                                            <p class="text">Additionally, the Service might not be available due to
+                                                reasons outside
+                                                the Owner&rsquo;s reasonable control, such as &ldquo;force
+                                                majeure&rdquo; (eg. labor actions, infrastructural breakdowns or
+                                                blackouts etc).</p>
+                                            <h3 class="second_title text-left" id="service-reselling">Service reselling
+                                            </h3>
+                                            <p class="text">Users may not reproduce, duplicate, copy, sell, resell or
+                                                exploit any
+                                                portion of this Application and of its Service without the Owner&rsquo;s
+                                                express prior written permission, granted either directly or through a
+                                                legitimate reselling programme.</p>
+                                            <h3 class="second_title text-left" id="privacy-policy">Privacy policy</h3>
+                                            <p class="text">To learn more about the use of their Personal Data, Users
+                                                may refer to
+                                                the privacy policy of this Application.</p>
+                                            <h3 class="second_title text-left" id="intellectual-property-rights">
+                                                Intellectual property
+                                                rights</h3>
+                                            <p class="text">Without prejudice to any more specific provision of these
+                                                Terms, any
+                                                intellectual property rights, such as copyrights, trademark rights,
+                                                patent rights and design rights related to this Application are the
+                                                exclusive property of the Owner or its licensors and are subject to the
+                                                protection granted by applicable laws or international treaties relating
+                                                to intellectual property.</p>
+                                            <p class="text">All trademarks &mdash; nominal or figurative &mdash; and all
+                                                other marks,
+                                                trade names, service marks, word marks, illustrations, images, or logos
+                                                appearing in connection with this Application are, and remain, the
+                                                exclusive property of the Owner or its licensors and are subject to the
+                                                protection granted by applicable laws or international treaties related
+                                                to intellectual property.</p>
+                                            <h3 class="second_title text-left" id="changes-to-these-terms">Changes to
+                                                these Terms</h3>
+                                            <p class="text">The Owner reserves the right to amend or otherwise modify
+                                                these Terms at
+                                                any time. In such cases, the Owner will appropriately inform the User of
+                                                these changes.</p>
+                                            <p class="text">Such changes will only affect the relationship with the User
+                                                for the
+                                                future.</p>
+                                            <p class="text">The continued use of the Service will signify the
+                                                User&rsquo;s acceptance
+                                                of the revised Terms. If Users do not wish to be bound by the changes,
+                                                they must stop using the Service. Failure to accept the revised Terms,
+                                                may entitle either party to terminate the Agreement.</p>
+                                            <p class="text">The applicable previous version will govern the relationship
+                                                prior to the
+                                                User's acceptance. The User can obtain any previous version from the
+                                                Owner.</p>
+                                            <p class="text">If required by applicable law, the Owner will specify the
+                                                date by which
+                                                the modified Terms will enter into force.</p>
+                                            <h3 class="second_title text-left" id="assignment-of-contract">Assignment of
+                                                contract</h3>
+                                            <p class="text">The Owner reserves the right to transfer, assign, dispose of
+                                                by novation,
+                                                or subcontract any or all rights or obligations under these Terms,
+                                                taking the User&rsquo;s legitimate interests into account. Provisions
+                                                regarding changes of these Terms will apply accordingly.</p>
+                                            <p class="text">Users may not assign or transfer their rights or obligations
+                                                under these
+                                                Terms in any way, without the written permission of the Owner.</p>
+                                            <h3 class="second_title text-left" id="contacts">Contacts</h3>
+                                            <p class="text">All communications relating to the use of this Application
+                                                must be sent
+                                                using the contact information stated in this document.</p>
+                                            <h3 class="second_title text-left" id="severability">Severability</h3>
+                                            <p class="text">Should any provision of these Terms be deemed or become
+                                                invalid or
+                                                unenforceable under applicable law, the invalidity or unenforceability
+                                                of such provision shall not affect the validity of the remaining
+                                                provisions, which shall remain in full force and effect.</p>
+                                            <h4 class="text" id="us-users">US Users</h4>
+                                            <p class="text">Any such invalid or unenforceable provision will be
+                                                interpreted,
+                                                construed and reformed to the extent reasonably required to render it
+                                                valid, enforceable and consistent with its original intent. These Terms
+                                                constitute the entire Agreement between Users and the Owner with respect
+                                                to the subject matter hereof, and supersede all other communications,
+                                                including but not limited to all prior agreements, between the parties
+                                                with respect to such subject matter. These Terms will be enforced to the
+                                                fullest extent permitted by law.</p>
+                                            <h4 class="text" id="eu-users">EU Users</h4>
+                                            <p class="text">Should any provision of these Terms be or be deemed void,
+                                                invalid or
+                                                unenforceable, the parties shall do their best to find, in an amicable
+                                                way, an agreement on valid and enforceable provisions thereby
+                                                substituting the void, invalid or unenforceable parts.<br />In case of
+                                                failure to do so, the void, invalid or unenforceable provisions shall be
+                                                replaced by the applicable statutory provisions, if so permitted or
+                                                stated under the applicable law.</p>
+                                            <p class="text">Without prejudice to the above, the nullity, invalidity or
+                                                the
+                                                impossibility to enforce a particular provision of these Terms shall not
+                                                nullify the entire Agreement, unless the severed provisions are
+                                                essential to the Agreement, or of such importance that the parties would
+                                                not have entered into the contract if they had known that the provision
+                                                would not be valid, or in cases where the remaining provisions would
+                                                translate into an unacceptable hardship on any of the parties.</p>
+                                            <h3 class="second_title text-left" id="governing-law">Governing law</h3>
+                                            <p class="text">These Terms are governed by the law of the place where the
+                                                Owner is
+                                                based, as disclosed in the relevant section of this document, without
+                                                regard to conflict of laws principles.</p>
+                                            <h4 class="text" id="exception-for-european-consumers">Exception for
+                                                European Consumers
+                                            </h4>
+                                            <p class="text">However, regardless of the above, if the User qualifies as a
+                                                European
+                                                Consumer and has their habitual residence in a country where the law
+                                                provides for a higher consumer protection standard, such higher
+                                                standards shall prevail.</p>
+                                            <h3 class="second_title text-left" id="venue-of-jurisdiction">Venue of
+                                                jurisdiction</h3>
+                                            <p class="text">The exclusive competence to decide on any controversy
+                                                resulting from or
+                                                connected to these Terms lies with the courts of the place where the
+                                                Owner is based, as displayed in the relevant section of this document.
+                                            </p>
+                                            <h4 class="text" id="exception-for-european-consumers">Exception for
+                                                European Consumers
+                                            </h4>
+                                            <p class="text">The above does not apply to any Users that qualify as
+                                                European Consumers,
+                                                nor to Consumers based in Switzerland, Norway or Iceland.</p>
+                                            <!-- <hr class="my-4"> -->
+                                            <br>
+                                            <div class="one_line_col">
+                                                <div class="box_primary box_10 definitions expand collapsed"
+                                                    style="border: 1px solid rgba(0,0,0,.1); margin-bottom: 10px;">
+                                                    <h3 class="second_title text-center"
+                                                        class="expand-click w_icon_24 icon_ribbon">
+                                                        Definitions and legal
+                                                        references</h3>
+                                                    <hr class="m-0">
+                                                    <div class="expand-content" style="padding: 15px;">
+                                                        <h4 class="text">This Application (or this Application)</h4>
+                                                        <p class="text">The property that enables the provision of the
+                                                            Service.</p>
+                                                        <h4 class="text">Agreement</h4>
+                                                        <p class="text">Any legally binding or contractual relationship
+                                                            between the
+                                                            Owner and the User, governed by these Terms.</p>
+                                                        <h4 class="text">Business User</h4>
+                                                        <p class="text">Any User that does not qualify as a Consumer.
+                                                        </p>
+                                                        <h4 class="text">European (or Europe)</h4>
+                                                        <p class="text">Applies where a User is physically present or
+                                                            has their
+                                                            registered offices within the EU, regardless of nationality.
+                                                        </p>
+                                                        <h4 class="text">Owner (or We)</h4>
+                                                        <p class="text">Indicates the natural person(s) or legal entity
+                                                            that provides
+                                                            this Application and/or the Service to Users.</p>
+                                                        <h4 class="text">Service</h4>
+                                                        <p class="text">The service provided by this Application as
+                                                            described in
+                                                            these Terms and on this Application.</p>
+                                                        <h4 class="text">Terms</h4>
+                                                        <p class="text">All provisions applicable to the use of this
+                                                            Application
+                                                            and/or the Service as described in this document, including
+                                                            any other related documents or agreements, and as updated
+                                                            from time to time.</p>
+                                                        <h4 class="text">User (or You)</h4>
+                                                        <p class="text">Indicates any natural person or legal entity
+                                                            using this
+                                                            Application.</p>
+                                                        <h4 class="text">Consumer</h4>
+                                                        <p class="text">Any User qualifying as a natural person who
+                                                            accesses goods or
+                                                            services for personal use, or more generally, acts for
+                                                            purposes outside their trade, business, craft or profession.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- /footer -->
+                                        </div>
+                                        <!-- /content -->
+                                    </div>
+                                    <!-- /wbars -->
+                                </div>
+                                <!-- /container base_container -->
+                            </div>
+                            <!-- /wbars_wrapper -->
+
+
+
+                        </div> <!-- header hero content -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+            <div class="header-shape-1 d-none d-md-block"></div> <!-- header shape -->
+            <div class="header-shape-2">
+                <img src="../../assets/images/header-shape-2.svg" alt="shape">
+            </div> <!-- header shape -->
+        </div> <!-- header hero -->
+    </header>
+
+    <!--====== HEADER PART ENDS ======-->
+
+    <!--======FOOTER PART START ======-->
+
+    <footer id="footer" class="footer-area">
+        <div class="footer-shape shape-1"></div>
+        <div class="footer-shape shape-2"></div>
+        <div class="footer-shape shape-3"></div>
+        <div class="footer-shape shape-4"></div>
+        <div class="footer-shape shape-5"></div>
+        <div class="footer-shape shape-6"></div>
+        <div class="footer-shape shape-7"></div>
+        <div class="footer-shape shape-8">
+            <img class="svg" src="../../assets/images/footer-shape.svg" alt="Shape">
+        </div>
+        <div class="footer-widget  pb-80">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="footer-about mt-50 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.2s">
+                            <a class="logo footer-logo" href="../../">
+
+                            </a>
+                            <ul class="social">
+                                <li><a target="_blank" href="https://www.facebook.com/photoadking/"><i
+                                            class="lni lni-facebook"></i></a></li>
+                                <li><a target="_blank" href="https://www.instagram.com/photoadking/"><i
+                                            class="lni lni-instagram"></i></a></li>
+                                <li><a target="_blank" href="https://twitter.com/photoadking"><i
+                                            class="lni lni-twitter"></i></a></li>
+                                <li><a target="_blank" href="https://in.linkedin.com/showcase/photoadking"><i
+                                            class="lni lni-linkedin"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 text-center">
+                        <div class="footer-link d-flex flex-wrap">
+                            <div class="footer-link-wrapper mt-45 wow fadeIn" data-wow-duration="1.3s"
+                                data-wow-delay="0.6s">
+                                <div class="footer-title">
+                                    <h4 class="title text">Support</h4>
+                                </div>
+                                <ul class="link">
+                                    <li><a class="" id="ftr_privacy" target="_blank"
+                                            href="../../privacy-policy/">Privacy Policy</a>
+                                    </li>
+                                    <li class=""><a class="activepage" href="#">Terms
+                                            Of Use</a></li>
+                                    <li><a class="" target="_blank" id="ftr_support" href="../../support/">Contact
+                                            Us</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="copyright d-sm-flex justify-content-between">
+                            <div class="copyright-text w-100 text-center">
+                                <p class="text small text-center">Copyright © 2019-
+                                    <script>document.write(new Date().getFullYear())</script> all rights reserved
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!--====== Jquery js ======-->
+    <script src="../../assets/js/vendor/jquery-1.12.4.min.js"></script>
+    <!-- <script src="../../assets/js/vendor/modernizr-3.7.1.min.js"></script> -->
+
+    <!--====== Bootstrap js ======-->
+    <script src="../../assets/js/popper.min.js"></script>
+    <script src="../../assets/js/bootstrap.min.js"></script>
+
+    <!--====== Slick js ======-->
+    <!-- <script src="../../assets/js/slick.min.js"></script> -->
+
+    <!--====== Magnific Popup js ======-->
+    <script src="../../assets/js/jquery.magnific-popup.min.js"></script>
+
+    <!--====== WOW js ======-->
+    <script src="../../assets/js/wow.min.js"></script>
+
+    <!--====== Swiper js ======-->
+    <!-- <script src="../../assets/js/swiper.min.js"></script> -->
+
+    <!--====== Scrolling Nav js ======-->
+    <!-- <script src="../../assets/js/jquery.easing.min.js"></script> -->
+    <!-- <script src="../../assets/js/scrolling-nav.js"></script> -->
+
+    <!--====== Main js ======-->
+    <script src="../../assets/js/main.js"></script>
+
+</body>
+
+</html>
