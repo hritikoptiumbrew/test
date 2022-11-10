@@ -1810,8 +1810,7 @@ class UserController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Samples fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
-        } catch
-        (Exception $e) {
+        } catch (Exception $e) {
             Log::error("getJsonSampleDataWithLastSyncTime_webp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get samples.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
@@ -3451,7 +3450,7 @@ class UserController extends Controller
 
             if ($is_cache_enable == 1) {
                 $redis_result = $this->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
-            }else{
+            } else {
                 $redis_result = $this->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured, $catalog_id);
             }
 
@@ -4122,6 +4121,7 @@ class UserController extends Controller
                                                       ct.is_featured,
                                                       sct.sub_category_id,
                                                       ct.is_free,
+                                                      ct.is_ios_free,
                                                       ct.updated_at
                                                     FROM
                                                       catalog_master as ct,
@@ -4166,6 +4166,7 @@ class UserController extends Controller
                                                         IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
                                                         IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS original_img,
                                                         IF(cm.is_free=1,1,0) AS is_free,
+                                                        IF(cm.is_ios_free=1,1,0) AS is_ios_free,
                                                         scc.sub_category_id,
                                                         im.is_featured,
                                                         im.is_portrait,
@@ -4225,6 +4226,7 @@ class UserController extends Controller
                                                       ct.is_featured,
                                                       sct.sub_category_id,
                                                       ct.is_free,
+                                                      ct.is_ios_free,
                                                       ct.updated_at
                                                     FROM
                                                       catalog_master as ct,
@@ -4266,6 +4268,7 @@ class UserController extends Controller
                                                         IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
                                                         IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS original_img,
                                                         IF(cm.is_free=1,1,0) AS is_free,
+                                                        IF(cm.is_ios_free=1,1,0) AS is_ios_free,
                                                         scc.sub_category_id,
                                                         im.is_featured,
                                                         im.is_portrait,
