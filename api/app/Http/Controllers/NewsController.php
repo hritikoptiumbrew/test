@@ -88,9 +88,10 @@ class NewsController extends Controller
             }
             $this->page = $request->page;
             $this->is_cache = 1;
+            $this->country_code = isset($request->country_code) && isset(Config::get('constant.TWITTER_USER_LIST_FOR_TWITTER_TIMELINE')[mb_strtolower($request->country_code)]) ? mb_strtolower($request->country_code) : 'us';
 
-            if (!Cache::has("pel:getFeedFromTwitter:$this->page")) {
-                $result = Cache::remember("getFeedFromTwitter:$this->page", 1440, function () {
+            if (!Cache::has("pel:getFeedFromTwitter:$this->country_code:$this->page")) {
+                $result = Cache::remember("getFeedFromTwitter:$this->country_code:$this->page", 1440, function () {
                     /*
                     * Twitter App Settings
                     * Set access tokens and API keys
@@ -101,7 +102,7 @@ class NewsController extends Controller
                     $accessToken = Config::get('constant.twitter_access_Token');
                     $accessTokenSecret = Config::get('constant.twitter_access_Token_Secret');
                     $post_list = [];
-                    $twitter_list = Config::get('constant.TWITTER_USER_LIST_FOR_TWITTER_TIMELINE');
+                    $twitter_list = Config::get('constant.TWITTER_USER_LIST_FOR_TWITTER_TIMELINE.'.$this->country_code);
                     $twitter = explode(',', $twitter_list);
                     $twit_user_count = count($twitter);
                     $i = 0;
@@ -150,9 +151,9 @@ class NewsController extends Controller
             }
 
 
-            $redis_result = Cache::get("getFeedFromTwitter:$this->page");
+            $redis_result = Cache::get("getFeedFromTwitter:$this->country_code:$this->page");
 
-            Redis::expire("getFeedFromTwitter", 1);
+            Redis::expire("getFeedFromTwitter:$this->country_code:$this->page", 1);
 
             if (!$redis_result['result']) {
                 return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any twitter post.", 'cause' => '', 'data' => json_decode('{}')));

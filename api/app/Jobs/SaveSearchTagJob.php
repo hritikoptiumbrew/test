@@ -68,9 +68,10 @@ class SaveSearchTagJob implements ShouldQueue
                 DB::update('UPDATE tag_analysis_master SET search_count = search_count + 1, content_count = ? WHERE id = ?',[$this->template_count, $id]);
 
             } else {
+                $main_sub_category_id = explode(',', $this->sub_category_id)[0];
                 DB::insert('INSERT INTO
-                               tag_analysis_master(tag, is_success, is_featured, category_id, content_count, search_count, sub_category_id)
-                               VALUES(?, ?, ?, ?, ?, ?, ?)', [$this->search_category, $this->is_success, $this->is_featured, $this->category_id, $this->template_count, 1, $this->sub_category_id]);
+                               tag_analysis_master(tag, is_success, is_featured, category_id, content_count, search_count, sub_category_id, main_sub_category_id)
+                               VALUES(?, ?, ?, ?, ?, ?, ?, ?)', [$this->search_category, $this->is_success, $this->is_featured, $this->category_id, $this->template_count, 1, $this->sub_category_id, $main_sub_category_id]);
             }
 
         } catch (Exception $e) {

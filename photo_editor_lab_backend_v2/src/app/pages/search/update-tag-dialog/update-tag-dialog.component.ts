@@ -48,6 +48,8 @@ export class UpdateTagDialogComponent implements OnInit {
   selectedSearchTags: string[] = [];
   searchINputControl = new FormControl();
 
+  is_catalog:boolean = false;
+
   constructor(protected dialogRef: NbDialogRef<any>, public api: DataService, public util: UtilService, private dialog: NbDialogService) {
   }
 
@@ -181,6 +183,7 @@ add(event) {
           for (let i = 0; i < resoponse.data.result.length; i++) {
             this.imgData.push(resoponse.data.result[i]);
           }
+          this.is_catalog = resoponse.data.is_catalog == 0?false:true;
           this.searchByTagData = resoponse.data;
           this.checked = false;
           this.pageLoader = false;
@@ -229,11 +232,21 @@ add(event) {
   //function for adding images to the tag name
   updateTag() {
     if (this.listOfId.length > 0) {
-      const data = {
-        "img_ids": this.listOfId.join(','),
-        "search_category": this.filterDataFromPage.join(','),
-        "sub_category_id": this.subCatId,
+      let data;
+      if(this.is_catalog == true){
+        data = {
+          "catalog_ids": this.listOfId.join(','),
+          "search_category": this.filterDataFromPage.join(','),
+          "sub_category_id": this.subCatId,
+        }
+      }else{
+        data = {
+          "img_ids": this.listOfId.join(','),
+          "search_category": this.filterDataFromPage.join(','),
+          "sub_category_id": this.subCatId,
+        }
       }
+      
       this.util.showLoader()
       this.api.postData("updateTemplateSearchingTagsByAdmin", data, { headers: { 'Authorization': 'Bearer ' + this.token } })
         .then(response => {
@@ -284,7 +297,11 @@ add(event) {
   selectAll() {
     this.listOfId = [];
       for (let i = 0; i < this.imgData.length; i++) {
+        if(this.is_catalog){
+          this.listOfId.push(this.imgData[i].catalog_id);
+        }else{
           this.listOfId.push(this.imgData[i].json_id);
+        }
       }
   }
 }

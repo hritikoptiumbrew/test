@@ -9035,66 +9035,64 @@ class AdminController extends Controller
                 $is_featured = 0;
             }
 
-            $result = DB::select('SELECT * FROM sub_category_tag_master 
+            $result = DB::select('SELECT 1 FROM sub_category_tag_master 
                                       WHERE 
                                         tag_name = ? AND 
                                         is_template = ? AND
                                         sub_category_id = ?', [$tag_name, $is_template, $sub_category_id]);
 
-            if (count($result) > 0) {
-                return $response = Response::json(array('code' => 201, 'message' => 'Search category already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            if ($result) {
+                return Response::json(array('code' => 201, 'message' => 'Search category already exist.', 'cause' => '', 'data' => json_decode('{}')));
             }
 
             //validate search text
-            if (($response = (new VerificationController())->verifySearchText($tag_name)) != 1)
-                return $response = Response::json(array('code' => 201, 'message' => 'Invalid tag name. Please enter valid tag name.', 'cause' => '', 'data' => json_decode('{}')));
+            if (((new VerificationController())->verifySearchText($tag_name)) != 1)
+                return Response::json(array('code' => 201, 'message' => 'Invalid tag name. Please enter valid tag name.', 'cause' => '', 'data' => json_decode('{}')));
 
             if ($is_template == 2) {
                 $total_row_result = DB::select('SELECT
-                                                  count(*) as total
+                                                  COUNT(ctm.id) AS total
                                                 FROM
                                                   catalog_master AS ctm
-                                                  JOIN sub_category_catalog AS scc ON ctm.id = scc.catalog_id AND ctm.is_featured = 0
+                                                  JOIN sub_category_catalog AS scc ON ctm.id = scc.catalog_id AND ctm.is_featured = 0 AND scc.sub_category_id = ?
                                                 WHERE
-                                                  MATCH(ctm.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)');
+                                                  MATCH(ctm.search_category) AGAINST (REPLACE(CONCAT("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$sub_category_id]);
                 $total_row = $total_row_result[0]->total;
                 if ($total_row == 0) {
-                    return $response = Response::json(array('code' => 201, 'message' => 'Catalog does not exist having this tag.', 'cause' => '', 'data' => json_decode('{}')));
+                    return Response::json(array('code' => 201, 'message' => 'Catalog does not exist having this tag.', 'cause' => '', 'data' => json_decode('{}')));
                 }
 
             } else {
 
                 $total_row_result = DB::select('SELECT
-                                              count(*) as total
-                                            FROM
-                                              images as im
-                                              JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
-                                              JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
-                                            WHERE
-                                              im.is_active = 1 AND
-                                              isnull(im.original_img) AND
-                                              isnull(im.display_img) AND
-                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$sub_category_id, $is_featured]);
+                                                  COUNT(im.id) AS total
+                                                FROM
+                                                  images AS im
+                                                  JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
+                                                  JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
+                                                WHERE
+                                                  im.is_active = 1 AND
+                                                  ISNULL(im.original_img) AND
+                                                  ISNULL(im.display_img) AND
+                                                  MATCH(im.search_category) AGAINST (REPLACE(CONCAT("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$sub_category_id, $is_featured]);
                 $total_row = $total_row_result[0]->total;
                 if ($total_row == 0) {
                     return $response = Response::json(array('code' => 201, 'message' => 'Templates do not exist having this tag.', 'cause' => '', 'data' => json_decode('{}')));
                 }
             }
 
-            DB::beginTransaction();
             DB::insert('INSERT INTO sub_category_tag_master (
                             sub_category_id, 
                             tag_name, 
                             is_active, 
                             is_template, 
-                            create_time) VALUES(?, ?, ?, ?,?)', [$sub_category_id, $tag_name, 1, $is_template, $create_time]);
-            DB::commit();
+                            create_time) VALUES(?, ?, ?, ?, ?)', [$sub_category_id, $tag_name, 1, $is_template, $create_time]);
 
             $response = Response::json(array('code' => 200, 'message' => 'Search category added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
         } catch (Exception $e) {
             Log::error("addSearchCategoryTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
         }
         return $response;
     }
@@ -9126,7 +9124,6 @@ class AdminController extends Controller
     public function updateSearchCategoryTag(Request $request_body)
     {
         try {
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
@@ -9146,54 +9143,51 @@ class AdminController extends Controller
             }
 
             //validate search text
-            if (($response = (new VerificationController())->verifySearchText($tag_name)) != 1)
-                return $response = Response::json(array('code' => 201, 'message' => 'Invalid tag name. Please enter valid tag name.', 'cause' => '', 'data' => json_decode('{}')));
+            if (((new VerificationController())->verifySearchText($tag_name)) != 1)
+                return Response::json(array('code' => 201, 'message' => 'Invalid tag name. Please enter valid tag name.', 'cause' => '', 'data' => json_decode('{}')));
 
 
-            $result = DB::select('SELECT * FROM sub_category_tag_master 
+            $result = DB::select('SELECT 1 FROM sub_category_tag_master 
                                       WHERE 
                                         tag_name = ? AND 
                                         sub_category_id = ? AND 
                                         is_template = ? AND 
                                         id != ?', [$tag_name, $sub_category_id, $is_template, $sub_category_tag_id]);
-            if (count($result) > 0) {
-                return $response = Response::json(array('code' => 201, 'message' => 'Search category already exist.', 'cause' => '', 'data' => json_decode('{}')));
+            if ($result) {
+                return Response::json(array('code' => 201, 'message' => 'Search category already exist.', 'cause' => '', 'data' => json_decode('{}')));
             }
 
             if ($is_template == 2) {
                 $total_row_result = DB::select('SELECT
-                                                  count(*) as total
+                                                  COUNT(ctm.id) AS total
                                                 FROM
                                                   catalog_master AS ctm
-                                                  JOIN sub_category_catalog AS scc ON ctm.id = scc.catalog_id AND ctm.is_featured = 0
+                                                  JOIN sub_category_catalog AS scc ON ctm.id = scc.catalog_id AND ctm.is_featured = 0 AND scc.sub_category_id = ?
                                                 WHERE
-                                                  MATCH(ctm.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)');
+                                                  MATCH(ctm.search_category) AGAINST (REPLACE(CONCAT("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$sub_category_id]);
                 $total_row = $total_row_result[0]->total;
                 if ($total_row == 0) {
-                    return $response = Response::json(array('code' => 201, 'message' => 'Catalog does not exist having this tag.', 'cause' => '', 'data' => json_decode('{}')));
+                    return Response::json(array('code' => 201, 'message' => 'Catalog does not exist having this tag.', 'cause' => '', 'data' => json_decode('{}')));
                 }
 
-            }else {
+            } else {
 
                 $total_row_result = DB::select('SELECT
-                                                count(*) as total
+                                                COUNT(im.id) AS total
                                               FROM
-                                                images as im
+                                                images AS im
                                                 JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
                                                 JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
                                               WHERE
                                                 im.is_active = 1 AND
-                                                isnull(im.original_img) AND
-                                                isnull(im.display_img) AND
-                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$sub_category_id, $is_featured]);
+                                                ISNULL(im.original_img) AND
+                                                ISNULL(im.display_img) AND
+                                                MATCH(im.search_category) AGAINST (REPLACE(CONCAT("' . $tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$sub_category_id, $is_featured]);
                 $total_row = $total_row_result[0]->total;
                 if ($total_row == 0) {
                     return $response = Response::json(array('code' => 201, 'message' => 'Templates does not exist having this tag.', 'cause' => '', 'data' => json_decode('{}')));
                 }
             }
-
-
-            DB::beginTransaction();
 
             DB::update('UPDATE
                               sub_category_tag_master
@@ -9203,14 +9197,11 @@ class AdminController extends Controller
                               id = ? ',
                 [$tag_name, $sub_category_tag_id]);
 
-            DB::commit();
-
             $response = Response::json(array('code' => 200, 'message' => 'Search category updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
             Log::error("updateSearchCategoryTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update search category.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
         }
 
         return $response;
@@ -9344,28 +9335,28 @@ class AdminController extends Controller
                 if ($this->is_template == 2) {
                     foreach ($tag_list as $key) {
                         $total_row_result = DB::select('SELECT
-                                                      count(*) as total
+                                                      COUNT(ctm.id) AS total
                                                     FROM
                                                       catalog_master AS ctm
-                                                      JOIN sub_category_catalog AS scc ON ctm.id = scc.catalog_id AND ctm.is_featured = 0
+                                                      JOIN sub_category_catalog AS scc ON ctm.id = scc.catalog_id AND ctm.is_featured = 0 AND scc.sub_category_id = ?
                                                     WHERE
-                                                      MATCH(ctm.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)');
+                                                      MATCH(ctm.search_category) AGAINST (REPLACE(CONCAT("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$this->sub_category_id]);
                         $key->total_template = $total_row_result[0]->total;
                     }
                 } else {
 
                     foreach ($tag_list as $key) {
                         $total_row_result = DB::select('SELECT
-                                                              count(*) as total
+                                                              COUNT(im.id) AS total
                                                             FROM
-                                                              images as im
+                                                              images AS im
                                                               JOIN sub_category_catalog AS scc ON im.catalog_id = scc.catalog_id AND scc.sub_category_id = ?
                                                               JOIN catalog_master AS ctm ON ctm.id = scc.catalog_id AND ctm.is_featured = ?
                                                             WHERE
                                                               im.is_active = 1 AND
-                                                              isnull(im.original_img) AND
-                                                              isnull(im.display_img) AND
-                                                              MATCH(im.search_category) AGAINST(REPLACE(concat("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$this->sub_category_id, $this->is_featured]);
+                                                              ISNULL(im.original_img) AND
+                                                              ISNULL(im.display_img) AND
+                                                              MATCH(im.search_category) AGAINST (REPLACE(CONCAT("' . $key->tag_name . '"," ")," ","* ")  IN BOOLEAN MODE)', [$this->sub_category_id, $this->is_featured]);
 
                         $key->total_template = $total_row_result[0]->total;
                     }
@@ -11577,38 +11568,45 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count', 'start_date', 'end_date', 'sub_category_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'is_featured', 'page', 'item_count', 'start_date', 'end_date'), $request)) != '')
                 return $response;
 
+            $this->category_id = $request->category_id;
             $this->sub_category_id = $request->sub_category_id;
-            $this->start_date = $request->start_date;
-            $this->end_date = $request->end_date;
-
+            $this->is_featured = $request->is_featured;
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
+            $this->start_date = $request->start_date;
+            $this->end_date = $request->end_date;
 
             $this->order_by = isset($request->order_by) ? $request->order_by : ''; //field name
             $this->order_type = isset($request->order_type) ? $request->order_type : ''; //asc or desc
             $this->search_type = isset($request->search_type) ? $request->search_type : ''; //column name to be searched
-            $this->search_query = isset($request->search_query) ?  '%' . $request->search_query . '%'  : ''; //value to be searched
+            $this->search_query = isset($request->search_query) ? '%' . $request->search_query . '%' : ''; //value to be searched
             $this->table_prefix = "tam";
             $this->where_condition = "";
 
-            if($this->search_type && $this->search_query){
-                $this->where_condition = 'AND ' . $this->table_prefix. '.' .$this->search_type. ' LIKE "'.$this->search_query.'" ';
+            if (!(($this->category_id == Config::get('constant.CATEGORY_ID_OF_STICKER') && $this->is_featured == 1) || (($this->category_id == Config::get('constant.CATEGORY_ID_OF_STICKER') || $this->category_id == Config::get('constant.CATEGORY_ID_OF_BACKGROUND') || $this->category_id == Config::get('constant.CATEGORY_ID_OF_FONTS')) && $this->is_featured == 0))) {
+
+                //Log::info('getAllSearchingDetailsForAdmin : Something went wrong.', ['category_id' => $this->category_id, 'is_featured' => $this->is_featured]);
+                return Response::json(array('code' => 201, 'message' => 'Something went wrong. Please try again.', 'cause' => '', 'data' => json_decode("{}")));
             }
 
-            if($this->order_by && $this->order_type){
-                $this->order_by_clause = $this->table_prefix. '.' .$this->order_by. ' ' .$this->order_type ;
-            }else{
+            if ($this->search_type && $this->search_query) {
+                $this->where_condition .= ' AND ' . $this->table_prefix . '.' . $this->search_type . ' LIKE "' . $this->search_query . '" ';
+            }
+
+            if ($this->order_by && $this->order_type) {
+                $this->order_by_clause = $this->table_prefix . '.' . $this->order_by . ' ' . $this->order_type;
+            } else {
                 $this->order_by_clause = 'tam.update_time DESC';
             }
 
-            $redis_result = Cache::rememberforever("getAllSearchingDetailsForAdmin:$this->sub_category_id:$this->page:$this->item_count:$this->start_date:$this->end_date:$this->order_by:$this->order_type:$this->search_type:$this->search_query", function () {
+            $redis_result = Cache::rememberforever("getAllSearchingDetailsForAdmin:$this->category_id:$this->sub_category_id:$this->is_featured:$this->page:$this->item_count:$this->start_date:$this->end_date:$this->order_by:$this->order_type:$this->search_type:$this->search_query", function () {
 
                 $total_row_result = DB::select('SELECT 
-                                                tam.id
+                                                COUNT(tam.id) AS total
                                             FROM
                                                 tag_analysis_master AS tam
                                             LEFT JOIN  
@@ -11616,14 +11614,18 @@ class AdminController extends Controller
                                             ON 
                                                 scm.id = tam.sub_category_id
                                             WHERE
-                                                tam.sub_category_id = ? AND
+                                                tam.category_id = ? AND
+                                                #tam.sub_category_id = ? AND
+                                                tam.main_sub_category_id = ? AND
+                                                tam.is_featured = ? AND
                                                 DATE(tam.update_time) BETWEEN ? AND ?
-                                                '.$this->where_condition.'
-                                            ORDER BY '.$this->order_by_clause.' ',[$this->sub_category_id, $this->start_date, $this->end_date]);
+                                                ' . $this->where_condition . '
+                                            ORDER BY ' . $this->order_by_clause . ' ', [$this->category_id, $this->sub_category_id, $this->is_featured, $this->start_date, $this->end_date]);
 
-                $total_row = count($total_row_result);
+                $total_row = $total_row_result[0]->total;
 
-                $tags_detail = DB::select('SELECT 
+                if ($total_row) {
+                    $tags_detail = DB::select('SELECT 
                                                 tam.id,
                                                 tam.tag,
                                                 tam.is_success,
@@ -11639,21 +11641,23 @@ class AdminController extends Controller
                                             ON 
                                                 scm.id = tam.sub_category_id
                                             WHERE
-                                                tam.sub_category_id = ? AND
+                                                tam.category_id = ? AND
+                                                #tam.sub_category_id = ? AND
+                                                tam.main_sub_category_id = ? AND
+                                                tam.is_featured = ? AND
                                                 DATE(tam.update_time) BETWEEN ? AND ?
-                                                '.$this->where_condition.'
-                                            ORDER BY '.$this->order_by_clause.'
-                                                LIMIT ?,?',[$this->sub_category_id, $this->start_date, $this->end_date, $this->offset, $this->item_count]);
+                                                ' . $this->where_condition . '
+                                            ORDER BY ' . $this->order_by_clause . '
+                                                LIMIT ?,?', [$this->category_id, $this->sub_category_id, $this->is_featured, $this->start_date, $this->end_date, $this->offset, $this->item_count]);
+                } else {
+                    $tags_detail = [];
+                }
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                 $result = array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'result' => $tags_detail);
 
                 return $result;
             });
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
 
             $response = Response::json(array('code' => 200, 'message' => 'Searching details fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -11724,22 +11728,25 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'search_category', 'is_featured', 'page', 'item_count'), $request)) != '')
                 return $response;
 
+            $category_id = $request->category_id;
             $sub_category_id = $request->sub_category_id;
             $search_category = strtolower(trim($request->search_category));
+            $is_featured = $request->is_featured;
+
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
-            $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');
-            $is_featured = isset($request->is_featured) ? $request->is_featured : 1;
 
-//            $redis_result = (new UserController())->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
-            if($category_id == Config::get('constant.CATEGORY_ID_OF_STICKER')) {
-                $redis_result = (new UserController())->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);  //use searchTemplatesBySearchCategory api in searchCardsBySubCategoryIdForAdmin
-            }else {
-                $redis_result = (new UserController())->searchCatalogsBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);   //use searchCatalogsSearchCategory api in searchCardsBySubCategoryIdForAdmin
+            if ($category_id == Config::get('constant.CATEGORY_ID_OF_FONTS')) {
+                $redis_result = (new UserController())->searchCatalogsBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
+                $redis_result['data']['is_catalog'] = 1;
+            } else {
+                //$redis_result = (new UserController())->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
+                $redis_result = (new UserController())->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured);
+                $redis_result['data']['is_catalog'] = 0;
             }
 
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
@@ -11759,33 +11766,31 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count', 'search_tag_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'search_category', 'is_featured', 'page', 'item_count', 'search_tag_id'), $request)) != '')
                 return $response;
 
+            $category_id = $request->category_id;
             $sub_category_id = $request->sub_category_id;
             $search_category = strtolower(trim($request->search_category));
+            $is_featured = $request->is_featured;
+
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
             $search_tag_id = $request->search_tag_id;
-            $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');
-            $is_featured = isset($request->is_featured) ? $request->is_featured : 1;
 
-            //$redis_result = (new UserController())->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
-            if($category_id == Config::get('constant.CATEGORY_ID_OF_STICKER')) {
-                $redis_result = (new UserController())->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);  //use searchTemplatesBySearchCategory api in refreshSearchCountByAdmin
-            }else {
-                $redis_result = (new UserController())->searchCatalogsBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);   //use searchCatalogsBySearchCategory api in refreshSearchCountByAdmin
+            if ($category_id == Config::get('constant.CATEGORY_ID_OF_FONTS')) {
+                $redis_result = (new UserController())->searchCatalogsBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
+            } else {
+                //$redis_result = (new UserController())->searchTemplatesBySearchCategory($search_category, $sub_category_id, $offset, $item_count, $is_featured);
+                $redis_result = (new UserController())->searchTemplatesByDisableCache($search_category, $sub_category_id, $offset, $item_count, $is_featured);
             }
 
-            if($redis_result['code'] == 200){
-                DB::beginTransaction();
-                DB::update('UPDATE tag_analysis_master SET content_count = ? WHERE id = ?',[$redis_result['data']['total_record'], $search_tag_id]);
-                DB::commit();
+            if ($redis_result['code'] == 200) {
+                DB::update('UPDATE tag_analysis_master SET content_count = ? WHERE id = ?', [$redis_result['data']['total_record'], $search_tag_id]);
             }
 
             $response = Response::json(array('code' => $redis_result['code'], 'message' => $redis_result['message'], 'cause' => $redis_result['cause'], 'data' => $redis_result['data']));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
             Log::error("refreshSearchCountByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
@@ -11826,47 +11831,52 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('img_ids', 'search_category'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('search_category'), $request)) != '')
                 return $response;
 
-            $img_ids = $request->img_ids;
+            $img_ids = isset($request->img_ids) ? $request->img_ids : NULL;
+            $catalog_ids = isset($request->catalog_ids) ? $request->catalog_ids : NULL;
             $search_category = $request->search_category;
+            //$img_id_array = explode(',', $img_ids);
+            //$search_category_array = explode(',', $search_category);
+            //$search_category_string = implode('","', $search_category_array);
 
-            $img_id_array = explode(',', $img_ids);
-            $search_category_array = explode(',', $search_category);
-            $search_category_string = implode('","', $search_category_array);
+            if ($img_ids && $catalog_ids) {
+                return Response::json(array('code' => 201, 'message' => 'Something went wrong. Please try again.', 'cause' => '', 'data' => json_decode("{}")));
+            } elseif ($img_ids) {
+                $table_name = 'images';
+                $table_ids = $img_ids;
+            } elseif ($catalog_ids) {
+                $table_name = 'catalog_master';
+                $table_ids = $catalog_ids;
+            } else {
+                return Response::json(array('code' => 201, 'message' => 'Something went wrong. Please try again.', 'cause' => '', 'data' => json_decode("{}")));
+            }
 
-            DB::update('UPDATE images
+            DB::update('UPDATE ' . $table_name . '
                         SET
                             updated_at = updated_at,
-                            search_category = IF(search_category != "",CONCAT(search_category, ",'.$search_category.'"), "'.$search_category.'")
+                            search_category = IF(search_category != "",CONCAT(search_category, ",' . $search_category . '"), "' . $search_category . '")
                         WHERE
-                            id IN ('.$img_ids.') ');
+                            id IN (' . $table_ids . ') ');
 
-//            DB::update('UPDATE tag_analysis_master
-//                        SET
-//                            content_count = content_count + ?
-//                        WHERE
-//                            tag IN ("'.$search_category_string.'") ',[count($img_id_array)]);
+            $details = DB::select('SELECT id, search_category FROM ' . $table_name . ' WHERE id IN (' . $table_ids . ') ');
 
-            $image_details = DB::select('SELECT id,search_category FROM images WHERE id IN ('.$img_ids.') ');
-
-            foreach ($image_details AS $i => $image_detail){
-                $search_tag_array = explode(',',$image_detail->search_category);
+            foreach ($details as $i => $detail) {
+                $search_tag_array = explode(',', $detail->search_category);
                 $search_tag_count = count($search_tag_array);
 
                 $unique_search_tag_array = array_unique($search_tag_array);
                 $unique_search_tag_count = count($unique_search_tag_array);
 
-                if($search_tag_count != $unique_search_tag_count){
+                if ($search_tag_count != $unique_search_tag_count) {
 
-                    DB::update('UPDATE images
+                    DB::update('UPDATE ' . $table_name . '
                                     SET
                                         updated_at = updated_at,
                                         search_category = ?
                                     WHERE
-                                        id = ? ',[implode(',',$unique_search_tag_array), $image_detail->id]);
-
+                                        id = ? ', [implode(',', $unique_search_tag_array), $detail->id]);
                 }
             }
 

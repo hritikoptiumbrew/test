@@ -116,11 +116,15 @@ Copyright 2018 - 2021 Optimumbrew Technology
             for (const [key, value] of urlParams) {
                 temp[key] = value;
             }
-
             $.getJSON('../../assets/json/IOSPrivacy.json', function (data) {
                 switch (temp['id']) {
                     case 'f5a475':
                         app_data = JSON.parse(JSON.stringify(data)).f5a475;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
+                    case 'f5ag76':
+                        app_data = JSON.parse(JSON.stringify(data)).f5ag76;
                         changelogo(app_data);
                         changeFavicon(app_data);
                         break;
@@ -226,11 +230,6 @@ Copyright 2018 - 2021 Optimumbrew Technology
                         break;
                     case 'sw108t':
                         app_data = JSON.parse(JSON.stringify(data)).sw108t;
-                        changelogo(app_data);
-                        changeFavicon(app_data);
-                        break;
-                    case 'poa12l':
-                        app_data = JSON.parse(JSON.stringify(data)).poa12l;
                         changelogo(app_data);
                         changeFavicon(app_data);
                         break;
@@ -412,33 +411,7 @@ Copyright 2018 - 2021 Optimumbrew Technology
                                 <li class="one_line_col header-hero-content content-wrapper pt-0"
                                     style="list-style-type: none;">
                                     <ul class="for_boxes" style="list-style-type: circle">
-                                        <li class="ml-50 text">
-                                            <div
-                                                class="iconed policyicon_purpose_7 header-hero-content content-wrapper">
-                                                <h4 class="text">Access to third-party accounts</h4>
-                                                <ul class="unstyled" style="list-style-type: square">
-                                                    <li class="ml-50 text">
-                                                        <h5 class="text">Facebook account access</h5>
-                                                        <p class="text">Permissions: Email; Pages manage posts; Pages
-                                                            read engagement
-                                                        </p>
-                                                    </li>
-                                                    <li class="ml-50 text">
-                                                        <h5 class="text">Twitter account access</h5>
-                                                        <p class="text">Personal Data: first name; last name; username
-                                                        </p>
-                                                    </li>
-                                                    <li class="ml-50 text">
-                                                        <h5 class="text">Linkedin account access</h5>
-                                                        <p class="text">Personal Data: Tracker; Usage Data</p>
-                                                    </li>
-                                                    <li class="ml-50 text">
-                                                        <h5 class="text">Instagram account access</h5>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </li>
-                                        <li class="ml-50 text">
+                                        <li class="ml-50">
                                             <div
                                                 class="iconed policyicon_purpose_7 header-hero-content content-wrapper">
                                                 <h4 class="text">Advertising</h4>
@@ -453,7 +426,7 @@ Copyright 2018 - 2021 Optimumbrew Technology
                                                 </ul>
                                             </div>
                                         </li>
-                                        <li class="ml-50 text">
+                                        <li>
                                             <div
                                                 class="iconed policyicon_purpose_5 header-hero-content content-wrapper">
                                                 <h4 class="text">Analytics</h4>
@@ -465,7 +438,7 @@ Copyright 2018 - 2021 Optimumbrew Technology
                                                 </ul>
                                             </div>
                                         </li>
-                                        <li class="ml-50 text">
+                                        <li>
                                             <div
                                                 class="iconed policyicon_purpose_30 header-hero-content content-wrapper">
                                                 <h4 class="text">Infrastructure monitoring</h4>
@@ -479,29 +452,27 @@ Copyright 2018 - 2021 Optimumbrew Technology
                                                 </ul>
                                             </div>
                                         </li>
-                                        <li class="ml-50 text">
+                                        <li>
                                             <div
                                                 class="iconed policyicon_purpose_18 header-hero-content content-wrapper">
                                                 <h4 class="text">Managing contacts and sending messages</h4>
                                                 <ul class="unstyled" style="list-style-type: square">
                                                     <li class="ml-50">
-                                                        <h5 class="text">OneSignal</h5>
-                                                        <p class="text">Personal Data: email address; geographic
-                                                            position; language; Tracker; unique device identifiers for
-                                                            advertising (Google Advertiser ID or IDFA, for example);
-                                                            Usage Data; various types of Data as specified in the
+                                                        <h5 class="text">Firebase Cloud Messaging</h5>
+                                                        <p class="text">Personal Data: various types of Data as
+                                                            specified in the
                                                             privacy policy of the service</p>
                                                     </li>
                                                 </ul>
                                             </div>
                                         </li>
-                                        <li class="ml-50 text">
+                                        <li>
                                             <div
                                                 class="iconed policyicon_purpose_46 header-hero-content content-wrapper">
                                                 <h4 class="text">Platform services and hosting</h4>
                                                 <ul class="unstyled" style="list-style-type: square">
                                                     <li class="ml-50">
-                                                        <h5 class="text">Apple App Store and Google Play Store</h5>
+                                                        <h5 class="text">Google Play Store</h5>
                                                         <p class="text">Personal Data: Usage Data</p>
                                                     </li>
                                                 </ul>
@@ -518,8 +489,8 @@ Copyright 2018 - 2021 Optimumbrew Technology
                                 document, Users may follow the instructions provided by <a
                                     href="http://www.youronlinechoices.com/" target="_blank"
                                     rel="noopener nofollow">YourOnlineChoices</a> (EU), the <a
-                                    href="https://thenai.org/about-online-advertising/"
-                                    target="_blank" rel="noopener nofollow">Network Advertising Initiative</a> (US) and
+                                    href="https://thenai.org/about-online-advertising/" target="_blank"
+                                    rel="noopener nofollow">Network Advertising Initiative</a> (US) and
                                 the <a href="https://www.aboutads.info/consumers/" target="_blank"
                                     rel="noopener nofollow">Digital Advertising Alliance</a> (US), <a
                                     href="http://youradchoices.ca/understanding-online-advertising" target="_blank"
@@ -558,7 +529,8 @@ Copyright 2018 - 2021 Optimumbrew Technology
 
                         <div class="one_line_col header-hero-content content-wrapper pt-0">
                             <hr>
-                            <h2 class="second_title mb-30"><a id="cntnt_support" href="../../support/">Contact Us</a></h2>
+                            <h2 class="second_title mb-30"><a id="cntnt_support" href="../../support/">Contact Us</a>
+                            </h2>
                             <hr class="mt-50">
                             <h2 class="second_title mb-30">Full policy</h2>
                             <hr>
@@ -570,7 +542,7 @@ Copyright 2018 - 2021 Optimumbrew Technology
                                 or through
                                 third parties, there are: Tracker; Usage Data; unique device identifiers for advertising
                                 (Google Advertiser ID or IDFA, for example); Universally unique identifier (UUID); crash
-                                data; device information; email address; geographic position; language.</p>
+                                data; device information.</p>
                             <p class="text">Complete details on each type of Personal Data collected are provided in the
                                 dedicated
                                 sections of this privacy policy or by specific explanation texts displayed prior to the
@@ -685,47 +657,16 @@ Copyright 2018 - 2021 Optimumbrew Technology
                         <div class="one_line_col header-hero-content content-wrapper pt-0">
                             <h2 class="second_title text-left" id="use_collected_data">The purposes of processing</h2>
                             <p class="text">The Data concerning the User is collected to allow the Owner to provide its
-                                Service, comply with its legal obligations, respond to enforcement requests, protect its
-                                rights and interests (or those of its Users or third parties), detect any malicious or
+                                Service,
+                                comply with its legal obligations, respond to enforcement requests, protect its rights
+                                and interests (or those of its Users or third parties), detect any malicious or
                                 fraudulent activity, as well as the following: Advertising, Analytics, Infrastructure
-                                monitoring, Platform services and hosting, Managing contacts and sending messages and
-                                Access to third-party accounts.
+                                monitoring, Platform services and hosting and Managing contacts and sending messages.
                             </p>
                             <p class="text">For specific information about the Personal Data used for each purpose, the
                                 User may
                                 refer to the section &ldquo;Detailed information on the processing of Personal
                                 Data&rdquo;.</p>
-                        </div>
-                        <div class="one_line_col">
-                            <h2 class="second_title text-left" id="facebook_permissions">Facebook permissions asked by
-                                this Application</h2>
-                            <p class="text">This Application may ask for some Facebook permissions allowing it to
-                                perform actions
-                                with the User's Facebook account and to retrieve information, including Personal Data,
-                                from it. This service allows this Application to connect with the User's account on the
-                                Facebook social network, provided by Facebook Inc.</p>
-                            <p class="text">For more information about the following permissions, refer to the <a
-                                    href="https://developers.facebook.com/docs/facebook-login/permissions"
-                                    target="_blank" rel="noopener">Facebook permissions documentation</a> and to the <a
-                                    href="https://www.facebook.com/about/privacy/" target="_blank"
-                                    rel="noopener">Facebook privacy policy</a>.</p>
-                            <p class="text">The permissions asked are the following:</p>
-                            <h3 class="text">Basic information</h3>
-                            <p class="text">By default, this includes certain User&rsquo;s Data such as id, name,
-                                picture, gender,
-                                and their locale. Certain connections of the User, such as the Friends, are also
-                                available. If the User has made more of their Data public, more information will be
-                                available.</p>
-                            <h3 class="text">Email</h3>
-                            <p class="text">Provides access to the User's primary email address.</p>
-                            <h3 class="text">Pages manage posts</h3>
-                            <p class="text">Allows the creation, editing and deletion of the User&rsquo;s Page posts.
-                            </p>
-                            <h3 class="text">Pages read engagement</h3>
-                            <p class="text">Provides access to content (posts, photos, videos, events) posted by the
-                                Page, access to
-                                followers data (including name, PSID), and profile picture, and access to metadata and
-                                other insights about the Page.</p>
                         </div>
                         <hr class="mt-30">
                         <div class="one_line_col header-hero-content content-wrapper pt-0">
@@ -739,83 +680,6 @@ Copyright 2018 - 2021 Optimumbrew Technology
                             <ul class="for_boxes" style="list-style-type: disc;">
                                 <div style="border: 1px solid rgba(0,0,0,.1); padding: 5px;margin-bottom: 10px;">
                                     <li class="ml-50">
-                                        <div class="box_primary box_10 expand collapsed">
-                                            <h3 class="text">Access to
-                                                third-party accounts</h3>
-                                            <div class="expand-content">
-                                                <p class="text">This type of service allows this Application to access
-                                                    Data from your
-                                                    account on a third-party service and perform actions with
-                                                    it.<br />These services are not activated automatically, but require
-                                                    explicit authorization by the User.</p>
-                                                <h4>Facebook account access (Facebook, Inc.)</h4>
-                                                <div class="wrap">
-                                                    <p class="text">This service allows this Application to connect with
-                                                        the User's
-                                                        account on the Facebook social network, provided by Facebook,
-                                                        Inc.</p>
-                                                    <p class="text mt-0">You can delete your data from the application by deleting your account from the application.</p>
-                                                    <p class="text mt-0">To delete an account from the application, Go to the Account tab on the home screen, there tap on the Close(X) button located at the top right corner of the account items in the list.</p>
-                                                </div>
-                                                <p class="text">Permissions asked: Email; Pages manage posts; Pages read
-                                                    engagement.
-                                                </p>
-                                                <p class="text">Place of processing: United States &ndash; <a
-                                                        href="https://www.facebook.com/policy.php" target="_blank"
-                                                        rel="noopener noreferrer">Privacy Policy</a>.</p>
-                                                <p class="text">Category of personal information collected according to
-                                                    CCPA:
-                                                    identifiers; internet information.</p>
-                                                <h4>Twitter account access (Twitter, Inc.)</h4>
-                                                <div class="wrap">
-                                                    <p class="text">This service allows this Application to connect with
-                                                        the User's
-                                                        account on the Twitter social network, provided by Twitter, Inc.
-                                                    </p>
-                                                    <p class="text mt-0">You can delete your data from the application by deleting your account from the application.</p>
-                                                    <p class="text mt-0">To delete an account from the application, Go to the Account tab on the home screen, there tap on the Close(X) button located at the top right corner of the account items in the list.</p>
-                                                </div>
-                                                <p class="text">Personal Data processed: first name; last name;
-                                                    username.</p>
-                                                <p class="text">Place of processing: United States &ndash; <a
-                                                        href="https://twitter.com/privacy" target="_blank"
-                                                        rel="noopener noreferrer">Privacy Policy</a>.</p>
-                                                <p class="text">Category of personal information collected according to
-                                                    CCPA:
-                                                    identifiers.</p>
-                                                <h4>Linkedin account access (LinkedIn Corporation)</h4>
-                                                <div class="wrap">
-                                                    <p class="text">This service allows this Application to connect with
-                                                        the User's
-                                                        account on Linkedin, provided by LinkedIn Corporation.</p>
-                                                        <p class="text mt-0">You can delete your data from the application by deleting your account from the application.</p>
-                                                        <p class="text mt-0">To delete an account from the application, Go to the Account tab on the home screen, there tap on the Close(X) button located at the top right corner of the account items in the list.</p>
-                                                </div>
-                                                <p class="text">Personal Data processed: Tracker; Usage Data.</p>
-                                                <p class="text">Place of processing: United States &ndash; <a
-                                                        href="https://www.linkedin.com/legal/privacy-policy"
-                                                        target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
-                                                </p>
-                                                <p class="text">Category of personal information collected according to
-                                                    CCPA:
-                                                    internet information.</p>
-                                                <h4>Instagram account access</h4>
-                                                <div class="wrap">
-                                                    <p class="text">We may allow you to connect an Instagram profile
-                                                        with the
-                                                        application, in which case we will access certain information
-                                                        from Instagram regarding your account. In particular, we may
-                                                        collect profile image, display name, username / profile ID,
-                                                        access tokens. This data will only be used by the application to
-                                                        provide you with the Service you expect and will not be shared
-                                                        with any third parties.</p>
-                                                        <p class="text mt-0">You can delete your data from the application by deleting your account from the application.</p>
-                                                        <p class="text mt-0">To delete an account from the application, Go to the Account tab on the home screen, there tap on the Close(X) button located at the top right corner of the account items in the list.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="ml-50 text">
                                         <div class="box_primary box_10 expand  header-hero-content content-wrapper">
                                             <h3 class="second_title  text-left">
                                                 Advertising</h3>
@@ -1009,57 +873,32 @@ Copyright 2018 - 2021 Optimumbrew Technology
                                                     the User interacted with it, such as by clicking on links included
                                                     in
                                                     the message.</p>
-                                                <h4 class="text">OneSignal (Lilomi, Inc.)</h4>
+                                                <h4 class="text">Firebase Cloud Messaging</h4>
                                                 <div class="wrap">
-                                                    <p class="text">OneSignal is a message sending service provided by
-                                                        Lilomi, Inc.
-                                                    </p>
-                                                    <p class="text">OneSignal allows the Owner to send messages and
-                                                        notifications to
-                                                        Users across platforms such as Android, iOS, and the web.
-                                                        Messages can be sent to single devices, groups of devices, or
-                                                        specific topics or User segments. Depending on the permissions
-                                                        granted to this Application, the Data collected may also include
-                                                        precise location (i.e. GPS-level data) or WiFi information, apps
-                                                        installed and enabled on the User's device. This Application
-                                                        uses identifiers for mobile devices (including Android
-                                                        Advertising ID or Advertising Identifier for iOS, respectively)
-                                                        and technologies similar to cookies to run the OneSignal
-                                                        service.</p>
-                                                    <p class="text"><strong>The Data collected may be used by the
-                                                            service provider
-                                                            for interest-based advertising, analytics and market
-                                                            research. In order to understand OneSignal's use of Data,
-                                                            consult <a href="https://onesignal.com/privacy_policy#1"
-                                                                target="_blank" rel="noopener">OneSignal's privacy
-                                                                policy</a></strong>.</p>
-                                                    <p class="text"><strong>Push notifications
-                                                            opt-out</strong><br />Users may in
-                                                        most cases opt-out of receiving push notifications by visiting
-                                                        their device settings, such as the notification settings for
-                                                        mobile phones, and then changing those settings for some or all
-                                                        of the apps on the particular device.</p>
-                                                    <p class="text"><strong>Interest-based advertising
-                                                            opt-out</strong><br />Users
-                                                        may opt-out of OneSignal advertising features through applicable
-                                                        device settings, such as the device advertising settings for
-                                                        mobile phones. Different device configurations, or updates to
-                                                        devices, may affect or change how these indicated settings work.
-                                                    </p>
+                                                    <p class="text">Firebase Cloud Messaging is a message sending
+                                                        service
+                                                        provided by
+                                                        Google LLC or by Google Ireland Limited, depending on the
+                                                        location
+                                                        this Application is accessed from. Firebase Cloud Messaging
+                                                        allows
+                                                        the Owner to send messages and notifications to Users across
+                                                        platforms such as Android, iOS, and the web. Messages can be
+                                                        sent to
+                                                        single devices, groups of devices, or specific topics or User
+                                                        segments.</p>
                                                 </div>
-                                                <p class="text">Personal Data processed: email address; geographic
-                                                    position;
-                                                    language; Tracker; unique device identifiers for advertising (Google
-                                                    Advertiser ID or IDFA, for example); Usage Data; various types of
-                                                    Data as specified in the privacy policy of the service.</p>
+                                                <p class="text">Personal Data processed: various types of Data as
+                                                    specified
+                                                    in the
+                                                    privacy policy of the service.</p>
                                                 <p class="text">Place of processing: United States &ndash; <a
-                                                        href="https://onesignal.com/privacy_policy" target="_blank"
-                                                        rel="noopener noreferrer">Privacy Policy</a> &ndash; <a
-                                                        href="https://onesignal.com/privacy_policy#6" target="_blank"
-                                                        rel="noopener">Opt out</a>.</p>
+                                                        href="https://policies.google.com/privacy" target="_blank"
+                                                        rel="noopener noreferrer">Privacy Policy</a>; Ireland &ndash; <a
+                                                        href="https://policies.google.com/privacy" target="_blank"
+                                                        rel="noopener noreferrer">Privacy Policy</a>.</p>
                                                 <p class="text">Category of personal information collected according to
-                                                    CCPA:
-                                                    identifiers; internet information; geolocation data; inferred
+                                                    CCPA: internet
                                                     information.</p>
                                                 <p class="text">This processing constitutes a sale based on the
                                                     definition
@@ -1096,51 +935,23 @@ Copyright 2018 - 2021 Optimumbrew Technology
                                                     it difficult to determine the actual location where the Personal
                                                     Data
                                                     are stored.</p>
-                                                <h4 class="text">Apple App Store (Apple Inc.)</h4>
-                                                <div class="wrap">
-                                                    <p class="text">This Application is distributed on Apple's App
-                                                        Store, a
-                                                        platform for
-                                                        the distribution of mobile apps, provided by Apple Inc.</p>
-                                                    <p class="text">By virtue of being distributed via this app store,
-                                                        Apple
-                                                        collects
-                                                        basic analytics and provides reporting features that enables the
-                                                        Owner to view usage analytics data and measure the performance
-                                                        of
-                                                        this Application. Much of this information is processed on an
-                                                        opt-in
-                                                        basis.</p>
-                                                    <p class="text">Users may opt-out of this analytics feature directly
-                                                        through their
-                                                        device settings. More information on how to manage analysis
-                                                        settings
-                                                        can be found on <a
-                                                            href="https://support.apple.com/en-us/HT202100"
-                                                            target="_blank" rel="noopener">this page</a>.</p>
-                                                </div>
-                                                <p class="text">Personal Data processed: Usage Data.</p>
-                                                <p class="text">Place of processing: United States &ndash; <a
-                                                        href="https://www.apple.com/legal/privacy/" target="_blank"
-                                                        rel="noopener noreferrer">Privacy Policy</a>.</p>
-                                                <p class="text">Category of personal information collected according to
-                                                    CCPA: internet
-                                                    information.</p>
-                                                <h4 class="text">Google Play Store</h4>
-                                                <div class="wrap">
-                                                    <p class="text">This Application is distributed on the Google Play Store, a platform for the distribution of mobile apps, provided by Google LLC or by Google Ireland Limited, depending on how the Owner manages the Data processing.</p>
-                                                    <p class="text">By virtue of being distributed via this app store, Google collects usage and diagnostics data and share aggregate information with the Owner. Much of this information is processed on an opt-in basis.</p>
-                                                        <p class="text">Users may opt-out of this analytics feature directly through their device settings. More information on how to manage analysis settings can be found on <a
-                                                                href="https://support.google.com/accounts/answer/6078260"
-                                                                target="_blank" rel="noopener">this page</a>.</p>
-                                                    </div>
-                                                    <p class="text">Personal Data processed: Usage Data.</p>
-                                                    <p class="text">Place of processing: United States &ndash; <a
-                                                            href="https://policies.google.com/privacy" target="_blank"
-                                                            rel="noopener noreferrer">Privacy Policy</a>; Ireland &ndash; <a
-                                                            href="https://policies.google.com/privacy" target="_blank"
-                                                            rel="noopener noreferrer">Privacy Policy</a>.</p>
-                                                    <p class="text">Category of personal information collected according to CCPA: identifiers; internet information.</p>
+                                                    <h4 class="text">Google Play Store</h4>
+                                                    <div class="wrap">
+                                                        <p class="text">This Application is distributed on the Google Play Store, a platform for the distribution of mobile apps, provided by Google LLC or by Google Ireland Limited, depending on how the Owner manages the Data processing.</p>
+                                                        <p class="text">By virtue of being distributed via this app store, Google collects usage and diagnostics data and share aggregate information with the Owner. Much of this information is processed on an opt-in basis.</p>
+                                                            <p class="text">Users may opt-out of this analytics feature directly through their device settings. More information on how to manage analysis settings can be found on <a
+                                                                    href="https://support.google.com/accounts/answer/6078260"
+                                                                    target="_blank" rel="noopener">this page</a>.</p>
+                                                        </div>
+                                                        <p class="text">Personal Data processed: Usage Data.</p>
+                                                        <p class="text">You can delete your data from the app server by deleting your account from the application.</p>
+                                                        <p class="text">To delete an account from the application, Go to the Settings screen, then open the Account screen by selecting your account in the Settings screen, there you can select the Delete Account option to delete your account from the application.</p>
+                                                        <p class="text">Place of processing: United States &ndash; <a
+                                                                href="https://policies.google.com/privacy" target="_blank"
+                                                                rel="noopener noreferrer">Privacy Policy</a>; Ireland &ndash; <a
+                                                                href="https://policies.google.com/privacy" target="_blank"
+                                                                rel="noopener noreferrer">Privacy Policy</a>.</p>
+                                                        <p class="text">Category of personal information collected according to CCPA: identifiers; internet information.</p>
                                             </div>
                                         </div>
                                     </li>

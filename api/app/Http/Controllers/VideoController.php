@@ -46,10 +46,11 @@ class VideoController extends Controller
 
             $request = json_decode($request_body->getContent());
 
-            if (($response = (new VerificationController())->validateRequiredParameter(array('url'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('url','country_code'), $request)) != '')
                 return $response;
 
             $video_url = $request->url;
+            $country_code = $request->country_code;
             $create_at = date('Y-m-d H:i:s');
             //old api key is expired
             //$old_API_key = 'AIzaSyB_MvXChn1z1PG_WihzIJ-s-iJQcsGH9KM';
@@ -80,12 +81,13 @@ class VideoController extends Controller
 
                 DB::beginTransaction();
 
-                DB::insert('insert into youtube_video_master (youtube_video_id,title,channel_name,url,thumbnail_url,thumbnail_width,thumbnail_height,published_at,create_time)
-                            VALUES(?,?,?,?,?,?,?,?,?)',
+                DB::insert('insert into youtube_video_master (youtube_video_id,title,channel_name,url,country_code,thumbnail_url,thumbnail_width,thumbnail_height,published_at,create_time)
+                            VALUES(?,?,?,?,?,?,?,?,?,?)',
                     [$youtube_video_id,
                         $title,
                         $channelTitle,
                         $video_url,
+                        $country_code,
                         $thumbnail_url,
                         $thumbnail_width,
                         $thumbnail_height,
@@ -339,29 +341,34 @@ class VideoController extends Controller
      * }
      * }
      */
-    public function getYouTubeVideoForInterview()
+    public function getYouTubeVideoForInterview(Request $request_body)
     {
         try {
 
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
-            if (!Cache::has("pel:getYouTubeVideoForInterview")) {
-                $result = Cache::rememberforever("getYouTubeVideoForInterview", function () {
+            $request = json_decode($request_body->getContent());
+            $this->country_code = isset($request->country_code) && isset(Config::get('constant.TWITTER_USER_LIST_FOR_TWITTER_TIMELINE')[mb_strtolower($request->country_code)]) ? mb_strtolower($request->country_code) : 'us';
+
+            if (!Cache::has("pel:getYouTubeVideoForInterview:$this->country_code")) {
+                $result = Cache::rememberforever("getYouTubeVideoForInterview:$this->country_code", function () {
                     return DB::select('SELECT id video_id,
                                          youtube_video_id,
                                          title,
                                          channel_name,
                                          url,
+                                         country_code,
                                          thumbnail_url,
                                          thumbnail_width,
                                          thumbnail_height,
                                          published_at
                                          FROM youtube_video_master
-                                         ORDER BY update_time DESC');
+                                         WHERE country_code = ?
+                                         ORDER BY update_time DESC',[$this->country_code]);
                 });
             }
-            $redis_result = Cache::get("getYouTubeVideoForInterview");
+            $redis_result = Cache::get("getYouTubeVideoForInterview:$this->country_code");
 
             if (!$redis_result) {
                 return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any video", 'cause' => '', 'data' => json_decode('{}')));

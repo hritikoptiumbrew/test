@@ -230,11 +230,7 @@
                                                     src="https://drive.google.com/uc?id=1iYS79PTXBV3zB79QWuBCmodD_Hi7svtt"
                                                     style="image-rendering: -webkit-optimize-contrast;margin-top: 7px;height: 40px; width: 200px;" alt="logo"></a>
                                     </div>-->
-                                    <p style="font-size: 24px;line-height: 0.7;
-                                                                                                color: white;
-                                                                                                display: inline-block;
-                                                                                                vertical-align: super">
-                                        PhotoEditorLab</p>
+                                    <p style="font-size: 24px;line-height: 0.7;color: white;display: inline-block;vertical-align: super">PhotoEditorLab</p>
                                 </div>
                             </td>
                         </tr>
