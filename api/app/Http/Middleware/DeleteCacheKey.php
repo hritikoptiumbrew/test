@@ -110,7 +110,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getImageDetails*"),['']));
 
                 //getFeaturedSamplesWithCatalogs
-                Redis::del(array_merge(Redis::keys("pel:getFeaturedSamplesWithCatalogs*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getFeaturedSamplesWithCatalogs*"),['']));
 
                 //getAllSubCategoryToMoveTemplate
                 Redis::del(array_merge(Redis::keys("pel:getAllSubCategoryToMoveTemplate*"),['']));
@@ -119,7 +119,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryList*"),['']));
 
                 //getTemplateWithCatalogs
-                Redis::del(array_merge(Redis::keys("pel:getTemplateWithCatalogs*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getTemplateWithCatalogs*"),['']));
 
                 //searchNormalImagesBySubCategoryId
                 Redis::del(array_merge(Redis::keys("pel:searchNormalImagesBySubCategoryId*"),['']));
@@ -208,7 +208,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getImageDetails*"),['']));
 
                 //getFeaturedSamplesWithCatalogs
-                Redis::del(array_merge(Redis::keys("pel:getFeaturedSamplesWithCatalogs*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getFeaturedSamplesWithCatalogs*"),['']));
 
                 //getFeaturedSampleAndCatalogWithWebp
                 //Redis::del(array_merge(Redis::keys("pel:getFeaturedSampleAndCatalogWithWebp*"),['']));
@@ -217,7 +217,7 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getAllSubCategoryToMoveTemplate*"),['']));
 
                 //getTemplateWithCatalogs
-                Redis::del(array_merge(Redis::keys("pel:getTemplateWithCatalogs*"),['']));
+                //Redis::del(array_merge(Redis::keys("pel:getTemplateWithCatalogs*"),['']));
 
                 //getTemplatesBySubCategoryTags
                 Redis::del(array_merge(Redis::keys("pel:getTemplatesBySubCategoryTags*"),['']));

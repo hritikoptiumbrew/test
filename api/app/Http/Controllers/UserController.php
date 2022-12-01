@@ -4101,7 +4101,7 @@ class UserController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if ($is_cache_enable) {
-                $redis_result = Cache::remember("searchNormalImagesBySubCategoryIdForFlyer:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
+                $redis_result = Cache::remember("key:searchNormalImagesBySubCategoryIdForFlyer:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     $search_category = $this->search_category;
                     $code = 200;
@@ -9755,7 +9755,7 @@ class UserController extends Controller
             $this->catalog_id = $catalog_id;
 
             run_same_query:
-            $redis_result = Cache::remember("searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id", config('constant.CACHE_TIME_6_HOUR'), function () {
+            $redis_result = Cache::remember("key:searchCardsBySubCategoryId:$this->sub_category_id:$this->search_category:$this->is_featured:$this->offset:$this->item_count:$this->catalog_id", config('constant.CACHE_TIME_6_HOUR'), function () {
 
                 $code = 200;
                 $message = "Templates fetched successfully.";
@@ -9782,8 +9782,8 @@ class UserController extends Controller
                                                     scc.sub_category_id IN (' . $this->sub_category_id . ') AND
                                                     ISNULL(im.original_img) AND
                                                     ISNULL(im.display_img) AND
-                                                    (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
-                                                    MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE)) ', [$this->is_featured]);
+                                                    (MATCH(im.search_category) AGAINST ("' . $this->search_category . '") OR 
+                                                    MATCH(im.search_category) AGAINST (REPLACE(CONCAT("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE)) ', [$this->is_featured]);
                 $total_row = $total_row_result[0]->total;
 
                 if($total_row) {
