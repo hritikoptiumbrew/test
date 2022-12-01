@@ -10453,7 +10453,7 @@ class UserController extends Controller
                     'target' => $this->language
                 ]);
 
-                Log::info('translateLanguage : ', ['user_tag' => $this->text, 'result' => $result, 'target_language' => $this->language]);
+                //Log::info('translateLanguage : ', ['user_tag' => $this->text, 'result' => $result, 'target_language' => $this->language]);
                 return $result;
             });
 
