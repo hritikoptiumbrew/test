@@ -10476,7 +10476,7 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'catalog_id', 'is_featured', 'is_free', 'is_ios_free', 'search_category','category_id'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'catalog_id', 'is_featured', 'is_free', 'is_ios_free', 'search_category', 'category_id', 'template_name'), $request)) != '')
                 return $response;
 
             $catalog_id = $request->catalog_id;
@@ -10490,6 +10490,7 @@ class AdminController extends Controller
             $is_featured = $request->is_featured;
             $is_portrait = $request->is_portrait;
             $search_category = strtolower($request->search_category);
+            $template_name = $request->template_name;
             $created_at = date('Y-m-d H:i:s');
             $resource_video_name = "";
             $json_data = "";
@@ -10664,10 +10665,11 @@ class AdminController extends Controller
 
             DB::insert('INSERT
                                 INTO
-                                  images(catalog_id,image,json_data,is_active,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                                  images(catalog_id,image,template_name,json_data,is_active,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
                 $catalog_id,
                 $catalog_image,
+                $template_name,
                 json_encode($json_data),
                 0,
                 $is_free,
@@ -10724,7 +10726,7 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'category_id', 'catalog_id', 'is_featured', 'is_portrait', 'is_free', 'search_category', 'json_pages_sequence'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'category_id', 'catalog_id', 'is_featured', 'is_portrait', 'is_free', 'search_category', 'json_pages_sequence', 'template_name'), $request)) != '')
                 return $response;
 
             $catalog_id = $request->catalog_id;
@@ -10739,6 +10741,7 @@ class AdminController extends Controller
             $is_portrait = $request->is_portrait;
             $search_category = json_decode(json_encode($request->search_category),true);
             $json_pages_sequence = explode(',',$request->json_pages_sequence);
+            $template_name = $request->template_name;
             $created_at = date('Y-m-d H:i:s');
 
             $resource_image_array = array();
@@ -10902,10 +10905,11 @@ class AdminController extends Controller
 
                 DB::insert('INSERT
                                 INTO
-                                  images(catalog_id,image,json_data,is_active,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
+                                  images(catalog_id,image,template_name,json_data,is_active,is_free,is_ios_free,is_featured,is_portrait,search_category,height,width,original_img_height,original_img_width,created_at,updated_at,attribute1,is_auto_upload)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ', [
                     $catalog_id,
                     $catalog_image,
+                    $template_name,
                     json_encode($all_json_data->{$pages_sequence}),
                     0,
                     $is_free,
@@ -11022,7 +11026,7 @@ class AdminController extends Controller
 
             //$request = json_decode($request_body->getContent());
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'category_id', 'catalog_id', 'is_featured', 'is_portrait', 'is_free', 'search_category', 'json_pages_sequence'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('zip_url', 'zip_name', 'category_id', 'catalog_id', 'is_featured', 'is_portrait', 'is_free', 'search_category', 'json_pages_sequence', 'template_name'), $request)) != '')
                 return $response;
 
             $catalog_id = $request->catalog_id;
@@ -11037,6 +11041,7 @@ class AdminController extends Controller
             $is_portrait = $request->is_portrait;
             $search_category = json_decode(json_encode($request->search_category),true);
             $json_pages_sequence = explode(',',$request->json_pages_sequence);
+            $template_name = $request->template_name;
             $created_at = date('Y-m-d H:i:s');
 
             $resource_image_array = $sample_image_array = $webp_image_array = $multiple_images = $error_detail = array();
@@ -11225,6 +11230,7 @@ class AdminController extends Controller
                 'cover_img' => $cover_image,
                 'cover_webp_img' => $cover_webp_image,
                 'image' => $multiple_images[$json_pages_sequence[0]]['name'],
+                'template_name' => $template_name,
                 'json_data' => json_encode($all_json_data),
                 'is_free' => $is_free,
                 'is_ios_free' => $is_ios_free,
