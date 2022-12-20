@@ -427,7 +427,7 @@ class DeleteCacheKey
             }
 
             //save search module
-            if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/searchCardsBySubCategoryId' or $api == '/api/searchCardsByMultipleSubCategoryId' or $api == '/api/searchCardsBySubCategoryIdFailOver' or $api == '/api/searchCardsBySubCategoryId_v2' or $api == '/api/refreshSearchCountByAdmin' or $api == '/api/searchCatalogBySubCategoryId' or $api == '/api/searchNormalImagesBySubCategoryIdForFlyer'){
+            if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/searchCardsBySubCategoryId' or $api == '/api/searchCardsByMultipleSubCategoryId' or $api == '/api/searchCardsBySubCategoryIdFailOver' or $api == '/api/searchCardsBySubCategoryId_v2' or $api == '/api/refreshSearchCountByAdmin' or $api == '/api/searchCatalogBySubCategoryId' or $api == '/api/searchNormalImagesBySubCategoryIdForFlyer' or $api = '/api/searchCardsForIndustryPreference'){
                 Redis::del(array_merge(Redis::keys("pel:getAllSearchingDetailsForAdmin*"),['']));
             }
 

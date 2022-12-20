@@ -294,6 +294,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('searchCardsBySubCategoryIdWithTranslate', 'UserController@searchCardsBySubCategoryIdWithTranslate'); //Search cards by sub_category_id with translate
     Route::post('searchCardsByMultipleSubCategoryId', 'UserController@searchCardsByMultipleSubCategoryId'); //Search cards by multiple sub_category_id
     Route::post('searchCardsBySubCategoryIdFailOver', 'UserController@searchCardsBySubCategoryIdFailOver'); //Search cards Fail by sub_category_id
+    Route::post('searchCardsForIndustryPreference', 'UserController@searchCardsForIndustryPreference');
     Route::post('searchCardsBySubCategoryId_v2', 'UserController@searchCardsBySubCategoryId_v2'); //Search cards by sub_category_id
     Route::post('searchNormalImagesBySubCategoryId', 'UserController@searchNormalImagesBySubCategoryId'); //Search normal images by sub_category_id
     Route::post('searchNormalImagesBySubCategoryId_v2', 'UserController@searchNormalImagesBySubCategoryId_v2'); //Search normal images by sub_category_id
