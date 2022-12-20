@@ -3445,7 +3445,7 @@ class UserController extends Controller
             }
 
             if ($page == 1) {
-                $tag = $this->search_keyword . ", " . $this->search_category . ", " . $this->industry;
+                $tag = ($this->industry) ? $this->search_keyword . ", " . $this->search_category . ", " . $this->industry : $this->search_keyword . ", " . $this->search_category;
                 if ($redis_result['code'] != 200) {
                     SaveSearchTagJob::dispatch(0, $tag, $this->sub_category_id, 0, 1, Config::get('constant.CATEGORY_ID_OF_STICKER'));
                 } else {
