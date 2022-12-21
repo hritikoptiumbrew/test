@@ -403,6 +403,8 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('updateCardToMultiFormatByCatalogIds', 'UserController@updateCardToMultiFormatByCatalogIds');
     Route::post('mixSinglePageWithMultiPage', 'UserController@mixSinglePageWithMultiPage');
 
+    Route::post('autoGenerateTemplateName', 'UserController@autoGenerateTemplateName');
+
     Route::post('addHeightWidthInSticker', 'UserController@addHeightWidthInSticker');
     Route::post('removeDuplicateTagInUserSearchTag', 'UserController@removeDuplicateTagInUserSearchTag');
 

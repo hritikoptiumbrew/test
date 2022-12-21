@@ -11567,6 +11567,147 @@ class UserController extends Controller
         return $response;
     }
 
+    public function autoGenerateTemplateName(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_ids', 'sub_category_id', 'app_name'), $request)) != '')
+                return $response;
+
+            $catalog_ids = $request->catalog_ids;
+            $sub_category_id = $request->sub_category_id;
+            $app_name = $request->app_name;
+            $i = 0;
+            $all_query = NULL;
+
+            $results = DB::select('SELECT 
+                                        DISTINCT im.id AS json_id,
+                                        IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS sample_image,
+                                        cm.name AS catalog_name,
+                                        im.content_type,
+                                        im.updated_at
+                                    FROM
+                                        images AS im,
+                                        catalog_master AS cm,
+                                        sub_category_catalog AS scc
+                                    WHERE
+                                        #im.is_active = 1 AND
+                                        im.catalog_id = scc.catalog_id AND
+                                        cm.id = scc.catalog_id AND
+                                        scc.sub_category_id = ? AND
+                                        cm.id IN (' . $catalog_ids . ') AND
+                                        cm.is_featured = 1 AND
+                                        #ISNULL(im.template_name) AND
+                                        ISNULL(im.original_img) AND
+                                        ISNULL(im.display_img) ', [$sub_category_id]);
+
+//            dd($results);
+
+            foreach ($results as $i => $result) {
+
+                $catalog_name = $result->catalog_name;
+                $position = strpos(strtolower($catalog_name), $app_name);
+
+                if ($position) {
+                    $db_template_name = $template_name = trim(substr($catalog_name, 0, $position)) . " " . $app_name;
+                } else {
+                    $db_template_name = $template_name = $catalog_name . " " . $app_name;
+                }
+
+                $colors = array();
+                $file_path = $result->sample_image;
+                $handle = @fopen($file_path, 'r');
+
+                if ($handle) {
+                    //$extension = pathinfo($file_path, PATHINFO_EXTENSION);
+                    $path_info = getimagesize($file_path);
+                    $extension = $path_info['mime'];
+
+                    $color_codes = $this->getColorPallet($file_path, $extension);
+
+                    foreach ($color_codes as $color) {
+                        if (strlen($color) >= 3 && strlen($color) <= 7)
+                            $colors[] = (new ColorInterpreterController())->name($color);
+                    }
+
+                    if (count($colors) > 1 && $colors[0]['name'] != $colors[1]['name']) {
+                        $db_template_name = $colors[0]['name'] . ' and ' . $colors[1]['name'] . ' ' . $template_name;
+                    } else if (count($colors) > 0) {
+                        $db_template_name = $colors[0]['name'] . ' ' . $template_name;
+                    }
+                }
+
+                if (strpos($db_template_name, 'Invalid Color') !== false) {
+                    $db_template_name = $template_name;
+                }
+
+//                dump($db_template_name);
+
+                $all_query .= "UPDATE images SET template_name = '" . $db_template_name . "', updated_at = updated_at WHERE id = '" . $result->json_id . "'; ";
+            }
+
+            DB::beginTransaction();
+            if ($all_query)
+                DB::unprepared("$all_query");
+
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Template name added successfully.', 'cause' => '', 'data' => $i));
+
+        } catch (Exception $e) {
+            Log::error("autoGenerateTemplateName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add template name.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /* =================================|Sub Function|=============================*/
+    public function getColorPallet($imageURL, $extension, $palletSize = [1, 2])
+    {
+        // SIMPLE CHECK INPUT VALUES
+        if (!$imageURL) return false;
+
+        if ($extension == 'image/png') {
+            // IN THIS EXEMPLE WE CREATE PALLET FROM PNG IMAGE
+            $img = imagecreatefrompng($imageURL);
+        } else {
+            // IN THIS EXEMPLE WE CREATE PALLET FROM JPG IMAGE
+            $img = imagecreatefromjpeg($imageURL);
+        }
+
+        // SCALE DOWN IMAGE
+        $imgSizes = getimagesize($imageURL);
+
+        $resizedImg = imagecreatetruecolor($palletSize[0], $palletSize[1]);
+
+        imagecopyresized($resizedImg, $img, 0, 0, 0, 0, $palletSize[0], $palletSize[1], $imgSizes[0], $imgSizes[1]);
+
+        imagedestroy($img);
+
+        //CHECK IMAGE
+        /*header("Content-type: image/png");
+        imagepng($resizedImg);
+        die();*/
+
+        //GET COLORS IN ARRAY
+        $colors = [];
+
+        for ($i = 0; $i < $palletSize[1]; $i++)
+            for ($j = 0; $j < $palletSize[0]; $j++)
+                $colors[] = dechex(imagecolorat($resizedImg, $j, $i));
+
+        imagedestroy($resizedImg);
+
+        //REMOVE DUPLICATES
+        $colors = array_unique($colors);
+
+        return $colors;
+
+    }
+
     /*
     Purpose : For add H&W in existing BackGround, TextArt, Shape, Graphics.
     Description : This method compulsory take 1 argument as parameter.(if any argument is optional then define it here).
