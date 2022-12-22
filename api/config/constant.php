@@ -179,6 +179,8 @@ return [
     /* Non-commercial fonts */
     'OFFLINE_CATALOG_IDS_OF_FONT' => env('OFFLINE_CATALOG_IDS_OF_FONT'), //Misc catalog Id for old fonts(non-commercial)
 
+    'LOGO_MAKER_AI_CATALOG_ID' => env('LOGO_MAKER_AI_CATALOG_ID'),
+
     'FREE_CONTENT_COUNT' => 9, //count to provide free images for bkg, stickers, shapes, textArt & frames
 
     /* api key to detect tag from image */
