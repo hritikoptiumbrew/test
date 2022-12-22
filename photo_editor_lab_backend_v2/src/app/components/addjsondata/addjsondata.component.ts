@@ -29,6 +29,7 @@ import { ERROR, ENV_CONFIG } from '../../app.constants';
 export class AddjsondataComponent implements OnInit {
 
   upJSonData: any;
+  template_name:any = '';
   options: string[];
   filteredOptions$: Observable<string[]>;
   searchTagList: any;
@@ -57,6 +58,7 @@ export class AddjsondataComponent implements OnInit {
   jsonImageCover: any;
   is_activation: any = '1';
   is_cover_image_deleted: any = 0;
+  is_jsonUpdated = 0;
   constructor(private validService: ValidationsService, private dialogRef: NbDialogRef<AddjsondataComponent>, private utils: UtilService, private dataService: DataService) {
     this.token = localStorage.getItem("at");
     this.utils.dialogref = this.dialogRef;
@@ -354,6 +356,16 @@ export class AddjsondataComponent implements OnInit {
     reader.readAsText(input.files[0]);
   }
   saveJson() {
+    let temp_json = this.jsonData;
+    if(this.upJSonData){
+    if(JSON.parse(JSON.stringify(temp_json)) == this.upJSonData.json_data)
+    {
+      this.is_jsonUpdated = 0;
+    }
+    else{
+      this.is_jsonUpdated = 1;
+    }
+  }
     var imageStatus = this.checkImageValid();
     var jsonStatus = this.checkJsonValid();
     if (imageStatus && jsonStatus) {
@@ -380,7 +392,9 @@ export class AddjsondataComponent implements OnInit {
           "old_gif_file": this.upJSonData.gif_file ? this.upJSonData.gif_file.split('/').pop() : null,
           "old_after_file": this.upJSonData.thumbnail_after_img ? this.upJSonData.thumbnail_after_img.split('/').pop() : null,
           "is_active": this.is_activation,
-          "is_cover_img_deleted": this.is_cover_image_deleted
+          "is_cover_img_deleted": this.is_cover_image_deleted,
+          "template_name":this.upJSonData.template_name,
+          "is_json_updated":this.is_jsonUpdated
         };
 
         apiUrl = "editJsonData";
@@ -399,7 +413,8 @@ export class AddjsondataComponent implements OnInit {
           "search_category": tmp_selected_tags,
           "sub_category_id": this.selectedSubCategory.sub_category_id,
           "is_active": this.is_activation,
-          "is_cover_img_deleted": this.is_cover_image_deleted
+          "is_cover_img_deleted": this.is_cover_image_deleted,
+          "template_name":this.template_name
         };
         apiUrl = this.selectedSubCategory.is_multi_page_support == 0 ? "addJson" : "addMultiPageJson";
       }

@@ -161,10 +161,23 @@ Copyright 2018 - 2020 Optimumbrew Technology
           </div>
         </div>
         <div class="row">
+          <div class="col-md-4 pr-0">
+            <label class="d-block form-label">Template Name</label>
+          </div>
+          <div class="col-md-8 pl-0">
+            <div class="form-group">
+              <input nbInput  type="text" class="mw-100 mb-1" *ngIf="upJSonData" [(ngModel)]="upJSonData.template_name"
+             >
+             <input nbInput  type="text" class="mw-100 mb-1" *ngIf="!upJSonData"  [(ngModel)]="template_name"
+             >
+            </div>
+          </div>
+        </div>
+        <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <input nbInput (keyup.enter)="add($event)" type="text" class="mw-100 mb-1"
-                [formControl]="searchINputControl" placeholder="Select / Enter new tag">
+                [formControl]="searchINputControl"  placeholder="Select / Enter new tag">
               <p id="tagInputError" style="color: red;margin-bottom: 3px;"></p>
               <mat-chip-list #chipList aria-label="Fruit selection">
                 <mat-chip *ngFor="let fruit of selectedSearchTags">
