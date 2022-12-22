@@ -4225,12 +4225,13 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'sub_category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_active', 'is_free', 'is_ios_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('template_name', 'category_id', 'sub_category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_active', 'is_free', 'is_ios_free'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
             $sub_category_id = $request->sub_category_id;
             $catalog_id = $request->catalog_id;
+            $template_name = $request->template_name;
             $json_data = $request->json_data;
             $is_active = $request->is_active;
             $is_free = $request->is_free;
@@ -4341,8 +4342,8 @@ class AdminController extends Controller
 
             DB::beginTransaction();
             DB::insert('INSERT INTO
-                              images(catalog_id, image, cover_img, cover_webp_img, content_type, json_data, is_active, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, cover_img_height, cover_img_width, original_cover_img_height, original_cover_img_width, created_at, attribute1)
-                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, $cover_image, $cover_webp_image, $content_type, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $cover_image_dimension['height'], $cover_image_dimension['width'], $cover_image_dimension['org_img_height'], $cover_image_dimension['org_img_width'], $created_at, $file_name]);
+                              images(catalog_id, image, cover_img, cover_webp_img, content_type, template_name, json_data, is_active, is_free, is_ios_free, is_featured, is_portrait, search_category, height, width, original_img_height, original_img_width, cover_img_height, cover_img_width, original_cover_img_height, original_cover_img_width, created_at, attribute1)
+                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, $cover_image, $cover_webp_image, $content_type, $template_name, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $cover_image_dimension['height'], $cover_image_dimension['width'], $cover_image_dimension['org_img_height'], $cover_image_dimension['org_img_width'], $created_at, $file_name]);
             DB::commit();
 
             if (strstr($file_name, '.webp')) {
@@ -4370,11 +4371,12 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('json_data', 'category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free', 'is_active'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('template_name', 'json_data', 'category_id', 'catalog_id', 'is_featured_catalog', 'is_featured', 'is_free', 'is_ios_free', 'is_active'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
             $catalog_id = $request->catalog_id;
+            $template_name = $request->template_name;
             $all_json_datas = $request->json_data;
             $is_active = $request->is_active;
             $is_free = $request->is_free;
@@ -4459,6 +4461,7 @@ class AdminController extends Controller
             $image_detail = [
                 'catalog_id' => $catalog_id,
                 'image' => $multiple_images[$json_pages_sequence[0]]['name'],
+                'template_name' => $template_name,
                 'json_data' => json_encode($all_json_data),
                 'is_active' => $is_active,
                 'is_free' => $is_free,
@@ -4620,7 +4623,7 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('template_name', 'json_data', 'category_id', 'sub_category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_active', 'is_ios_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('template_name', 'json_data', 'category_id', 'sub_category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_active', 'is_ios_free', 'is_json_updated'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
@@ -4812,6 +4815,7 @@ class AdminController extends Controller
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            ($request->is_json_updated) ? (new UserController())->deleteAllRedisKeys("getJsonData:$img_id") : '';
 
         } catch (Exception $e) {
             Log::error("editJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
@@ -4832,7 +4836,7 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-            if (($response = (new VerificationController())->validateRequiredParameter(array('template_name', 'json_data', 'category_id', 'sub_category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_active', 'is_ios_free'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('template_name', 'json_data', 'category_id', 'sub_category_id', 'is_featured_catalog', 'img_id', 'is_featured', 'is_free', 'is_active', 'is_ios_free', 'is_json_updated'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
@@ -4966,6 +4970,7 @@ class AdminController extends Controller
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+            ($request->is_json_updated) ? (new UserController())->deleteAllRedisKeys("getJsonData:$img_id") : '';
 
         } catch (Exception $e) {
             Log::error("editMultiPageJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);

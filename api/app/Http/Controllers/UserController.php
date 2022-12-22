@@ -1115,9 +1115,7 @@ class UserController extends Controller
      */
     public function getJsonData(Request $request_body)
     {
-
         try {
-
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
@@ -1127,37 +1125,29 @@ class UserController extends Controller
 
             $this->json_id_to_get_json_data = $request->json_id;
 
-            if (!Cache::has("pel:getJsonData$this->json_id_to_get_json_data")) {
-                $result = Cache::rememberforever("getJsonData$this->json_id_to_get_json_data", function () {
-                    $result = DB::select('SELECT
-                                                json_data
-                                                FROM
-                                                images
-                                                WHERE
-                                                id= ?
-                                                order by updated_at DESC', [$this->json_id_to_get_json_data]);
-                    if (count($result) > 0) {
-                        $json_data = json_decode($result[0]->json_data);
-                        if($result[0]->json_data)
-                            $json_data->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/';
-                        return $json_data;
-                    } else {
-                        return json_decode("{}");
-                    }
-                });
-            }
+            $redis_result = Cache::rememberforever("getJsonData:$this->json_id_to_get_json_data", function () {
 
-            $redis_result = Cache::get("getJsonData$this->json_id_to_get_json_data");
+                $result = DB::select('SELECT
+                                            json_data
+                                      FROM
+                                            images
+                                      WHERE
+                                            id= ? ', [$this->json_id_to_get_json_data]);
 
-            if (!$redis_result) {
-                $redis_result = [];
-            }
+                if (count($result) > 0) {
+                    $json_data = json_decode($result[0]->json_data);
+                    if ($result[0]->json_data)
+                        $json_data->prefix_url = Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB') . '/';
+                    return $json_data;
+                } else {
+                    return json_decode("{}");
+                }
+            });
 
             $response = Response::json(array('code' => 200, 'message' => 'Json fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
-        } catch
-        (Exception $e) {
+        } catch (Exception $e) {
             Log::error("getJsonData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get sample json.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
@@ -9795,6 +9785,8 @@ class UserController extends Controller
                                             im.template_name,
                                             COALESCE(im.height,0) AS height,
                                             COALESCE(im.width,0) AS width,
+                                            COALESCE(original_img_height,0) AS original_img_height,
+                                            COALESCE(original_img_width,0) AS original_img_width,
                                             COALESCE(im.multiple_images,"") AS multiple_images,
                                             COALESCE(im.json_pages_sequence,"") AS pages_sequence,
                                             COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
@@ -9884,6 +9876,8 @@ class UserController extends Controller
                                                     im.template_name,
                                                     COALESCE(im.height,0) AS height,
                                                     COALESCE(im.width,0) AS width,
+                                                    COALESCE(original_img_height,0) AS original_img_height,
+                                                    COALESCE(original_img_width,0) AS original_img_width,
                                                     COALESCE(im.multiple_images,"") AS multiple_images,
                                                     COALESCE(im.json_pages_sequence,"") AS pages_sequence,
                                                     COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
@@ -9984,6 +9978,8 @@ class UserController extends Controller
                                                 im.template_name,
                                                 COALESCE(im.height,0) AS height,
                                                 COALESCE(im.width,0) AS width,
+                                                COALESCE(original_img_height,0) AS original_img_height,
+                                                COALESCE(original_img_width,0) AS original_img_width,
                                                 COALESCE(im.multiple_images,"") AS multiple_images,
                                                 COALESCE(im.json_pages_sequence,"") AS pages_sequence,
                                                 COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
@@ -10082,6 +10078,8 @@ class UserController extends Controller
                                                         im.template_name,
                                                         COALESCE(im.height,0) AS height,
                                                         COALESCE(im.width,0) AS width,
+                                                        COALESCE(original_img_height,0) AS original_img_height,
+                                                        COALESCE(original_img_width,0) AS original_img_width,
                                                         COALESCE(im.multiple_images,"") AS multiple_images,
                                                         COALESCE(im.json_pages_sequence,"") AS pages_sequence,
                                                         COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) AS total_pages,
@@ -11609,7 +11607,7 @@ class UserController extends Controller
             foreach ($results as $i => $result) {
 
                 $catalog_name = $result->catalog_name;
-                $position = strpos(strtolower($catalog_name), $app_name);
+                $position = stripos($catalog_name, $app_name);
 
                 if ($position) {
                     $db_template_name = $template_name = trim(substr($catalog_name, 0, $position)) . " " . $app_name;
@@ -11629,7 +11627,7 @@ class UserController extends Controller
                     $color_codes = $this->getColorPallet($file_path, $extension);
 
                     foreach ($color_codes as $color) {
-                        if (strlen($color) >= 3 && strlen($color) <= 7)
+                        if (strlen($color) > 3 && strlen($color) <= 7)
                             $colors[] = (new ColorInterpreterController())->name($color);
                     }
 
