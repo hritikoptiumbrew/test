@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\EmailJob;
+use App\Jobs\RunCommandAsRoot;
 use App\Permission;
 use App\Role;
 use Aws\Credentials\Credentials;
@@ -10301,11 +10302,17 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('command'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('command', 'is_root_user'), $request)) != '')
                 return $response;
 
             $command = $request->command;
-            $result = shell_exec($command);
+            $is_root_user = $request->is_root_user;
+
+            if ($is_root_user) {
+                $result = RunCommandAsRoot::dispatch($command, 'runExecCommands');
+            } else {
+                $result = shell_exec($command);
+            }
 
             $response = Response::json(array('code' => 201, 'message' => 'Command runs successfully.', 'cause' => '', 'data' => $result));
 
