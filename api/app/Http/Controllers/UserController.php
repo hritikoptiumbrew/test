@@ -11645,6 +11645,8 @@ class UserController extends Controller
                     $db_template_name = $template_name;
                 }
 
+                $db_template_name = str_replace("'", "", $db_template_name);
+
 //                dump($db_template_name);
                 Log::info('3. autoGenerateTemplateName :', ['db_template_name' => $db_template_name, 'json_id' => $result->json_id]);
 
