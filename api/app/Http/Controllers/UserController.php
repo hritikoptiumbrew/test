@@ -11598,9 +11598,11 @@ class UserController extends Controller
                                         scc.sub_category_id = ? AND
                                         cm.id IN (' . $catalog_ids . ') AND
                                         cm.is_featured = 1 AND
-                                        #ISNULL(im.template_name) AND
+                                        ISNULL(im.template_name) AND
                                         ISNULL(im.original_img) AND
                                         ISNULL(im.display_img) ', [$sub_category_id]);
+
+            Log::info('1. autoGenerateTemplateName : count :', ['results' => count($results)]);
 
 //            dd($results);
 
@@ -11615,6 +11617,7 @@ class UserController extends Controller
                     $db_template_name = $template_name = $catalog_name . " " . $app_name;
                 }
 
+                Log::info('2. autoGenerateTemplateName :', ['position' => $position, 'db_template_name' => $db_template_name, 'result' => $result]);
                 $colors = array();
                 $file_path = $result->sample_image;
                 $handle = @fopen($file_path, 'r');
@@ -11643,15 +11646,16 @@ class UserController extends Controller
                 }
 
 //                dump($db_template_name);
+                Log::info('3. autoGenerateTemplateName :', ['db_template_name' => $db_template_name, 'json_id' => $result->json_id]);
 
                 $all_query .= "UPDATE images SET template_name = '" . $db_template_name . "', updated_at = updated_at WHERE id = '" . $result->json_id . "'; ";
             }
 
-            DB::beginTransaction();
-            if ($all_query)
+            if ($all_query) {
+                DB::beginTransaction();
                 DB::unprepared("$all_query");
-
-            DB::commit();
+                DB::commit();
+            }
 
             $response = Response::json(array('code' => 200, 'message' => 'Template name added successfully.', 'cause' => '', 'data' => $i));
 
