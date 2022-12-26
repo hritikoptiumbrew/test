@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         Commands\SendStickerTagReport::class,
         Commands\SendTranslateTagReport::class,
         Commands\SendTagReport_V2::class,
+        Commands\SendDeletedSearchTagFile::class,
     ];
 
     /**
@@ -35,6 +36,7 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('SendStickerTagReport')->weekly()->mondays()->at('4:00');
 //        $schedule->command('SendTranslateTagReport')->weekly()->mondays()->at('4:00');
         $schedule->command('SendTagReport_V2')->weekly()->mondays()->at('4:00');
+        $schedule->command('SendDeletedSearchTagFile')->daily();
 
         // $schedule->command('inspire')
         //          ->hourly();

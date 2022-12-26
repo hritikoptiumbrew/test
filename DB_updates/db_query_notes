@@ -218,6 +218,11 @@ ALTER TABLE tag_analysis_master  ADD category_id INT(11) NULL DEFAULT 2 COMMENT 
 ALTER TABLE `tag_analysis_master` ADD `main_sub_category_id` INT NULL DEFAULT NULL AFTER `sub_category_id`;
 ALTER TABLE `tag_analysis_master` ADD FOREIGN KEY (`main_sub_category_id`) REFERENCES `sub_category`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 UPDATE `tag_analysis_master` SET main_sub_category_id = SUBSTRING_INDEX(sub_category_id, ',', 1), update_time = update_time
+ALTER TABLE tag_analysis_master ADD FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE tag_analysis_master ADD INDEX (is_success);
+ALTER TABLE tag_analysis_master ADD INDEX (is_featured);
+ALTER TABLE tag_analysis_master ADD INDEX (tag);
+------------------------------------------------------------------------------------------------------------------------
 UPDATE images SET json_data = REPLACE(json_data, '"index"', '"pak_index"'), updated_at = updated_at WHERE json_data LIKE '%total_objects%';
 ALTER TABLE `images` ADD `cover_img_height` INT(11) NULL DEFAULT NULL AFTER `original_img_width`;
 ALTER TABLE `images` ADD `cover_img_width` INT(11) NULL DEFAULT NULL AFTER `cover_img_height`;
