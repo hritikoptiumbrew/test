@@ -69,7 +69,8 @@ class SendDeletedSearchTagFile extends Command
                                         FROM
                                             tag_analysis_master AS tam
                                             LEFT JOIN sub_category AS scm ON scm.id = tam.main_sub_category_id
-                                            LEFT JOIN category AS c ON c.id = tam.category_id');
+                                            LEFT JOIN category AS c ON c.id = tam.category_id
+                                        ORDER BY tam.category_id, tam.main_sub_category_id, tam.is_featured, tam.is_success');
 
             $tag_details_array = json_decode(json_encode($tag_details), 1);
 //            dd($tag_details_array);
