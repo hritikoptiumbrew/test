@@ -8671,7 +8671,7 @@ class UserController extends Controller
      * }
      * }
      */
-    public function getCorruptedFontList(Request $request_body)
+    public function getCorruptedFontListBackup(Request $request_body)
     {
         try {
 
@@ -8754,6 +8754,97 @@ class UserController extends Controller
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
+    }
+
+    public function getCorruptedFontList(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('last_sync_time'), $request)) != '')
+                return $response;
+
+            $this->last_sync_time = $request->last_sync_time;
+            $redis_result = array();
+
+            $db_last_sync_time = Cache::rememberforever("getCorruptedFontList:last_sync_time", function () {
+                return DB::select('SELECT MAX(update_time) AS last_sync_time FROM corrupt_font_detail_master')[0]->last_sync_time;
+            });
+
+            if ($db_last_sync_time >= $this->last_sync_time) {
+
+                if (!$this->last_sync_time) {
+                    $redis_result = Cache::rememberforever("getCorruptedFontList:default_redis_result", function () {
+                        return $this->getCorruptedFontListData('', '');
+                    });
+
+                } else {
+                    $redis_result = $this->getCorruptedFontListData(' AND cfc.create_time >= "' . $this->last_sync_time . '" ', ' AND fm.create_time >= "' . $this->last_sync_time . '" ');
+                }
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Fonts details fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'last_sync_time' => date("Y-m-d H:i:s")]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("getCorruptedFontList : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get fonts details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function getCorruptedFontListData($parent_where_condition, $child_where_condition)
+    {
+        try {
+            $result = [];
+            $catalog_list = DB::select('SELECT 
+                                                cfc.catalog_id,
+                                                cfc.name,
+                                                cfc.is_removed,
+                                                cfc.is_free,
+                                                cfc.is_featured
+                                            FROM
+                                                corrupt_font_catalog_master AS cfc
+                                            WHERE
+                                                cfc.is_active = 1 
+                                                ' . $parent_where_condition . '
+                                            ORDER BY cfc.update_time DESC');
+
+            foreach ($catalog_list as $catalog) {
+
+                $catalog_id = $catalog->catalog_id;
+                $font_result = DB::select('SELECT
+                                                  fm.font_id as font_id,
+                                                  fm.catalog_id,
+                                                  fm.font_name,
+                                                  fm.font_file,
+                                                  IF(fm.font_file != "",CONCAT("' . Config::get('constant.FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN') . '",fm.font_file),"") AS font_url,
+                                                  fm.ios_font_name,
+                                                  fm.android_font_name
+                                            FROM
+                                                  corrupt_font_detail_master AS fm
+                                            WHERE
+                                                  fm.is_active = 1 AND
+                                                  fm.catalog_id = ? 
+                                                  ' . $child_where_condition . '
+                                            ORDER BY fm.update_time DESC', [$catalog_id]);
+                $result_array = array(
+                    'catalog_id' => $catalog_id,
+                    'name' => $catalog->name,
+                    'is_removed' => $catalog->is_removed,
+                    'is_free' => $catalog->is_free,
+                    'is_featured' => $catalog->is_featured,
+                    'font_list' => $font_result
+                );
+                $result[] = $result_array;
+            }
+
+        } catch (Exception $e) {
+            Log::error("getCorruptedFontListData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+        }
+        return $result;
     }
 
     /*================| This API only used for Brand Maker |===============*/

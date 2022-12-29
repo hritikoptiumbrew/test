@@ -7532,7 +7532,9 @@ class AdminController extends Controller
                 }
             }
 
+            (new UserController())->deleteAllRedisKeys("getCorruptedFontList");
             $response = Response::json(array('code' => 200, 'message' => 'Font removed successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
         } catch (Exception $e) {
             Log::error("removeInvalidFont : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'remove invalid font.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));

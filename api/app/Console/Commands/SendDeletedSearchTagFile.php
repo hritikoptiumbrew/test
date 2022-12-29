@@ -116,6 +116,8 @@ class SendDeletedSearchTagFile extends Command
             //send report to super admin attech with zip file
             Mail::send($data['template'], $data, function ($message) use ($data) {
                 $message->to(Config::get('constant.SUPPORTER_EMAIL_ID'))->subject($data['subject']);
+                $message->bcc(Config::get('constant.SUPER_ADMIN_EMAIL_ID'))->subject($data['subject']);
+                $message->bcc(Config::get('constant.ADMIN_EMAIL_ID'))->subject($data['subject']);
                 $message->bcc(Config::get('constant.SUB_ADMIN_EMAIL_ID'))->subject($data['subject']);
                 $message->attach($data['original_zip_path'], array('as' => $data['zip_file_name'], 'mime' => 'application/zip'));
             });
