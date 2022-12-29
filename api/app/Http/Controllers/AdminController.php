@@ -10186,12 +10186,20 @@ class AdminController extends Controller
             $request = json_decode($request_body->getContent());
             //Log::info("request data :", [$request]);
 
-            if (($response = (new VerificationController())->validateRequiredParam(array('key_name'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParam(array('key_name', 'is_return_ttl'), $request)) != '')
                 return $response;
 
             $key_name = $request->key_name;
+            $is_return_ttl = $request->is_return_ttl;
 
             $response = (new UserController())->getAllRedisKeys($key_name);
+
+            if ($is_return_ttl) {
+                foreach ($response as $i => $item) {
+                    $response[$item] = Redis::ttl($item);
+                    unset($response[$i]);
+                }
+            }
 
             $response = Response::json(array('code' => 200, 'message' => 'Redis keys fetched successfully.', 'cause' => '', 'data' => $response));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));

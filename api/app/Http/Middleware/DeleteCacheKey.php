@@ -351,7 +351,7 @@ class DeleteCacheKey
             }
 
             //Font Module
-            if ($api == '/api/addFont' or $api == '/api/editFont' or $api == '/api/deleteFont' or $api == '/api/addInvalidFont' or $api == '/api/removeInvalidFont') {
+            if ($api == '/api/addFont' or $api == '/api/editFont' or $api == '/api/deleteFont' or $api == '/api/addInvalidFont') {
 
                 /*//getAllFontsByCatalogIdForAdmin
                 $keys = Redis::keys('pel:getAllFontsByCatalogIdForAdmin*');
@@ -370,9 +370,6 @@ class DeleteCacheKey
 
                 //getOfflineFontCatalogs
                 Redis::del(array_merge(Redis::keys("pel:getOfflineFontCatalogs*"),['']));
-
-                //getCorruptedFontList
-                Redis::del(array_merge(Redis::keys("pel:getCorruptedFontList*"),['']));
 
                 //getCatalogBySubCategoryId
                 Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryIdForAdmin*"),['']));
