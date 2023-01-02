@@ -45,6 +45,12 @@ class SendDeletedSearchTagFile extends Command
     public function handle()
     {
         try {
+
+            $count = DB::delete('DELETE FROM tag_analysis_master WHERE TIMESTAMPDIFF(DAY, update_time, NOW()) > ?', [Config::get('constant.DAYS_TO_KEEP_SEARCH_TAG')]);
+            Log::info('SendDeletedSearchTagFile : Total deleted search tag record.', ['count' => $count]);
+            return 1;
+
+            // Currently we do not send backup file in mail
             $api_name = "SendDeletedSearchTagFile";
             $zip = new ZipArchive();
             $milliseconds = intval(microtime(true) * 1000);
@@ -134,6 +140,7 @@ class SendDeletedSearchTagFile extends Command
 
         } catch (Exception $e) {
             Log::error("SendDeletedSearchTagFile command Exception : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return 0;
         }
     }
 }

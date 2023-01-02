@@ -1965,7 +1965,6 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
             if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'catalog_id', 'is_featured'), $request)) != '')
                 return $response;
 
@@ -1973,57 +1972,69 @@ class AdminController extends Controller
             $catalog_id = $request->catalog_id;
             $is_featured = $request->is_featured;
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is normal images
-            $create_at = date('Y-m-d H:i:s');
+            $insert_detail = [];
 
-            if (!$request_body->hasFile('file')) {
+            if (!$request_body->hasFile('file'))
                 return Response::json(array('code' => 201, 'message' => 'Required field file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
-            } else {
 
-                $images_array = Input::file('file');
+            $images_array = Input::file('file');
 
-                //To verify all normal images array
-                if (($response = (new ImageController())->verifyImagesArray($images_array, 0, $category_id, $is_featured, $is_catalog)) != '')
-                    return $response;
+            //To verify all normal images array
+            if (($response = (new ImageController())->verifyImagesArray($images_array, 2, $category_id, $is_featured, $is_catalog)) != '')
+                return $response;
 
-                DB::beginTransaction();
+            //Add catalog name as search tag
+            $catalog_detail = DB::select('SELECT name FROM catalog_master WHERE id = ?', [$catalog_id]);
+            $new_tag = str_replace(' ', ',', strtolower(preg_replace('/[^A-Za-z ]/', '', $catalog_detail[0]->name)));
+            $tag_list = implode(',', array_unique(array_filter(explode(',', $new_tag))));
 
-                foreach ($images_array as $image_array) {
+            DB::beginTransaction();
 
-                    $tag_list = NULL;
-//                    $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
-//                    if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
-//                        return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
-//                    }
+            foreach ($images_array as $i => $image_array) {
+
+//                $tag_list = NULL;
+//                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
+//                if (($tag_list == "" or $tag_list == NULL) and Config::get('constant.CLARIFAI_API_KEY') != "") {
+//                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
+//                }
+
+                $extension = $image_array->getClientOriginalExtension();
+                $normal_image = (new ImageController())->generateNewFileName('normal_image', $image_array);
+
+
+                $insert_detail[$i] = [
+                    'catalog_id' => $catalog_id,
+                    'image' => $normal_image,
+                    'search_category' => $tag_list,
+                ];
+
+                if ($extension == "svg") {
+                    $content_type = Config::get('constant.CONTENT_TYPE_FOR_SVG_RESOURCE');
+                    (new ImageController())->saveFileByPath($image_array, $normal_image, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+
+                } else {
+                    $content_type = Config::get('constant.CONTENT_TYPE_FOR_NORMAL_RESOURCE');
 
                     $image_details = (new UserController())->calculateHeightWidth($image_array);
 
-                    $normal_image = (new ImageController())->generateNewFileName('normal_image', $image_array);
-                    (new ImageController())->saveOriginalImageFromArray($image_array, $normal_image);
+                    (new ImageController())->saveFileByPath($image_array, $normal_image, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
                     (new ImageController())->saveCompressedImage($normal_image);
                     (new ImageController())->saveThumbnailImage($normal_image);
 
-                    if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
-                        (new ImageController())->saveImageInToS3($normal_image);
-                    }
-
-                    /* add catalog name as search tag  */
-                    $catalog_detail = DB::select('SELECT name from catalog_master WHERE id = ?', [$catalog_id]);
-                    $new_tag = str_replace(' ', ',', strtolower(preg_replace('/[^A-Za-z ]/', '', $catalog_detail[0]->name)));
-                    if ($tag_list != '') {
-                        $tag_list .= "," . $new_tag;
-                    } else {
-                        $tag_list .= $new_tag;
-                    }
-                    $tag_list = implode(',', array_unique(array_filter(explode(',', $tag_list))));
-
-
-                    DB::insert('INSERT
-                                INTO
-                                  images(catalog_id, image, height, width, original_img_height, original_img_width, search_category, created_at)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $normal_image, $image_details['height'], $image_details['width'], $image_details['org_img_height'], $image_details['org_img_width'], $tag_list, $create_at]);
+                    $insert_detail[$i]['height'] = $image_details['height'];
+                    $insert_detail[$i]['width'] = $image_details['width'];
+                    $insert_detail[$i]['original_img_height'] = $image_details['org_img_height'];
+                    $insert_detail[$i]['original_img_width'] = $image_details['org_img_width'];
 
                 }
+                $insert_detail[$i]['content_type'] = $content_type;
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($normal_image);
+                }
             }
+
+            DB::table('images')->insert($insert_detail);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Normal images added successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -2072,27 +2083,21 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
 
             $request = json_decode($request_body->input('request_data'));
-
-            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'img_id', 'is_featured'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('category_id', 'img_id', 'is_featured', 'search_category'), $request)) != '')
                 return $response;
 
             $category_id = $request->category_id;
             $img_id = $request->img_id;
             $is_featured = $request->is_featured;
             $is_catalog = 0; //Here we are passed 0 bcz this is not image of catalog, this is normal images
-            $search_category = isset($request->search_category) ? strtolower($request->search_category) : NULL;
-            $image_details = array('height' => '', 'width' => '', 'org_img_height' => '', 'org_img_width' => '');
-
-            if ($search_category != NULL or $search_category != "") {
-                if (($response = (new VerificationController())->verifySearchCategory($search_category)) != '')
-                    return $response;
-            }
+            $search_category = implode(',', array_unique(array_filter(explode(',', strtolower($request->search_category)))));
+            $update_query = NULL;
 
             if ($request_body->hasFile('file')) {
 
                 $image_array = Input::file('file');
 
-                if (($response = (new ImageController())->verifyImage($image_array, $category_id, $is_featured, $is_catalog)) != '')
+                if (($response = (new ImageController())->verifyImageWithSvg($image_array, $category_id, $is_featured, $is_catalog)) != '')
                     return $response;
 
 //                $tag_list = strtolower((new TagDetectController())->getTagInImageByBytes($image_array));
@@ -2100,12 +2105,29 @@ class AdminController extends Controller
 //                    return Response::json(array('code' => 201, 'message' => 'Tag not detected from clarifai.com.', 'cause' => '', 'data' => json_decode("{}")));
 //                }
 
-                $image_details = (new UserController())->calculateHeightWidth($image_array);
+                $extension = $image_array->getClientOriginalExtension();
 
-                $catalog_img = (new ImageController())->generateNewFileName('catalog_img', $image_array);
-                (new ImageController())->saveOriginalImage($catalog_img);
-                (new ImageController())->saveCompressedImage($catalog_img);
-                (new ImageController())->saveThumbnailImage($catalog_img);
+                $catalog_img = (new ImageController())->generateNewFileName('normal_image', $image_array);
+
+                if ($extension == "svg") {
+                    $content_type = Config::get('constant.CONTENT_TYPE_FOR_SVG_RESOURCE');
+
+                    (new ImageController())->saveFileByPath($image_array, $catalog_img, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+
+                    $update_query .= ' image = "' . $catalog_img . '", content_type = "' . $content_type . '", ';
+
+                } else {
+                    $content_type = Config::get('constant.CONTENT_TYPE_FOR_NORMAL_RESOURCE');
+
+                    $image_details = (new UserController())->calculateHeightWidth($image_array);
+
+                    (new ImageController())->saveFileByPath($image_array, $catalog_img, Config::get('constant.ORIGINAL_IMAGES_DIRECTORY'), "original");
+                    (new ImageController())->saveCompressedImage($catalog_img);
+                    (new ImageController())->saveThumbnailImage($catalog_img);
+
+                    $update_query .= ' image = "' . $catalog_img . '", height = "' . $image_details['height'] . '", width = "' . $image_details['width'] . '", original_img_height = "' . $image_details['org_img_height'] . '", original_img_width = "' . $image_details['org_img_width'] . '", content_type = "' . $content_type . '", ';
+
+                }
 
                 if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                     (new ImageController())->saveImageInToS3($catalog_img);
@@ -2114,28 +2136,19 @@ class AdminController extends Controller
                 $result = DB::select('SELECT image FROM images WHERE id = ?', [$img_id]);
                 $image_name = $result[0]->image;
 
-
                 if ($image_name) {
-                    //Image Delete in image_bucket
                     (new ImageController())->deleteImage($image_name);
                 }
-            } else {
-                $catalog_img = "";
             }
 
             DB::beginTransaction();
             DB::update('UPDATE
-                              images
-                            SET
-                              height = IF(? != "",?,height),
-                              width = IF(? != "",?,width),
-                              original_img_height = IF(? != "",?,original_img_height),
-                              original_img_width = IF(? != "",?,original_img_width),
-                              image = IF(? != "",?,image),
-                              search_category = ?
-                            WHERE
-                              id = ? ',
-                [$image_details['height'], $image_details['height'], $image_details['width'], $image_details['width'], $image_details['org_img_height'], $image_details['org_img_height'], $image_details['org_img_width'], $image_details['org_img_width'], $catalog_img, $catalog_img, $search_category, $img_id]);
+                            images
+                        SET
+                            ' . $update_query . '
+                            search_category = ?
+                        WHERE
+                            id = ? ', [$search_category, $img_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Normal image updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -2633,10 +2646,12 @@ class AdminController extends Controller
 
                 $result = DB::select('SELECT
                                           im.id AS img_id,
+                                          #for svg images
+                                          @svg := IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SVG_RESOURCE') . ' AND im.image != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "") AS svg_image,
                                           #for sample (before) images
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS thumbnail_img,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS original_img,
+                                          IF(@svg != "", @svg, IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS thumbnail_img,
+                                          IF(@svg != "", @svg, IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS compressed_img,
+                                          IF(@svg != "", @svg, IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS original_img,
                                           IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS webp_original_img,
                                           #for after images
                                           IF(im.content_type = '.Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE').' AND im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.image),"") AS thumbnail_after_img,
@@ -10152,6 +10167,10 @@ class AdminController extends Controller
     public function deleteAllRedisKeysByKeyName(Request $request_body)
     {
         try {
+            if ($request_body->header('api-key') != config('constant.API_KEY')) {
+                Log::error("deleteAllRedisKeysByKeyName : Required field api_key is missing or empty or mismatch.", ['api-key' => $request_body->header('api-key')]);
+                return Response::json(array('code' => 201, 'message' => 'Required field api_key is missing or empty or mismatch.', 'cause' => '', 'data' => json_decode("{}")));
+            }
 
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
@@ -10179,6 +10198,10 @@ class AdminController extends Controller
     public function getAllRedisKeysByKeyName(Request $request_body)
     {
         try {
+            if ($request_body->header('api-key') != config('constant.API_KEY')) {
+                Log::error("getAllRedisKeysByKeyName : Required field api_key is missing or empty or mismatch.", ['api-key' => $request_body->header('api-key')]);
+                return Response::json(array('code' => 201, 'message' => 'Required field api_key is missing or empty or mismatch.', 'cause' => '', 'data' => json_decode("{}")));
+            }
 
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
@@ -10214,6 +10237,10 @@ class AdminController extends Controller
     public function getRedisKeyValueByKeyName(Request $request_body)
     {
         try {
+            if ($request_body->header('api-key') != config('constant.API_KEY')) {
+                Log::error("getRedisKeyValueByKeyName : Required field api_key is missing or empty or mismatch.", ['api-key' => $request_body->header('api-key')]);
+                return Response::json(array('code' => 201, 'message' => 'Required field api_key is missing or empty or mismatch.', 'cause' => '', 'data' => json_decode("{}")));
+            }
 
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
@@ -10242,9 +10269,13 @@ class AdminController extends Controller
     public function getDatabaseInfo(Request $request_body)
     {
         try {
+            if ($request_body->header('api-key') != config('constant.API_KEY')) {
+                Log::error("getDatabaseInfo : Required field api_key is missing or empty or mismatch.", ['api-key' => $request_body->header('api-key')]);
+                return Response::json(array('code' => 201, 'message' => 'Required field api_key is missing or empty or mismatch.', 'cause' => '', 'data' => json_decode("{}")));
+            }
 
-            /*$token = JWTAuth::getToken();
-            JWTAuth::toUser($token);*/
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('query'), $request)) != '')
@@ -10264,9 +10295,13 @@ class AdminController extends Controller
     public function getConstants(Request $request_body)
     {
         try {
+            if ($request_body->header('api-key') != config('constant.API_KEY')) {
+                Log::error("getConstants : Required field api_key is missing or empty or mismatch.", ['api-key' => $request_body->header('api-key')]);
+                return Response::json(array('code' => 201, 'message' => 'Required field api_key is missing or empty or mismatch.', 'cause' => '', 'data' => json_decode("{}")));
+            }
 
-            /*$token = JWTAuth::getToken();
-            JWTAuth::toUser($token);*/
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('variable_name'), $request)) != '')
@@ -10286,9 +10321,13 @@ class AdminController extends Controller
     public function runArtisanCommands(Request $request_body)
     {
         try {
+            if ($request_body->header('api-key') != config('constant.API_KEY')) {
+                Log::error("runArtisanCommands : Required field api_key is missing or empty or mismatch.", ['api-key' => $request_body->header('api-key')]);
+                return Response::json(array('code' => 201, 'message' => 'Required field api_key is missing or empty or mismatch.', 'cause' => '', 'data' => json_decode("{}")));
+            }
 
-            /*$token = JWTAuth::getToken();
-            JWTAuth::toUser($token);*/
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
             if (($response = (new VerificationController())->validateRequiredParameter(array('command'), $request)) != '')
@@ -10308,6 +10347,11 @@ class AdminController extends Controller
     public function runExecCommands(Request $request_body)
     {
         try {
+            if ($request_body->header('api-key') != config('constant.API_KEY')) {
+                Log::error("runExecCommands : Required field api_key is missing or empty or mismatch.", ['api-key' => $request_body->header('api-key')]);
+                return Response::json(array('code' => 201, 'message' => 'Required field api_key is missing or empty or mismatch.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 

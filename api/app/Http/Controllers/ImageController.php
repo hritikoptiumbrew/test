@@ -48,6 +48,34 @@ class ImageController extends Controller
         return $response;
     }
 
+    public function verifyImageWithSvg($image_array, $category_id, $is_featured, $is_catalog)
+    {
+
+        $image_type = $image_array->getMimeType();
+        $image_size = $image_array->getSize();
+        //Log::info("verifyImage image details : ",['size' => $image_size, 'mime_type' => $image_type]);
+
+        /*
+         * check size into kb
+         * here 100 is kb & 1024 is bytes
+         * 1kb = 1024 bytes
+         * */
+
+        $validations = $this->getValidationFromCache($category_id, $is_featured, $is_catalog);
+        //Log::info('verifyImage : ', ['validations' => $validations]);
+
+        $MAXIMUM_FILESIZE = $validations * 1024;
+        //$MAXIMUM_FILESIZE = 100 * 1024;
+
+        if (!($image_type == 'image/png' || $image_type == 'image/jpeg' || $image_type == 'image/svg+xml' || $image_type == 'image/svg'))
+            $response = Response::json(array('code' => 201, 'message' => 'Please select PNG or JPEG or SVG file.', 'cause' => '', 'data' => json_decode("{}")));
+        elseif ($image_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then ' . $validations . 'KB.', 'cause' => '', 'data' => json_decode("{}")));
+        else
+            $response = '';
+        return $response;
+    }
+
     public function verifyIcon($image_array)
     {
         $image_type = $image_array->getMimeType();
@@ -124,8 +152,7 @@ class ImageController extends Controller
     public function verifyImagesArray($images_array, $is_resource_images, $category_id, $is_featured, $is_catalog)
     {
         $files_array = array();
-        if($is_resource_images == 1)
-        {
+        if ($is_resource_images == 1) {
             foreach ($images_array as $key) {
 
                 if (($response = $this->verifySampleImage($key, $category_id, $is_featured, $is_catalog)) != '') {
@@ -135,9 +162,17 @@ class ImageController extends Controller
                     $files_array[] = array('file_name' => $file_name, 'error_message' => $message);
                 }
             }
-        }
-        else
-        {
+        } elseif ($is_resource_images == 2) {
+            foreach ($images_array as $key) {
+
+                if (($response = $this->verifyImageWithSvg($key, $category_id, $is_featured, $is_catalog)) != '') {
+                    $file_name = $key->getClientOriginalName();
+                    $data = (json_decode(json_encode($response), true));
+                    $message = $data['original']['message'];
+                    $files_array[] = array('file_name' => $file_name, 'error_message' => $message);
+                }
+            }
+        } else {
             foreach ($images_array as $key) {
 
                 if (($response = $this->verifyImage($key, $category_id, $is_featured, $is_catalog)) != '') {
@@ -399,8 +434,8 @@ class ImageController extends Controller
         try {
             $original_path = '../..' . $file_path;
             $image_array->move($original_path, $img);
-            $path = $original_path . $img;
-            $this->saveImageDetails($path, $dir_name);
+            //$path = $original_path . $img;
+            //$this->saveImageDetails($path, $dir_name);
         } catch (Exception $e) {
             Log::error("saveFileByPath : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
@@ -1824,7 +1859,9 @@ class ImageController extends Controller
 
             $disk = Storage::disk('s3');
             $original = "imageflyer/$directory/" . $file;
-            $disk->delete($original);
+            if ($disk->exists($original)) {
+                $disk->delete($original);
+            }
 
         } catch (Exception $e) {
             Log::error("deleteObjectFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);

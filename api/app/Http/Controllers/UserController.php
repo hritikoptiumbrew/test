@@ -4243,6 +4243,10 @@ class UserController extends Controller
             $category_id = isset($request->category_id) ? $request->category_id : Config::get('constant.CATEGORY_ID_OF_STICKER');
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
+            if (!$this->search_category) {
+                return Response::json(array('code' => 201, 'message' => 'Please enter valid search text.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
             if ($is_cache_enable) {
                 $redis_result = Cache::remember("key:searchNormalImagesBySubCategoryIdForFlyer:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
@@ -4304,10 +4308,11 @@ class UserController extends Controller
                         DB::statement("SET sql_mode = '' ");
                         $search_result = DB::select('SELECT
                                                         im.id AS img_id,
+                                                        @svg := IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SVG_RESOURCE') . ' AND im.image != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "") AS svg_image,
+                                                        IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS thumbnail_img,
+                                                        IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS compressed_img,
+                                                        IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS original_img,
                                                         IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
-                                                        IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS thumbnail_img,
-                                                        IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
-                                                        IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS original_img,
                                                         IF(cm.is_free=1,1,0) AS is_free,
                                                         IF(cm.is_ios_free=1,1,0) AS is_ios_free,
                                                         scc.sub_category_id,
@@ -4408,10 +4413,11 @@ class UserController extends Controller
                     DB::statement("SET sql_mode = '' ");
                     $search_result = DB::select('SELECT
                                                         im.id AS img_id,
+                                                        @svg := IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SVG_RESOURCE') . ' AND im.image != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "") AS svg_image,
+                                                        IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS thumbnail_img,
+                                                        IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS compressed_img,
+                                                        IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS original_img,
                                                         IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,
-                                                        IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS thumbnail_img,
-                                                        IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
-                                                        IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS original_img,
                                                         IF(cm.is_free=1,1,0) AS is_free,
                                                         IF(cm.is_ios_free=1,1,0) AS is_ios_free,
                                                         scc.sub_category_id,
@@ -8440,9 +8446,10 @@ class UserController extends Controller
                 $redis_result = Cache::remember("getImagesByCatalogId:$this->catalog_id", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
                     $result = DB::select('SELECT
                                           im.id as img_id,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                          @svg := IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SVG_RESOURCE') . ' AND im.image != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "") AS svg_image,
+                                          IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS thumbnail_img,
+                                          IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS compressed_img,
+                                          IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS original_img,
                                           im.search_category,
                                           im.template_name,
                                           coalesce(im.height,0) AS height,
@@ -8481,9 +8488,10 @@ class UserController extends Controller
 
                 $redis_result = DB::select('SELECT
                                           im.id as img_id,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as thumbnail_img,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as compressed_img,
-                                          IF(im.image != "",CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as original_img,
+                                          @svg := IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SVG_RESOURCE') . ' AND im.image != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "") AS svg_image,
+                                          IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS thumbnail_img,
+                                          IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS compressed_img,
+                                          IF(@svg != "", @svg, IF(im.image != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.image), "")) AS original_img,
                                           im.search_category,
                                           im.template_name,                                          
                                           coalesce(im.height,0) AS height,
@@ -8583,10 +8591,10 @@ class UserController extends Controller
             $this->catalog_id = $request->catalog_id;
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
-            if ($is_cache_enable){
-                $redis_result = Cache::remember("getAllFontsByCatalogId$this->catalog_id", Config::get('constant.CACHE_TIME_24_HOUR'), function () {
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getAllFontsByCatalogId:$this->catalog_id", Config::get('constant.CACHE_TIME_24_HOUR'), function () {
 
-                        return DB::select('SELECT
+                    return DB::select('SELECT
                                               fm.id as font_id,
                                               fm.catalog_id,
                                               fm.font_name,
@@ -8601,8 +8609,8 @@ class UserController extends Controller
                                             order by fm.update_time DESC', [$this->catalog_id]);
 
                 });
-            }else{
-                 $redis_result = DB::select('SELECT
+            } else {
+                $redis_result = DB::select('SELECT
                                               fm.id as font_id,
                                               fm.catalog_id,
                                               fm.font_name,
@@ -8617,7 +8625,7 @@ class UserController extends Controller
                                             order by fm.update_time DESC', [$this->catalog_id]);
             }
 
-            $response = Response::json(array('code' => 200, 'message' => 'Fonts fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB').'/']));
+            $response = Response::json(array('code' => 200, 'message' => 'Fonts fetched successfully.', 'cause' => '', 'data' => ['result' => $redis_result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB') . '/']));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
@@ -8797,8 +8805,8 @@ class UserController extends Controller
 
     public function getCorruptedFontListData($parent_where_condition, $child_where_condition)
     {
+        $result = [];
         try {
-            $result = [];
             $catalog_list = DB::select('SELECT 
                                                 cfc.catalog_id,
                                                 cfc.name,

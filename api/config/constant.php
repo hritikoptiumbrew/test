@@ -43,6 +43,7 @@ return [
     'WEBP_THUMBNAIL_NEW_IMAGES_DIRECTORY' => '/image_bucket/webp_thumbnail_new/',
     'FONT_FILE_DIRECTORY' => '/image_bucket/fonts/',
     'TEMP_FILE_DIRECTORY' => '/image_bucket/temp/',
+    //'SVG_IMAGES_DIRECTORY' => '/image_bucket/svg/',
 
     /*'COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.nyc3.digitaloceanspaces.com/photoeditorlab/compressed/',
     'ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'https://photoeditorlab.nyc3.digitaloceanspaces.com/photoeditorlab/original/',
@@ -68,12 +69,7 @@ return [
     'ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN' => env('ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN'),
     'FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN' => env('FONT_FILE_DIRECTORY_OF_DIGITAL_OCEAN'),
     'TEMP_FILE_DIRECTORY_OF_DIGITAL_OCEAN' => env('TEMP_FILE_DIRECTORY_OF_DIGITAL_OCEAN'),
-
-    /* static path of local server*/
-    /*'COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'http://192.168.0.113/photo_editor_lab_backend/image_bucket/compressed/',
-    'ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'http://192.168.0.113/photo_editor_lab_backend/image_bucket/original/',
-    'THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'http://192.168.0.113/photo_editor_lab_backend/image_bucket/thumbnail/',
-    'RESOURCE_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => 'http://192.168.0.113/photo_editor_lab_backend/image_bucket/resource/',*/
+    //'SVG_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN' => env('SVG_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN'),
 
     'TOTAL_ORDER_AMOUNT' => 10,
     'THUMBNAIL_HEIGHT' => 240,
@@ -208,6 +204,8 @@ return [
     'CONTENT_TYPE_FOR_SAMPLE_IMAGE' => '1',
     'CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF' => '2',
     'CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE' => '3',
+    'CONTENT_TYPE_FOR_NORMAL_RESOURCE' => '4',
+    'CONTENT_TYPE_FOR_SVG_RESOURCE' => '5',
 
     /* Category Id value */
     'CATEGORY_ID_OF_STICKER' => '2',
@@ -225,5 +223,7 @@ return [
 
     //Expiration time of 2fa cookie for 30 days
     'EXPIRATION_TIME_OF_2FA_COOKIE' => env('EXPIRATION_TIME_OF_2FA_COOKIE'),
+    'API_KEY' => '6a2b65c9-d0ca-40c2-99ae-817c53f1496f',
+    'DAYS_TO_KEEP_SEARCH_TAG' => env('DAYS_TO_KEEP_SEARCH_TAG'),
 
 ];

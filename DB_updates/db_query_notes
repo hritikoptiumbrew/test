@@ -244,3 +244,6 @@ UPDATE `youtube_video_master` SET `country_code` = 'us' WHERE ISNULL(`country_co
 47) Photo_editor_lab : perform following query on database (03 Dec, 2022) to template name.
 ------------------------------------------------------------------------------------------------------
 ALTER TABLE `images` ADD `template_name` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL AFTER `image_type`;
+ALTER TABLE `images` CHANGE `created_at` `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `images` CHANGE `content_type` `content_type` TINYINT(1) NULL DEFAULT '1' COMMENT '1=sample image, 2=sample image with GIF image, 3=sample(before) image with after image, 4=normal resource, 5=svg resource';
+UPDATE images SET content_type = 4, updated_at = updated_at WHERE (image LIKE '%_normal_image_%' OR image LIKE '%_catalog_img_%') AND json_data IS NULL AND content_type = 1;
