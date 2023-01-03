@@ -1690,7 +1690,7 @@ class UserController extends Controller
                                                     FROM 
                                                         images
                                                     WHERE 
-                                                        is_active = 1
+                                                        (is_active = 1 OR is_active = 0)
                                                         ' . $this->where_condition . ' ');
                 $total_row = $total_row_result[0]->total;
 
@@ -1722,7 +1722,7 @@ class UserController extends Controller
                                             FROM
                                               images
                                             WHERE
-                                              is_active = 1 
+                                              (is_active = 1 OR is_active = 0)
                                               ' . $this->where_condition . '
                                             ORDER BY updated_at DESC LIMIT ?, ?', [$this->offset, $this->item_count]);
                 } else {
@@ -3421,7 +3421,7 @@ class UserController extends Controller
             $this->offset = ($page - 1) * $this->item_count;
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             $search_keyword = mb_substr($this->search_category, 0, 1);
-            $this->search_keyword = $search_keyword . $search_keyword . $search_keyword;
+            $this->search_keyword = $search_keyword . $search_keyword . $search_keyword . $search_keyword;
             $this->industry = isset($request->industry) ? $request->industry : NULL;
 
             if ($is_cache_enable) {
@@ -3473,8 +3473,8 @@ class UserController extends Controller
                                                 scc.sub_category_id = ? AND
                                                 ISNULL(im.original_img) AND
                                                 ISNULL(im.display_img) AND
-                                                (MATCH(im.search_category) AGAINST ("' . $search_keyword . ',' . $industry . ',' . $search_category . '") OR 
-                                                MATCH(im.search_category) AGAINST (REPLACE(CONCAT("' . $search_keyword . ',' . $industry . ',' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) ', [$sub_category_id]);
+                                                (MATCH(im.search_category) AGAINST ("' . $search_keyword . ', ' . $industry . ', ' . $search_category . '") OR 
+                                                MATCH(im.search_category) AGAINST ("' . $search_keyword . ', ' . $industry . ', ' . $search_category . '* " IN BOOLEAN MODE)) ', [$sub_category_id]);
             $total_row = $total_row_result[0]->total;
 
             if ($total_row) {
@@ -3523,8 +3523,8 @@ class UserController extends Controller
                                                 scc.sub_category_id = ? AND
                                                 ISNULL(im.original_img) AND
                                                 ISNULL(im.display_img) AND
-                                                (MATCH(im.search_category) AGAINST ("' . $search_keyword . ',' . $industry . ',' . $search_category . '") OR 
-                                                MATCH(im.search_category) AGAINST (REPLACE(CONCAT("' . $search_keyword . ',' . $industry . ',' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE)) 
+                                                (MATCH(im.search_category) AGAINST ("' . $search_keyword . ', ' . $industry . ', ' . $search_category . '") OR 
+                                                MATCH(im.search_category) AGAINST ("' . $search_keyword . ', ' . $industry . ', ' . $search_category . '* " IN BOOLEAN MODE)) 
                                             ORDER BY 
                                                 p1 DESC, FIELD(im.catalog_id, '. $logo_maker_ai_catalog_id .') DESC, 
                                                 p2 DESC, FIELD(im.catalog_id, '. $logo_maker_ai_catalog_id .') DESC,
