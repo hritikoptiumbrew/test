@@ -438,6 +438,7 @@ Route::post('getServerTime', 'AdminController@getServerTime');
 Route::post('deleteAllRedisKeysByKeyName', 'AdminController@deleteAllRedisKeysByKeyName');
 Route::post('getAllRedisKeysByKeyName', 'AdminController@getAllRedisKeysByKeyName');
 Route::post('getRedisKeyValueByKeyName', 'AdminController@getRedisKeyValueByKeyName');
+Route::post('getRandomRedisKeys', 'AdminController@getRandomRedisKeys');
 
 //API to get fonts into font_collection (for designer use)
 Route::post('getAllFonts', 'AdminController@getAllFonts');

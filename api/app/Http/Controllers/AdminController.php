@@ -10186,7 +10186,6 @@ class AdminController extends Controller
             $response = (new UserController())->deleteAllRedisKeys($key_name);
 
             $response = Response::json(array('code' => 200, 'message' => 'Redis keys deleted successfully.', 'cause' => '', 'data' => $response));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
             Log::error("deleteAllRedisKeysByKeyName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
@@ -10234,6 +10233,35 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function getRandomRedisKeys(Request $request_body)
+    {
+        try {
+            if ($request_body->header('api-key') != config('constant.API_KEY')) {
+                Log::error("getAllRedisKeysByKeyName : Required field api_key is missing or empty or mismatch.", ['api-key' => $request_body->header('api-key')]);
+                return Response::json(array('code' => 201, 'message' => 'Required field api_key is missing or empty or mismatch.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $result = [];
+            $response = (new UserController())->getAllRedisKeys("*");
+
+            foreach ($response as $i => $item){
+                if(strlen($item) <= 20 && !str_contains($item, "getJsonData") ){
+                    $result[]['key'] = $item;
+                }
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Redis keys fetched successfully.', 'cause' => '', 'data' => $result));
+
+        } catch (Exception $e) {
+            Log::error("getAllRedisKeysByKeyName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete redis keys.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     public function getRedisKeyValueByKeyName(Request $request_body)
     {
         try {
@@ -10256,7 +10284,6 @@ class AdminController extends Controller
             $response = (new UserController())->getRedisKeyValue($key_name);
 
             $response = Response::json(array('code' => 200, 'message' => 'Redis key\'s value fetched successfully.', 'cause' => '', 'data' => $response));
-            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
             Log::error("getRedisKeyValueByKeyName : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
