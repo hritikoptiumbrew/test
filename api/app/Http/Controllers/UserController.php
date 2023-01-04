@@ -3371,7 +3371,7 @@ class UserController extends Controller
                 return $response;
 
             $sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
-            $search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
+            $search_category = trim(mb_substr(preg_replace('/[\\\@()<>+*%"]/', '', mb_strtolower($request->search_category)), 0, 100));      //Remove '[\\\@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
@@ -3415,7 +3415,7 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
-            $this->search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
+            $this->search_category = trim(mb_substr(preg_replace('/[\\\@()<>+*%"]/', '', mb_strtolower($request->search_category)), 0, 100));      //Remove '[\\\@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
             $page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($page - 1) * $this->item_count;
@@ -3683,7 +3683,7 @@ class UserController extends Controller
                 return $response;
 
             $sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
-            $search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
+            $search_category = trim(mb_substr(preg_replace('/[\\\@()<>+*%"]/', '', mb_strtolower($request->search_category)), 0, 100));      //Remove '[\\\@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
@@ -3733,7 +3733,7 @@ class UserController extends Controller
 
             $sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
             $fail_over_sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->fail_over_sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
-            $search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
+            $search_category = trim(mb_substr(preg_replace('/[\\\@()<>+*%"]/', '', mb_strtolower($request->search_category)), 0, 100));      //Remove '[\\\@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
             $page = $request->page;
             $item_count = $request->item_count;
             $offset = ($page - 1) * $item_count;
@@ -3781,7 +3781,7 @@ class UserController extends Controller
                 return $response;
 
             $this->sub_category_id = preg_replace('/[ A-Za-z]/', '', $request->sub_category_id);      //Remove space & alpha character from searching because if we add this character then issue occur in admin panel.
-            $this->search_category = mb_substr(preg_replace('/[@()<>+*%"]/', '', mb_strtolower(trim($request->search_category))), 0, 100);      //Remove '[@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
+            $this->search_category = trim(mb_substr(preg_replace('/[\\\@()<>+*%"]/', '', mb_strtolower($request->search_category)), 0, 100));      //Remove '[\\\@()<>+*%"]' character from searching because if we add this character then mysql gives syntax error.
             $this->page = $request->page;
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;

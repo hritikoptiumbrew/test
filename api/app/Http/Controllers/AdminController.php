@@ -10331,11 +10331,13 @@ class AdminController extends Controller
             JWTAuth::toUser($token);
 
             $request = json_decode($request_body->getContent());
-            if (($response = (new VerificationController())->validateRequiredParameter(array('variable_name'), $request)) != '')
+            if (($response = (new VerificationController())->validateRequiredParameter(array('variable_name', 'config_file_name'), $request)) != '')
                 return $response;
 
             $variable_name = $request->variable_name;
-            return Config::get("constant.$variable_name");
+            $config_file_name = $request->config_file_name;
+
+            return Config::get("$config_file_name.$variable_name");
 
         } catch (Exception $e) {
             Log::error("getConstants : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
