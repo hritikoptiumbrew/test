@@ -424,7 +424,7 @@ class DeleteCacheKey
             }
 
             //save search module
-            if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/searchCardsBySubCategoryId' or $api == '/api/searchCardsByMultipleSubCategoryId' or $api == '/api/searchCardsBySubCategoryIdFailOver' or $api == '/api/searchCardsBySubCategoryId_v2' or $api == '/api/refreshSearchCountByAdmin' or $api == '/api/searchCatalogBySubCategoryId' or $api == '/api/searchNormalImagesBySubCategoryIdForFlyer' or $api = '/api/searchCardsForIndustryPreference'){
+            if($api == '/api/updateTemplateSearchingTagsByAdmin' or $api == '/api/searchCardsBySubCategoryId' or $api == '/api/searchCardsByMultipleSubCategoryId' or $api == '/api/searchCardsBySubCategoryIdFailOver' or $api == '/api/searchCardsBySubCategoryId_v2' or $api == '/api/refreshSearchCountByAdmin' or $api == '/api/searchCatalogBySubCategoryId' or $api == '/api/searchNormalImagesBySubCategoryIdForFlyer' or $api == '/api/searchCardsForIndustryPreference'){
                 Redis::del(array_merge(Redis::keys("pel:getAllSearchingDetailsForAdmin*"),['']));
             }
 
@@ -433,6 +433,15 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getDataByCatalogIdForAdmin*"),['']));
                 Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryIdForAdmin*"),['']));
             }
+
+            $result = [];
+            $response = (new \App\Http\Controllers\UserController())->getAllRedisKeys("*");
+            foreach ($response as $i => $item) {
+                if (strlen($item) <= 20 && !(str_contains($item, "getJsonData") || str_contains($item, "getAllCategory") || str_contains($api, "/api/logs/"))) {
+                    $result[]['key'] = $item;
+                }
+            }
+            ($result) ? Log::info('DeleteCacheKey Middleware : ', ['result' => $result, 'api' => $api]) : "";
 
 
         } catch (Exception $e) {

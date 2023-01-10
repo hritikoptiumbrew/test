@@ -518,28 +518,25 @@ class AdminController extends Controller
             $this->offset = ($page - 1) * $this->item_count;
             $this->is_active = 1;
 
-            $redis_result = Cache::rememberforever("getAllCategory$page", function () {
+            $redis_result = Cache::rememberforever("getAllCategory:$page", function () {
 
-                $total_row_result = DB::select('SELECT COUNT(*) as total FROM  category where is_active=?', [$this->is_active]);
+                $total_row_result = DB::select('SELECT COUNT(id) AS total FROM category WHERE is_active = ?', [$this->is_active]);
                 $total_row = $total_row_result[0]->total;
 
                 $result = DB::select('SELECT
-                                      ct.id as category_id,
-                                      ct.name
-                                    FROM
-                                      category as ct
-                                    WHERE is_active = ?
-                                    LIMIT ?,?', [$this->is_active, $this->offset, $this->item_count]);
+                                          ct.id as category_id,
+                                          ct.name
+                                      FROM
+                                          category as ct
+                                      WHERE 
+                                          is_active = ?
+                                      LIMIT ?,?', [$this->is_active, $this->offset, $this->item_count]);
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
 
                 return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'category_list' => $result);
 
             });
-
-            if (!$redis_result) {
-                $redis_result = [];
-            }
 
             $response = Response::json(array('code' => 200, 'message' => 'All category fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
@@ -10248,7 +10245,7 @@ class AdminController extends Controller
             $response = (new UserController())->getAllRedisKeys("*");
 
             foreach ($response as $i => $item){
-                if(strlen($item) <= 20 && !str_contains($item, "getJsonData") ){
+                if(strlen($item) <= 20 && !(str_contains($item, "getJsonData") || str_contains($item, "getAllCategory"))){
                     $result[]['key'] = $item;
                 }
             }
