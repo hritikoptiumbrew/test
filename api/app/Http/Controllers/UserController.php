@@ -4323,8 +4323,8 @@ class UserController extends Controller
                                                         coalesce(im.height,0) AS height,
                                                         coalesce(im.width,0) AS width,
                                                         im.updated_at,
-                                                        MATCH(im.search_category) AGAINST("' . $search_category . '") +
-                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text 
+                                                        MATCH(im.search_category) AGAINST ("' . $search_category . '") +
+                                                        MATCH(im.search_category) AGAINST ("' . $search_category . '* " IN BOOLEAN MODE) AS search_text 
                                                     FROM
                                                         images as im,
                                                         catalog_master AS cm,
@@ -4337,10 +4337,13 @@ class UserController extends Controller
                                                         scc.sub_category_id IN(' . $this->sub_category_id . ') AND
                                                         isnull(im.original_img) AND
                                                         isnull(im.display_img) AND
-                                                        (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
-                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE))
-                                                    GROUP BY img_id
-                                                    ORDER BY FIELD(scc.sub_category_id,' . $this->sub_category_id . '),im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+                                                        (MATCH(im.search_category) AGAINST ("' . $search_category . '") OR 
+                                                        MATCH(im.search_category) AGAINST ("' . $search_category . '* " IN BOOLEAN MODE))
+                                                    GROUP BY 
+                                                        img_id
+                                                    ORDER BY 
+                                                        FIELD(scc.sub_category_id,' . $this->sub_category_id . '), search_text DESC, im.updated_at DESC 
+                                                    LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
                     } else {
                         $code = 427;
                         $message = "Sorry, we couldn't find any templates for '$this->search_category'";
@@ -4403,8 +4406,8 @@ class UserController extends Controller
                                                         scc.sub_category_id IN(' . $this->sub_category_id . ') AND
                                                         isnull(im.original_img) AND
                                                         isnull(im.display_img) AND
-                                                        (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
-                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))', [$this->is_featured]);
+                                                        (MATCH(im.search_category) AGAINST ("' . $this->search_category . '") OR 
+                                                        MATCH(im.search_category) AGAINST ("' . $search_category . '* " IN BOOLEAN MODE))', [$this->is_featured]);
 
                 $total_row = $total_row_result[0]->total;
 
@@ -4428,8 +4431,8 @@ class UserController extends Controller
                                                         coalesce(im.height,0) AS height,
                                                         coalesce(im.width,0) AS width,
                                                         im.updated_at,
-                                                        MATCH(im.search_category) AGAINST("' . $search_category . '") +
-                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text 
+                                                        MATCH(im.search_category) AGAINST ("' . $search_category . '") +
+                                                        MATCH(im.search_category) AGAINST ("' . $search_category . '* " IN BOOLEAN MODE) AS search_text 
                                                     FROM
                                                         images as im,
                                                         catalog_master AS cm,
@@ -4442,9 +4445,12 @@ class UserController extends Controller
                                                         isnull(im.original_img) AND
                                                         isnull(im.display_img) AND
                                                         (MATCH(im.search_category) AGAINST("' . $search_category . '") OR 
-                                                        MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_category . '"," ")," ","* ") IN BOOLEAN MODE))
-                                                    GROUP BY img_id
-                                                    ORDER BY FIELD(scc.sub_category_id,' . $this->sub_category_id . '),im.updated_at DESC LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
+                                                        MATCH(im.search_category) AGAINST ("' . $search_category . '* " IN BOOLEAN MODE))
+                                                    GROUP BY 
+                                                        img_id
+                                                    ORDER BY 
+                                                        FIELD(scc.sub_category_id,' . $this->sub_category_id . '), search_text DESC, im.updated_at DESC 
+                                                    LIMIT ?, ?', [$this->is_featured, $this->offset, $this->item_count]);
                 } else {
                     $code = 427;
                     $message = "Sorry, we couldn't find any templates for '$this->search_category'";
