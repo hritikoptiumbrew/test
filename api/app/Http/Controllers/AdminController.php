@@ -10241,12 +10241,21 @@ class AdminController extends Controller
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParam(array('is_deletion'), $request)) != '')
+                return $response;
+
+            $is_deletion = $request->is_deletion;
+
             $result = [];
             $response = (new UserController())->getAllRedisKeys("*");
 
-            foreach ($response as $i => $item){
-                if(strlen($item) <= 20 && !(str_contains($item, "getJsonData") || str_contains($item, "getAllCategory"))){
+            foreach ($response as $i => $item) {
+                if (strlen($item) <= 20 && !(str_contains($item, "getJsonData") || str_contains($item, "getAllCategory"))) {
                     $result[]['key'] = $item;
+                    if ($is_deletion) {
+                        Redis::del($item);
+                    }
                 }
             }
 

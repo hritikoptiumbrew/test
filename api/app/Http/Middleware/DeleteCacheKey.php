@@ -434,14 +434,14 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryIdForAdmin*"),['']));
             }
 
-            /*$result = [];
+            $result = [];
             $response = (new \App\Http\Controllers\UserController())->getAllRedisKeys("*");
             foreach ($response as $i => $item) {
                 if (strlen($item) <= 20 && !(str_contains($item, "getJsonData") || str_contains($item, "getAllCategory") || str_contains($api, "/api/logs/"))) {
                     $result[]['key'] = $item;
                 }
             }
-            ($result) ? Log::info('DeleteCacheKey Middleware : ', ['result' => $result, 'api' => $api]) : "";*/
+            ($result) ? Log::info('DeleteCacheKey Middleware : ', ['result' => $result, 'api' => $api]) : "";
 
 
         } catch (Exception $e) {
