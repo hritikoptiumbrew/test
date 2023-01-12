@@ -55,15 +55,6 @@ class TokenEntrustAbility extends BaseMiddleware
                                 WHERE token = ?', [$new_token, $token]);
                 DB::commit();
 
-                $result = [];
-                $response = (new \App\Http\Controllers\UserController())->getAllRedisKeys("*");
-                foreach ($response as $i => $item) {
-                    if (strlen($item) <= 20 && !(str_contains($item, "getJsonData") || str_contains($item, "getAllCategory") || str_contains($request->getPathInfo(), "/api/logs/"))) {
-                        $result[]['key'] = $item;
-                    }
-                }
-                ($result) ? Log::info('DeleteCacheKey Middleware : ', ['ip' => request()->ip(), 'userAgent' => request()->userAgent(), 'result' => $result, 'api' => $request->getPathInfo()]) : "";
-
             } catch (TokenExpiredException $e) {
                 //Log::debug('TokenExpiredException Can not be Refresh', ['status_code' => $e->getStatusCode()]);
 
