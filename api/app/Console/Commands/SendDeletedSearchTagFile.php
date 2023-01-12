@@ -46,8 +46,13 @@ class SendDeletedSearchTagFile extends Command
     {
         try {
 
-            $count = DB::delete('DELETE FROM tag_analysis_master WHERE TIMESTAMPDIFF(DAY, update_time, NOW()) > ?', [Config::get('constant.DAYS_TO_KEEP_SEARCH_TAG')]);
-            Log::info('SendDeletedSearchTagFile : Total deleted search tag record.', ['count' => $count]);
+            DB::beginTransaction();
+            $tag_analysis_count = DB::delete('DELETE FROM tag_analysis_master WHERE TIMESTAMPDIFF(DAY, update_time, NOW()) > ?', [Config::get('constant.DAYS_TO_KEEP_SEARCH_TAG')]);
+            //We delete record only de-active session. That's why we have to calculate session time from config/jwt.php
+            $user_session_time = (config('jwt.ttl') + config('jwt.refresh_ttl')) * 2;
+            $user_session_count = DB::delete('DELETE FROM user_session WHERE TIMESTAMPDIFF(MINUTE, update_time, NOW()) > ?', [$user_session_time]);
+            DB::commit();
+            Log::info('SendDeletedSearchTagFile : Total deleted search tag record.', ['tag_analysis_count' => $tag_analysis_count, 'user_session_count' => $user_session_count]);
             return 1;
 
             // Currently we do not send backup file in mail
