@@ -946,6 +946,10 @@ class ImageController extends Controller
     public function saveImageDetails($image_path, $image_directory)
     {
         try {
+            if (!Config::get('constant.IS_IMAGE_DETAILS_ANALYTICS_ENABLE')) {
+                return 0;
+            }
+
             //Log::info('file details:',pathinfo($image_path));
             $file_info = pathinfo($image_path);
             $name = $file_info['basename'];
