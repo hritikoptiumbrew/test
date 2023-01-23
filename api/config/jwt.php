@@ -48,6 +48,7 @@ return [
     |
     */
 
+    //We have changed 20160 minutes to null because of caching issue. If we refresh token that time old token was cached. so CPU were goes high.
     'refresh_ttl' => null,
 
     /*
