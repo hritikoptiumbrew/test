@@ -45,8 +45,8 @@ class LoginController extends Controller
             if (!$token = JWTAuth::attempt($credential))
                 return Response::json(array('code' => 201, 'message' => 'Invalid email or password.', 'cause' => '', 'data' => json_decode("{}")));
 
-            if (($response = (new VerificationController())->verifyUser($email_id, $role_name)) != '')
-                return $response;
+//            if (($response = (new VerificationController())->verifyUser($email_id, $role_name)) != '')
+//                return $response;
 
 //            if (($response = (new VerificationController())->checkIfUserIsActive($email_id)) != '')
 //                return $response;
