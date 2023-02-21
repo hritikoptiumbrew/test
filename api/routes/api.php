@@ -448,3 +448,5 @@ Route::post('getAllFonts', 'AdminController@getAllFonts');
 Route::post('updateTagForBrandSearch', 'AdminController@updateTagForBrandSearch');
 Route::post('spellCorrectionApi', 'UserController@spellCorrectionApi');
 Route::post('removeIndexInImageJson', 'AdminController@removeIndexInImageJson');
+
+Route::post('setNullStrokeScript', 'UserController@setNullStrokeScript');

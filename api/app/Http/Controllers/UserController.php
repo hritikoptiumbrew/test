@@ -1207,6 +1207,67 @@ class UserController extends Controller
         return $response;
     }
 
+    public function setNullStrokeScript(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $do_update = isset($request->do_update) ? $request->do_update : 0;
+            $limit = isset($request->limit) ? $request->limit : 10;
+            $keyword = "'%\"stroke\":\"#%'";
+
+            $result = DB::select('SELECT
+                                    id AS content_id,
+                                    json_data
+                                  FROM
+                                    images
+                                  WHERE
+                                    json_data LIKE '. $keyword .' AND catalog_id = ? LIMIT ?',[$catalog_id, $limit]);
+
+            $count = count($result);
+            $message = 'Data get successfully.';
+
+            if ($do_update == 1 && $count > 0){
+                foreach ($result AS $data){
+                    $json_data = json_decode($data->json_data);
+                    $content_id = $data->content_id;
+
+                    //dd($json_data);
+                    foreach ($json_data AS $json){
+                        $text_json = $json->text_json;
+                        foreach ($text_json AS $object){
+                            $object->stroke = null;
+                        }
+                    }
+                    //dd($json_data);
+
+                    $updated_json_data = json_encode($json_data);
+                    DB::beginTransaction();
+                    DB::update('UPDATE images
+                                SET json_data = ?,
+                                    update_time = update_time
+                                WHERE id = ?', [$updated_json_data, $content_id]);
+                    DB::commit();
+                    $message = 'Json updated successfully.';
+                }
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => $message, 'cause' => '', 'data' => ['content_count' => $count]));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error("setNullStrokeScript : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'set stroke to null.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
     /* =====================================| Api with last_sync_time(catalog and json data) |==================================*/
 
     /**
