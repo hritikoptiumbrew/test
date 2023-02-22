@@ -1224,41 +1224,49 @@ class UserController extends Controller
 
             $result = DB::select('SELECT
                                     id AS content_id,
-                                    json_data
+                                    json_data,
+                                    is_multipage
                                   FROM
                                     images
                                   WHERE
                                     json_data LIKE '. $keyword .' AND catalog_id = ? LIMIT ?',[$catalog_id, $limit]);
 
             $count = count($result);
+            $content_ids = array_column($result, 'content_id');
             $message = 'Data get successfully.';
 
             if ($do_update == 1 && $count > 0){
+                DB::beginTransaction();
                 foreach ($result AS $data){
                     $json_data = json_decode($data->json_data);
                     $content_id = $data->content_id;
+                    $is_multipage = $data->is_multipage;
 
-                    //dd($json_data);
-                    foreach ($json_data AS $json){
-                        $text_json = $json->text_json;
+                    if($is_multipage) {
+                        foreach ($json_data AS $json){
+                            $text_json = $json->text_json;
+                            foreach ($text_json AS $object){
+                                $object->stroke = null;
+                            }
+                        }
+                    } else{
+                        $text_json = $json_data->text_json;
                         foreach ($text_json AS $object){
                             $object->stroke = null;
                         }
                     }
-                    //dd($json_data);
 
                     $updated_json_data = json_encode($json_data);
-                    DB::beginTransaction();
                     DB::update('UPDATE images
                                 SET json_data = ?,
-                                    update_time = update_time
+                                    updated_at = updated_at
                                 WHERE id = ?', [$updated_json_data, $content_id]);
-                    DB::commit();
                     $message = 'Json updated successfully.';
                 }
+                DB::commit();
             }
 
-            $response = Response::json(array('code' => 200, 'message' => $message, 'cause' => '', 'data' => ['content_count' => $count]));
+            $response = Response::json(array('code' => 200, 'message' => $message, 'cause' => '', 'data' => ['content_count' => $count, 'content_ids' => $content_ids]));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
         } catch (Exception $e) {
