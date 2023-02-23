@@ -1207,7 +1207,7 @@ class UserController extends Controller
         return $response;
     }
 
-    public function setNullStrokeScript(Request $request_body)
+    /*public function setNullStrokeScript(Request $request_body)
     {
         try {
             $token = JWTAuth::getToken();
@@ -1274,7 +1274,7 @@ class UserController extends Controller
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'set stroke to null.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
-    }
+    }*/
 
     /* =====================================| Api with last_sync_time(catalog and json data) |==================================*/
 
@@ -1349,7 +1349,7 @@ class UserController extends Controller
 
                 $redis_result = Cache::remember("getCatalogBySubCategoryIdWithLastSyncTime:$request->sub_category_id:$request->last_sync_time", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
-                    return DB::select('SELECT
+                    $redis_data = DB::select('SELECT
                                           ct.id AS catalog_id,
                                           ct.name,
                                           IF(ct.image != "",CONCAT("' . Config::get('constant.THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",ct.image),"") AS thumbnail_img,
@@ -1368,8 +1368,10 @@ class UserController extends Controller
                                           sct.is_active = 1 
                                           ' . $this->where_condition . '
                                         ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
+                    Log::info("getCatalogBySubCategoryIdWithLastSyncTime WITHOUT CACHE", [count($redis_data)]);
+                    return $redis_data;
                 });
-
+                Log::info("getCatalogBySubCategoryIdWithLastSyncTime CACHE RETURN", [count($redis_result)]);
             } else {
 
                 $redis_result = DB::select('SELECT
@@ -1739,13 +1741,15 @@ class UserController extends Controller
                         $result = [];
                     }
 
+                    Log::info("getJsonSampleDataWithLastSyncTime_webp WITHOUT CACHE", [count($result)]);
+
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB') . '/');
 
                 });
 
                 $redis_result['last_sync_time'] = $last_sync_time;
-
+                Log::info("getJsonSampleDataWithLastSyncTime_webp CACHE RETURN", [count($redis_result["data"])]);
             } else {
 
                 $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
@@ -5291,9 +5295,10 @@ class UserController extends Controller
                         'category_list' => $category_list,
                         'sample_cards' => $sample_cards
                     );
-
+                    Log::info("getFeaturedSamplesWithCatalogs WITHOUT CACHE", [count($category_list)]);
                     return $result_array;
                 });
+                Log::info("getFeaturedSamplesWithCatalogs CACHE RETURN", [count($redis_result["category_list"])]);
             } else {
                 if ($this->catalog_id == 0) {
 
