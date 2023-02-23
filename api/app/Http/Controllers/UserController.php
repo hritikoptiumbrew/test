@@ -1344,7 +1344,8 @@ class UserController extends Controller
             if ($this->last_sync_time) {
                 $this->where_condition = ' AND (ct.updated_at >= "' . $this->last_sync_time . '" OR sct.created_at >= "' . $this->last_sync_time . '")';
             }
-
+            Log::info("getCatalogBySubCategoryIdWithLastSyncTime request", [json_encode($request)]);
+            Log::info("getCatalogBySubCategoryIdWithLastSyncTime is_cache_enable", [$is_cache_enable]);
             if ($is_cache_enable) {
 
                 $redis_result = Cache::remember("getCatalogBySubCategoryIdWithLastSyncTime:$request->sub_category_id:$request->last_sync_time", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
@@ -1687,7 +1688,8 @@ class UserController extends Controller
             if ($this->db_last_sync_time) {
                 $this->where_condition .= " AND updated_at >= '" . $this->db_last_sync_time . "' ";
             }
-
+            Log::info("getJsonSampleDataWithLastSyncTime_webp request", [json_encode($request)]);
+            Log::info("getJsonSampleDataWithLastSyncTime_webp is_cache_enable", [$is_cache_enable]);
             if ($is_cache_enable) {
                 $redis_result = Cache::remember("key:getJsonSampleDataWithLastSyncTime_webp:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$this->db_last_sync_time", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
@@ -5192,7 +5194,8 @@ class UserController extends Controller
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
-
+            Log::info("getFeaturedSamplesWithCatalogs request", [json_encode($request)]);
+            Log::info("getFeaturedSamplesWithCatalogs is_cache_enable", [$is_cache_enable]);
             if ($is_cache_enable) {
                 $redis_result = Cache::remember("getFeaturedSamplesWithCatalogs:$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
