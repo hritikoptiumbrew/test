@@ -5197,7 +5197,7 @@ class UserController extends Controller
             Log::info("getFeaturedSamplesWithCatalogs request", [json_encode($request)]);
             Log::info("getFeaturedSamplesWithCatalogs is_cache_enable", [$is_cache_enable]);
             if ($is_cache_enable) {
-                $redis_result = Cache::remember("getFeaturedSamplesWithCatalogs:$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
+                $redis_result = Cache::remember("getFeaturedSamplesWithCatalogs:$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count", 5, function () {
 
                     if ($this->catalog_id == 0) {
 
