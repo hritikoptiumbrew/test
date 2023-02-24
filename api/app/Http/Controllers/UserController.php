@@ -1344,8 +1344,7 @@ class UserController extends Controller
             if ($this->last_sync_time) {
                 $this->where_condition = ' AND (ct.updated_at >= "' . $this->last_sync_time . '" OR sct.created_at >= "' . $this->last_sync_time . '")';
             }
-            Log::info("getCatalogBySubCategoryIdWithLastSyncTime request", [json_encode($request)]);
-            Log::info("getCatalogBySubCategoryIdWithLastSyncTime is_cache_enable", [$is_cache_enable]);
+
             if ($is_cache_enable) {
 
                 $redis_result = Cache::remember("getCatalogBySubCategoryIdWithLastSyncTime:$request->sub_category_id:$request->last_sync_time", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
@@ -1369,10 +1368,8 @@ class UserController extends Controller
                                           sct.is_active = 1 
                                           ' . $this->where_condition . '
                                         ORDER BY ct.updated_at DESC', [$this->sub_category_id]);
-                    Log::info("getCatalogBySubCategoryIdWithLastSyncTime WITHOUT CACHE", [count($redis_data)]);
                     return $redis_data;
                 });
-                Log::info("getCatalogBySubCategoryIdWithLastSyncTime CACHE RETURN", [count($redis_result)]);
             } else {
 
                 $redis_result = DB::select('SELECT
@@ -1688,8 +1685,7 @@ class UserController extends Controller
             if ($this->db_last_sync_time) {
                 $this->where_condition .= " AND updated_at >= '" . $this->db_last_sync_time . "' ";
             }
-            Log::info("getJsonSampleDataWithLastSyncTime_webp request", [json_encode($request)]);
-            Log::info("getJsonSampleDataWithLastSyncTime_webp is_cache_enable", [$is_cache_enable]);
+
             if ($is_cache_enable) {
                 $redis_result = Cache::remember("key:getJsonSampleDataWithLastSyncTime_webp:$this->page:$this->item_count:$this->catalog_id:$this->sub_category_id:$this->db_last_sync_time", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
@@ -1743,15 +1739,12 @@ class UserController extends Controller
                         $result = [];
                     }
 
-                    Log::info("getJsonSampleDataWithLastSyncTime_webp WITHOUT CACHE", [count($result)]);
-
                     $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
                     return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'data' => $result, 'prefix_url' => Config::get('constant.AWS_BUCKET_PATH_PHOTO_EDITOR_LAB') . '/');
 
                 });
 
                 $redis_result['last_sync_time'] = $last_sync_time;
-                Log::info("getJsonSampleDataWithLastSyncTime_webp CACHE RETURN", [count($redis_result["data"])]);
             } else {
 
                 $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
@@ -5194,10 +5187,9 @@ class UserController extends Controller
             $this->item_count = $request->item_count;
             $this->offset = ($this->page - 1) * $this->item_count;
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
-            Log::info("getFeaturedSamplesWithCatalogs request", [json_encode($request)]);
-            Log::info("getFeaturedSamplesWithCatalogs is_cache_enable", [$is_cache_enable]);
+
             if ($is_cache_enable) {
-                $redis_result = Cache::remember("getFeaturedSamplesWithCatalogs:$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count", 5, function () {
+                $redis_result = Cache::remember("getFeaturedSamplesWithCatalogs:$this->sub_category_id:$this->catalog_id:$this->page:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                     if ($this->catalog_id == 0) {
 
