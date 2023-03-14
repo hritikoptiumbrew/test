@@ -12624,6 +12624,7 @@ class UserController extends Controller
                             $content->attribute3,
                             $new_content_id]);
                 }
+                $multiple_images = NULL;
 
             }
 
