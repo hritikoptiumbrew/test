@@ -12469,6 +12469,10 @@ class UserController extends Controller
                                               im.width,
                                               im.original_img_height,
                                               im.original_img_width,
+                                              im.cover_img_height,
+                                              im.cover_img_width,
+                                              im.original_cover_img_height,
+                                              im.original_cover_img_width,
                                               im.is_auto_upload,
                                               im.created_at,
                                               im.updated_at,
@@ -12488,8 +12492,8 @@ class UserController extends Controller
                 $json_data = json_decode($content->json_data);
                 $new_json_data = json_decode('{}');
                 if (isset($json_data->page_id)) {
-                    $page_id = $json_data->page_id;
-                    $new_json_data->{$page_id} = $json_data;
+                    $rand_no = $json_data->page_id;
+                    $new_json_data->{$rand_no} = $json_data;
                 } else {
                     $rand_no = rand(100001, 999999);
                     $json_data->page_id = $rand_no;
@@ -12537,10 +12541,14 @@ class UserController extends Controller
                 }
 
                 $new_content_id = $this->oldToNewContentId($content->content_id);
+                $multiple_images[$rand_no] = array("name" => $content->image, "webp_name" => $content->attribute1, "width" => $content->width, "height" => $content->height, "org_img_width" => $content->original_img_width, "org_img_height" => $content->original_img_height, "page_id" => $rand_no);
                 if (!$new_content_id) {
                     $new_content_data = json_decode(json_encode($content), true);
                     $new_content_data['attribute4'] = $new_content_data['content_id'];
                     $new_content_data['catalog_id'] = $new_catalog_id;
+                    $new_content_data['json_pages_sequence'] = $rand_no;
+                    $new_content_data['multiple_images'] = json_encode($multiple_images);
+                    $new_content_data['is_multipage'] = 1;
                     unset($new_content_data['content_id']);
                     DB::table('images')->insertGetId($new_content_data);
                 } else {
@@ -12569,6 +12577,10 @@ class UserController extends Controller
                                     width = ?,
                                     original_img_height = ?,
                                     original_img_width = ?,
+                                    cover_img_height = ?,
+                                    cover_img_width = ?,
+                                    original_cover_img_height = ?,
+                                    original_cover_img_width = ?,
                                     is_auto_upload = ?,
                                     created_at = ?,
                                     updated_at = ?,
@@ -12579,7 +12591,7 @@ class UserController extends Controller
                                     id = ?',
                         [$new_catalog_id,
                             $content->image,
-                            $content->multiple_images,
+                            json_encode($multiple_images),
                             $content->original_img,
                             $content->display_img,
                             $content->cover_img,
@@ -12589,7 +12601,7 @@ class UserController extends Controller
                             $content->image_type,
                             $content->template_name,
                             $content->json_data,
-                            $content->json_pages_sequence,
+                            $rand_no,
                             1,
                             $content->is_free,
                             $content->is_ios_free,
@@ -12600,6 +12612,10 @@ class UserController extends Controller
                             $content->width,
                             $content->original_img_height,
                             $content->original_img_width,
+                            $content->cover_img_height,
+                            $content->cover_img_width,
+                            $content->original_cover_img_height,
+                            $content->original_cover_img_width,
                             $content->is_auto_upload,
                             $content->created_at,
                             $content->updated_at,
