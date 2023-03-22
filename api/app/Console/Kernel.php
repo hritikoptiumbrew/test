@@ -40,8 +40,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('SendTagReport_V2')->weekly()->mondays()->at('4:00');
         //$schedule->command('SendDeletedSearchTagFile')->monthly();
         $schedule->command('SendDeletedSearchTagFile')->daily();
-        $schedule->command('SinglePageToMultiPageDataTransfer')->daily();
-        $schedule->command('SinglePageToMultiPageLayoutDataTransfer')->daily();
+//        $schedule->command('SinglePageToMultiPageDataTransfer')->daily();
+//        $schedule->command('SinglePageToMultiPageLayoutDataTransfer')->daily();
 
         // $schedule->command('inspire')
         //          ->hourly();
