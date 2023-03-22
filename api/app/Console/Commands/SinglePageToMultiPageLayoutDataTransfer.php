@@ -320,13 +320,13 @@ class SinglePageToMultiPageLayoutDataTransfer extends Command
             }
             DB::commit();
 
-            Log::info('SinglePageToMultiPageDataTransfer scheduler run successfully.', ['catalog_count' => $update_catalog_count, 'content_count' => $update_content_count, 'new_catalog_count' => $new_catalog_count, 'new_content_count' => $new_content_count]);
+            Log::info('SinglePageToMultiPageLayoutDataTransfer scheduler run successfully.', ['catalog_count' => $update_catalog_count, 'content_count' => $update_content_count, 'new_catalog_count' => $new_catalog_count, 'new_content_count' => $new_content_count]);
             (new UserController())->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin");
             (new UserController())->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
             (new UserController())->deleteAllRedisKeys("getCatalogBySubCategoryId");
 
         } catch (Exception $e) {
-            Log::error("SinglePageToMultiPageDataTransfer command handle() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error("SinglePageToMultiPageLayoutDataTransfer command handle() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
         }
     }
