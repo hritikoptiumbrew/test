@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\EmailJob;
+use App\Jobs\MoveSinglePageToMultiPageSubCategory;
 use App\Jobs\RunCommandAsRoot;
+use App\Jobs\UpdateSearchTagInMultiPageSubCategory;
 use App\Permission;
 use App\Role;
 use Aws\Credentials\Credentials;
@@ -1312,6 +1314,7 @@ class AdminController extends Controller
             DB::insert('INSERT INTO sub_category_catalog(sub_category_id,catalog_id,created_at) VALUES (?, ?, ?)', [$sub_category_id, $catalog_id, $create_at]);
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch($sub_category_id);
             $response = Response::json(array('code' => 200, 'message' => 'Catalog added successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
@@ -1551,6 +1554,8 @@ class AdminController extends Controller
                                 attribute1 = IF(? != "",?,attribute1)
                               WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $catalog_type, $icon_name, $icon_name, $landscape_image, $landscape_image, $portrait_image, $portrait_image, $landscape_webp, $landscape_webp, $portrait_webp, $portrait_webp, $is_free, $is_free, $is_ios_free, $is_ios_free, $is_featured, $is_featured, $event_date, $event_date, $popularity_rate, $popularity_rate, $search_category, $file_name, $file_name, $catalog_id]);
             DB::commit();
+
+            MoveSinglePageToMultiPageSubCategory::dispatch($sub_category_id);
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalog updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
@@ -3013,7 +3018,7 @@ class AdminController extends Controller
 
             }
             DB::commit();
-
+            MoveSinglePageToMultiPageSubCategory::dispatch('', $catalog_id);
 
             $response = Response::json(array('code' => 200, 'message' => 'Template moved successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
@@ -4359,6 +4364,8 @@ class AdminController extends Controller
                         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, $cover_image, $cover_webp_image, $content_type, $template_name, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $cover_image_dimension['height'], $cover_image_dimension['width'], $cover_image_dimension['org_img_height'], $cover_image_dimension['org_img_width'], $created_at, $file_name]);
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch($sub_category_id);
+
             if (strstr($file_name, '.webp')) {
                 $response = Response::json(array('code' => 200, 'message' => 'Json added successfully.', 'cause' => '', 'data' => json_decode('{}')));
             } else {
@@ -4826,6 +4833,8 @@ class AdminController extends Controller
                         WHERE 
                             id = ?', [$template_name, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $img_id]);
             DB::commit();
+
+            MoveSinglePageToMultiPageSubCategory::dispatch($sub_category_id);
 
             $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
             ($request->is_json_updated) ? (new UserController())->deleteAllRedisKeys("getJsonData:$img_id") : '';
@@ -8502,6 +8511,7 @@ class AdminController extends Controller
 
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch('', implode(',', $catalog_ids));
             $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
@@ -8555,6 +8565,7 @@ class AdminController extends Controller
                             id = ?', [$create_time, $img_id]);
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch('', '', $img_id);
             $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
@@ -8612,6 +8623,7 @@ class AdminController extends Controller
             }
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch('', '', implode(',', $img_ids));
             $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
@@ -11084,6 +11096,8 @@ class AdminController extends Controller
 
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch('', $catalog_id);
+
             if ($webp_warning) {
                 $response = Response::json(array('code' => 200, 'message' => 'Template uploaded successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' =>json_decode('{}')));
             } else {
@@ -11363,6 +11377,8 @@ class AdminController extends Controller
             DB::table('images')->insert($image_detail);
 
             DB::commit();
+
+            MoveSinglePageToMultiPageSubCategory::dispatch('', $catalog_id);
 
             if ($webp_warning) {
                 $response = Response::json(array('code' => 200, 'message' => 'Template uploaded successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' =>json_decode('{}')));
@@ -11992,6 +12008,7 @@ class AdminController extends Controller
                 }
             }
 
+            UpdateSearchTagInMultiPageSubCategory::dispatch($img_ids);
             $response = Response::json(array('code' => 200, 'message' => 'Search category updated successfully.', 'cause' => '', 'data' => json_decode("{}")));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
@@ -12044,6 +12061,7 @@ class AdminController extends Controller
                             id IN (' . $img_ids . ') ');
 
             (new UserController())->deleteAllRedisKeys("getDataByCatalogIdForAdmin:$catalog_id*");
+            UpdateSearchTagInMultiPageSubCategory::dispatch($img_ids);
             $response = Response::json(array('code' => 200, 'message' => 'Multiple template updated successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
