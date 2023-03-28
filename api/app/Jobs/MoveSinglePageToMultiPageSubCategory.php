@@ -94,7 +94,7 @@ class MoveSinglePageToMultiPageSubCategory implements ShouldQueue
                     }
 
                     $start_date = date("Y-m-d H:i:s", strtotime('-5 minutes'));
-                    $end_date = date('Y-m-d H:i:s');
+                    $end_date = date('Y-m-d H:i:s', strtotime('+5 minutes'));
                     $update_catalog_count = $update_content_count = $new_catalog_count = $new_content_count = 0;
 
                     $updated_catalog = DB::select('SELECT
@@ -369,7 +369,7 @@ class MoveSinglePageToMultiPageSubCategory implements ShouldQueue
                     }
                     DB::commit();
 
-                    Log::info('MoveSinglePageToMultiPageSubCategory job run successfully.', ['catalog_count' => $update_catalog_count, 'content_count' => $update_content_count, 'new_catalog_count' => $new_catalog_count, 'new_content_count' => $new_content_count]);
+                    //Log::info('MoveSinglePageToMultiPageSubCategory job run successfully.', ['catalog_count' => $update_catalog_count, 'content_count' => $update_content_count, 'new_catalog_count' => $new_catalog_count, 'new_content_count' => $new_content_count]);
                     (new UserController())->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin");
                     (new UserController())->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
                     (new UserController())->deleteAllRedisKeys("getCatalogBySubCategoryId");

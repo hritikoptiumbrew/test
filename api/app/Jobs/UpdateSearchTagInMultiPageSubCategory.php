@@ -370,7 +370,7 @@ class UpdateSearchTagInMultiPageSubCategory implements ShouldQueue
                     }
                     DB::commit();
 
-                    Log::info('UpdateSearchTagInMultiPageSubCategory job run successfully.', ['catalog_count' => $update_catalog_count, 'content_count' => $update_content_count, 'new_catalog_count' => $new_catalog_count, 'new_content_count' => $new_content_count]);
+                    //Log::info('UpdateSearchTagInMultiPageSubCategory job run successfully.', ['catalog_count' => $update_catalog_count, 'content_count' => $update_content_count, 'new_catalog_count' => $new_catalog_count, 'new_content_count' => $new_content_count]);
                     (new UserController())->deleteAllRedisKeys("getCatalogBySubCategoryIdForAdmin");
                     (new UserController())->deleteAllRedisKeys("getDataByCatalogIdForAdmin");
                     (new UserController())->deleteAllRedisKeys("getCatalogBySubCategoryId");
