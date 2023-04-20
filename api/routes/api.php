@@ -450,3 +450,4 @@ Route::post('spellCorrectionApi', 'UserController@spellCorrectionApi');
 Route::post('removeIndexInImageJson', 'AdminController@removeIndexInImageJson');
 
 /*Route::post('setNullStrokeScript', 'UserController@setNullStrokeScript');*/
+Route::post('collectUserGeneratedLogoData', 'UserController@collectUserGeneratedLogoData');

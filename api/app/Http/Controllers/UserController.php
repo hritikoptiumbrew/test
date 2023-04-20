@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Permission;
 use App\Role;
+use Illuminate\Support\Facades\Storage;
 use Response;
 use Config;
 use DB;
@@ -12398,5 +12399,64 @@ class UserController extends Controller
         return $response;
     }
 
+    public function collectUserGeneratedLogoData(Request $request_body)
+    {
+        try {
+            $request = json_decode($request_body->input('request_data'));
+            if (($response = (new VerificationController())->validateRequiredParameter(array('svg_url'), $request)) != '')
+                return $response;
+
+            $svg_url = $request->svg_url;
+            $folder_name = uniqid();
+            $disk = Storage::disk('s3');
+            $aws_bucket = config('constant.AWS_BUCKET');
+            //$svg_path = $pdf_path = '';
+
+            if (!$request_body->hasFile('file')) {
+                Log::error('collectUserGeneratedLogoData : ', ['message' => 'required field file is missing or empty.']);
+            } else {
+                $image_array = Input::file('file');
+                if (($response = (new ImageController())->verifyPDF($image_array)) != ''){
+                    Log::error('collectUserGeneratedLogoData : ', ['verifyPDF' => $response]);
+                }else{
+                    $pdf_name = (new ImageController())->generateNewFileName('user_logo_pdf', $image_array);
+                    $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+                    Input::file('file')->move($original_path, $pdf_name);
+
+                    if (config('constant.STORAGE') === 'S3_BUCKET') {
+                        $original_sourceFile = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $pdf_name;
+
+                        if (($is_exist = ((new ImageController())->checkFileExist($original_sourceFile)) != 0)) {
+                            $original_targetFile = "imageflyer/temp_data/$folder_name/" . $pdf_name;
+                            $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
+                            unlink($original_sourceFile);
+                            //return "https://obinternalrd.s3.amazonaws.com/obinternalrd/logo_maker/$folder_name/" . $pdf_name;
+                            //$pdf_path = "https://obinternalrd.s3.amazonaws.com/obinternalrd/logo_maker/$folder_name/" . $pdf_name;
+                        }
+                    }
+                }
+            }
+
+            if(isset($request->svg_url) && $request->svg_url != ''){
+                $svg_file_content = file_get_contents($svg_url);
+                $extension = pathinfo($svg_url, PATHINFO_EXTENSION);
+                $svg_file_name = uniqid() . '_logo_svg_' . time() . '.' . $extension;
+                if(config('constant.STORAGE') === 'S3_BUCKET'){
+                    $destination_path = "imageflyer/temp_data/$folder_name/" . $svg_file_name;
+                    $disk->put($destination_path, $svg_file_content, 'public');
+                    //return "https://obinternalrd.s3.amazonaws.com/obinternalrd/logo_maker/$folder_name/" . $svg_file_name;
+                    //$svg_path = "https://obinternalrd.s3.amazonaws.com/obinternalrd/logo_maker/$folder_name/" . $svg_file_name;
+                }
+            }else{
+                Log::error('collectUserGeneratedLogoData : ', ['message' => 'required field SVG url is missing or empty.']);
+            }
+
+            return Response::json(array('code' => 200, 'message' => 'Images uploaded successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("collectUserGeneratedLogoData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'upload files.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+    }
 
 }
