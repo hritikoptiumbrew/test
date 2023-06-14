@@ -12406,7 +12406,7 @@ class UserController extends Controller
     public function collectUserGeneratedLogoData(Request $request_body)
     {
         try {
-            $request = json_decode($request_body->input('request_data'));
+            /*$request = json_decode($request_body->input('request_data'));
             if (($response = (new VerificationController())->validateRequiredParameter(array('svg_url'), $request)) != '')
                 return $response;
 
@@ -12453,7 +12453,7 @@ class UserController extends Controller
                 }
             }else{
                 Log::error('collectUserGeneratedLogoData : ', ['message' => 'required field SVG url is missing or empty.']);
-            }
+            }*/
 
             return Response::json(array('code' => 200, 'message' => 'Images uploaded successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
