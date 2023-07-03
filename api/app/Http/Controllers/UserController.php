@@ -8108,12 +8108,12 @@ class UserController extends Controller
                         );
 
                         // Get the user timeline feeds
-                        $list = (new NewsController())->twitterPostByTwitterId($twitterConnection, $twitterID, $tweetNum);
+                        /*$list = (new NewsController())->twitterPostByTwitterId($twitterConnection, $twitterID, $tweetNum);
                         if (is_array($list)) {
                             $post_list = array_merge($post_list, $list);
                         } else {
                             Log::error("getHomePageDetail : unable to get data for twitter channel", ["twitterID" => $twitterID]);
-                        }
+                        }*/
 
                     }
 
