@@ -72,8 +72,15 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { AddMultipleTagsComponent } from './components/add-multiple-tags/add-multiple-tags.component';
 import { MenubarComponent } from './components/menubar/menubar.component';
 import { ViewCatalogTypeComponent } from './view-catalog-type/view-catalog-type.component';
+import { AddindustryComponent } from './components/addindustry/addindustry.component';
+import { AddthemeComponent } from './components/addtheme/addtheme.component';
+import { RepeatThemesComponent } from './components/repeat-themes/repeat-themes.component';
+import { AddthemepostComponent } from './components/addthemepost/addthemepost.component';
+import { CalendarModule, DateAdapter, CalendarMonthModule, CalendarMonthViewComponent} from 'angular-calendar';
+import { NgxSmoothDnDModule } from 'ngx-smooth-dnd';
+
 @NgModule({
-  declarations: [AppComponent, LoadingComponent, ViewimageComponent, AddsearchtagsComponent, AddsubcategoryComponent, EditcategoryComponent, AddcatalogComponent, LinkcatalogComponent, AddblogsComponent, MovetocatalogComponent, AddjsonimagesComponent, ExistingimageslistComponent, AddjsondataComponent, UpdatesubcategoryimagebyidComponent, AddsubcategoryimagesbyidComponent, EditfontComponent, PopularsampleaddComponent, StatisticsDetailsComponent, EnterotpComponent, AddvalidationsComponent, AddserverurlComponent, ViewcorruptedfontsComponent, AddMultipleTagsComponent, MenubarComponent, ViewCatalogTypeComponent],
+  declarations: [AppComponent, LoadingComponent, ViewimageComponent, AddsearchtagsComponent, AddsubcategoryComponent, EditcategoryComponent, AddcatalogComponent, LinkcatalogComponent, AddblogsComponent, MovetocatalogComponent, AddjsonimagesComponent, ExistingimageslistComponent, AddjsondataComponent, UpdatesubcategoryimagebyidComponent, AddsubcategoryimagesbyidComponent, EditfontComponent, PopularsampleaddComponent, StatisticsDetailsComponent, EnterotpComponent, AddvalidationsComponent, AddserverurlComponent, ViewcorruptedfontsComponent, AddMultipleTagsComponent, MenubarComponent, ViewCatalogTypeComponent, AddindustryComponent, AddthemeComponent, RepeatThemesComponent, AddthemepostComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -110,7 +117,10 @@ import { ViewCatalogTypeComponent } from './view-catalog-type/view-catalog-type.
     NbTooltipModule,
     NgxPaginationModule,
     NbButtonModule,
-    NbToggleModule
+    NbToggleModule,
+    FormsModule,
+    CalendarModule,
+    NgxSmoothDnDModule
   ],
   bootstrap: [AppComponent],
 })
