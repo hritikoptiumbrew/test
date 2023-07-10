@@ -129,12 +129,12 @@ class NewsController extends Controller
                         );
 
                         // Get the user timeline feeds
-                        $list = $this->twitterPostByTwitterId($twitterConnection, $twitterID, $tweetNum);
+                        /*$list = $this->twitterPostByTwitterId($twitterConnection, $twitterID, $tweetNum);
                         if (is_array($list)) {
                             $post_list = array_merge($post_list, $list);
                         } else {
                             Log::error("getFeedFromTwitter : unable to get data for twitter channel", ["twitterID" => $twitterID]);
-                        }
+                        }*/
 
                     }
 

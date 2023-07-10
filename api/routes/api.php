@@ -424,6 +424,14 @@ Route::middleware(['ability:image_uploader,image_uploader_permission'])->group(f
     Route::post('autoUploadTemplateV2', 'AdminController@autoUploadTemplateV2');
     Route::post('autoUploadTemplateV3', 'AdminController@autoUploadTemplateV3');
 
+    /* Master content */
+    Route::post('autoUploadMCMContent', 'MasterContentAdminController@autoUploadMCMContent');
+    Route::post('checkUploadStatus', 'MasterContentAdminController@checkUploadStatus');
+    Route::post('getAppCatalogsWithContentUploadStatus', 'MasterContentAdminController@getAppCatalogsWithContentUploadStatus');
+    Route::post('deleteMCMContent', 'MasterContentAdminController@deleteMCMContent');
+    Route::post('updateMCMContent', 'MasterContentAdminController@updateMCMContent');
+    Route::post('autoUploadContentV2', 'MasterContentAdminController@autoUploadContentV2');
+
 });
 
 //APIs of debug purpose
