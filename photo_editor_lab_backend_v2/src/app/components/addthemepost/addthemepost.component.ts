@@ -305,7 +305,12 @@ export class AddthemepostComponent implements OnInit {
       return;
     }
     else {
-      this.tagList.push(this.tagInput);
+      let comma_sepa_arr = this.tagInput.split(',');
+      comma_sepa_arr.forEach(element => {
+        if(element != "" && element.trim() != ""){
+          this.tagList.push(element);
+        }
+      });
       this.tagInput = '';
     }
   }
@@ -325,8 +330,8 @@ export class AddthemepostComponent implements OnInit {
       this.utils.showError("Please select theme.", 3000);
       return false;
     }
-    else if (template_ids.length < 3) {
-      this.utils.showError("Please select minimum 3 templates.", 3000);
+    else if (template_ids.length < 1) {
+      this.utils.showError("Please select minimum 1 templates.", 3000);
       return false;
     }
     else if (this.tagList.length == 0) {
@@ -375,8 +380,8 @@ export class AddthemepostComponent implements OnInit {
       template_ids.push(element.template_id);
     });
 
-    if (template_ids.length < 3) {
-      this.utils.showError("Please select minimum 3 templates.", 3000);
+    if (template_ids.length < 1) {
+      this.utils.showError("Please select minimum 1 templates.", 3000);
       return false;
     }
     else if (this.tagList.length == 0) {
