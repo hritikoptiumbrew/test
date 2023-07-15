@@ -432,4 +432,53 @@ class MasterContentAdminController extends Controller
         return $response;
     }
 
+    public function deleteObjectsFromS3(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $images = [];
+
+            $content_details = DB::select('SELECT mcm.image_name, mcm.image_extension FROM mcm_content_master AS mcm WHERE mcm.catalog_id = ?', [$catalog_id]);
+
+            foreach ($content_details as $content_detail) {
+                if ($content_detail->image_extension == 3) {
+                    $images[] = 'imageflyer/svg/' . $content_detail->image_name;
+                } else {
+                    $images[] = 'imageflyer/original/' . $content_detail->image_name;
+                    $images[] = 'imageflyer/compressed/' . $content_detail->image_name;
+                    $images[] = 'imageflyer/thumbnail/' . $content_detail->image_name;
+                }
+            }
+
+            $disk = new S3Client([
+                'version' => 'latest',
+                'region' => config('constant.AWS_REGION'),
+                'credentials' => [
+                    'key' => config('constant.AWS_KEY'),
+                    'secret' => config('constant.AWS_SECRET')
+                ]
+            ]);
+
+            foreach ($images AS $image){
+                $disk->deleteObject(array(
+                    'Bucket' => 'businesscardmaker',
+                    'Key' => $image
+                ));
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog content images deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteObjectsFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'delete content images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
 }
