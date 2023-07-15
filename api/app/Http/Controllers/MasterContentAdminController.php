@@ -445,21 +445,15 @@ class MasterContentAdminController extends Controller
             $catalog_id = $request->catalog_id;
             $images = [];
 
-            $content_details = DB::select('SELECT mcm.image_name, mcm.image_extension FROM mcm_content_master AS mcm WHERE mcm.catalog_id = ?', [$catalog_id]);
+            $content_details = DB::select('SELECT image FROM images WHERE catalog_id = ?', [$catalog_id]);
 
             foreach ($content_details as $content_detail) {
-                if ($content_detail->image_extension == 3) {
-                    $images[] = 'imageflyer/svg/' . $content_detail->image_name;
-                } else {
-                    $images[] = 'imageflyer/original/' . $content_detail->image_name;
-                    $images[] = 'imageflyer/compressed/' . $content_detail->image_name;
-                    $images[] = 'imageflyer/thumbnail/' . $content_detail->image_name;
-                }
+                $images[] = 'imageflyer/original/' . $content_detail->image;
             }
 
             $disk = new S3Client([
                 'version' => 'latest',
-                'region' => config('constant.AWS_REGION'),
+                'region' => 'us-east-2',
                 'credentials' => [
                     'key' => config('constant.AWS_KEY'),
                     'secret' => config('constant.AWS_SECRET')
