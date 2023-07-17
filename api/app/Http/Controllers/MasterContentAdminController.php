@@ -71,6 +71,7 @@ class MasterContentAdminController extends Controller
             $content_details = $request->content_details;
             $insert_detail = [];
             $update_time = gmdate('Y-m-d H:i:s');
+            Log::info('autoUploadMCMContent : ', ['content_details' => $content_details]);
 
             DB::beginTransaction();
             foreach ($content_details as $i => $content_detail) {
