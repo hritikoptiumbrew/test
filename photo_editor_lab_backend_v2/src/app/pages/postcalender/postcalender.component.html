@@ -6,7 +6,7 @@
             <div class="d-flex justify-content-between align-items-center" style="user-select: none;margin-bottom: 16px;">
               <div>
                 <nb-select class="post-industry-select" placeholder="Select Your Industry" [(ngModel)]="selectedIndustry"(selectedChange)="selectedChangeIndustry($event)">
-                  <nb-option  *ngFor="let industry of industry_list_selection;" value="{{industry.id}}" style="white-space:pre;">{{industry.industry_name}}</nb-option>
+                  <nb-option  *ngFor="let industry of industry_list_selection_active;" value="{{industry.id}}" style="white-space:pre;">{{industry.industry_name}}</nb-option>
                 </nb-select>
               </div>
               <div class="d-flex" style="column-gap: 22px;">
@@ -217,7 +217,7 @@
                                 </button>
                               </td>
                               <td class="text-center">
-                                <button class="tab-effect" (click)="deleteIndustry(industry)" style="cursor:pointer;height: 100%;width: 100%;border: 0;background-color: transparent;">
+                                <!-- <button class="tab-effect" (click)="deleteIndustry(industry)" style="cursor:pointer;height: 100%;width: 100%;border: 0;background-color: transparent;">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="22" viewBox="0 0 18 22" fill="none">
                                     <g clip-path="url(#clip0_882_6812)">
                                     <path d="M16.6412 3.38462H12.9747V3.10273C12.974 2.28003 12.6469 1.49121 12.0652 0.909474C11.4835 0.327739 10.6947 0.000640282 9.87195 0H7.61538C6.79269 0.000640282 6.00387 0.327739 5.42213 0.909474C4.8404 1.49121 4.5133 2.28003 4.51266 3.10273V3.38462H0.846154C0.735035 3.38462 0.625005 3.4065 0.522345 3.44903C0.419685 3.49155 0.326405 3.55388 0.247832 3.63245C0.16926 3.71102 0.106933 3.8043 0.0644096 3.90696C0.0218864 4.00962 0 4.11965 0 4.23077C0 4.34189 0.0218864 4.45192 0.0644096 4.55458C0.106933 4.65724 0.16926 4.75052 0.247832 4.82909C0.326405 4.90766 0.419685 4.96999 0.522345 5.01251C0.625005 5.05504 0.735035 5.07692 0.846154 5.07692H1.12804V18.8973C1.12868 19.72 1.45578 20.5088 2.03752 21.0905C2.61925 21.6723 3.40807 21.9994 4.23077 22H13.2566C14.0793 21.9994 14.8681 21.6723 15.4498 21.0905C16.0316 20.5088 16.3587 19.72 16.3593 18.8973V5.07692H16.6412C16.8656 5.07692 17.0808 4.98777 17.2395 4.82909C17.3982 4.67041 17.4873 4.45518 17.4873 4.23077C17.4873 4.00636 17.3982 3.79113 17.2395 3.63245C17.0808 3.47376 16.8656 3.38462 16.6412 3.38462ZM6.20545 3.10273C6.20596 2.72882 6.35472 2.37037 6.61912 2.10597C6.88351 1.84158 7.24196 1.69282 7.61587 1.69231H9.87244C10.2463 1.69295 10.6046 1.84177 10.8689 2.10615C11.1332 2.37053 11.2819 2.7289 11.2824 3.10273V3.38462H6.20545V3.10273ZM14.667 18.8978C14.6665 19.2717 14.5177 19.6301 14.2533 19.8945C13.9889 20.1589 13.6305 20.3077 13.2566 20.3082H4.23077C3.85686 20.3077 3.49841 20.1589 3.23402 19.8945C2.96962 19.6301 2.82086 19.2717 2.82035 18.8978V5.07692H14.6665L14.667 18.8978Z" fill="#646A88"/>
@@ -230,8 +230,9 @@
                                     </clipPath>
                                     </defs>
                                   </svg>
-                                </button>
-                              </td>
+                                </button> -->
+                                <nb-toggle status="primary" [(checked)]="industry.is_active" style="margin-top: 7px;" (change)="deleteIndustry(industry)" ></nb-toggle>
+                                </td>
                             </tr>
                           </tbody>
                         </table>

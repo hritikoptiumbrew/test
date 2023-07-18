@@ -13,7 +13,7 @@
 
 
 import { NgModule } from '@angular/core';
-import { NbAutocompleteModule, NbButtonModule, NbCardModule, NbIconModule, NbInputModule, NbListModule, NbMenuModule, NbPopoverModule, NbRadioModule, NbSelectModule, NbWindowModule } from '@nebular/theme';
+import { NbAutocompleteModule, NbButtonModule, NbCardModule, NbIconModule, NbInputModule, NbListModule, NbMenuModule, NbPopoverModule, NbRadioModule, NbSelectModule, NbToggleModule, NbWindowModule } from '@nebular/theme';
 
 import { ThemeModule } from '../@theme/theme.module';
 import { PagesComponent } from './pages.component';
@@ -83,7 +83,8 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
       provide: DateAdapter,
       useFactory: adapterFactory,
     }),
-    NbPopoverModule
+    NbPopoverModule,
+    NbToggleModule
   ],
   declarations: [
     PagesComponent,

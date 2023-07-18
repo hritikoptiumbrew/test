@@ -79,8 +79,8 @@ export class PostcalenderComponent implements OnInit {
   activeDayIsOpen: boolean = false;
   pageSizeOfIndustry: any = [5,10,15,20];
   pageSizeOfTheme: any = [5,10,15,20];
-  selectedPageSizeOfIndustry: any = '5';
-  selectedPageSizeOfTheme: any = '5';
+  selectedPageSizeOfIndustry: any = '20';
+  selectedPageSizeOfTheme: any = '20';
   pageNumOfIndustry: number = 1;
   pageNumOfTheme: number = 1;
   previousLabel = "<";
@@ -88,6 +88,7 @@ export class PostcalenderComponent implements OnInit {
   selected_sub_category_id:any;
   industry_list = [];
   industry_list_selection = [];
+  industry_list_selection_active = [];
   theme_list_selection = [];
   total_industry:any;
   theme_list:any = [];
@@ -250,7 +251,7 @@ export class PostcalenderComponent implements OnInit {
 
   getIndustryBySubCategoryId(){
     this.utils.showPageLoader();
-    this.dataService.postData('getIndustryBySubCategoryId',
+    this.dataService.postData('getIndustryBySubCategoryIdForAdmin',
       {
         "sub_category_id": this.selected_sub_category_id,
         "page": this.pageNumOfIndustry,
@@ -294,8 +295,9 @@ export class PostcalenderComponent implements OnInit {
   }
 
   getIndustryForSelection(){
+    this.industry_list_selection_active = [];
     this.utils.showPageLoader();
-    this.dataService.postData('getIndustryBySubCategoryId',
+    this.dataService.postData('getIndustryBySubCategoryIdForAdmin',
       {
         "sub_category_id": this.selected_sub_category_id,
         "page": 1,
@@ -310,10 +312,20 @@ export class PostcalenderComponent implements OnInit {
         this.industry_list_selection = results.data.industry_list;
         if(this.industry_list_selection.length != 0){
           this.industry_list_selection.forEach((element,index) => {
+            if(element.is_active == 1){
+              this.industry_list_selection_active.push(element);
+            }
             if(index == 0){
               this.selectedIndustry = element.id.toString();
             }
           });
+
+          this.industry_list_selection_active.forEach((element,index) => {
+            if(index == 0){
+              this.selectedIndustry = element.id.toString();
+            }
+          });
+
           this.getScheduledPostDetails();
         }
         if(this.industry_list_selection.length == 0){
@@ -465,12 +477,12 @@ export class PostcalenderComponent implements OnInit {
       this.getIndustryForSelection();
     }
     else if(event.tabTitle == "Theme Management"){
-      this.selectedPageSizeOfTheme = '5';
+      this.selectedPageSizeOfTheme = '20';
       this.pageNumOfTheme = 1;
       this.getThemeBySubCategoryId();
     }
     else if(event.tabTitle == "industry Management"){
-      this.selectedPageSizeOfIndustry = '5';
+      this.selectedPageSizeOfIndustry = '20';
       this.pageNumOfIndustry = 1;
       this.getIndustryBySubCategoryId();
     }
@@ -574,39 +586,36 @@ export class PostcalenderComponent implements OnInit {
   }
 
   deleteIndustry(industry){
-    this.utils.getConfirm().then((result) => {
-      if(result){
-      this.utils.showLoader();
-      let request_data = {
-        "sub_category_id": industry.sub_category_id,
-        "industry_id": industry.id
-      }
-      this.dataService.postData('deleteIndustry', request_data,
-        {
-          headers:
-            { 'Authorization': 'Bearer ' + localStorage.getItem('at') }
-        })
-        .then(response => {
-          if (response.code == 200) {
-            this.utils.hideLoader();
-            this.getIndustryBySubCategoryId();
-            this.utils.showSuccess(response.message, 3000);
-          } else if (response.code == 201) {
-            this.utils.hideLoader();
-            this.utils.showError(response.message, 3000);
-          }
-          else {
+        let request_data = {
+          "sub_category_id": industry.sub_category_id,
+          "industry_id": industry.id,
+          "is_active": industry.is_active == 1 ? 1:0
+        }
+        this.dataService.postData('deleteIndustry', request_data,
+          {
+            headers:
+              { 'Authorization': 'Bearer ' + localStorage.getItem('at') }
+          })
+          .then(response => {
+            if (response.code == 200) {
+              this.utils.hideLoader();
+              this.getIndustryBySubCategoryId();
+              this.utils.showSuccess(response.message, 3000);
+            } else if (response.code == 201) {
+              this.utils.hideLoader();
+              this.getIndustryBySubCategoryId();
+              this.utils.showError(response.message, 3000);
+            }
+            else {
+              this.utils.hideLoader();
+              this.utils.showError(ERROR.SERVER_ERR, 3000);
+            }
+          })
+          .catch(e => {
             this.utils.hideLoader();
             this.utils.showError(ERROR.SERVER_ERR, 3000);
-          }
-        })
-        .catch(e => {
-          this.utils.hideLoader();
-          this.utils.showError(ERROR.SERVER_ERR, 3000);
-        })
-      }
+          })
       
-    });
   }
 
   deleteTheme(theme){
