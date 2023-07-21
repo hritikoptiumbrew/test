@@ -434,14 +434,33 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryIdForAdmin*"),['']));
             }
 
-            /*$result = [];
-            $response = (new \App\Http\Controllers\UserController())->getAllRedisKeys("*");
-            foreach ($response as $i => $item) {
-                if (strlen($item) <= 20 && !(str_contains($item, "getJsonData") || str_contains($item, "getAllCategory") || str_contains($api, "/api/logs/"))) {
-                    $result[]['key'] = $item;
-                }
+            //Post Calendar
+            if ($api == '/api/addIndustry' or $api == '/api/updateIndustry' or $api == '/api/deleteIndustry') {
+                Redis::del(array_merge(Redis::keys("pel:getIndustryBySubCategoryId*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getIndustryBySubCategoryIdForAdmin*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getIndustryById*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getScheduledPostDetails*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getPostByIndustryId*"), ['']));
             }
-            ($result) ? Log::info('DeleteCacheKey Middleware : ', ['ip' => request()->ip(), 'userAgent' => request()->userAgent(), 'result' => $result, 'api' => $api]) : "";*/
+            if ($api == '/api/addTheme' or $api == '/api/updateTheme' or $api == '/api/deleteTheme') {
+                Redis::del(array_merge(Redis::keys("pel:getThemeBySubCategoryId*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getThemeById*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getScheduledPostDetails*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getPostByIndustryId*"), ['']));
+            }
+            if ($api == '/api/addSchedulePost' or $api == '/api/updateScheduledPost' or $api == '/api/deleteScheduledPost' or $api == '/api/repeatPostThemes') {
+                Redis::del(array_merge(Redis::keys("pel:getScheduledPostDetails*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getPostByIndustryId*"), ['']));
+            }
+
+                /*$result = [];
+                $response = (new \App\Http\Controllers\UserController())->getAllRedisKeys("*");
+                foreach ($response as $i => $item) {
+                    if (strlen($item) <= 20 && !(str_contains($item, "getJsonData") || str_contains($item, "getAllCategory") || str_contains($api, "/api/logs/"))) {
+                        $result[]['key'] = $item;
+                    }
+                }
+                ($result) ? Log::info('DeleteCacheKey Middleware : ', ['ip' => request()->ip(), 'userAgent' => request()->userAgent(), 'result' => $result, 'api' => $api]) : "";*/
 
 
         } catch (Exception $e) {
