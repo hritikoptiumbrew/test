@@ -39,7 +39,7 @@ import { FormsModule,ReactiveFormsModule} from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Daterangepicker } from 'ng2-daterangepicker';
 import { UpdateTagDialogComponent } from './search/update-tag-dialog/update-tag-dialog.component';
-
+import { ReviewDataModule } from './review-data/review-data.module'
 @NgModule({
   imports: [
     PagesRoutingModule,
@@ -72,7 +72,8 @@ import { UpdateTagDialogComponent } from './search/update-tag-dialog/update-tag-
     Daterangepicker,
     NbListModule,
     NbButtonModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    ReviewDataModule
   ],
   declarations: [
     PagesComponent,
@@ -80,5 +81,5 @@ import { UpdateTagDialogComponent } from './search/update-tag-dialog/update-tag-
     UpdateTagDialogComponent,
   ],
 })
-export class PagesModule {
+  export class PagesModule {
 }

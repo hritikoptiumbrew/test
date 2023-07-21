@@ -88,7 +88,6 @@ export class ImagedetailsComponent implements OnInit {
       }
     }).then((results: any) => {
       if (results.code == 200) {
-       
         var j = 1;
         results.data.image_details.forEach(appname => {
           appname.resolution = appname.width + " * " + appname.height;
@@ -98,6 +97,7 @@ export class ImagedetailsComponent implements OnInit {
         this.imageDetails = results.data.image_details;
         this.totalRecord = results.data.total_record;
         this.dataSource = new LocalDataSource(this.imageDetails);
+        console.log(this.dataSource)
         this.utils.hidePageLoader();
       }
       else if (results.code == 201) {

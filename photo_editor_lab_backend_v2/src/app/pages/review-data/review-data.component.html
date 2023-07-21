@@ -1,0 +1,69 @@
+<div class="row img-det-card h-53">
+    <div class="col-md-9 text-right">
+      <ol class="breadcrumb mb-0" style="background: transparent;">
+        <li class="breadcrumb-item active" aria-current="page">Reviews</li>
+      </ol>
+    </div>
+    <div class="col-md-3">
+      <nb-card>
+        <nb-card-header class="text-center p-7">
+          <div class="total-cat">
+            Total Review: {{ totalRecord }}
+          </div>
+        </nb-card-header>
+      </nb-card>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12 mb-2 text-right">
+      <nb-select [(selected)]="selectedImageSize" (selectedChange)="setPageSize($event)">
+        <nb-option *ngFor="let item of pageSize" value="{{item}}">{{ item }}</nb-option>
+      </nb-select>
+    </div>
+  </div>  
+  <div class="row">
+    <div class="col-md-12">
+      <div class="table-data">
+        <nb-card class="imgae-details-card table-body-new mb-0">
+          <nb-card-body class="table-body-new p-0">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="text-center">#</th>
+                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Industry</th>
+                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Purpose</th>
+                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Exactly Want</th>
+                  <th class="text-center">Created At</th>
+                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">ChatGpt Request</th>
+                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">ChatGpt Response</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of reviewArray| paginate : {
+                  itemsPerPage: selectedImageSize,
+                  currentPage: currentPage,
+                  totalItems: totalRecord};let i = index;">
+                  <td class="text-center width-90">{{i+1+(selectedImageSize * (currentPage-1))}}</td>
+                  <td class="text-center">{{ item.industry }}</td>
+                  <td class="text-center">{{ item.purpose }}</td>
+                  <td class="text-center">{{ item.exactly_want }}</td>
+                  <td class="text-center">{{ item.created_at }}</td>
+                  <td class=""><div>{{item.ChatGpt_request}}</div></td>
+                  <td class=""><div>{{ item.ChatGpt_response }}</div></td>
+                </tr>
+              </tbody>
+            </table>
+          </nb-card-body>
+          <nb-card-footer class="table-footer-new">
+            <div class="row" style="background: #fff;">
+              <div class="col-md-12 text-center pegin">
+                <pagination-controls (pageChange)="handlePageChange($event)" previousLabel="Prev" nextLabel="Next" responsive="true" [previousLabel]="previousLabel" [nextLabel]="nextLabel">
+                </pagination-controls>
+              </div>
+            </div>
+          </nb-card-footer>
+        </nb-card>
+      </div>
+    </div>
+  </div>
+  
