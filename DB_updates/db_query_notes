@@ -249,3 +249,51 @@ ALTER TABLE `images` CHANGE `content_type` `content_type` TINYINT(1) NULL DEFAUL
 UPDATE images SET content_type = 4, updated_at = updated_at WHERE (image LIKE '%_normal_image_%' OR image LIKE '%_catalog_img_%') AND json_data IS NULL AND content_type = 1;
 
 ALTER TABLE `images` ADD `mcm_id` INT(11) NULL DEFAULT NULL COMMENT 'Id from master content' AFTER `is_auto_upload`;
+
+48) PhotoEditorLab : perform following query on database (21 July, 2023) post schedule module
+---------------------------------------------------------------------------------------------------
+CREATE TABLE `post_theme` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `sub_category_id` int(11) NOT NULL,
+ `theme_name` varchar(255) NOT NULL,
+ `short_description` varchar(100) DEFAULT NULL,
+ `is_active` tinyint(1) NOT NULL DEFAULT '1',
+ `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`),
+ KEY `sub_category_id_idx` (`sub_category_id`),
+ CONSTRAINT `sub_category_id` FOREIGN KEY (`sub_category_id`) REFERENCES `sub_category` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+CREATE TABLE `post_industry` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `sub_category_id` int(11) NOT NULL,
+ `icon` text NOT NULL,
+ `icon_webp` text NOT NULL,
+ `industry_name` varchar(255) NOT NULL,
+ `is_active` tinyint(1) NOT NULL DEFAULT '1',
+ `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`),
+ KEY `sub_category_id_idx` (`sub_category_id`),
+ CONSTRAINT `sub_catefory_id` FOREIGN KEY (`sub_category_id`) REFERENCES `sub_category` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+CREATE TABLE `post_schedule_master` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `sub_category_id` int(11) NOT NULL,
+ `post_industry_id` int(11) NOT NULL,
+ `post_theme_id` int(11) NOT NULL,
+ `template_ids` text NOT NULL,
+ `schedule_date` date NOT NULL,
+ `tags` text COMMENT 'Tag by a comma-separated',
+ `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`),
+ KEY `sub_category_id_idx` (`sub_category_id`),
+ KEY `post_industry_id_idx` (`post_industry_id`),
+ KEY `post_theme_id_idx` (`post_theme_id`),
+ CONSTRAINT `post_industry_id` FOREIGN KEY (`post_industry_id`) REFERENCES `post_industry` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+ CONSTRAINT `post_theme_id` FOREIGN KEY (`post_theme_id`) REFERENCES `post_theme` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+ CONSTRAINT `sub_category_id_fr` FOREIGN KEY (`sub_category_id`) REFERENCES `sub_category` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
