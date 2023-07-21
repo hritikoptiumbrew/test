@@ -459,3 +459,4 @@ Route::post('removeIndexInImageJson', 'AdminController@removeIndexInImageJson');
 
 /*Route::post('setNullStrokeScript', 'UserController@setNullStrokeScript');*/
 Route::post('collectUserGeneratedLogoData', 'UserController@collectUserGeneratedLogoData');
+Route::post('deleteObjectsFromS3', 'MasterContentAdminController@deleteObjectsFromS3');

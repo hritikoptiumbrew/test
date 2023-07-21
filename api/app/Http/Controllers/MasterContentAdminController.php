@@ -71,6 +71,7 @@ class MasterContentAdminController extends Controller
             $content_details = $request->content_details;
             $insert_detail = [];
             $update_time = gmdate('Y-m-d H:i:s');
+            Log::info('autoUploadMCMContent : ', ['content_details' => $content_details]);
 
             DB::beginTransaction();
             foreach ($content_details as $i => $content_detail) {
@@ -428,6 +429,49 @@ class MasterContentAdminController extends Controller
             Log::error("updateMCMContent : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'update content.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
+        }
+        return $response;
+    }
+
+    public function deleteObjectsFromS3(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_id'), $request)) != '')
+                return $response;
+
+            $catalog_id = $request->catalog_id;
+            $images = [];
+
+            $content_details = DB::select('SELECT image FROM images WHERE catalog_id = ?', [$catalog_id]);
+
+            foreach ($content_details as $content_detail) {
+                $images[] = 'imageflyer/original/' . $content_detail->image;
+            }
+
+            $disk = new S3Client([
+                'version' => 'latest',
+                'region' => 'us-east-2',
+                'credentials' => [
+                    'key' => config('constant.AWS_KEY'),
+                    'secret' => config('constant.AWS_SECRET')
+                ]
+            ]);
+
+            foreach ($images AS $image){
+                $disk->deleteObject(array(
+                    'Bucket' => 'businesscardmaker',
+                    'Key' => $image
+                ));
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Catalog content images deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteObjectsFromS3 : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'delete content images.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
