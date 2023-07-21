@@ -509,17 +509,16 @@ class VerificationController extends Controller
         return $is_valid;
     }
 
-    public function checkIfIndustryExists($sub_category_id, $industry_name, $industry_id=0)
+    public function checkIfIndustryExists($sub_category_id, $industry_name, $industry_id = 0)
     {
-
-        try{
+        try {
             $result = DB::select('SELECT *
                                   FROM 
                                     post_industry
                                   WHERE 
                                     industry_name = ? and 
                                     sub_category_id = ? and
-                                    id != ?', [$industry_name, $sub_category_id,$industry_id]);
+                                    id != ?', [$industry_name, $sub_category_id, $industry_id]);
 
             if (count($result) > 0) {
                 $response = Response::json(array('code' => 201, 'message' => "'$industry_name' already exist in this sub category.", 'cause' => '', 'data' => json_decode("{}")));
@@ -535,7 +534,7 @@ class VerificationController extends Controller
 
     public function checkIfThemeExists($sub_category_id, $theme_name, $theme_id = 0)
     {
-        try{
+        try {
             $result = DB::select('SELECT *
                                   FROM 
                                     post_theme
@@ -556,9 +555,9 @@ class VerificationController extends Controller
         return $response;
     }
 
-    public function checkIfPostAlReadyScheduled($sub_category_id, $schedule_date, $post_schedule_id = 0,$post_industry_id)
+    public function checkIfPostAlReadyScheduled($sub_category_id, $schedule_date, $post_schedule_id = 0, $post_industry_id)
     {
-        try{
+        try {
             $result = DB::select('SELECT *
                                   FROM 
                                     post_schedule_master
@@ -566,7 +565,7 @@ class VerificationController extends Controller
                                     sub_category_id = ? and 
                                     schedule_date = ? and 
                                     post_industry_id = ? and
-                                    id != ?', [$sub_category_id, $schedule_date,$post_industry_id, $post_schedule_id]);
+                                    id != ?', [$sub_category_id, $schedule_date, $post_industry_id, $post_schedule_id]);
 
             if (count($result) > 0) {
                 $response = Response::json(array('code' => 201, 'message' => "Post already scheduled of this date.", 'cause' => '', 'data' => json_decode("{}")));

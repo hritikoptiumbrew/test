@@ -12544,7 +12544,6 @@ class UserController extends Controller
             $this->offset = ($page - 1) * $this->item_count;
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             if($is_cache_enable) {
-
                 $redis_result = Cache::rememberforever("getIndustryBySubCategoryId$this->sub_category_id:$page:$this->item_count", function () {
                     return $this->getIndustry($this->sub_category_id, $this->offset, $this->item_count);
                 });
@@ -12886,26 +12885,21 @@ class UserController extends Controller
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
 
             if ($this->schedule_date) {
-                if($is_cache_enable)
-                {
+                if ($is_cache_enable) {
                     $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:$this->schedule_date:$this->page:$this->item_count", function () {
                         return $this->getScheduledDatePost($this->schedule_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count);
                     });
-                }
-                else
-                {
-                    $redis_result =  $this->getScheduledDatePost($this->schedule_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count);
+                } else {
+                    $redis_result = $this->getScheduledDatePost($this->schedule_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count);
                 }
 
             } else {
-                if($is_cache_enable)
-                {
+                if ($is_cache_enable) {
                     $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:$this->start_date:$this->page:$this->item_count", function () {
-                        return $this->getPosts($this->start_date,$this->industry_id, $this->sub_category_id,$this->offset, $this->item_count,1);
+                        return $this->getPosts($this->start_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count, 1);
                     });
-                }
-                else{
-                    $redis_result = $this->getPosts($this->start_date,$this->industry_id, $this->sub_category_id,$this->offset, $this->item_count,0);
+                } else {
+                    $redis_result = $this->getPosts($this->start_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count, 0);
                 }
             }
 
