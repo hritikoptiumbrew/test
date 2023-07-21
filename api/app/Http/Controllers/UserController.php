@@ -12465,14 +12465,14 @@ class UserController extends Controller
 
     public function getIndustry($sub_category_id, $offset, $item_count)
     {
-        $total_row_result = DB::select('SELECT COUNT(*) as total FROM post_industry WHERE sub_category_id = ? AND is_active = 1',[$sub_category_id]);
+        $total_row_result = DB::select('SELECT COUNT(*) as total FROM post_industry WHERE sub_category_id = ? AND is_active = 1', [$sub_category_id]);
         $total_row = $total_row_result[0]->total;
 
         $result = DB::select('SELECT  
                                     id, 
                                     sub_category_id,
-                                    IF(icon != "", CONCAT("'.Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN').'", icon),"") as icon,
-                                    IF(icon_webp != "", CONCAT("'.Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN').'", icon_webp),"") as icon_webp,
+                                    IF(icon != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", icon),"") as icon,
+                                    IF(icon_webp != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", icon_webp),"") as icon_webp,
                                     industry_name,
                                     is_active,
                                     created_at,
@@ -12482,7 +12482,7 @@ class UserController extends Controller
                                WHERE 
                                     sub_category_id = ? AND is_active = 1
                                ORDER BY id DESC 
-                               LIMIT ?,?',[$sub_category_id, $offset, $item_count]);
+                               LIMIT ?,?', [$sub_category_id, $offset, $item_count]);
 
         $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
 
@@ -12530,7 +12530,7 @@ class UserController extends Controller
      */
     public function getIndustryBySubCategoryId(Request $request_body)
     {
-        try{
+        try {
             $token = JWTAuth::getToken();
             JWTAuth::toUser($token);
 
@@ -12543,32 +12543,30 @@ class UserController extends Controller
             $this->item_count = $request->item_count;
             $this->offset = ($page - 1) * $this->item_count;
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
-            if($is_cache_enable) {
+            if ($is_cache_enable) {
                 $redis_result = Cache::rememberforever("getIndustryBySubCategoryId$this->sub_category_id:$page:$this->item_count", function () {
                     return $this->getIndustry($this->sub_category_id, $this->offset, $this->item_count);
                 });
-            }
-            else{
+            } else {
                 $redis_result = $this->getIndustry($this->sub_category_id, $this->offset, $this->item_count);
             }
 
             $response = Response::json(array('code' => 200, 'message' => 'Industry fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             Log::error("getIndustrySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get industry by sub category id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
 
-    public function getTemplateList($sub_category_id, $template_ids, $offset, $item_count,$search_tag)
+    public function getTemplateList($sub_category_id, $template_ids, $offset, $item_count, $search_tag)
     {
 
-        $search_tag = str_replace(',',' ',$search_tag);
-        $this->is_featured =  1;
+        $search_tag = str_replace(',', ' ', $search_tag);
+        $this->is_featured = 1;
 
-        $total_row_result =DB::select('SELECT  
+        $total_row_result = DB::select('SELECT  
                                          COUNT(im.id) AS total
                                       FROM 
                                             images AS im,
@@ -12633,25 +12631,24 @@ class UserController extends Controller
                                             search_text DESC, im.updated_at DESC
                                         LIMIT ?,?',
 
-            [$this->is_featured, $sub_category_id,$offset, $item_count]);
+            [$this->is_featured, $sub_category_id, $offset, $item_count]);
 
         $result = [
             'template_list' => $template_list,
             'total_row' => $total_row
         ];
-         return $result;
+        return $result;
     }
 
-    public function getPosts($start_date,$industry_id, $sub_category_id,$offset, $item_count, $is_cache_enable)
+    public function getPosts($start_date, $industry_id, $sub_category_id, $offset, $item_count, $is_cache_enable)
     {
         $this->start_date = $start_date;
         $this->industry_id = $industry_id;
-        $this->sub_category_id =$sub_category_id;
+        $this->sub_category_id = $sub_category_id;
 
-        if($is_cache_enable)
-        {
+        if ($is_cache_enable) {
             $result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:$this->start_date", function () {
-                return  DB::select('SELECT 
+                return DB::select('SELECT 
                                         psm.schedule_date, 
                                         DATE_FORMAT (psm.schedule_date, "%a %d") as display_date , 
                                         psm.template_ids, pt.id AS theme_id, 
@@ -12669,9 +12666,7 @@ class UserController extends Controller
                                     ORDER BY schedule_date
                                     LIMIT 7', [$this->start_date, $this->industry_id, $this->sub_category_id]);
             });
-        }
-        else
-        {
+        } else {
             $result = DB::select('SELECT 
                                         psm.schedule_date, 
                                         DATE_FORMAT (psm.schedule_date, "%a %d") as display_date , 
@@ -12725,7 +12720,7 @@ class UserController extends Controller
 
         $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
 
-        if($this->page == 1)
+        if ($this->page == 1)
             return array('total_records' => $total_row, 'is_next_page' => $is_next_page, 'schedule_date' => $schedule_date, 'schedule_theme_list' => $result, 'sample_cards' => $sample_cards);
         else
             return array('total_records' => $total_row, 'is_next_page' => $is_next_page, 'schedule_date' => $schedule_date, 'sample_cards' => $sample_cards);

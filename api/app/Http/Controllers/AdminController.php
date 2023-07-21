@@ -12224,11 +12224,9 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'industry_name'), $request)) != '')
                 return $response;
 
-            if ($request_body->hasFile('icon')) {
-                $icon_array = Input::file('icon');
-                if (($response = (new ImageController())->verifyIndustryIcon($icon_array)) != '')
-                    return $response;
-            }
+            $icon_array = Input::file('icon');
+            if (($response = (new ImageController())->verifyIndustryIcon($icon_array)) != '')
+                return $response;
 
             $sub_category_id = $request->sub_category_id;
             $icon_name = NULL;
@@ -12238,28 +12236,23 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->checkIfIndustryExists($sub_category_id, $industry_name)) != '')
                 return $response;
 
-            $response1 = $this->checkLengthForIndustry($industry_name);
-            if ($response1 != '') {
-                return $response1;
-            }
+            if (($response = ($this->checkLengthForIndustry($industry_name))) != '')
+                return $response;
 
-            if ($request_body->hasFile('icon')) {
-                $icon_array = Input::file('icon');
-                $icon_name = (new ImageController())->generateNewFileName('industry_icon', $icon_array);
+            $icon_array = Input::file('icon');
+            $icon_name = (new ImageController())->generateNewFileName('industry_icon', $icon_array);
 
-                (new ImageController())->saveOriginalImageFromArray($icon_array, $icon_name);
-                $icon_webp_name = (new ImageController())->saveWebpOriginalImage($icon_name);
+            (new ImageController())->saveOriginalImageFromArray($icon_array, $icon_name);
+            $icon_webp_name = (new ImageController())->saveWebpOriginalImage($icon_name);
 
-                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
-                    (new ImageController())->saveImageInToS3($icon_name);
-                    (new ImageController())->saveWebpImageInToS3($icon_webp_name);
-                }
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                (new ImageController())->saveImageInToS3($icon_name);
+                (new ImageController())->saveWebpImageInToS3($icon_webp_name);
             }
 
             DB::insert('INSERT 
-                        INTO 
-                            post_industry(sub_category_id,icon,icon_webp,industry_name) 
-                         VALUES (?, ?, ?, ?)', [$sub_category_id, $icon_name, $icon_webp_name, $industry_name]);
+                        INTO post_industry(sub_category_id,icon,icon_webp,industry_name) 
+                        VALUES (?, ?, ?, ?)', [$sub_category_id, $icon_name, $icon_webp_name, $industry_name]);
 
             $response = Response::json(array('code' => 200, 'message' => 'Industry added successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
@@ -12332,8 +12325,8 @@ class AdminController extends Controller
                 $result = DB::select('SELECT  
                                             id, 
                                             sub_category_id,
-                                            IF(icon != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", icon),"") as icon,
-                                            IF(icon_webp != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", icon_webp),"") as icon_webp,
+                                            IF(icon != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", icon),"") AS icon,
+                                            IF(icon_webp != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", icon_webp),"") AS icon_webp,
                                             industry_name,
                                             is_active,
                                             created_at,
@@ -12357,8 +12350,8 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Industry fetched successfully.', 'cause' => '', 'data' => $redis_result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
         } catch (Exception $e) {
-            Log::error("getIndustrySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get industry by sub category id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getIndustryBySubCategoryIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get industry by sub category id for admin.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -12405,12 +12398,6 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'industry_id', 'industry_name'), $request)) != '')
                 return $response;
 
-            if ($request_body->hasFile('icon')) {
-                $icon_array = Input::file('icon');
-                if (($response = (new ImageController())->verifyIndustryIcon($icon_array)) != '')
-                    return $response;
-            }
-
             $sub_category_id = $request->sub_category_id;
             $industry_id = $request->industry_id;
             $icon_name = NULL;
@@ -12420,10 +12407,8 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->checkIfIndustryExists($sub_category_id, $industry_name, $industry_id)) != '')
                 return $response;
 
-            $response1 = $this->checkLengthForIndustry($industry_name);
-            if ($response1 != '') {
-                return $response1;
-            }
+            if (($response = ($this->checkLengthForIndustry($industry_name))) != '')
+                return $response;
 
             /* get old image for delete */
             $result = DB::select('SELECT 
@@ -12437,6 +12422,8 @@ class AdminController extends Controller
 
             if ($request_body->hasFile('icon')) {
                 $icon_array = Input::file('icon');
+                if (($response = (new ImageController())->verifyIndustryIcon($icon_array)) != '')
+                    return $response;
 
                 $icon_name = (new ImageController())->generateNewFileName('industry_icon', $icon_array);
 
@@ -12517,30 +12504,17 @@ class AdminController extends Controller
             $sub_category_id = $request->sub_category_id;
             $industry_id = $request->industry_id;
             $is_active = $request->is_active;
+            $message = 'Industry activated successfully.';
 
             if ($is_active == 0) {
                 //check if post is scheduled of this industry
-                $response = $this->checkIsPostScheduledOfThis($industry_id, '', $sub_category_id);
-                if ($response != '') {
+                if (($response = ($this->checkIsPostScheduledOfThis($industry_id, '', $sub_category_id))) != '')
                     return $response;
-                }
 
-                DB::update('UPDATE 
-                                post_industry 
-                            SET 
-                                is_active = 0 
-                            WHERE 
-                                id = ?', [$industry_id]);
-                $response = Response::json(array('code' => 200, 'message' => 'Industry de-activated successfully.', 'cause' => '', 'data' => json_decode('{}')));
-            } else if ($is_active == 1) {
-                DB::update('UPDATE 
-                                post_industry 
-                            SET 
-                                is_active = 1 
-                            WHERE 
-                                id = ?', [$industry_id]);
-                $response = Response::json(array('code' => 200, 'message' => 'Industry activated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+                $message = 'Industry de-activated successfully.';
             }
+            DB::update('UPDATE post_industry SET is_active = ? WHERE id = ?', [$is_active, $industry_id]);
+            $response = Response::json(array('code' => 200, 'message' => $message, 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
             Log::error("deleteIndustry : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
@@ -12585,7 +12559,6 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'theme_name', 'short_description'), $request)) != '')
                 return $response;
 
-
             $sub_category_id = $request->sub_category_id;
             $theme_name = $request->theme_name;
             $short_description = $request->short_description;
@@ -12593,10 +12566,8 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->checkIfThemeExists($sub_category_id, $theme_name)) != '')
                 return $response;
 
-            $response1 = $this->checkLengthForTheme($theme_name, $short_description);
-            if ($response1 != '') {
-                return $response1;
-            }
+            if (($response = ($this->checkLengthForTheme($theme_name, $short_description))) != '')
+                return $response;
 
             DB::insert('INSERT 
                         INTO post_theme(sub_category_id,theme_name,short_description) 
@@ -12747,10 +12718,8 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->checkIfThemeExists($sub_category_id, $theme_name, $theme_id)) != '')
                 return $response;
 
-            $response1 = $this->checkLengthForTheme($theme_name, $short_description);
-            if ($response1 != '') {
-                return $response1;
-            }
+            if (($response = ($this->checkLengthForTheme($theme_name, $short_description))) != '')
+                return $response;
 
             DB::update('UPDATE 
                             post_theme 
@@ -12807,17 +12776,10 @@ class AdminController extends Controller
             $theme_id = $request->theme_id;
 
             //check if post is scheduled of this theme
-            $response = $this->checkIsPostScheduledOfThis('', $theme_id, $sub_category_id);
-            if ($response != '') {
+            if (($response = ($this->checkIsPostScheduledOfThis('', $theme_id, $sub_category_id))) != '')
                 return $response;
-            }
 
-            DB::update('UPDATE 
-                            post_theme 
-                        SET 
-                            is_active = 0 
-                        WHERE 
-                            id= ?', [$theme_id]);
+            DB::update('UPDATE post_theme SET is_active = 0  WHERE  id= ?', [$theme_id]);
 
             $response = Response::json(array('code' => 200, 'message' => 'Theme deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
@@ -12825,27 +12787,6 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete theme.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
-    }
-
-    public function checkTemplateIds($template_ids)
-    {
-        if (empty($template_ids)) {
-            $response = Response::json(array('code' => 201, 'message' => "Required field(s) template_ids is empty.", 'cause' => '', 'data' => json_decode("{}")));
-            return $response;
-        }
-        if (gettype($template_ids) != 'array') {
-            $response = Response::json(array('code' => 201, 'message' => "Template_ids must be array.", 'cause' => '', 'data' => json_decode("{}")));
-            return $response;
-        }
-        $count_template = count($template_ids);
-        if ($count_template < 1) {
-            $response = Response::json(array('code' => 201, 'message' => "Please select minimum 1 templates", 'cause' => '', 'data' => json_decode("{}")));
-            return $response;
-        }
-        if ($count_template > 10) {
-            $response = Response::json(array('code' => 201, 'message' => "You can select maximum 10 templates.", 'cause' => '', 'data' => json_decode("{}")));
-            return $response;
-        }
     }
 
     /**
@@ -12887,15 +12828,12 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'post_industry_id', 'post_theme_id', 'schedule_date', 'tags'), $request)) != '')
                 return $response;
 
-            $response = (new VerificationController())->validateRequiredParam(array('template_ids'), $request);
-            if ($response != '') {
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('template_ids'), $request)) != '')
                 return $response;
-            }
 
-            $response = $this->checkTemplateIds($request->template_ids);
-            if ($response != '') {
-                return $response;
-            }
+            $count_template = count($request->template_ids);
+            if ($count_template < 1 || $count_template > 10 )
+                return Response::json(array('code' => 201, 'message' => "Please select minimum 1 and maximum 10 templates", 'cause' => '', 'data' => json_decode("{}")));
 
             $sub_category_id = $request->sub_category_id;
             $post_industry_id = $request->post_industry_id;
@@ -12920,8 +12858,8 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 200, 'message' => 'Post schedule successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
-            Log::error("schedulePost : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'schedule post.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("addSchedulePost : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add schedule post.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
     }
@@ -12966,15 +12904,12 @@ class AdminController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('post_schedule_id', 'sub_category_id', 'post_industry_id', 'post_theme_id', 'tags'), $request)) != '')
                 return $response;
 
-            $response = (new VerificationController())->validateRequiredParam(array('template_ids'), $request);
-            if ($response != '') {
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('template_ids'), $request)) != '')
                 return $response;
-            }
 
-            $response = $this->checkTemplateIds($request->template_ids);
-            if ($response != '') {
-                return $response;
-            }
+            $count_template = count($request->template_ids);
+            if ($count_template < 1 || $count_template > 10 )
+                return Response::json(array('code' => 201, 'message' => "Please select minimum 1 and maximum 10 templates", 'cause' => '', 'data' => json_decode("{}")));
 
             $post_schedule_id = $request->post_schedule_id;
             $sub_category_id = $request->sub_category_id;
@@ -13002,9 +12937,7 @@ class AdminController extends Controller
                             post_theme_id = ?,
                             template_ids = ?,
                             tags = ?
-                        WHERE 
-                            id =?',
-                [$post_industry_id, $post_theme_id, $template_ids, $tags, $post_schedule_id]);
+                        WHERE id =?', [$post_industry_id, $post_theme_id, $template_ids, $tags, $post_schedule_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Schedule update successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -13052,11 +12985,7 @@ class AdminController extends Controller
             $post_schedule_master = $request->post_schedule_id;
 
             DB::beginTransaction();
-            DB::delete('DELETE 
-                        FROM 
-                            post_schedule_master 
-                        WHERE 
-                            id = ?', [$post_schedule_master]);
+            DB::delete('DELETE FROM post_schedule_master WHERE id = ?', [$post_schedule_master]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Schedule post deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
@@ -13285,13 +13214,10 @@ class AdminController extends Controller
 
             // Validation for From & To months
 
-            if (date('Y-m', strtotime($to_year . "-" . $to_month)) < $now) {
-                $response = Response::json(array('code' => 201, 'message' => 'To month can not be in the past.', 'cause' => '', 'data' => json_decode("{}")));
-                return $response;
-            } elseif (date('Y-m', strtotime($from_year . "-" . $from_month)) > date('Y-m', strtotime($to_year . "-" . $to_month))) {
-                $response = Response::json(array('code' => 201, 'message' => 'From month must be older then To month.', 'cause' => '', 'data' => json_decode("{}")));
-                return $response;
-            }
+            if (date('Y-m', strtotime($to_year . "-" . $to_month)) < $now)
+                return Response::json(array('code' => 201, 'message' => 'To month can not be in the past.', 'cause' => '', 'data' => json_decode("{}")));
+            elseif (date('Y-m', strtotime($from_year . "-" . $from_month)) > date('Y-m', strtotime($to_year . "-" . $to_month)))
+                return Response::json(array('code' => 201, 'message' => 'From month must be older then To month.', 'cause' => '', 'data' => json_decode("{}")));
 
             $from_month_data_result = DB::select('SELECT *
                                                     FROM 
@@ -13408,7 +13334,6 @@ class AdminController extends Controller
             $this->offset = ($this->page - 1) * $this->item_count;
             $this->is_featured = 1;
 
-
             $redis_result = Cache::remember("getAllTemplateBySearchTag:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
 
                 $search_result = DB::select('SELECT
@@ -13465,8 +13390,8 @@ class AdminController extends Controller
             return $response;
 
         } catch (Exception $e) {
-            Log::error("searchCardsBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'search templates.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error("getAllTemplateBySearchTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all template by search tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
 
