@@ -1,0 +1,41 @@
+<nb-card>
+  <nb-card-header class="header-text" style="position: relative;">
+    <h5 class="text-center">{{dialogTitle}}</h5>
+    <i class="close-icon" title="Close" (click)="closedialog()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M2 20L20 2" stroke="#222B45" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M20 20L2 2" stroke="#222B45" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </i>
+  </nb-card-header>
+  <nb-card-body>
+    <div>
+      <p class="text-center img-label">Icon*</p>
+      <div class="img-preview" id="industryIcon">
+        <img *ngIf="industryIcon" class="placeholder-img">
+        <img *ngIf="industryIcon" [src]="industryIcon" onerror="this.src='./assets/default-image-150x150.jpg';this.onerror='';"
+          (load)="imageLoad($event)" width="auto" height="auto">
+        <label for="fileInput" class="placeholder-img">
+          <i class="fa fa-camera" title="Click here to choose image"></i>
+        </label>
+      </div>
+    </div>
+    <p id="imageError" style="color: red;margin-bottom: 0px;margin-top: 15px;text-align: center;height: 14px;"></p>
+    <input type="file" id="fileInput" accept="image/*" autofocus="true" style="display: none;"
+      (change)="fileChange($event)">
+    <div class="row mt-4">
+      <div class="col-md-3 pr-0">
+        <label class="d-block form-label input-label">Industry Name*</label>
+      </div>
+      <div class="col-md-9 pl-0">
+        <div class="form-group">
+          <input type="text" tabindex="-1" autofocus="false" nbInput placeholder="Enter industry name" class="w-100" style="font-family: 'Open Sans';font-style: normal; font-weight: 500;font-size: 18px;color: #222B45;"
+            [(ngModel)]="industryName">
+        </div>
+      </div>
+    </div>
+    <div class="form-group text-center mt-4">
+      <button class="main-btn" id="subCatAdd" (click)="btnText == 'add industry' ? addIndustry() : updateIndustry()">{{btnText}}</button>
+    </div>
+  </nb-card-body>
+</nb-card>

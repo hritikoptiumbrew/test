@@ -31,11 +31,11 @@ export class DataService {
   }
 
   getData(q) {
-    return this.http.get(HOST.BASE_URL + q)
+    return this.http.get(HOST.apiUrls.BASE_URL + q)
       .map((results: Response) => results.json());
   }
   postData(q, object, headers): Promise<any> {
-    return this.http.post(HOST.BASE_URL + q, object, headers).toPromise().then((results: any) => {
+    return this.http.post(HOST.apiUrls.BASE_URL + q, object, headers).toPromise().then((results: any) => {
       if (headers.headers && !localStorage.getItem("at") && !localStorage.getItem("admin_detail")) {
         localStorage.clear();
         this.router.navigate(['/']);

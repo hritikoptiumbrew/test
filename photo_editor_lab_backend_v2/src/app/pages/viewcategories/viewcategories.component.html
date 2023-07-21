@@ -17,7 +17,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
   <div class="col-md-6">
     <div class="row">
       <div class="col-md-12 pl-0">
-        <ol class="breadcrumb mb-0">
+        <ol class="breadcrumb mb-0">  
           <li class="breadcrumb-item main-home" nbTooltip="Go to categories" nbTooltipPlacement="bottom"
             nbTooltipStatus="primary" nbTooltipTrigger="hint" (click)="gotoCategories()">Categories</li>
           <li class="breadcrumb-item active" aria-current="page">{{ broadItem }}</li>
@@ -108,20 +108,20 @@ Copyright 2018 - 2020 Optimumbrew Technology
               <nb-icon icon="folder" pack="eva" nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
                 nbTooltipTrigger="hint"></nb-icon>
             </a>
-            <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-              (click)="updateCategory(item)">
-              <nb-icon icon="edit-2" pack="eva"></nb-icon>
+            <a (click)="updateCategory(item)">
+              <nb-icon icon="edit-2" pack="eva" nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"></nb-icon>
             </a>
-            <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-              nbTooltipTrigger="hint" (click)="deleteCategory(item.sub_category_id)">
-              <nb-icon icon="trash-2" pack="eva"></nb-icon>
+            <a (click)="deleteCategory(item.sub_category_id)">
+              <nb-icon icon="trash-2" pack="eva" nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"></nb-icon>
             </a>
-            <a nbTooltip="Add search tags to {{item.name}}" nbTooltipPlacement="bottom" nbTooltipTrigger="hint"
-              nbTooltipStatus="primary" (click)="addSearchtag(item)">
-              <nb-icon icon="pricetags" pack="eva"></nb-icon>
+            <a (click)="postCalendar(item)">
+              <nb-icon icon="postCalendar" pack="custom" nbTooltip="Post Calendar" nbTooltipPlacement="bottom" nbTooltipTrigger="hint" nbTooltipStatus="primary" style="display: flex;justify-content: center;align-items: center;padding-top: 2px;" ></nb-icon>
+            </a>
+            <a (click)="addSearchtag(item)">
+              <nb-icon icon="pricetags" pack="eva" nbTooltip="Add search tags to {{item.name}}" nbTooltipPlacement="bottom" nbTooltipTrigger="hint" nbTooltipStatus="primary" ></nb-icon>
             </a>
           </nb-card-footer>
-        </nb-card>
+        </nb-card>  
         <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
       </div>
     </div>

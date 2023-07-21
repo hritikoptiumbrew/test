@@ -1,0 +1,264 @@
+<div style="position: relative;">
+  <nb-tabset (changeTab)="tabChanged($event)">
+    <nb-tab tabTitle="Schedule Management">
+        <div class="under-div">
+          <div class="overlay-div">
+            <div class="d-flex justify-content-between align-items-center" style="user-select: none;margin-bottom: 16px;">
+              <div>
+                <nb-select class="post-industry-select" placeholder="Select Your Industry" [(ngModel)]="selectedIndustry"(selectedChange)="selectedChangeIndustry($event)">
+                  <nb-option  *ngFor="let industry of industry_list_selection_active;" value="{{industry.id}}" style="white-space:pre;">{{industry.industry_name}}</nb-option>
+                </nb-select>
+              </div>
+              <div class="d-flex" style="column-gap: 22px;">
+                <div class="arrow-div" (click)="repeatThemes()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="31" height="27" viewBox="0 0 31 27" fill="none">
+                    <path d="M21.2293 12.6375H21.2292C20.0244 12.6376 18.8466 12.9951 17.8449 13.6646C16.8432 14.3341 16.0625 15.2856 15.6016 16.3987C15.1406 17.5119 15.0201 18.7368 15.2553 19.9184C15.4904 21.1001 16.0707 22.1855 16.9227 23.0374C17.7747 23.8893 18.8602 24.4694 20.0419 24.7044C21.2236 24.9394 22.4484 24.8187 23.5615 24.3576C24.6747 23.8965 25.626 23.1156 26.2954 22.1138C26.9647 21.112 27.322 19.9343 27.322 18.7294L27.322 18.7293C27.3202 17.1141 26.6777 15.5655 25.5355 14.4234C24.3932 13.2814 22.8446 12.6391 21.2293 12.6375ZM21.2291 26.3848C19.7151 26.3846 18.2351 25.9355 16.9764 25.0942C15.7176 24.2529 14.7365 23.0573 14.1572 21.6584C13.5779 20.2596 13.4264 18.7204 13.7219 17.2354C14.0174 15.7505 14.7466 14.3865 15.8172 13.316C16.8879 12.2455 18.2519 11.5164 19.7369 11.2211C21.2219 10.9258 22.761 11.0775 24.1598 11.6569C25.5586 12.2363 26.7542 13.2175 27.5953 14.4764C28.4364 15.7353 28.8854 17.2153 28.8854 18.7293C28.883 20.7591 28.0755 22.705 26.6402 24.1402C25.2049 25.5753 23.2589 26.3826 21.2291 26.3848Z" fill="#222B45" stroke="#F7F9FC" stroke-width="0.229525"/>
+                    <path d="M12.5728 22.3755H5.86453C5.10499 22.3749 4.37672 22.0729 3.83965 21.5358C3.30257 20.9987 3.00058 20.2705 3 19.5109V5.44829C3.00019 4.68863 3.30206 3.96014 3.83922 3.42297C4.37638 2.88581 5.10487 2.58395 5.86453 2.58376H17.8434C18.6031 2.58395 19.3316 2.88581 19.8687 3.42297C20.4059 3.96014 20.7077 4.68863 20.7079 5.44829V9.70883H19.1457V5.44829C19.1451 5.10309 19.0077 4.77219 18.7636 4.5281C18.5195 4.284 18.1886 4.14661 17.8434 4.14603H5.86453C5.51933 4.14661 5.18843 4.284 4.94434 4.5281C4.70024 4.77219 4.56285 5.10309 4.56227 5.44829V19.5109C4.56285 19.8561 4.70027 20.1869 4.94438 20.4309C5.1885 20.6748 5.51939 20.8121 5.86453 20.8125H12.5728V22.3755Z" fill="#222B45"/>
+                    <path d="M6.125 0.49707H7.688V5.70537H6.125V0.49707ZM11.0733 0.49707H12.6356V5.70537H11.0733V0.49707ZM16.0208 0.49707H17.5838V5.70537H16.0208V0.49707ZM6.9065 13.0004H13.5833V14.5597H6.9065V13.0004ZM6.9065 8.83358H11.594V10.3958H6.9065V8.83358Z" fill="#222B45"/>
+                    <path d="M25.1124 18.8607C25.1104 19.5698 24.8279 20.2493 24.3264 20.7507C23.825 21.2522 23.1455 21.5347 22.4364 21.5367H19.4749L19.8815 21.9432L19.1603 22.6645L17.5234 21.0268L19.157 19.3932L19.8815 20.1104L19.4749 20.517H22.4347C22.8738 20.5163 23.2947 20.3416 23.6052 20.0311C23.9157 19.7207 24.0904 19.2997 24.0911 18.8607V17.9963H25.1107L25.1124 18.8607ZM23.5536 17.7223L22.8323 17.001L23.2389 16.5945H20.2775C19.8384 16.5951 19.4175 16.7698 19.107 17.0803C18.7965 17.3908 18.6218 17.8117 18.6212 18.2508V19.1184H17.5982V18.2524C17.6002 17.5433 17.8827 16.8638 18.3842 16.3623C18.8856 15.8609 19.5651 15.5784 20.2742 15.5764H23.2357L22.8291 15.1699L23.5503 14.4494L25.1839 16.083L23.5536 17.7223Z" fill="#222B45"/>
+                  </svg>
+                </div>
+                <div class="btn-today">
+                  <button mwlCalendarToday (click)="GetCurrentDate()"
+                  [(viewDate)]="viewDate">Today</button>
+                </div>
+                <div>
+                  <p class="cal-title">{{ viewDate | calendarDate:(view + 'ViewTitle'):'en'  }}</p>
+                </div>
+                <div class="arrow-div" mwlCalendarPreviousView [view]="view" [(viewDate)]="viewDate" (viewDateChange)="closeOpenMonthViewDay()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="8" height="9" viewBox="0 0 8 9" fill="none">
+                    <path d="M7.77344 6.95312L1.65625 4.36719L7.77344 1.46875V0.3125L0.257812 4.03125V4.77344L7.77344 8.10156V6.95312Z" fill="#222B45"/>
+                  </svg>
+                </div>
+                <div class="arrow-div" mwlCalendarNextView [view]="view" [(viewDate)]="viewDate" (viewDateChange)="closeOpenMonthViewDay()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="8" height="9" viewBox="0 0 8 9" fill="none">
+                    <path d="M0.226562 6.95312L6.34375 4.36719L0.226562 1.46875V0.3125L7.74219 4.03125V4.77344L0.226562 8.10156V6.95312Z" fill="#222B45"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <br>
+            <div class="calender-view"> 
+              <mwl-calendar-month-view [viewDate]="viewDate" [cellTemplate]="customCellTemplate" (beforeViewRender)="applyDateSelectionPolicy($event)"
+              [events]="events" [refresh]="refresh" [activeDayIsOpen]="activeDayIsOpen" (dayClicked)="dayClicked($event.day)"
+              (eventClicked)="handleEvent('Clicked', $event.event)" (eventTimesChanged)="eventTimesChanged($event)">
+              </mwl-calendar-month-view>
+            </div>
+          </div>
+        </div>
+        <ng-template #customCellTemplate let-day="day" let-locale="locale">
+          <div class="cal-cell-top" style="flex:0 !important;min-height: 54px !important;">
+            <span *ngIf="addBtnVisibility(day.date) == false" class="addBtn" (click)="addThemePost(day.date)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <rect x="0.6875" y="0.6875" width="30.625" height="30.625" rx="2.3125" fill="white" stroke="#DEE2E6" stroke-width="0.625"/>
+                <path d="M15.3616 16.1067H8.79511V17.4291H15.3616V24.0564H16.684V17.4291H23.2353V16.1067H16.684V9.46417H15.3616V16.1067Z" fill="#727679"/>
+              </svg>
+            </span>
+            <!-- <span class="cal-day-badge" *ngIf="day.badgeTotal > 0">{{ day.badgeTotal }}</span> -->
+            <span class="cal-day-number">
+              {{ day.date | calendarDate:'monthViewDayNumber':locale }} <span *ngIf="getDate(day.date) == 1">{{ day.date |  date:'MMMM' }}</span>
+            </span>
+          </div>
+          <div *ngFor="let scheduledPostList of scheduledPostList">
+            <div class="d-flex justify-content-between align-items-center addedPost" style="height: 34px;" *ngIf="scheduledPostList.schedule_date == getDateForPost(day.date)" >
+             <p style="margin-bottom: 0;font-size: 16px;color: #212529;font-weight: 500;max-width: 164px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">{{scheduledPostList.theme_name}}</p>
+             <span [ngbPopover]="popContenttemp" placement="bottom" container="body" popoverClass="custom-cal-popover"
+               class="d-flex justify-content-center align-items-center" style="cursor: pointer;width: 20px;height: 34px;user-select: none;">
+               <svg xmlns="http://www.w3.org/2000/svg" width="4" height="13" viewBox="0 0 4 13" fill="none">
+                 <rect width="3.25" height="3.25" rx="1.625" fill="#212529"/>
+                 <rect y="4.875" width="3.25" height="3.25" rx="1.625" fill="#212529"/>
+                 <rect y="9.75" width="3.25" height="3.25" rx="1.625" fill="#212529"/>
+               </svg>
+             </span>
+             <ng-template #popContenttemp>
+              <div>
+                <div class="d-flex align-items-center" (click)="updateThemePost(day.date, scheduledPostList.theme_name ,scheduledPostList.template_list, scheduledPostList.tags, scheduledPostList.id)" style="cursor: pointer;margin-bottom: 18px;">
+                  <span style="margin-right: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M16.6237 2.94765L17.0524 3.37632C17.3854 3.70934 17.3854 4.24785 17.0524 4.57733L16.0214 5.61182L14.3882 3.9786L15.4191 2.94765C15.7522 2.61462 16.2907 2.61462 16.6201 2.94765H16.6237ZM8.43276 9.93756L13.1872 5.1796L14.8204 6.81282L10.0624 11.5672C9.9597 11.67 9.83216 11.7444 9.69399 11.7833L7.62146 12.375L8.21311 10.3025C8.25208 10.1643 8.32648 10.0368 8.42922 9.93402L8.43276 9.93756ZM14.2181 1.74664L7.22821 8.73301C6.91999 9.04123 6.6968 9.42031 6.57988 9.83482L5.56665 13.3776C5.48162 13.6752 5.56311 13.994 5.78276 14.2137C6.00241 14.4334 6.32126 14.5148 6.61886 14.4298L10.1616 13.4166C10.5797 13.2961 10.9588 13.0729 11.2634 12.7682L18.2534 5.78187C19.2489 4.78635 19.2489 3.17084 18.2534 2.17532L17.8247 1.74664C16.8292 0.751119 15.2136 0.751119 14.2181 1.74664ZM4.11765 3.12833C2.39586 3.12833 1 4.52418 1 6.24598V15.8823C1 17.6041 2.39586 19 4.11765 19H13.754C15.4758 19 16.8717 17.6041 16.8717 15.8823V11.9144C16.8717 11.4432 16.4926 11.0642 16.0214 11.0642C15.5502 11.0642 15.1711 11.4432 15.1711 11.9144V15.8823C15.1711 16.6653 14.537 17.2995 13.754 17.2995H4.11765C3.33469 17.2995 2.70054 16.6653 2.70054 15.8823V6.24598C2.70054 5.46302 3.33469 4.82886 4.11765 4.82886H8.08557C8.55676 4.82886 8.93584 4.44979 8.93584 3.9786C8.93584 3.50741 8.55676 3.12833 8.08557 3.12833H4.11765Z" fill="#646A88" stroke="white" stroke-width="0.4"/>
+                    </svg>
+                  </span>
+                  <p class="mb-0" style="font-size: 15px;font-family:Open Sans;font-weight: 500; color: #212529;">Edit</p>
+                </div>
+                <div class="d-flex align-items-center" (click)="deleteScheduledPost(scheduledPostList)" style="cursor: pointer;">
+                  <span style="margin-right: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="18" viewBox="0 0 15 18" fill="none">
+                      <g clip-path="url(#clip0_950_14579)">
+                      <path d="M13.6155 2.76923H10.6156V2.53859C10.6151 1.86548 10.3475 1.22008 9.87153 0.744115C9.39557 0.26815 8.75017 0.000523867 8.07705 0H6.23077C5.55765 0.000523867 4.91226 0.26815 4.43629 0.744115C3.96033 1.22008 3.6927 1.86548 3.69218 2.53859V2.76923H0.692308C0.601393 2.76923 0.511368 2.78714 0.427373 2.82193C0.343378 2.85672 0.267059 2.90772 0.202772 2.972C0.138485 3.03629 0.0874905 3.11261 0.0526988 3.1966C0.017907 3.2806 0 3.37062 0 3.46154C0 3.55245 0.017907 3.64248 0.0526988 3.72647C0.0874905 3.81047 0.138485 3.88679 0.202772 3.95107C0.267059 4.01536 0.343378 4.06636 0.427373 4.10115C0.511368 4.13594 0.601393 4.15385 0.692308 4.15385H0.922945V15.4614C0.923469 16.1345 1.19109 16.7799 1.66706 17.2559C2.14302 17.7319 2.78842 17.9995 3.46154 18H10.8463C11.5194 17.9995 12.1648 17.7319 12.6408 17.2559C13.1167 16.7799 13.3844 16.1345 13.3849 15.4614V4.15385H13.6155C13.7991 4.15385 13.9752 4.08091 14.1051 3.95107C14.2349 3.82124 14.3078 3.64515 14.3078 3.46154C14.3078 3.27793 14.2349 3.10184 14.1051 2.972C13.9752 2.84217 13.7991 2.76923 13.6155 2.76923ZM5.07719 2.53859C5.07761 2.23267 5.19932 1.93939 5.41564 1.72307C5.63196 1.50675 5.92524 1.38503 6.23116 1.38462H8.07745C8.38331 1.38514 8.67648 1.5069 8.89272 1.72321C9.10895 1.93952 9.23061 2.23274 9.23103 2.53859V2.76923H5.07719V2.53859ZM12.0003 15.4618C11.9998 15.7677 11.8781 16.061 11.6618 16.2773C11.4455 16.4936 11.1522 16.6154 10.8463 16.6158H3.46154C3.15561 16.6154 2.86234 16.4936 2.64601 16.2773C2.42969 16.061 2.30798 15.7677 2.30756 15.4618V4.15385H11.9999L12.0003 15.4618Z" fill="#646A88"/>
+                      <path d="M5.30754 7.38474C5.12396 7.38484 4.94793 7.45781 4.81812 7.58762C4.68831 7.71743 4.61534 7.89346 4.61523 8.07704V12.6926C4.61523 12.8762 4.68817 13.0523 4.81801 13.1821C4.94784 13.3119 5.12393 13.3849 5.30754 13.3849C5.49115 13.3849 5.66725 13.3119 5.79708 13.1821C5.92691 13.0523 5.99985 12.8762 5.99985 12.6926V8.07704C5.99975 7.89346 5.92677 7.71743 5.79696 7.58762C5.66715 7.45781 5.49112 7.38484 5.30754 7.38474Z" fill="#646A88"/>
+                      <path d="M9.0009 7.38474C8.81732 7.38484 8.64129 7.45781 8.51148 7.58762C8.38167 7.71743 8.3087 7.89346 8.30859 8.07704V12.6926C8.30859 12.8762 8.38153 13.0523 8.51137 13.1821C8.6412 13.3119 8.81729 13.3849 9.0009 13.3849C9.18451 13.3849 9.3606 13.3119 9.49044 13.1821C9.62027 13.0523 9.69321 12.8762 9.69321 12.6926V8.07704C9.6931 7.89346 9.62013 7.71743 9.49032 7.58762C9.36051 7.45781 9.18448 7.38484 9.0009 7.38474Z" fill="#646A88"/>
+                      </g>
+                      <defs>
+                      <clipPath id="clip0_950_14579">
+                      <rect width="14.3078" height="18" fill="white"/>
+                      </clipPath>
+                      </defs>
+                    </svg>
+                  </span>
+                  <p class="mb-0" style="font-size: 15px;font-family:Open Sans;font-weight: 500; color: #212529;">Delete</p>
+                </div>
+              </div>  
+            </ng-template>
+            </div>
+          </div>
+        </ng-template>
+    </nb-tab>
+    <nb-tab tabTitle="Theme Management">
+          <div style="float: right;">
+            <nb-select class="select-theme" [(selected)]="selectedPageSizeOfTheme" (selectedChange)="setPageSizeOfTheme($event)">
+                <nb-option *ngFor="let item of pageSizeOfTheme" value="{{item}}">{{ item }}</nb-option>
+            </nb-select>
+          </div>
+
+          <div class="row" style="margin-top: 55px;">
+            <div class="col-md-12">
+              <div class="table-data">
+                <nb-card class="mb-0" style="border: 0;">
+                  <nb-card-body class="table-body-new p-0" style="max-height: calc(100vh - 476px); position: relative;" >
+                    <table class="table mb-0">
+                      <thead style="position: sticky;top: -2px;left: 0;background-color: #fff;">
+                        <tr>
+                          <th style="width: 100px;">#</th>
+                          <th style="width: 290px;">Theme Name</th>
+                          <th style="width: 600px;">Short Description </th>
+                          <th style="width: 345px;">Created Time</th>
+                          <th style="width: 290px !important;" colspan="2">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let theme of theme_list | paginate:{id: 'paginationForTheme', itemsPerPage: selectedPageSizeOfTheme, currentPage: pageNumOfTheme, totalItems: total_theme }  let i = index;">
+                          <td style="padding-left: 30px;">{{i+1}}</td>
+                          <td style="padding-left: 30px;"> {{theme.theme_name}}</td>
+                          <td style="padding-left: 30px;">{{theme.short_description}}</td>
+                          <td style="padding-left: 30px;">{{theme.created_at | date: 'yyyy-MM-dd hh:mm:ss' }}</td>
+                          <td class="text-center">
+                            <button class="tab-effect" (click)="updateTheme(theme)" style="cursor:pointer;height: 100%;width: 100%;border: 0;background-color: transparent;">
+                              <svg  xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M19.9492 3.53085L20.4691 4.05078C20.873 4.45468 20.873 5.10781 20.4691 5.50742L19.2188 6.7621L17.2379 4.78125L18.4883 3.53085C18.8922 3.12695 19.5453 3.12695 19.9449 3.53085H19.9492ZM10.0148 12.0086L15.7812 6.23789L17.7621 8.21875L11.9914 13.9852C11.8668 14.1098 11.7121 14.2 11.5445 14.2473L9.03086 14.9648L9.74844 12.4512C9.7957 12.2836 9.88594 12.1289 10.0105 12.0043L10.0148 12.0086ZM17.0316 2.07421L8.55391 10.5477C8.18008 10.9215 7.90938 11.3812 7.76758 11.884L6.53867 16.1809C6.43555 16.5418 6.53438 16.9285 6.80078 17.1949C7.06719 17.4613 7.45391 17.5602 7.81484 17.457L12.1117 16.2281C12.6188 16.082 13.0785 15.8113 13.448 15.4418L21.9258 6.96835C23.1332 5.76093 23.1332 3.80156 21.9258 2.59414L21.4059 2.07421C20.1984 0.866792 18.2391 0.866792 17.0316 2.07421ZM4.78125 3.75C2.69297 3.75 1 5.44296 1 7.53125V19.2187C1 21.307 2.69297 23 4.78125 23H16.4688C18.557 23 20.25 21.307 20.25 19.2187V14.4062C20.25 13.8348 19.7902 13.375 19.2188 13.375C18.6473 13.375 18.1875 13.8348 18.1875 14.4062V19.2187C18.1875 20.1684 17.4184 20.9375 16.4688 20.9375H4.78125C3.83164 20.9375 3.0625 20.1684 3.0625 19.2187V7.53125C3.0625 6.58164 3.83164 5.8125 4.78125 5.8125H9.59375C10.1652 5.8125 10.625 5.35273 10.625 4.78125C10.625 4.20976 10.1652 3.75 9.59375 3.75H4.78125Z" fill="#646A88" stroke="white" stroke-width="0.4"/>
+                              </svg>
+                            </button>
+                          </td>
+                          <td class="text-center">
+                            <button class="tab-effect" (click)="deleteTheme(theme)"  style="cursor:pointer;height: 100%;width: 100%;border: 0;background-color: transparent;">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="22" viewBox="0 0 18 22" fill="none">
+                                <g clip-path="url(#clip0_882_6812)">
+                                <path d="M16.6412 3.38462H12.9747V3.10273C12.974 2.28003 12.6469 1.49121 12.0652 0.909474C11.4835 0.327739 10.6947 0.000640282 9.87195 0H7.61538C6.79269 0.000640282 6.00387 0.327739 5.42213 0.909474C4.8404 1.49121 4.5133 2.28003 4.51266 3.10273V3.38462H0.846154C0.735035 3.38462 0.625005 3.4065 0.522345 3.44903C0.419685 3.49155 0.326405 3.55388 0.247832 3.63245C0.16926 3.71102 0.106933 3.8043 0.0644096 3.90696C0.0218864 4.00962 0 4.11965 0 4.23077C0 4.34189 0.0218864 4.45192 0.0644096 4.55458C0.106933 4.65724 0.16926 4.75052 0.247832 4.82909C0.326405 4.90766 0.419685 4.96999 0.522345 5.01251C0.625005 5.05504 0.735035 5.07692 0.846154 5.07692H1.12804V18.8973C1.12868 19.72 1.45578 20.5088 2.03752 21.0905C2.61925 21.6723 3.40807 21.9994 4.23077 22H13.2566C14.0793 21.9994 14.8681 21.6723 15.4498 21.0905C16.0316 20.5088 16.3587 19.72 16.3593 18.8973V5.07692H16.6412C16.8656 5.07692 17.0808 4.98777 17.2395 4.82909C17.3982 4.67041 17.4873 4.45518 17.4873 4.23077C17.4873 4.00636 17.3982 3.79113 17.2395 3.63245C17.0808 3.47376 16.8656 3.38462 16.6412 3.38462ZM6.20545 3.10273C6.20596 2.72882 6.35472 2.37037 6.61912 2.10597C6.88351 1.84158 7.24196 1.69282 7.61587 1.69231H9.87244C10.2463 1.69295 10.6046 1.84177 10.8689 2.10615C11.1332 2.37053 11.2819 2.7289 11.2824 3.10273V3.38462H6.20545V3.10273ZM14.667 18.8978C14.6665 19.2717 14.5177 19.6301 14.2533 19.8945C13.9889 20.1589 13.6305 20.3077 13.2566 20.3082H4.23077C3.85686 20.3077 3.49841 20.1589 3.23402 19.8945C2.96962 19.6301 2.82086 19.2717 2.82035 18.8978V5.07692H14.6665L14.667 18.8978Z" fill="#646A88"/>
+                                <path d="M6.48727 9.0258C6.26289 9.02593 6.04774 9.11512 5.88909 9.27378C5.73043 9.43243 5.64124 9.64758 5.64111 9.87196V15.5131C5.64111 15.7376 5.73026 15.9528 5.88895 16.1115C6.04763 16.2701 6.26285 16.3593 6.48727 16.3593C6.71168 16.3593 6.9269 16.2701 7.08559 16.1115C7.24427 15.9528 7.33342 15.7376 7.33342 15.5131V9.87196C7.33329 9.64758 7.2441 9.43243 7.08545 9.27378C6.92679 9.11512 6.71164 9.02593 6.48727 9.0258Z" fill="#646A88"/>
+                                <path d="M11.0005 9.0258C10.7761 9.02593 10.5609 9.11512 10.4023 9.27378C10.2436 9.43243 10.1544 9.64758 10.1543 9.87196V15.5131C10.1543 15.7376 10.2434 15.9528 10.4021 16.1115C10.5608 16.2701 10.776 16.3593 11.0005 16.3593C11.2249 16.3593 11.4401 16.2701 11.5988 16.1115C11.7575 15.9528 11.8466 15.7376 11.8466 15.5131V9.87196C11.8465 9.64758 11.7573 9.43243 11.5986 9.27378C11.44 9.11512 11.2248 9.02593 11.0005 9.0258Z" fill="#646A88"/>
+                                </g>
+                                <defs>
+                                <clipPath id="clip0_882_6812">
+                                <rect width="17.4873" height="22" fill="white"/>
+                                </clipPath>
+                                </defs>
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </nb-card-body>
+                  <nb-card-footer style="min-height: 136px !important;padding: 0 !important;position: sticky;bottom: 0;background: #fff;left: 0;border-top:1px solid #DEE2E6 !important;overflow-x: hidden; display: flex; align-items: center; justify-content: center;">
+                        <div class="row" style="background: #fff;">
+                          <div class="col-md-12 text-center pegin">
+                            <pagination-controls id="paginationForTheme" class="text-center paginate mb-0" (pageChange)="handlePageChangeOfTheme($event)" previousLabel="Prev" nextLabel="Next" responsive="true" [previousLabel]="previousLabel" [nextLabel]="nextLabel">
+                            </pagination-controls>
+                          </div>
+                        </div>
+                      </nb-card-footer>
+                </nb-card>
+              </div>
+            </div>
+          </div>
+          <div>
+            <button class="add-btn" (click)="addTheme()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="35" height="43" viewBox="0 0 29 30" fill="none">
+                <path d="M16.7559 12.5625H28.6211V17.1328H16.7559V29.291H12.127V17.1328H0.232422V12.5625H12.127V0.345703H16.7559V12.5625Z" fill="white"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="head-total">
+            <span>Themes : <span *ngIf="total_theme > 0 && total_theme <= 9">0</span>{{total_theme}}</span>
+          </div>
+    </nb-tab>
+    <nb-tab tabTitle="industry Management">
+            <div style="float: right;">
+                <nb-select class="select-theme" [(selected)]="selectedPageSizeOfIndustry" (selectedChange)="setPageSizeOfIndustry($event)">
+                    <nb-option *ngFor="let item of pageSizeOfIndustry" value="{{item}}">{{ item }}</nb-option>
+                </nb-select>
+            </div>
+            <div class="row" style="margin-top: 55px;">
+                <div class="col-md-12">
+                  <div class="table-data">
+                    <nb-card class="mb-0" style="border: 0;">
+                      <nb-card-body class="table-body-new p-0" style="max-height: calc(100vh - 476px); position: relative;" >
+                        <table class="table mb-0" >
+                          <thead style="position: sticky;top: -2px;left: 0;background-color: #fff;">
+                            <tr>
+                              <th style="width: 100px;">#</th>
+                              <th style="width: 140px;">Icon</th>
+                              <th style="width: 710px;">Industry Name</th>
+                              <th style="width: 345px;">Created Time</th>
+                              <th style="width: 290px !important;" colspan="2">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr scope="row" *ngFor="let industry of industry_list  | paginate:{id: 'paginationForIndustry', itemsPerPage: selectedPageSizeOfIndustry, currentPage: pageNumOfIndustry, totalItems: total_industry }  let i = index;"  >
+                              <td style="padding-left: 30px;">{{i+1}}</td>
+                              <td style="padding-left: 30px;"> <img src="{{industry.icon_webp}}" alt="industry icon" width="40" height="40"></td>
+                              <td style="padding-left: 30px;white-space:pre;">{{industry.industry_name}}</td>
+                              <td style="padding-left: 30px;">{{ industry.created_at | date: 'yyyy-MM-dd hh:mm:ss' }}</td>
+                              <td class="text-center">
+                                <button class="tab-effect" (click)="updateIndustry(industry)" style="cursor:pointer;height: 100%;width: 100%;border: 0;background-color: transparent;">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M19.9492 3.53085L20.4691 4.05078C20.873 4.45468 20.873 5.10781 20.4691 5.50742L19.2188 6.7621L17.2379 4.78125L18.4883 3.53085C18.8922 3.12695 19.5453 3.12695 19.9449 3.53085H19.9492ZM10.0148 12.0086L15.7812 6.23789L17.7621 8.21875L11.9914 13.9852C11.8668 14.1098 11.7121 14.2 11.5445 14.2473L9.03086 14.9648L9.74844 12.4512C9.7957 12.2836 9.88594 12.1289 10.0105 12.0043L10.0148 12.0086ZM17.0316 2.07421L8.55391 10.5477C8.18008 10.9215 7.90938 11.3812 7.76758 11.884L6.53867 16.1809C6.43555 16.5418 6.53438 16.9285 6.80078 17.1949C7.06719 17.4613 7.45391 17.5602 7.81484 17.457L12.1117 16.2281C12.6188 16.082 13.0785 15.8113 13.448 15.4418L21.9258 6.96835C23.1332 5.76093 23.1332 3.80156 21.9258 2.59414L21.4059 2.07421C20.1984 0.866792 18.2391 0.866792 17.0316 2.07421ZM4.78125 3.75C2.69297 3.75 1 5.44296 1 7.53125V19.2187C1 21.307 2.69297 23 4.78125 23H16.4688C18.557 23 20.25 21.307 20.25 19.2187V14.4062C20.25 13.8348 19.7902 13.375 19.2188 13.375C18.6473 13.375 18.1875 13.8348 18.1875 14.4062V19.2187C18.1875 20.1684 17.4184 20.9375 16.4688 20.9375H4.78125C3.83164 20.9375 3.0625 20.1684 3.0625 19.2187V7.53125C3.0625 6.58164 3.83164 5.8125 4.78125 5.8125H9.59375C10.1652 5.8125 10.625 5.35273 10.625 4.78125C10.625 4.20976 10.1652 3.75 9.59375 3.75H4.78125Z" fill="#646A88" stroke="white" stroke-width="0.4"/>
+                                  </svg>
+                                </button>
+                              </td>
+                              <td class="text-center">
+                                <!-- <button class="tab-effect" (click)="deleteIndustry(industry)" style="cursor:pointer;height: 100%;width: 100%;border: 0;background-color: transparent;">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="22" viewBox="0 0 18 22" fill="none">
+                                    <g clip-path="url(#clip0_882_6812)">
+                                    <path d="M16.6412 3.38462H12.9747V3.10273C12.974 2.28003 12.6469 1.49121 12.0652 0.909474C11.4835 0.327739 10.6947 0.000640282 9.87195 0H7.61538C6.79269 0.000640282 6.00387 0.327739 5.42213 0.909474C4.8404 1.49121 4.5133 2.28003 4.51266 3.10273V3.38462H0.846154C0.735035 3.38462 0.625005 3.4065 0.522345 3.44903C0.419685 3.49155 0.326405 3.55388 0.247832 3.63245C0.16926 3.71102 0.106933 3.8043 0.0644096 3.90696C0.0218864 4.00962 0 4.11965 0 4.23077C0 4.34189 0.0218864 4.45192 0.0644096 4.55458C0.106933 4.65724 0.16926 4.75052 0.247832 4.82909C0.326405 4.90766 0.419685 4.96999 0.522345 5.01251C0.625005 5.05504 0.735035 5.07692 0.846154 5.07692H1.12804V18.8973C1.12868 19.72 1.45578 20.5088 2.03752 21.0905C2.61925 21.6723 3.40807 21.9994 4.23077 22H13.2566C14.0793 21.9994 14.8681 21.6723 15.4498 21.0905C16.0316 20.5088 16.3587 19.72 16.3593 18.8973V5.07692H16.6412C16.8656 5.07692 17.0808 4.98777 17.2395 4.82909C17.3982 4.67041 17.4873 4.45518 17.4873 4.23077C17.4873 4.00636 17.3982 3.79113 17.2395 3.63245C17.0808 3.47376 16.8656 3.38462 16.6412 3.38462ZM6.20545 3.10273C6.20596 2.72882 6.35472 2.37037 6.61912 2.10597C6.88351 1.84158 7.24196 1.69282 7.61587 1.69231H9.87244C10.2463 1.69295 10.6046 1.84177 10.8689 2.10615C11.1332 2.37053 11.2819 2.7289 11.2824 3.10273V3.38462H6.20545V3.10273ZM14.667 18.8978C14.6665 19.2717 14.5177 19.6301 14.2533 19.8945C13.9889 20.1589 13.6305 20.3077 13.2566 20.3082H4.23077C3.85686 20.3077 3.49841 20.1589 3.23402 19.8945C2.96962 19.6301 2.82086 19.2717 2.82035 18.8978V5.07692H14.6665L14.667 18.8978Z" fill="#646A88"/>
+                                    <path d="M6.48727 9.0258C6.26289 9.02593 6.04774 9.11512 5.88909 9.27378C5.73043 9.43243 5.64124 9.64758 5.64111 9.87196V15.5131C5.64111 15.7376 5.73026 15.9528 5.88895 16.1115C6.04763 16.2701 6.26285 16.3593 6.48727 16.3593C6.71168 16.3593 6.9269 16.2701 7.08559 16.1115C7.24427 15.9528 7.33342 15.7376 7.33342 15.5131V9.87196C7.33329 9.64758 7.2441 9.43243 7.08545 9.27378C6.92679 9.11512 6.71164 9.02593 6.48727 9.0258Z" fill="#646A88"/>
+                                    <path d="M11.0005 9.0258C10.7761 9.02593 10.5609 9.11512 10.4023 9.27378C10.2436 9.43243 10.1544 9.64758 10.1543 9.87196V15.5131C10.1543 15.7376 10.2434 15.9528 10.4021 16.1115C10.5608 16.2701 10.776 16.3593 11.0005 16.3593C11.2249 16.3593 11.4401 16.2701 11.5988 16.1115C11.7575 15.9528 11.8466 15.7376 11.8466 15.5131V9.87196C11.8465 9.64758 11.7573 9.43243 11.5986 9.27378C11.44 9.11512 11.2248 9.02593 11.0005 9.0258Z" fill="#646A88"/>
+                                    </g>
+                                    <defs>
+                                    <clipPath id="clip0_882_6812">
+                                    <rect width="17.4873" height="22" fill="white"/>
+                                    </clipPath>
+                                    </defs>
+                                  </svg>
+                                </button> -->
+                                <nb-toggle status="primary" [(checked)]="industry.is_active" style="margin-top: 7px;" (change)="deleteIndustry(industry)" ></nb-toggle>
+                                </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </nb-card-body>
+                      <nb-card-footer style="min-height: 136px !important;padding: 0 !important;position: sticky;bottom: 0;background: #fff;left: 0;border-top:1px solid #DEE2E6 !important;overflow-x: hidden; display: flex; align-items: center; justify-content: center;">
+                        <div class="row" style="background: #fff;">
+                          <div class="col-md-12 text-center pegin">
+                            <pagination-controls id="paginationForIndustry" class="text-center paginate mb-0" (pageChange)="handlePageChangeOfIndustry($event)" previousLabel="Prev" nextLabel="Next" responsive="true" [previousLabel]="previousLabel" [nextLabel]="nextLabel">
+                            </pagination-controls>
+                          </div>
+                        </div>
+                      </nb-card-footer>
+                    </nb-card>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <button class="add-btn" (click)="addIndustry()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="35" height="43" viewBox="0 0 29 30" fill="none">
+                    <path d="M16.7559 12.5625H28.6211V17.1328H16.7559V29.291H12.127V17.1328H0.232422V12.5625H12.127V0.345703H16.7559V12.5625Z" fill="white"/>
+                  </svg>
+                </button>
+              </div>
+            <div class="head-total">
+              <span>Industries : <span *ngIf="total_industry > 0 && total_industry <= 9">0</span>{{total_industry}}</span>
+            </div>
+    </nb-tab>
+  </nb-tabset>
+</div>
