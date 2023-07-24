@@ -5,8 +5,8 @@
           <div class="overlay-div">
             <div class="d-flex justify-content-between align-items-center" style="user-select: none;margin-bottom: 16px;">
               <div>
-                <nb-select class="post-industry-select" placeholder="Select Your Industry" [(ngModel)]="selectedIndustry"(selectedChange)="selectedChangeIndustry($event)">
-                  <nb-option  *ngFor="let industry of industry_list_selection_active;" value="{{industry.id}}" style="white-space:pre;">{{industry.industry_name}}</nb-option>
+                <nb-select id="select_industry" class="post-industry-select" placeholder="Select Your Industry"  [(selected)]="selectedIndustry" (selectedChange)="selectedChangeIndustry($event)">
+                    <nb-option  *ngFor="let industry of industry_list_selection_active;" value="{{industry.id}}" style="white-space:pre;">{{industry.industry_name}}</nb-option>
                 </nb-select>
               </div>
               <div class="d-flex" style="column-gap: 22px;">
