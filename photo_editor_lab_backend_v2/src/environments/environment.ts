@@ -28,5 +28,30 @@ export const environment = {
     // BASE_URL: 'https://local104.ngrok.io/photo_editor_lab_backend/api/public/api/',
     // BASE_URL: 'https://videoflyer.ngrok.io/photo_editor_lab_backend/api/public/api/',
     FONT_CATEGORY_ID: 5
-  }
+  },
+  // CATAGORY_IDS: {
+  //   FRAME: 1,
+  //   STICKER: 2,
+  //   BACKGROUND: 3,
+  //   TEMPLATES: 4,
+  //   TEXT: 5,
+  //   THREED_OBJECTS: 6,
+  //   FONTS: 7,
+  //   VIDEO: 8,
+  //   AUDIO: 9,
+  //   INTRO: 10
+  // },
+  // CONTENT_TYPES: {
+  //   IMAGE: 1,
+  //   VIDEO: 2,
+  //   AUDIO: 3,
+  //   CARD_JSON: 4,
+  //   TEXT_JSON: 5,
+  //   THREED_TEXT_JSON: 6,
+  //   THREED_SHAPE: 7,
+  //   SVG: 8,
+  //   VIDEO_JSON: 9,
+  //   INTRO_JSON: 10,
+  //   INTRO: 11
+  // },
 };

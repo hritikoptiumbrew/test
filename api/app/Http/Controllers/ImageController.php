@@ -2066,8 +2066,22 @@ class ImageController extends Controller
                 return $response = Response::json(array('code' => 201, 'message' => 'Please select square image.', 'cause' => '', 'data' => json_decode("{}")));
             }
         }
+        return $response;
+    }
 
+    public function verifyIndustryIcon($image_array)
+    {
+        $image_type = $image_array->getMimeType();
+        $image_size = $image_array->getSize();
 
+        $MAXIMUM_FILESIZE = 100 * 1024; //100kb
+
+        if (!($image_type == 'image/png'))
+            $response = Response::json(array('code' => 201, 'message' => 'Please select PNG icon file.', 'cause' => '', 'data' => json_decode("{}")));
+        elseif ($image_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => 201, 'message' => 'Icon file Size is greater then 100KB.', 'cause' => '', 'data' => json_decode("{}")));
+        else
+            $response = '';
         return $response;
     }
 

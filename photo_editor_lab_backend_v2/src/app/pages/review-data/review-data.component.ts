@@ -27,7 +27,7 @@ export class ReviewDataComponent implements OnInit {
   nextLabel=">";
 
   constructor(private dataService: DataService, private utils: UtilService, private _sanitizer: DomSanitizer) { 
-    this.token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjIsImlzcyI6Imh0dHA6Ly8xOTIuMTY4LjAuMTEwL3Bob3RvX2VkaXRvcl9sYWJfYmFja2VuZC9hcGkvcHVibGljL2FwaS9kb0xvZ2luRm9yR3Vlc3QiLCJpYXQiOjE2ODk1ODQyNjAsImV4cCI6MTY5MDE4OTA2MCwibmJmIjoxNjg5NTg0MjYwLCJqdGkiOiJCYkp3OUptSmhqZmZoYTRFIn0.pu2rU6R1NAT9uvrfEnKx7uySQsiP6kyuM3b8ORgcycU";
+    this.token = localStorage.getItem("at");
   }
 
   ngOnInit(): void {

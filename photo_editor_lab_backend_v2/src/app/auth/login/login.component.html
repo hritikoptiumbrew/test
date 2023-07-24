@@ -28,20 +28,18 @@ Copyright 2018 - 2020 Optimumbrew Technology
                 <div class="loginform">
                     <form autocomplete="off">
                         <div class="form-group">
-                            <mat-form-field appearance="outline" >
+                            <mat-form-field appearance="outline" floatLabel="never">
                                 <mat-icon matPrefix>person_outline</mat-icon>
-                                <mat-label>Email</mat-label>
-                                <input matInput type="text" [formControl]="emailFormControl" id="loginEmail" valid-status="false" (keyup)="checkValidation('loginEmail','email','EmailError','','','blank')"  (keyup.enter)="checkValidation('loginEmail','email','EmailError',errormsg.EMPTY_EMAIL,errormsg.INVALID_EMAIL,'usual')" >
+                                <!-- <mat-label>Email</mat-label> -->
+                                <input placeholder="Email" matInput type="text" [formControl]="emailFormControl" id="loginEmail" valid-status="false" (keyup)="checkValidation('loginEmail','email','EmailError','','','blank')"  (keyup.enter)="checkValidation('loginEmail','email','EmailError',errormsg.EMPTY_EMAIL,errormsg.INVALID_EMAIL,'usual')" >
                                 <mat-hint id="EmailError" style="color: red;margin-bottom: 0px;font-size: 14px;"></mat-hint>
                             </mat-form-field>
-                           
-                            <!-- <p ></p> -->
                         </div>
                         <div class="form-group">
-                            <mat-form-field appearance="outline">
+                            <mat-form-field appearance="outline" floatLabel="never">
                                 <mat-icon matPrefix>lock_open</mat-icon>
-                                <mat-label>Password</mat-label>
-                                <input matInput [type]="passTextType ? 'text' : 'password'" [formControl]="passwordFormControl" id="loginPass" valid-status="false" (keyup)="checkValidation('loginPass','','passError','','','blank')" (keyup.enter)="checkValidation('loginPass','','passError',errormsg.EMPTY_PASSWORD,errormsg.INVALID_PASSWORD,'usual')">    
+                                <!-- <mat-label>Password</mat-label> -->
+                                <input placeholder="Password" matInput [type]="passTextType ? 'text' : 'password'" [formControl]="passwordFormControl" id="loginPass" valid-status="false" (keyup)="checkValidation('loginPass','','passError','','','blank')" (keyup.enter)="checkValidation('loginPass','','passError',errormsg.EMPTY_PASSWORD,errormsg.INVALID_PASSWORD,'usual')">    
                                 <span matSuffix class="eye-icon"><i class="fa"
                                     [ngClass]="{'fa-eye': !passTextType,'fa-eye-slash': passTextType }" [attr.title]="passTextType ? 'Hide Password' : 'Show Password'" matSuffix (click)="passHideShow()"></i></span>
                                 <mat-hint id="passError" style="color: red;margin-bottom: 0px;font-size: 14px;"></mat-hint>

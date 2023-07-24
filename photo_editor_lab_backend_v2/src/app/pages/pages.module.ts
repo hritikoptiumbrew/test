@@ -13,7 +13,7 @@
 
 
 import { NgModule } from '@angular/core';
-import { NbAutocompleteModule, NbButtonModule, NbCardModule, NbIconModule, NbInputModule, NbListModule, NbMenuModule, NbRadioModule, NbSelectModule, NbWindowModule } from '@nebular/theme';
+import { NbAutocompleteModule, NbButtonModule, NbCardModule, NbIconModule, NbInputModule, NbListModule, NbMenuModule, NbPopoverModule, NbRadioModule, NbSelectModule, NbToggleModule, NbWindowModule } from '@nebular/theme';
 
 import { ThemeModule } from '../@theme/theme.module';
 import { PagesComponent } from './pages.component';
@@ -39,6 +39,11 @@ import { FormsModule,ReactiveFormsModule} from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Daterangepicker } from 'ng2-daterangepicker';
 import { UpdateTagDialogComponent } from './search/update-tag-dialog/update-tag-dialog.component';
+import { PostCalenderModule } from './postcalender/postcalender.module';
+import { CalendarModule, DateAdapter, CalendarMonthModule, CalendarMonthViewComponent} from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+// import { PopoverModule } from '../../../node_modules/ngx-smart-popover';
+
 import { ReviewDataModule } from './review-data/review-data.module'
 @NgModule({
   imports: [
@@ -62,7 +67,8 @@ import { ReviewDataModule } from './review-data/review-data.module'
     StatisticsModule,
     ImagedetailsModule,
     RediscacheModule,
-    SettingsModule, 
+    SettingsModule,
+    PostCalenderModule,
     NbSelectModule,
     NbRadioModule,
     FormsModule,
@@ -73,12 +79,18 @@ import { ReviewDataModule } from './review-data/review-data.module'
     NbListModule,
     NbButtonModule,
     NgxPaginationModule,
+    CalendarModule.forRoot({
+      provide: DateAdapter,
+      useFactory: adapterFactory,
+    }),
+    NbPopoverModule,
+    NbToggleModule,
     ReviewDataModule
   ],
   declarations: [
     PagesComponent,
     SearchComponent,
-    UpdateTagDialogComponent,
+    UpdateTagDialogComponent
   ],
 })
   export class PagesModule {

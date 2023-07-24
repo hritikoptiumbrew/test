@@ -261,6 +261,20 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     //Get tag from image
     Route::post('getTagFromImage','AdminController@getTagFromImage');
 
+    //Schedule Post Calendar
+    Route::post('addIndustry','AdminController@addIndustry');
+    Route::post('updateIndustry','AdminController@updateIndustry');
+    Route::post('deleteIndustry','AdminController@deleteIndustry');
+    Route::post('addTheme','AdminController@addTheme');
+    Route::post('getThemeBySubCategoryId','AdminController@getThemeBySubCategoryId');
+    Route::post('updateTheme','AdminController@updateTheme');
+    Route::post('deleteTheme','AdminController@deleteTheme');
+    Route::post('addSchedulePost','AdminController@addSchedulePost');
+    Route::post('updateScheduledPost','AdminController@updateScheduledPost');
+    Route::post('deleteScheduledPost','AdminController@deleteScheduledPost');
+    Route::post('getScheduledPostDetails','AdminController@getScheduledPostDetails');
+    Route::post('repeatPostThemes','AdminController@repeatPostThemes');
+
 });
 
 //Common api
@@ -273,6 +287,10 @@ Route::middleware(['ability:user|admin,user_permission|admin_permission'])->grou
     Route::post('getSubCategoryByCategoryId', 'AdminController@getSubCategoryByCategoryId');
     Route::post('getCatalogBySubCategoryId_v2', 'AdminController@getCatalogBySubCategoryId_v2');
     Route::post('getCorruptedFontList', 'UserController@getCorruptedFontList'); //To get unused font list
+
+    //post calendar
+    Route::post('getAllTemplateBySearchTag','AdminController@getAllTemplateBySearchTag');
+    Route::post('getIndustryBySubCategoryIdForAdmin','AdminController@getIndustryBySubCategoryIdForAdmin');
 
 });
 
@@ -411,6 +429,11 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     //Get Searching tag by sub_category_id
     Route::post('getSearchTagBySubCategoryId', 'UserController@getSearchTagBySubCategoryId');
     Route::post('searchCatalogBySubCategoryId', 'UserController@searchCatalogBySubCategoryId');
+
+    //post calendar
+    Route::post('getPostByIndustryId', 'UserController@getPostByIndustryId');
+    Route::post('test_getPostByIndustryId', 'UserController@test_getPostByIndustryId');
+    Route::post('getIndustryBySubCategoryId','UserController@getIndustryBySubCategoryId');
 
 });
 

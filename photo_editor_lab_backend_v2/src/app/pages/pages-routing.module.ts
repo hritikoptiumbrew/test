@@ -30,7 +30,11 @@ import { ImagedetailsComponent } from './imagedetails/imagedetails.component';
 import { RediscacheComponent } from './rediscache/rediscache.component';
 import { SettingsComponent } from './settings/settings.component';
 import { SearchComponent } from './search/search.component';
+<<<<<<< HEAD
 import { ReviewDataComponent } from './review-data/review-data.component';
+=======
+import { PostcalenderComponent } from './postcalender/postcalender.component';
+>>>>>>> 8dd6a5e2d8fe57db632d9db0d88c7cf5a95d98c8
 
 const routes: Routes = [{
   path: '',
@@ -51,6 +55,10 @@ const routes: Routes = [{
     {
       path: 'categories/:categoryId',
       component: ViewcategoriesComponent
+    },
+    {
+      path: 'categories/:categoryId/:post-calendar',
+      component: PostcalenderComponent
     },
     {
       path: 'categories/:categoryId/:subCategoryName/:subCategoryId',

@@ -1,0 +1,38 @@
+<nb-card>
+    <nb-card-header class="header-text" style="position: relative;">
+      <h5 class="text-center">{{dialogTitle}}</h5>
+      <i class="close-icon" title="Close" (click)="closedialog()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M2 20L20 2" stroke="#222B45" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M20 20L2 2" stroke="#222B45" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </i>
+    </nb-card-header>
+    <nb-card-body>
+      <div class="row mt-4">
+        <div class="col-md-3 pr-0">
+          <label class="d-block form-label input-label">Theme Name*</label>
+        </div>
+        <div class="col-md-9 pl-0">
+          <div class="form-group">
+            <input type="text" tabindex="-1" autofocus="false" nbInput placeholder="Enter theme name" class="w-100" style="font-family: 'Open Sans';font-style: normal; font-weight: 500;font-size: 18px;color: #222B45;"
+              [(ngModel)]="themeName">
+          </div>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-3 pr-0">
+          <label class="d-block form-label input-label">Short Description*</label>
+        </div>
+        <div class="col-md-9 pl-0">
+          <div class="form-group">
+            <textarea type="text" tabindex="-1" autofocus="false" nbInput  placeholder="Enter short description" class="w-100" style="height: 96px;resize: none;font-family: 'Open Sans';font-style: normal; font-weight: 500;font-size: 18px;color: #222B45;"
+              [(ngModel)]="themeDescription"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-group text-center mt-4">
+        <button class="main-btn" id="subCatAdd" (click)="btnText == 'Add Theme' ? addTheme() : updateTheme()">{{btnText}}</button>
+      </div>
+    </nb-card-body>
+  </nb-card>
