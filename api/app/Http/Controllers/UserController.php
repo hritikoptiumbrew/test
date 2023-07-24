@@ -12544,7 +12544,7 @@ class UserController extends Controller
             $this->offset = ($page - 1) * $this->item_count;
             $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
             if ($is_cache_enable) {
-                $redis_result = Cache::rememberforever("getIndustryBySubCategoryId$this->sub_category_id:$page:$this->item_count", function () {
+                $redis_result = Cache::remember("getIndustryBySubCategoryId:$this->sub_category_id:$page:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
                     return $this->getIndustry($this->sub_category_id, $this->offset, $this->item_count);
                 });
             } else {

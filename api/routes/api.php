@@ -432,7 +432,6 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
 
     //post calendar
     Route::post('getPostByIndustryId', 'UserController@getPostByIndustryId');
-    Route::post('test_getPostByIndustryId', 'UserController@test_getPostByIndustryId');
     Route::post('getIndustryBySubCategoryId','UserController@getIndustryBySubCategoryId');
 
 });
