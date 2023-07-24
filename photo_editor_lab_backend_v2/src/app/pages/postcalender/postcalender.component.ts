@@ -93,7 +93,7 @@ export class PostcalenderComponent implements OnInit {
   total_industry:any;
   theme_list:any = [];
   total_theme:any;
-  selectedIndustry:any;
+  selectedIndustry:any = "";
   scheduledPostList:any = [];
   
   constructor(
@@ -315,22 +315,26 @@ export class PostcalenderComponent implements OnInit {
             if(element.is_active == 1){
               this.industry_list_selection_active.push(element);
             }
-            if(index == 0){
-              this.selectedIndustry = element.id.toString();
-            }
           });
+        }
 
+        if(this.industry_list_selection_active.length == 0){
+          this.selectedIndustry = "";
+          $("#select_industry").children().text("Select Your Industry");
+          $("#select_industry").children().addClass("placeholder");
+        }
+        else{
           this.industry_list_selection_active.forEach((element,index) => {
             if(index == 0){
+              $("#select_industry").children().text(element.industry_name);
+              $("#select_industry").children().removeClass("placeholder");
               this.selectedIndustry = element.id.toString();
-            }
-          });
+            } 
+          }); 
 
           this.getScheduledPostDetails();
         }
-        if(this.industry_list_selection.length == 0){
-          this.selectedIndustry = "";
-        }
+
         this.cdr.detectChanges();
         this.utils.hidePageLoader();
       }
@@ -521,6 +525,13 @@ export class PostcalenderComponent implements OnInit {
   }
 
   selectedChangeIndustry(value){
+    this.industry_list_selection_active.forEach(element => {
+      if(element.id == value){
+        $("#select_industry").children().text(element.industry_name);
+        $("#select_industry").children().removeClass("placeholder");
+      }
+    });
+    
     this.selectedIndustry = value;
     this.getScheduledPostDetails();
   }
