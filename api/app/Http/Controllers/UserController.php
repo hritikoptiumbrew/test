@@ -109,12 +109,12 @@ class UserController extends Controller
                     ]
                 ],
             ];
-            Log::info('getDataFromPrompt : ', ['key' => env('OPENAI_API_KEY')]);
+            Log::info('getDataFromPrompt : ', ['key' => config('constant.OPENAI_API_KEY')]);
             $client = new Client();
             $response_client = $client->post("https://api.openai.com/v1/chat/completions", [
                 'headers' => [
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+                    'Authorization' => 'Bearer ' . config('constant.OPENAI_API_KEY'),
                 ],
                 'json' => $chatGpt_request
             ]);
