@@ -109,6 +109,7 @@ class UserController extends Controller
                     ]
                 ],
             ];
+            Log::info('getDataFromPrompt : ', ['key' => env('OPENAI_API_KEY')]);
             $client = new Client();
             $response_client = $client->post("https://api.openai.com/v1/chat/completions", [
                 'headers' => [
