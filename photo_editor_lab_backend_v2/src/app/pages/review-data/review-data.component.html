@@ -36,7 +36,7 @@
                   <th class="text-center">Created At</th>
                   <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Country</th>
                   <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Language</th>
-                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">App Vrsion</th>
+                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">App Version</th>
                   <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Platform</th>
                   <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">ChatGpt Request</th>
                   <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">ChatGpt Response</th>
@@ -52,12 +52,12 @@
                   <td class="text-center">{{ item.purpose }}</td>
                   <td class="text-center">{{ item.exactly_want }}</td>
                   <td class="text-center">{{ item.created_at }}</td>
-                  <td class="text-center">{{ item.device_json.country }}</td>
-                  <td class="text-center">{{ item.device_json.language }}</td>
+                  <td class="text-center">{{ item.device_json.device_country_code }}</td>
+                  <td class="text-center">{{ item.device_json.device_language }}</td>
                   <td class="text-center">{{ item.app_json.app_version }}</td>
                   <td class="text-center">{{ item.app_json.platform }}</td>
-                  <td class="">{{item.ChatGpt_request}}</td>
-                  <td class="">{{ item.ChatGpt_response }}</td>
+                  <td class=""><div>{{item.ChatGpt_request}}</div></td>
+                  <td class=""><div>{{ item.ChatGpt_response }}</div></td>
                 </tr>
               </tbody>
             </table>

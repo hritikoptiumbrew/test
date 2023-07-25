@@ -72,11 +72,11 @@ export class ReviewDataComponent implements OnInit {
             results.data[i].app_json = {"app_version" : "","platform" : ""}
           }
           if(results.data[i].device_json == null){
-            results.data[i].device_json = {"country" : "","language" : ""}
+            results.data[i].device_json = {"device_country_code" : "","device_language" : ""}
           }
         } 
         this.reviewArray = results.data;  
-        console.log(results.data)
+        console.log
         this.totalRecord = results.data.length;
         this.utils.hidePageLoader();
       }else if (results.code == 201) {
