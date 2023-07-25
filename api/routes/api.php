@@ -442,6 +442,9 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getPostByIndustryId', 'UserController@getPostByIndustryId');
     Route::post('getIndustryBySubCategoryId','UserController@getIndustryBySubCategoryId');
 
+    Route::post('checkHeightWidthOfTemplateInCatalog', 'UserController@checkHeightWidthOfTemplateInCatalog');
+
+
 });
 
 //API for auto upload template

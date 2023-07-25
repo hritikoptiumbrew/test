@@ -12802,6 +12802,7 @@ class UserController extends Controller
                                             scc.sub_category_id = ? AND
                                             ISNULL(im.original_img) AND
                                             ISNULL(im.display_img) AND
+                                            im.original_img_height = im.original_img_width AND
                                             (im.id IN(' . $template_ids . ') OR
                                             (MATCH(im.search_category) AGAINST("' . $search_tag . '") OR 
                                             MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_tag . '"," ")," ","* ") IN BOOLEAN MODE)))
@@ -12843,6 +12844,7 @@ class UserController extends Controller
                                             scc.sub_category_id  = ? AND
                                             ISNULL(im.original_img) AND
                                             ISNULL(im.display_img) AND
+                                            im.original_img_height = im.original_img_width AND
                                             (im.id IN(' . $template_ids . ') OR
                                             (MATCH(im.search_category) AGAINST("' . $search_tag . '") OR 
                                             MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_tag . '"," ")," ","* ") IN BOOLEAN MODE)))
@@ -12950,6 +12952,7 @@ class UserController extends Controller
 
     public function getScheduledDatePost($schedule_date, $industry_id, $sub_category_id, $offset, $item_count)
     {
+
         $result = DB::select('SELECT 
                                     psm.schedule_date ,
                                     DATE_FORMAT (psm.schedule_date, "%a %d") as display_date, 
@@ -13092,7 +13095,8 @@ class UserController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'industry_id', 'page', 'item_count'), $request)) != '')
                 return $response;
 
-            $this->start_date = date('Y-m-d', strtotime(' -1 day'));
+            $this->current_date = date('Y-m-d');
+            $this->start_date = date('Y-m-d', strtotime('-1 day', strtotime($this->current_date)));
             $this->industry_id = $request->industry_id;
             $this->sub_category_id = $request->sub_category_id;
             $this->schedule_date = isset($request->schedule_date) ? $request->schedule_date : NULL;
@@ -13103,7 +13107,7 @@ class UserController extends Controller
 
             if ($this->schedule_date) {
                 if ($is_cache_enable) {
-                    $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:$this->schedule_date:$this->page:$this->item_count", function () {
+                    $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:schedule_date:$this->schedule_date:$this->page:$this->item_count", function () {
                         return $this->getScheduledDatePost($this->schedule_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count);
                     });
                 } else {
@@ -13112,7 +13116,7 @@ class UserController extends Controller
 
             } else {
                 if ($is_cache_enable) {
-                    $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:$this->start_date:$this->page:$this->item_count", function () {
+                    $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:fresh_response:$this->current_date:$this->page:$this->item_count", function () {
                         return $this->getPosts($this->start_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count, 1);
                     });
                 } else {
@@ -13127,6 +13131,44 @@ class UserController extends Controller
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'getPostByIndustryId', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
+    }
+
+    public function checkHeightWidthOfTemplateInCatalog(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_ids'), $request)) != '')
+                return $response;
+
+            $catalog_ids = $request->catalog_ids;
+            $response = DB::select('SELECT  
+                                         im.id,
+                                         IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS sample_img,
+                                         im.catalog_id,
+                                         im.height,
+                                         im.width,
+                                         im.original_img_height,
+                                         im.original_img_width
+                                   FROM
+                                        images AS im
+                                   WHERE
+                                         im.height = "" AND
+                                         im.width = "" AND
+                                         im.original_img_height = "" AND
+                                         im.original_img_width = "" AND
+                                         im.catalog_id IN ('.$catalog_ids.')
+                                   ORDER BY im.updated_at DESC');
+
+            $response = Response::json(array('code' => 200, 'message' => 'Template fetched successfully.', 'cause' => '', 'data' => $response));
+        } catch (Exception $e) {
+            Log::error("checkHeightWidthOfTemplateInCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'checkHeightWidthOfTemplateInCatalog', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+
     }
 
 }
