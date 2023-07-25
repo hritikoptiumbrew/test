@@ -65,7 +65,18 @@ export class ReviewDataComponent implements OnInit {
       }
     }).then((results: any) => {
       if (results.code == 200) {
+        for(let i=0; i<=results.data.length-1; i++){
+          results.data[i].app_json = JSON.parse(results.data[i].app_json);
+          results.data[i].device_json =JSON.parse(results.data[i].device_json);
+          if(results.data[i].app_json == null){
+            results.data[i].app_json = {"app_version" : "","platform" : ""}
+          }
+          if(results.data[i].device_json == null){
+            results.data[i].device_json = {"country" : "","language" : ""}
+          }
+        } 
         this.reviewArray = results.data;  
+        console.log(results.data)
         this.totalRecord = results.data.length;
         this.utils.hidePageLoader();
       }else if (results.code == 201) {
