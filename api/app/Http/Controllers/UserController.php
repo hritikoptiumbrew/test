@@ -37,7 +37,7 @@ class UserController extends Controller
     /* =================================| Ai Playground |=============================*/
     /**
      * @api {post} getDataFromPrompt getDataFromPrompt
-     * @apiName submitAiForm
+     * @apiName getDataFromPrompt
      * @apiGroup User
      * @apiVersion 1.0.0
      * @apiSuccessExample Request-Header:
@@ -70,9 +70,10 @@ class UserController extends Controller
      * }
      * }
      */
-    public function submitAiForm(Request $request_body) {
+    public function getDataFromPrompt(Request $request_body)
+    {
         try {
-            if($request_body['device_json'] != null) {
+            if ($request_body['device_json'] != null) {
                 $device_json['device_country_code'] = isset($request_body['device_json']['device_country_code']) ? $request_body['device_json']['device_country_code'] : "";
                 $device_json['device_language'] = isset($request_body['device_json']['device_language']) ? $request_body['device_json']['device_language'] : "";
                 $device_json = json_encode($device_json);
@@ -80,7 +81,7 @@ class UserController extends Controller
                 $device_json = NULL;
             }
 
-            if($request_body['app_json'] != null) {
+            if ($request_body['app_json'] != null) {
                 $app_json['app_version'] = isset($request_body['app_json']['app_version']) ? $request_body['app_json']['app_version'] : "";
                 $app_json['platform'] = isset($request_body['app_json']['platform']) ? $request_body['app_json']['platform'] : "";
                 $app_json = json_encode($app_json);
@@ -93,15 +94,7 @@ class UserController extends Controller
             $industry_string = $industry ? "\nUser belongs to: " . $industry : NULL;
             $purpose = $request_body['purpose'];
             $prompt = $request_body['exactly_want'];
-            $system = "You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
-$industry_string
-Purpose of the poster: $purpose
-
-
-give a result based on this but give the exact result that the user wants. Do not give the other description.
-
-
-provide a result text without adding any extra words so that it can be used directly in the poster.";
+            $system = "You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.\n\n$industry_string\nPurpose of the poster: $purpose\n\n\ngive a result based on this but give the exact result that the user wants. Do not give the other description.\n\n\nprovide a result text without adding any extra words so that it can be used directly in the poster.";
 
             $chatGpt_request = [
                 "model" => "gpt-3.5-turbo",
@@ -126,31 +119,33 @@ provide a result text without adding any extra words so that it can be used dire
             ]);
 
             $data = json_decode($response_client->getBody()->getContents(), true);
+            $db_data = array(
+                'industry' => $industry,
+                'purpose' => $purpose,
+                'exactly_want' => $request_body["exactly_want"],
+                'ChatGpt_response' => json_encode($data),
+                'ChatGpt_request' => json_encode($chatGpt_request),
+                'created_at' => $current_time,
+                'device_json' => $device_json,
+                'app_json' => $app_json,
+            );
 
-
-
-            DB::insert('INSERT INTO `ai_chats`
-            (`industry`, `purpose`, `exactly_want`, `ChatGpt_response`, `ChatGpt_request`,`created_at`, `device_json`, `app_json`)
-            VALUES
-            (?,?,?,?,?,?,?,?)',
-                [ $industry, $purpose, $request_body["exactly_want"], json_encode($data), json_encode($chatGpt_request), $current_time, $device_json, $app_json]);
-
-            $chat_number = DB::getPdo()->lastInsertId();
-            $resutl['id'] = $chat_number;
-            $pregString = preg_replace('/(^[\"\']|[\"\']$)/', '',$data['choices'][0]['message']['content']);
-//            Log::info('$pregString :'.$pregString);
+            DB::beginTransaction();
+            $chat_number = DB::table('ai_chats')->insertGetId($db_data);
+            $resutl['id'] = strval($chat_number);
+            $pregString = preg_replace('/(^[\"\']|[\"\']$)/', '', $data['choices'][0]['message']['content']);
             $resutl['result'] = $pregString != null ? $pregString : $data['choices'][0]['message']['content'];
             $resutl['result'] = trim($resutl['result']);
             DB::commit();
-            $response = Response::json(array('code' => 200, 'message' => 'Result get successfully', 'cause' => '', 'data' => $resutl));
+
+            $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $resutl));
 
         } catch (Exception $e) {
-            Log::error('getDataFromPrompt '.$request_body['chat_number'], ['Exception' =>$e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            Log::error('getDataFromPrompt : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
-            $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong, Please Try Again', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
-
     }
 
     /**
@@ -178,20 +173,22 @@ provide a result text without adding any extra words so that it can be used dire
      * }
      * }
      */
-    public function aiFeedback(Request $request_body) {
+    public function aiFeedback(Request $request_body)
+    {
         try {
-            if (($response = (new VerificationController())->validateRequiredParameter(array('feedback', 'feedback_msg', 'chat_number'), $request_body)) != '')
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('feedback', 'feedback_msg', 'chat_number'), $request)) != '')
                 return $response;
 
             DB::beginTransaction();
-            DB::update('UPDATE `ai_chats` SET feedback=?, feedback_msg=?, updated_at=? WHERE id=?',    [$request_body['feedback'], $request_body['feedback_msg'], date('Y-m-d H:i:s'), $request_body['chat_number']]);
+            DB::update('UPDATE `ai_chats` SET feedback = ?, feedback_msg = ?, updated_at = ? WHERE id = ?', [$request->feedback, $request->feedback_msg, date('Y-m-d H:i:s'), $request->chat_number]);
             DB::commit();
 
-            $response = Response::json(array('code' => 200, 'message' => 'Thank You For Your FeedBack', 'cause' => '', 'data' => json_decode("{}")));
+            $response = Response::json(array('code' => 200, 'message' => 'Thank you for your feedback.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
-            Log::error('FeedBack : id : '.$request_body['chat_number'], ['Exception' =>$e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => 'Something Is wrong', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            Log::error('aiFeedback : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'update feedback.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
         return $response;
@@ -231,16 +228,29 @@ provide a result text without adding any extra words so that it can be used dire
      *]
      *}
      */
-    public function getAiChats(){
+    public function getAiChats()
+    {
         try {
-            $data = DB::select('SELECT id, industry, purpose, exactly_want, ChatGpt_response, feedback, feedback_msg, created_at, updated_at, ChatGpt_request, device_json, app_json FROM `ai_chats` ORDER BY id DESC');
-            $response = Response::json(array('code' => 200, 'message' => 'success', 'cause' => '', 'data' => $data));
+            $data = DB::select('SELECT 
+                                    id, 
+                                    industry, 
+                                    purpose, 
+                                    exactly_want, 
+                                    ChatGpt_response, 
+                                    feedback, 
+                                    feedback_msg, 
+                                    created_at, 
+                                    updated_at, 
+                                    ChatGpt_request, 
+                                    device_json, 
+                                    app_json 
+                                FROM ai_chats 
+                                ORDER BY id DESC');
+            $response = Response::json(array('code' => 200, 'message' => 'AI chats fetched successfully.', 'cause' => '', 'data' => $data));
         } catch (Exception $e) {
-            Log::error('getChats : ', ['Exception' =>$e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
-            $response = Response::json(array('code' => 201, 'message' => 'Something Is wrong', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-//            DB::rollBack();
+            Log::error('getChats : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get AI chats.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
-
         return $response;
     }
 

@@ -303,7 +303,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('user', 'UserController@index');
 
     //AI Playground APIs
-    Route::post('getDataFromPrompt','UserController@submitAiForm');
+    Route::post('getDataFromPrompt','UserController@getDataFromPrompt');
     Route::post('feedback', 'UserController@aiFeedback');
 //    Route::post('getAiChats', 'UserController@getAiChats');
 
