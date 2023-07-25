@@ -436,7 +436,6 @@ class DeleteCacheKey
 
             //Post Calendar
             if ($api == '/api/addIndustry' or $api == '/api/updateIndustry' or $api == '/api/deleteIndustry') {
-                Redis::del(array_merge(Redis::keys("pel:getIndustryBySubCategoryId*"), ['']));
                 Redis::del(array_merge(Redis::keys("pel:getIndustryBySubCategoryIdForAdmin*"), ['']));
                 Redis::del(array_merge(Redis::keys("pel:getIndustryById*"), ['']));
                 Redis::del(array_merge(Redis::keys("pel:getScheduledPostDetails*"), ['']));
