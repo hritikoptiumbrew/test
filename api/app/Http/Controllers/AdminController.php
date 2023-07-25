@@ -12335,7 +12335,7 @@ class AdminController extends Controller
                                           post_industry 
                                        WHERE 
                                           sub_category_id = ?
-                                       ORDER BY id DESC 
+                                       ORDER BY updated_at DESC 
                                        LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
 
                 $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;

@@ -12481,7 +12481,7 @@ class UserController extends Controller
                                     post_industry 
                                WHERE 
                                     sub_category_id = ? AND is_active = 1
-                               ORDER BY id DESC 
+                               ORDER BY updated_at DESC 
                                LIMIT ?,?', [$sub_category_id, $offset, $item_count]);
 
         $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;

@@ -297,3 +297,15 @@ CREATE TABLE `post_schedule_master` (
  CONSTRAINT `post_theme_id` FOREIGN KEY (`post_theme_id`) REFERENCES `post_theme` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
  CONSTRAINT `sub_category_id_fr` FOREIGN KEY (`sub_category_id`) REFERENCES `sub_category` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+49)PhotoEditorLab : perform following query on database (25 July, 2023) post schedule module
+---------------------------------------------------------------------------------------------------
+
+ALTER TABLE post_industry
+MODIFY COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+ALTER TABLE post_theme
+MODIFY COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+ALTER TABLE post_schedule_master
+MODIFY COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
