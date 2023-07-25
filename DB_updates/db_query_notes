@@ -310,7 +310,8 @@ MODIFY COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_T
 ALTER TABLE post_schedule_master
 MODIFY COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
-50) PhotoEditorLab : perform following query on database (25 July, 2023) post schedule module
+50) PhotoEditorLab : perform following query on database (25 July, 2023) Ai text module
+---------------------------------------------------------------------------------------------------
 CREATE TABLE `ai_chats` (
  `id` bigint NOT NULL AUTO_INCREMENT,
  `industry` mediumtext COLLATE utf8mb4_unicode_ci,
