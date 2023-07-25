@@ -266,6 +266,9 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
 //Common api
 Route::middleware(['ability:user|admin,user_permission|admin_permission'])->group(function () {
 
+    //AI Playground APIs
+    Route::post('getAiChats', 'UserController@getAiChats');
+
     //doLogout
     Route::post('doLogout', 'LoginController@doLogout');
 
@@ -280,6 +283,11 @@ Route::middleware(['ability:user|admin,user_permission|admin_permission'])->grou
 Route::middleware(['ability:user,user_permission'])->group(function () {
 
     Route::post('user', 'UserController@index');
+
+    //AI Playground APIs
+    Route::post('getDataFromPrompt','UserController@submitAiForm');
+    Route::post('feedback', 'UserController@aiFeedback');
+//    Route::post('getAiChats', 'UserController@getAiChats');
 
     //Template APIs
     Route::post('getJsonData', 'UserController@getJsonData');

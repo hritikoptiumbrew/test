@@ -21,6 +21,8 @@ use Abraham\TwitterOAuth\TwitterOAuth;
 use App\Jobs\SaveSearchTagJob;
 use Image;
 use Google\Cloud\Translate\V2\TranslateClient;
+use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 
 class UserController extends Controller
 {
@@ -30,6 +32,215 @@ class UserController extends Controller
         $this->item_count = Config::get('constant.PAGINATION_ITEM_LIMIT');
         $this->base_url = (new Utils())->getBaseUrl();
 
+    }
+    /* =================================| Ai Playground |=============================*/
+    /**
+     * @api {post} getDataFromPrompt getDataFromPrompt
+     * @apiName submitAiForm
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "industry":"test" //optional
+     * "purpose":"High tea party invitation" //compulsory
+     * "exactly_want":"Description" //compulsory
+     * "device_json" : { //optional
+     *           "country" : "us",
+     *           "language" : "english"
+     *  }
+     * "app_json" : { //optional
+     *           "app_version" : "1.0",
+     *           "platform" : "1"
+     *  }
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Result get successfully",
+     * "cause": "",
+     * "data": {
+     * "id": 279,
+     * "result" : "Join us for an elegant high tea party!\nDate: [Date]\nTime: [Time]\nLocation: [Location]\nRSVP: [Contact information]\n\nDress up and indulge in a delightful selection of teas, finger sandwiches, scones, and sweet treats. Don't miss this opportunity to relax, socialize, and enjoy an afternoon of sophistication and deliciousness!\n"
+     * }
+     * }
+     */
+    public function submitAiForm(Request $request_body) {
+        try {
+            if($request_body['device_json'] != null) {
+                $device_json['device_country_code'] = isset($request_body['device_json']['device_country_code']) ? $request_body['device_json']['device_country_code'] : "";
+                $device_json['device_language'] = isset($request_body['device_json']['device_language']) ? $request_body['device_json']['device_language'] : "";
+                $device_json = json_encode($device_json);
+            } else {
+                $device_json = NULL;
+            }
+
+            if($request_body['app_json'] != null) {
+                $app_json['app_version'] = isset($request_body['app_json']['app_version']) ? $request_body['app_json']['app_version'] : "";
+                $app_json['platform'] = isset($request_body['app_json']['platform']) ? $request_body['app_json']['platform'] : "";
+                $app_json = json_encode($app_json);
+            } else {
+                $app_json = NULL;
+            }
+
+            $current_time = date('Y-m-d H:i:s');
+            $industry = isset($request_body['industry']) ? $request_body['industry'] : NULL;
+            $industry_string = $industry ? "\nUser belongs to: " . $industry : NULL;
+            $purpose = $request_body['purpose'];
+            $prompt = $request_body['exactly_want'];
+            $system = "You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
+$industry_string
+Purpose of the poster: $purpose
+
+
+give a result based on this but give the exact result that the user wants. Do not give the other description.
+
+
+provide a result text without adding any extra words so that it can be used directly in the poster.";
+
+            $chatGpt_request = [
+                "model" => "gpt-3.5-turbo",
+                'messages' => [
+                    [
+                        "role" => "system",
+                        "content" => $system
+                    ],
+                    [
+                        "role" => "user",
+                        "content" => $prompt
+                    ]
+                ],
+            ];
+            $client = new Client();
+            $response_client = $client->post("https://api.openai.com/v1/chat/completions", [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+                ],
+                'json' => $chatGpt_request
+            ]);
+
+            $data = json_decode($response_client->getBody()->getContents(), true);
+
+
+
+            DB::insert('INSERT INTO `ai_chats`
+            (`industry`, `purpose`, `exactly_want`, `ChatGpt_response`, `ChatGpt_request`,`created_at`, `device_json`, `app_json`)
+            VALUES
+            (?,?,?,?,?,?,?,?)',
+                [ $industry, $purpose, $request_body["exactly_want"], json_encode($data), json_encode($chatGpt_request), $current_time, $device_json, $app_json]);
+
+            $chat_number = DB::getPdo()->lastInsertId();
+            $resutl['id'] = $chat_number;
+            $pregString = preg_replace('/(^[\"\']|[\"\']$)/', '',$data['choices'][0]['message']['content']);
+//            Log::info('$pregString :'.$pregString);
+            $resutl['result'] = $pregString != null ? $pregString : $data['choices'][0]['message']['content'];
+            $resutl['result'] = trim($resutl['result']);
+            DB::commit();
+            $response = Response::json(array('code' => 200, 'message' => 'Result get successfully', 'cause' => '', 'data' => $resutl));
+
+        } catch (Exception $e) {
+            Log::error('getDataFromPrompt '.$request_body['chat_number'], ['Exception' =>$e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            DB::rollBack();
+            $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong, Please Try Again', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+
+    }
+
+    /**
+     * @api {post} aiFeedback   aiFeedback
+     * @apiName aiFeedback
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "feedback":"yes" //compulsory
+     * "feedback_msg":"Description" //compulsory
+     * "chat_number":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Thank You For Your FeedBack",
+     * "cause": "",
+     * "data": {
+     * }
+     * }
+     */
+    public function aiFeedback(Request $request_body) {
+        try {
+            if (($response = (new VerificationController())->validateRequiredParameter(array('feedback', 'feedback_msg', 'chat_number'), $request_body)) != '')
+                return $response;
+
+            DB::beginTransaction();
+            DB::update('UPDATE `ai_chats` SET feedback=?, feedback_msg=?, updated_at=? WHERE id=?',    [$request_body['feedback'], $request_body['feedback_msg'], date('Y-m-d H:i:s'), $request_body['chat_number']]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Thank You For Your FeedBack', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error('FeedBack : id : '.$request_body['chat_number'], ['Exception' =>$e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => 'Something Is wrong', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAiChats   getAiChats
+     * @apiName getAiChats
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     *  "code": 200,
+     *  "message": "success",
+     *  "cause": "",
+     *  "data": [
+     *  {
+     *  "id": 4,
+     *  "industry": "test",
+     *  "purpose": "High tea party invitation",
+     *  "exactly_want": "Description",
+     *  "ChatGpt_response": "{\"id\":\"chatcmpl-7dW4rN4CAsFk2xzZ31XoPU6hHApbK\",\"object\":\"chat.completion\",\"created\":1689652453,\"model\":\"gpt-3.5-turbo-0613\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"You are cordially invited to a delightful High Tea Party. Join us for an elegant afternoon filled with delectable treats, delicate teas, and delightful conversations. Dress up, bring your friends, and immerse yourself in the charm and elegance of our tea party. Save the date and RSVP now to reserve your spot for a memorable experience.\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":104,\"completion_tokens\":68,\"total_tokens\":172}}",
+     *  "feedback": null,
+     *  "feedback_msg": null,
+     *  "created_at": "2023-07-18 03:54:13",
+     *  "updated_at": null,
+     *  "ChatGpt_request": "{\"model\":\"gpt-3.5-turbo\",\"messages\":[{\"role\":\"system\",\"content\":\"You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.\\n\\nUser belongs to: test\\nPurpose of the poster: High tea party invitation\\n\\n\\ngive a result based on this but give the exact result that the user wants. Do not give the other description.\\n\\n\\nprovide a result text without adding any extra words so that it can be used directly in the poster.\"},{\"role\":\"user\",\"content\":\"Description\"}]}"
+     *  }
+     *]
+     *}
+     */
+    public function getAiChats(){
+        try {
+            $data = DB::select('SELECT id, industry, purpose, exactly_want, ChatGpt_response, feedback, feedback_msg, created_at, updated_at, ChatGpt_request, device_json, app_json FROM `ai_chats` ORDER BY id DESC');
+            $response = Response::json(array('code' => 200, 'message' => 'success', 'cause' => '', 'data' => $data));
+        } catch (Exception $e) {
+            Log::error('getChats : ', ['Exception' =>$e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => 'Something Is wrong', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+//            DB::rollBack();
+        }
+
+        return $response;
     }
 
     /* =================================| Catalogs |=============================*/
