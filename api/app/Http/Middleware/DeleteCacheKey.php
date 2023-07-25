@@ -149,7 +149,7 @@ class DeleteCacheKey
             }
 
             //Sub Category Images
-            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addMultiPageJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/editMultiPageJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/setMultipleContentRankByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages' or $api == '/api/moveTemplate' or $api == '/api/addTemplateByZip' or $api == '/api/addCategoryNameAsTag' or $api == '/api/autoUploadTemplate' or $api == '/api/autoUploadTemplateV2' or $api == '/api/autoUploadTemplateV3') {
+            if ($api == '/api/addCatalogImages' or $api == '/api/updateCatalogImage' or $api == '/api/deleteCatalogImage' or $api == '/api/addFeaturedBackgroundCatalogImage' or $api == '/api/updateFeaturedBackgroundCatalogImage' or $api == '/api/addJson' or $api == '/api/addMultiPageJson' or $api == '/api/addCatalogImagesForJson' or $api == '/api/editJsonData' or $api == '/api/editMultiPageJsonData' or $api == '/api/updateAllSampleImages' or $api == '/api/setContentRankOnTheTopByAdmin' or $api == '/api/setMultipleContentRankByAdmin' or $api == '/api/getSearchTagsForAllSampleImages' or $api == '/api/getSearchTagsForAllNormalImages' or $api == '/api/moveTemplate' or $api == '/api/addTemplateByZip' or $api == '/api/addCategoryNameAsTag' or $api == '/api/autoUploadTemplate' or $api == '/api/autoUploadTemplateV2' or $api == '/api/autoUploadTemplateV3' or $api == '/api/autoUploadMCMContent' or $api == '/api/deleteMCMContent' or $api == '/api/updateMCMContent') {
 
                 //Category Wise Images Key
                 //Redis::del(array_merge(Redis::keys("pel:getImagesByCatalogId*"),['']));
@@ -434,14 +434,32 @@ class DeleteCacheKey
                 Redis::del(array_merge(Redis::keys("pel:getCatalogBySubCategoryIdForAdmin*"),['']));
             }
 
-            /*$result = [];
-            $response = (new \App\Http\Controllers\UserController())->getAllRedisKeys("*");
-            foreach ($response as $i => $item) {
-                if (strlen($item) <= 20 && !(str_contains($item, "getJsonData") || str_contains($item, "getAllCategory") || str_contains($api, "/api/logs/"))) {
-                    $result[]['key'] = $item;
-                }
+            //Post Calendar
+            if ($api == '/api/addIndustry' or $api == '/api/updateIndustry' or $api == '/api/deleteIndustry') {
+                Redis::del(array_merge(Redis::keys("pel:getIndustryBySubCategoryIdForAdmin*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getIndustryById*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getScheduledPostDetails*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getPostByIndustryId*"), ['']));
             }
-            ($result) ? Log::info('DeleteCacheKey Middleware : ', ['ip' => request()->ip(), 'userAgent' => request()->userAgent(), 'result' => $result, 'api' => $api]) : "";*/
+            if ($api == '/api/addTheme' or $api == '/api/updateTheme' or $api == '/api/deleteTheme') {
+                Redis::del(array_merge(Redis::keys("pel:getThemeBySubCategoryId*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getThemeById*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getScheduledPostDetails*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getPostByIndustryId*"), ['']));
+            }
+            if ($api == '/api/addSchedulePost' or $api == '/api/updateScheduledPost' or $api == '/api/deleteScheduledPost' or $api == '/api/repeatPostThemes') {
+                Redis::del(array_merge(Redis::keys("pel:getScheduledPostDetails*"), ['']));
+                Redis::del(array_merge(Redis::keys("pel:getPostByIndustryId*"), ['']));
+            }
+
+                /*$result = [];
+                $response = (new \App\Http\Controllers\UserController())->getAllRedisKeys("*");
+                foreach ($response as $i => $item) {
+                    if (strlen($item) <= 20 && !(str_contains($item, "getJsonData") || str_contains($item, "getAllCategory") || str_contains($api, "/api/logs/"))) {
+                        $result[]['key'] = $item;
+                    }
+                }
+                ($result) ? Log::info('DeleteCacheKey Middleware : ', ['ip' => request()->ip(), 'userAgent' => request()->userAgent(), 'result' => $result, 'api' => $api]) : "";*/
 
 
         } catch (Exception $e) {

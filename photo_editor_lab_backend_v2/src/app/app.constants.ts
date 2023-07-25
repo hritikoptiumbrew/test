@@ -14,7 +14,10 @@
 
 import { environment } from '../environments/environment';
 
-export const HOST = environment.apiUrls;
+export const HOST = environment;
+
+// export const CATAGORY_IDS = HOST.CATAGORY_IDS;
+// export const CONTENT_TYPES = HOST.CONTENT_TYPES;
 
 export const ENV_CONFIG = Object.freeze({ "development": true, ENABLE_2FA: true, });
 

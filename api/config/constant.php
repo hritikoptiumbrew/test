@@ -146,9 +146,9 @@ return [
     'twitter_access_Token_Secret' => 'BZz1uRMwrrwZET1CoKEipo6CJHzO5r2FL2LPfcCkuUlAv',
     'TWITTER_USER_LIST_FOR_TWITTER_TIMELINE' => [
         'us' => 'Jobs_in_USA_,jobsxlusa,zobjobsUS,tmj_usa_itqa,tmj_usa_art,intellegojobs,cybersecjobsusa,CGJob,ETJobNews,ALA_JobLIST,scrum_jobs,targetjobsUK,RandstadUSJobs,CareerBuilder,jtodonnell,Absolutely_Abby,AlisonDoyle,CreativeGroup,MonsterJobs,careersherpa',//'careerealism,CareerBliss,JobSearchAmanda,lindseypollak,'GrJobInterview',
-        'my' => 'Peluang_KerjaMY,krojamy,kerja_kosongMY,twtkerjakosongg,KerjaOh,Kerjacarirezeki,JobVacanciesMY,jomkerjamy,Oh_KerjaKosong,infokerjaya,adnexioJobs,JobStreetMY,ManpowerMY',
+        'my' => 'krojamy,kerja_kosongMY,twtkerjakosongg,KerjaOh,Kerjacarirezeki,JobVacanciesMY,jomkerjamy,Oh_KerjaKosong,infokerjaya,adnexioJobs,JobStreetMY,ManpowerMY',
         'id' => 'JobsIndonesia_,snapcareers_id,MaranathaCareer,ITBCareerCenter,CDCUIcareer,700juta,TelUCareer',
-        'in' => 'Freshersworld,Jobs_in_India_,PlacementIndia,freshers_home,timesjobsdotcom,careerage,worksforindia,Jobscareers4u,JIT_official_,GovtJobOfficial,latestgovtnakur,Jobsportalforu,SarkariJob,iJobsUpdates,jobsinindia1978,TheIndiaJobs',
+        'in' => 'Freshersworld,Jobs_in_India_,PlacementIndia,timesjobsdotcom,careerage,worksforindia,Jobscareers4u,JIT_official_,GovtJobOfficial,latestgovtnakur,Jobsportalforu,SarkariJob,iJobsUpdates,jobsinindia1978,TheIndiaJobs',
         //'th' => 'JobsinThailand_,UNESCAP_Jobs'
     ],
     'TWITTER_POST_ITEM_COUNT_FOR_TWITTER_TIMELINE' => 80, //80 items per account
@@ -226,5 +226,11 @@ return [
     'API_KEY' => '6a2b65c9-d0ca-40c2-99ae-817c53f1496f',
     'DAYS_TO_KEEP_SEARCH_TAG' => env('DAYS_TO_KEEP_SEARCH_TAG'),
     'IS_IMAGE_DETAILS_ANALYTICS_ENABLE' => env('IS_IMAGE_DETAILS_ANALYTICS_ENABLE'),
+
+    /* single page to multi page data transfer */
+    'SINGLE_PAGE_SUB_CATEGORY_ID' => '2',
+    'MULTI_PAGE_SUB_CATEGORY_ID' => '19',
+    'SINGLE_PAGE_SUB_CATEGORY_ID_FOR_LAYOUT' => '15',
+    'MULTI_PAGE_SUB_CATEGORY_ID_FOR_LAYOUT' => '18',
 
 ];

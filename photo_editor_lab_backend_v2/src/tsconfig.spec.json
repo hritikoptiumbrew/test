@@ -15,6 +15,7 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
+    "paths": { "@angular/*": ["./node_modules/@angular/*"] },
     "outDir": "../out-tsc/spec",
     "baseUrl": "./",
     "types": [

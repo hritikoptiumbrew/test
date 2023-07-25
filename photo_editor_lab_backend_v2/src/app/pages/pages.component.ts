@@ -12,7 +12,7 @@
  */
 
 
-import { Component } from '@angular/core';
+import { Component} from '@angular/core';
 import { Router } from '@angular/router';
 import { UtilService } from 'app/util.service';
 
@@ -27,7 +27,7 @@ import { MENU_ITEMS } from './pages-menu';
       <nb-menu [items]="menu"></nb-menu>
       <router-outlet></router-outlet>
     </ngx-one-column-layout>
-  `,
+  `
 })
 export class PagesComponent {
 

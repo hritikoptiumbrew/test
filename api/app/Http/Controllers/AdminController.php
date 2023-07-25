@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\EmailJob;
+use App\Jobs\MoveSinglePageToMultiPageSubCategory;
 use App\Jobs\RunCommandAsRoot;
+use App\Jobs\UpdateSearchTagInMultiPageSubCategory;
 use App\Permission;
 use App\Role;
 use Aws\Credentials\Credentials;
@@ -1312,6 +1314,7 @@ class AdminController extends Controller
             DB::insert('INSERT INTO sub_category_catalog(sub_category_id,catalog_id,created_at) VALUES (?, ?, ?)', [$sub_category_id, $catalog_id, $create_at]);
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch($sub_category_id);
             $response = Response::json(array('code' => 200, 'message' => 'Catalog added successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
         } catch (Exception $e) {
@@ -1551,6 +1554,8 @@ class AdminController extends Controller
                                 attribute1 = IF(? != "",?,attribute1)
                               WHERE id = ?', [$name, $name, $catalog_img_name, $catalog_img_name, $catalog_type, $icon_name, $icon_name, $landscape_image, $landscape_image, $portrait_image, $portrait_image, $landscape_webp, $landscape_webp, $portrait_webp, $portrait_webp, $is_free, $is_free, $is_ios_free, $is_ios_free, $is_featured, $is_featured, $event_date, $event_date, $popularity_rate, $popularity_rate, $search_category, $file_name, $file_name, $catalog_id]);
             DB::commit();
+
+            MoveSinglePageToMultiPageSubCategory::dispatch($sub_category_id);
 
             $response = Response::json(array('code' => 200, 'message' => 'Catalog updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
 
@@ -3013,7 +3018,7 @@ class AdminController extends Controller
 
             }
             DB::commit();
-
+            MoveSinglePageToMultiPageSubCategory::dispatch('', $catalog_id);
 
             $response = Response::json(array('code' => 200, 'message' => 'Template moved successfully.', 'cause' => '', 'data' => json_decode('{}')));
         } catch (Exception $e) {
@@ -4359,6 +4364,8 @@ class AdminController extends Controller
                         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [$catalog_id, $catalog_image, $cover_image, $cover_webp_image, $content_type, $template_name, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $dimension['height'], $dimension['width'], $dimension['org_img_height'], $dimension['org_img_width'], $cover_image_dimension['height'], $cover_image_dimension['width'], $cover_image_dimension['org_img_height'], $cover_image_dimension['org_img_width'], $created_at, $file_name]);
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch($sub_category_id);
+
             if (strstr($file_name, '.webp')) {
                 $response = Response::json(array('code' => 200, 'message' => 'Json added successfully.', 'cause' => '', 'data' => json_decode('{}')));
             } else {
@@ -4826,6 +4833,8 @@ class AdminController extends Controller
                         WHERE 
                             id = ?', [$template_name, json_encode($json_data), $is_active, $is_free, $is_ios_free, $is_featured, $is_portrait, $search_category, $img_id]);
             DB::commit();
+
+            MoveSinglePageToMultiPageSubCategory::dispatch($sub_category_id);
 
             $response = Response::json(array('code' => 200, 'message' => 'Json data updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
             ($request->is_json_updated) ? (new UserController())->deleteAllRedisKeys("getJsonData:$img_id") : '';
@@ -8502,6 +8511,7 @@ class AdminController extends Controller
 
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch('', implode(',', $catalog_ids));
             $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
@@ -8555,6 +8565,7 @@ class AdminController extends Controller
                             id = ?', [$create_time, $img_id]);
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch('', '', $img_id);
             $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
@@ -8612,6 +8623,7 @@ class AdminController extends Controller
             }
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch('', '', implode(',', $img_ids));
             $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
@@ -11084,6 +11096,8 @@ class AdminController extends Controller
 
             DB::commit();
 
+            MoveSinglePageToMultiPageSubCategory::dispatch('', $catalog_id);
+
             if ($webp_warning) {
                 $response = Response::json(array('code' => 200, 'message' => 'Template uploaded successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' =>json_decode('{}')));
             } else {
@@ -11363,6 +11377,8 @@ class AdminController extends Controller
             DB::table('images')->insert($image_detail);
 
             DB::commit();
+
+            MoveSinglePageToMultiPageSubCategory::dispatch('', $catalog_id);
 
             if ($webp_warning) {
                 $response = Response::json(array('code' => 200, 'message' => 'Template uploaded successfully. Note: webp is not converted due to size grater than original.', 'cause' => '', 'data' =>json_decode('{}')));
@@ -11992,6 +12008,7 @@ class AdminController extends Controller
                 }
             }
 
+            UpdateSearchTagInMultiPageSubCategory::dispatch($img_ids);
             $response = Response::json(array('code' => 200, 'message' => 'Search category updated successfully.', 'cause' => '', 'data' => json_decode("{}")));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
 
@@ -12044,6 +12061,7 @@ class AdminController extends Controller
                             id IN (' . $img_ids . ') ');
 
             (new UserController())->deleteAllRedisKeys("getDataByCatalogIdForAdmin:$catalog_id*");
+            UpdateSearchTagInMultiPageSubCategory::dispatch($img_ids);
             $response = Response::json(array('code' => 200, 'message' => 'Multiple template updated successfully.', 'cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
@@ -12087,6 +12105,1296 @@ class AdminController extends Controller
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'fetch tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
+    }
+
+    public function checkLengthForTheme($theme_name,$short_description)
+    {
+        try{
+            $response = '';
+            if(strlen($theme_name)>255)
+            {
+                $response = Response::json(array('code' => 201, 'message' => "Theme name may not be greater than 255 characters.", 'cause' => '', 'data' => json_decode("{}")));
+            }
+            if(strlen($short_description)>100)
+            {
+                $response = Response::json(array('code' => 201, 'message' => "Short description may not be greater than 100 characters.", 'cause' => '', 'data' => json_decode("{}")));
+            }
+        } catch (Exception $e) {
+            Log::error("checkLengthForTheme : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'checkLengthForTheme.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function checkLengthForIndustry($industry_name)
+    {
+        try {
+            if (strlen($industry_name) > 255) {
+                $response = Response::json(array('code' => 201, 'message' => "Industry name may not be greater than 255 characters.", 'cause' => '', 'data' => json_decode("{}")));
+            } else {
+                $response = '';
+            }
+
+        } catch (Exception $e) {
+            Log::error("checkLengthForIndustry : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'checkLengthForIndustry.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function checkIsPostScheduledOfThis($industry_id, $theme_id, $sub_category_id)
+    {
+        try {
+            if ($industry_id) {
+                $result = DB::select('SELECT *
+                                      FROM 
+                                        post_schedule_master
+                                      WHERE 
+                                        sub_category_id = ? and post_industry_id  = ? ', [$sub_category_id, $industry_id]);
+
+                if (count($result) > 0) {
+                    $response = Response::json(array('code' => 201, 'message' => "Sorry, Industry is being used in the post calendar.", 'cause' => '', 'data' => json_decode("{}")));
+                } else {
+                    $response = '';
+                }
+            }
+
+            if ($theme_id) {
+                $result = DB::select('SELECT *
+                                      FROM 
+                                        post_schedule_master
+                                      WHERE 
+                                        sub_category_id = ? and post_theme_id  = ?', [$sub_category_id, $theme_id]);
+
+                if (count($result) > 0) {
+                    $response = Response::json(array('code' => 201, 'message' => "Sorry, Theme is being used in the post calendar.", 'cause' => '', 'data' => json_decode("{}")));
+                } else {
+                    $response = '';
+                }
+            }
+
+        } catch (Exception $e) {
+            Log::error("checkIfPostAlReadyScheduled : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'validate post schedule.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} addIndustry addIndustry
+     * @apiName addIndustry
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "request_data":{
+     * "sub_category_id": 153,
+     * "industry_name": "Festival"
+     * },
+     * "icon":image.png
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Industry added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addIndustry(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            if (!$request_body->hasFile('icon')) {
+                return Response::json(array('code' => 201, 'message' => 'Required field icon file is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+            }
+
+            $request = json_decode($request_body->input('request_data'));
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'industry_name'), $request)) != '')
+                return $response;
+
+            $icon_array = Input::file('icon');
+            if (($response = (new ImageController())->verifyIndustryIcon($icon_array)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $icon_name = NULL;
+            $icon_webp_name = NULL;
+            $industry_name = $request->industry_name;
+
+            if (($response = (new VerificationController())->checkIfIndustryExists($sub_category_id, $industry_name)) != '')
+                return $response;
+
+            if (($response = ($this->checkLengthForIndustry($industry_name))) != '')
+                return $response;
+
+            $icon_array = Input::file('icon');
+            $icon_name = (new ImageController())->generateNewFileName('industry_icon', $icon_array);
+
+            (new ImageController())->saveOriginalImageFromArray($icon_array, $icon_name);
+            $icon_webp_name = (new ImageController())->saveWebpOriginalImage($icon_name);
+
+            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                (new ImageController())->saveImageInToS3($icon_name);
+                (new ImageController())->saveWebpImageInToS3($icon_webp_name);
+            }
+
+            DB::insert('INSERT 
+                        INTO post_industry(sub_category_id,icon,icon_webp,industry_name) 
+                        VALUES (?, ?, ?, ?)', [$sub_category_id, $icon_name, $icon_webp_name, $industry_name]);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Industry added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("addIndustry : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add industry.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getIndustryBySubCategoryIdForAdmin getIndustryBySubCategoryIdForAdmin
+     * @apiName getIndustryBySubCategoryIdForAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":66,
+     * "page":1,
+     * "item_count":10
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Industry fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 1,
+     * "is_next_page": false,
+     * "industry_list": [
+     * {
+     * "id": 155,
+     * "sub_category_id": 66,
+     * "icon": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/original/64b6353d2ec77_industry_icon_1689662781.png",
+     * "icon_webp": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/webp_original/64b6353d2ec77_industry_icon_1689662781.webp",
+     * "industry_name": "test_industry",
+     * "is_active": 1,
+     * "created_at": "2023-07-18 06:46:21",
+     * "updated_at": "2023-07-18 06:46:21"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getIndustryBySubCategoryIdForAdmin(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($page - 1) * $this->item_count;
+
+            $redis_result = Cache::rememberforever("getIndustryBySubCategoryIdForAdmin$this->sub_category_id:$page:$this->item_count", function () {
+
+                $total_row_result = DB::select('SELECT COUNT(*) as total FROM post_industry WHERE sub_category_id = ?', [$this->sub_category_id]);
+                $total_row = $total_row_result[0]->total;
+
+                $result = DB::select('SELECT  
+                                            id, 
+                                            sub_category_id,
+                                            IF(icon != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", icon),"") AS icon,
+                                            IF(icon_webp != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", icon_webp),"") AS icon_webp,
+                                            industry_name,
+                                            is_active,
+                                            created_at,
+                                            updated_at
+                                       FROM 
+                                          post_industry 
+                                       WHERE 
+                                          sub_category_id = ?
+                                       ORDER BY updated_at DESC 
+                                       LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'industry_list' => $result);
+            });
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Industry fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+        } catch (Exception $e) {
+            Log::error("getIndustryBySubCategoryIdForAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get industry by sub category id for admin.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+
+    /**
+     * @api {post} updateIndustry updateIndustry
+     * @apiName updateIndustry
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "request_data":{
+     * "sub_category_id": 153,
+     * "industry_id" : 20,
+     * "industry_name" : "Health"
+     * },
+     * "icon":image.png
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Industry updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateIndustry(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            if (!$request_body->has('request_data'))
+                return Response::json(array('code' => 201, 'message' => 'Required field request_data is missing or empty.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $request = json_decode($request_body->input('request_data'));
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'industry_id', 'industry_name'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $industry_id = $request->industry_id;
+            $icon_name = NULL;
+            $icon_webp_name = NULL;
+            $industry_name = $request->industry_name;
+
+            if (($response = (new VerificationController())->checkIfIndustryExists($sub_category_id, $industry_name, $industry_id)) != '')
+                return $response;
+
+            if (($response = ($this->checkLengthForIndustry($industry_name))) != '')
+                return $response;
+
+            /* get old image for delete */
+            $result = DB::select('SELECT 
+                                        icon,icon_webp 
+                                   FROM 
+                                        post_industry 
+                                   WHERE 
+                                        id = ?', [$industry_id]);
+            $old_icon = $result[0]->icon;
+            $old_icon_webp = $result[0]->icon_webp;
+
+            if ($request_body->hasFile('icon')) {
+                $icon_array = Input::file('icon');
+                if (($response = (new ImageController())->verifyIndustryIcon($icon_array)) != '')
+                    return $response;
+
+                $icon_name = (new ImageController())->generateNewFileName('industry_icon', $icon_array);
+
+                /* save icon */
+                (new ImageController())->saveOriginalImageFromArray($icon_array, $icon_name);
+                $icon_webp_name = (new ImageController())->saveWebpOriginalImage($icon_name);
+
+                if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                    (new ImageController())->saveImageInToS3($icon_name);
+                    (new ImageController())->saveWebpImageInToS3($icon_webp_name);
+                }
+
+                if ($old_icon) {
+                    //Delete old icon file
+                    (new ImageController())->deleteImage($old_icon);
+                }
+
+                if ($old_icon_webp) {
+                    //Delete old icon webp file
+                    (new ImageController())->deleteWebpImage($old_icon_webp);
+                }
+            }
+
+            DB::update('UPDATE 
+                            post_industry 
+                        SET 
+                            icon = IF(? != "",?,icon),
+                            icon_webp = IF(? != "",?,icon_webp),
+                            industry_name = ?
+                        WHERE 
+                            id = ?', [$icon_name, $icon_name, $icon_webp_name, $icon_webp_name, $industry_name, $industry_id]);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Industry updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("updateIndustry : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update industry.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+
+    /**
+     * @api {post} deleteIndustry deleteIndustry
+     * @apiName deleteIndustry
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":153,
+     * "industry_id":13,
+     * "is_active":1
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Industry deleted successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteIndustry(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('industry_id', 'sub_category_id', 'is_active'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $industry_id = $request->industry_id;
+            $is_active = $request->is_active;
+            $message = 'Industry activated successfully.';
+
+            if ($is_active == 0) {
+                //check if post is scheduled of this industry
+                if (($response = ($this->checkIsPostScheduledOfThis($industry_id, '', $sub_category_id))) != '')
+                    return $response;
+
+                $message = 'Industry de-activated successfully.';
+            }
+            DB::update('UPDATE post_industry SET is_active = ? WHERE id = ?', [$is_active, $industry_id]);
+            $response = Response::json(array('code' => 200, 'message' => $message, 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("deleteIndustry : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete industry.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+
+    /**
+     * @api {post} addTheme addTheme
+     * @apiName addTheme
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":153,
+     * "theme_name":"Educational Post",
+     * "short_description":"testing"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Theme added successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function addTheme(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'theme_name', 'short_description'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $theme_name = $request->theme_name;
+            $short_description = $request->short_description;
+
+            if (($response = (new VerificationController())->checkIfThemeExists($sub_category_id, $theme_name)) != '')
+                return $response;
+
+            if (($response = ($this->checkLengthForTheme($theme_name, $short_description))) != '')
+                return $response;
+
+            DB::insert('INSERT 
+                        INTO post_theme(sub_category_id,theme_name,short_description) 
+                        VALUES (?, ?, ?)', [$sub_category_id, $theme_name, $short_description]);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Theme added successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("addTheme : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add theme.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+
+    /**
+     * @api {post} getThemeBySubCategoryId getThemeBySubCategoryId
+     * @apiName getThemeBySubCategoryId
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":153,
+     * "page":1,
+     * "item_count":2
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Theme fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 5,
+     * "is_next_page": true,
+     * "theme_list": [
+     * {
+     * "id": 15,
+     * "sub_category_id": 153,
+     * "theme_name": "Educational Post",
+     * "short_description": "testing",
+     * "created_at": "2023-06-15 11:37:59",
+     * "updated_at": "2023-06-15 11:37:59"
+     * },
+     * {
+     * "id": 14,
+     * "sub_category_id": 153,
+     * "theme_name": "Bussiness Post4545",
+     * "short_description": "sdsds",
+     * "created_at": "2023-06-14 18:50:22",
+     * "updated_at": "2023-06-14 18:50:22"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getThemeBySubCategoryId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($page - 1) * $this->item_count;
+
+            $redis_result = Cache::rememberforever("getThemeBySubCategoryId$this->sub_category_id:$page:$this->item_count", function () {
+
+                $total_row_result = DB::select('SELECT COUNT(*) as total FROM post_theme WHERE is_active = 1 AND sub_category_id = ?', [$this->sub_category_id]);
+                $total_row = $total_row_result[0]->total;
+
+                $result = DB::select('SELECT *
+                                       FROM 
+                                            post_theme 
+                                       WHERE 
+                                            is_active = 1 AND sub_category_id = ?
+                                       ORDER BY id DESC 
+                                       LIMIT ?,?', [$this->sub_category_id, $this->offset, $this->item_count]);
+
+                $is_next_page = ($total_row > ($this->offset + $this->item_count)) ? true : false;
+
+                return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'theme_list' => $result);
+            });
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Theme fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+        } catch (Exception $e) {
+            Log::error("getThemeBySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get theme by sub category id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateTheme updateTheme
+     * @apiName updateTheme
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":155,
+     * "theme_id":6,
+     * "theme_name":"Marketing Post",
+     * "short_description":"test test13"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Theme updated successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateTheme(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'theme_id', 'theme_name', 'short_description'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $theme_id = $request->theme_id;
+            $theme_name = $request->theme_name;
+            $short_description = $request->short_description;
+
+            if (($response = (new VerificationController())->checkIfThemeExists($sub_category_id, $theme_name, $theme_id)) != '')
+                return $response;
+
+            if (($response = ($this->checkLengthForTheme($theme_name, $short_description))) != '')
+                return $response;
+
+            DB::update('UPDATE 
+                            post_theme 
+                        SET 
+                            theme_name = ?,
+                            short_description = ?
+                        WHERE 
+                            id = ?', [$theme_name, $short_description, $theme_id]);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Theme updated successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("updateTheme : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update theme.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+
+    /**
+     * @api {post} deleteTheme deleteTheme
+     * @apiName deleteTheme
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":153,
+     * "theme_id":15
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Theme deleted successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteTheme(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('theme_id', 'sub_category_id'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $theme_id = $request->theme_id;
+
+            //check if post is scheduled of this theme
+            if (($response = ($this->checkIsPostScheduledOfThis('', $theme_id, $sub_category_id))) != '')
+                return $response;
+
+            DB::update('UPDATE post_theme SET is_active = 0  WHERE  id= ?', [$theme_id]);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Theme deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteTheme : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete theme.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} addSchedulePost addSchedulePost
+     * @apiName addSchedulePost
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id": 153,
+     * "post_industry_id": 7,
+     * "post_theme_id": 2,
+     * "template_ids" : [45969,45965,47917],
+     * "schedule_date": "2023-08-22",
+     * "tags":"AAA,BBB,CCC"
+     * }
+     * @apiSuccessExample Success-Response:
+     *{
+     *"code": 200,
+     *"message": "Post schedule successfully.",
+     *"cause": "",
+     *"data": {}
+     *}
+     */
+    public function addSchedulePost(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'post_industry_id', 'post_theme_id', 'schedule_date', 'tags'), $request)) != '')
+                return $response;
+
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('template_ids'), $request)) != '')
+                return $response;
+
+            $count_template = count($request->template_ids);
+            if ($count_template < 1 || $count_template > 10 )
+                return Response::json(array('code' => 201, 'message' => "Please select minimum 1 and maximum 10 templates", 'cause' => '', 'data' => json_decode("{}")));
+
+            $sub_category_id = $request->sub_category_id;
+            $post_industry_id = $request->post_industry_id;
+            $post_theme_id = $request->post_theme_id;
+            $template_ids = implode(",", $request->template_ids);
+            $schedule_date = $request->schedule_date;
+            $tags = implode(',', array_unique(array_filter(explode(',', strtolower(trim($request->tags))))));
+
+            $now = date('Y-m-d');
+            if ($schedule_date < $now) {
+                $response = Response::json(array('code' => 201, 'message' => 'You can not schedule post in the past date', 'cause' => '', 'data' => json_decode("{}")));
+                return $response;
+            }
+
+            if (($response = (new VerificationController())->checkIfPostAlReadyScheduled($sub_category_id, $schedule_date, 0, $post_industry_id)) != '')
+                return $response;
+
+            DB::insert('INSERT 
+                            INTO post_schedule_master(sub_category_id,post_industry_id,post_theme_id,template_ids,schedule_date,tags) 
+                            VALUES (?, ?, ?, ?, ?, ?)', [$sub_category_id, $post_industry_id, $post_theme_id, $template_ids, $schedule_date, $tags]);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Post schedule successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("addSchedulePost : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'add schedule post.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} updateScheduledPost updateScheduledPost
+     * @apiName updateScheduledPost
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "post_schedule_id":1,
+     * "sub_category_id": 153,
+     * "post_industry_id": 7,
+     * "post_theme_id": 2,
+     * "template_ids" : [45969,45965,47917],
+     * "schedule_date": "2023-06-14",
+     * "tags" : "t1,t2,t3"
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Schedule update successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function updateScheduledPost(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('post_schedule_id', 'sub_category_id', 'post_industry_id', 'post_theme_id', 'tags'), $request)) != '')
+                return $response;
+
+            if (($response = (new VerificationController())->validateRequiredArrayParameter(array('template_ids'), $request)) != '')
+                return $response;
+
+            $count_template = count($request->template_ids);
+            if ($count_template < 1 || $count_template > 10 )
+                return Response::json(array('code' => 201, 'message' => "Please select minimum 1 and maximum 10 templates", 'cause' => '', 'data' => json_decode("{}")));
+
+            $post_schedule_id = $request->post_schedule_id;
+            $sub_category_id = $request->sub_category_id;
+            $post_industry_id = $request->post_industry_id;
+            $post_theme_id = $request->post_theme_id;
+            $template_ids = implode(",", $request->template_ids);
+            $schedule_date = $request->schedule_date;
+            $tags = implode(',', array_unique(array_filter(explode(',', strtolower(trim($request->tags))))));
+
+            $now = date('Y-m-d');
+            if ($schedule_date < $now) {
+                $response = Response::json(array('code' => 201, 'message' => 'You can not schedule post in the past date', 'cause' => '', 'data' => json_decode("{}")));
+                return $response;
+            }
+
+            if (($response = (new VerificationController())->checkIfPostAlReadyScheduled($sub_category_id, $schedule_date, $post_schedule_id, $post_industry_id)) != '')
+                return $response;
+
+            DB::beginTransaction();
+
+            DB::update('UPDATE 
+                            post_schedule_master
+                        SET 
+                            post_industry_id = ?,
+                            post_theme_id = ?,
+                            template_ids = ?,
+                            tags = ?
+                        WHERE id =?', [$post_industry_id, $post_theme_id, $template_ids, $tags, $post_schedule_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Schedule update successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("updateScheduledPost : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'update scheduled post', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} deleteScheduledPost deleteScheduledPost
+     * @apiName deleteScheduledPost
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "post_schedule_id":4
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Schedule post deleted successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function deleteScheduledPost(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('post_schedule_id'), $request)) != '')
+                return $response;
+
+            $post_schedule_master = $request->post_schedule_id;
+
+            DB::beginTransaction();
+            DB::delete('DELETE FROM post_schedule_master WHERE id = ?', [$post_schedule_master]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Schedule post deleted successfully.', 'cause' => '', 'data' => json_decode('{}')));
+        } catch (Exception $e) {
+            Log::error("deleteScheduledPost : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'delete scheduled post.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getScheduledPostDetails getScheduledPostDetails
+     * @apiName getScheduledPostDetails
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":66,
+     * "month":7,
+     * "year":2023,
+     * "industry_id":4
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Scheduled post details fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 7,
+     * "scheduled_post_list": [
+     * {
+     * "id": 18,
+     * "sub_category_id": 66,
+     * "post_industry_id": 27,
+     * "post_theme_id": 16,
+     * "template_ids": "51664,18420,51661",
+     * "schedule_date": "2023-06-13",
+     * "tags": "aaa,bbb,ccc,ccc1",
+     * "created_at": "2023-06-15 16:30:46",
+     * "theme_name": "Promotional Post",
+     * "short_description": "For increase visibility & boost sales",
+     * "template_list": [
+     * {
+     * "img_id": 18420,
+     * "svg_image": "",
+     * "thumbnail_img": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/thumbnail/61557acd10f02_json_image_1632991949.jpg",
+     * "compressed_img": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/compressed/61557acd10f02_json_image_1632991949.jpg",
+     * "original_img": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/original/61557acd10f02_json_image_1632991949.jpg",
+     * "webp_original_img": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/webp_original/61557acd10f02_json_image_1632991949.webp",
+     * "thumbnail_after_img": "",
+     * "compressed_after_img": "",
+     * "original_after_img": "",
+     * "webp_original_after_img": "",
+     * "gif_file": "",
+     * "cover_thumbnail_img": "",
+     * "cover_compressed_img": "",
+     * "cover_img": "",
+     * "cover_webp_img": "",
+     * "is_json_data": 1,
+     * "template_name": null,
+     * "is_featured": "1",
+     * "is_active": 1,
+     * "is_free": 1,
+     * "is_ios_free": 0,
+     * "is_portrait": 1,
+     * "content_type": "1",
+     * "pages_sequence": "",
+     * "total_pages": 1,
+     * "search_category": "quick,qrstuvwxyz,gravtraccprgbold,mital"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getScheduledPostDetails(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'month', 'year', "industry_id"), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->month = $request->month;
+            $this->year = $request->year;
+            $this->industry_id = $request->industry_id;
+
+            $redis_result = Cache::rememberforever("getScheduledPostDetails:$this->sub_category_id:$this->industry_id:$this->month:$this->year", function () {
+
+                $total_row_result = DB::select('SELECT 
+                                                    COUNT(*) as total 
+                                                FROM 
+                                                    post_schedule_master AS psm, post_theme AS pt
+                                                WHERE 
+                                                    pt.id=psm.post_theme_id AND 
+                                                    psm.sub_category_id = ? AND 
+                                                    psm.post_industry_id = ? AND
+                                                    EXTRACT(MONTH FROM psm.schedule_date) = ? AND 
+                                                    EXTRACT(YEAR FROM psm.schedule_date) = ?', [$this->sub_category_id, $this->industry_id, $this->month, $this->year]);
+                $total_row = $total_row_result[0]->total;
+
+                $result = DB::select('SELECT 
+                                            psm.id, psm.template_ids,psm.post_industry_id, psm.schedule_date, psm.created_at, psm.tags, pt.theme_name, pt.short_description
+                                       FROM 
+                                            post_schedule_master AS psm, post_theme AS pt
+                                       WHERE 
+                                            pt.id=psm.post_theme_id AND psm.sub_category_id = ? AND psm.post_industry_id = ?  AND EXTRACT(MONTH FROM psm.schedule_date) = ? AND EXTRACT(YEAR FROM psm.schedule_date) = ?
+                                       ORDER BY psm.schedule_date', [$this->sub_category_id, $this->industry_id, $this->month, $this->year]);
+
+                $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+                $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
+
+                //to pass compress image(jpg/png) only for certificate_maker app because webp is not supported there into iOS
+                $image_url = ($host_name == $certificate_maker_host_name && $this->sub_category_id == 4) ? 'IF(image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",image),"") as sample_image,' : 'IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") as sample_image,';
+
+                foreach ($result as $item) {
+                    $template_list = DB::select('SELECT  
+                                                       id AS json_id,
+                                                      ' . $image_url . '
+                                                      IF(attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",attribute1),"") AS webp_original_img,
+                                                      IF(content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS after_image,
+                                                      IF(content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",attribute1),"") AS webp_original_after_img,
+                                                      IF(content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_SAMPLE_IMAGE_GIF') . ' AND image != "",CONCAT("' . Config::get('constant.ORIGINAL_VIDEO_DIRECTORY_OF_DIGITAL_OCEAN') . '",SUBSTRING_INDEX(image,".",1),".gif"),"") AS sample_gif,
+                                                      is_free,
+                                                      is_ios_free,
+                                                      is_featured,
+                                                      is_portrait,
+                                                      search_category,
+                                                      template_name,
+                                                      coalesce(height,0) AS height,
+                                                      coalesce(width,0) AS width,
+                                                      coalesce(search_category,"") AS search_category,
+                                                      coalesce(original_img_height,0) AS original_img_height,
+                                                      coalesce(original_img_width,0) AS original_img_width,
+                                                      COALESCE(LENGTH(json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                                      content_type,
+                                                      updated_at
+                                                  FROM 
+                                                    images AS im
+                                                  WHERE 
+                                                    find_in_set(id, (\'' . $item->template_ids . '\'))
+                                                    ORDER BY FIELD(im.id, ' . $item->template_ids . ') ');
+                    $item->template_list = $template_list;
+                }
+                return array('total_record' => $total_row, 'scheduled_post_list' => $result);
+            });
+
+            if (!$redis_result) {
+                $redis_result = [];
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Scheduled post details fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+        } catch (Exception $e) {
+            Log::error("getScheduledPostDetails : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get scheduled post details.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function isThemeAlreadyExists($list, $date)
+    {
+        foreach ($list as $item) {
+            if ($date == $item->schedule_date) {
+                return $item;
+            }
+        }
+        return;
+    }
+
+    /**
+     * @api {post} repeatPostThemes repeatPostThemes
+     * @apiName repeatPostThemes
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":66,
+     * "from_month": 8,
+     * "from_year" : 2023,
+     * "to_month": 9,
+     * "to_year" : 2023,
+     * "replace_with_existing":"true"
+     * }
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Repeat post themes schedule successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function repeatPostThemes(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'industry_id', 'to_month', 'to_year', 'from_month', 'from_year', 'replace_with_existing'), $request)) != '')
+                return $response;
+
+            $sub_category_id = $request->sub_category_id;
+            $from_month = $request->from_month;
+            $from_year = $request->from_year;
+            $to_month = $request->to_month;
+            $to_year = $request->to_year;
+            $replace_with_existing = $request->replace_with_existing;   //1 for YES , 0 for NO
+            $industry_id = $request->industry_id;
+            $now = date('Y-m');
+
+            // Validation for From & To months
+
+            if (date('Y-m', strtotime($to_year . "-" . $to_month)) < $now)
+                return Response::json(array('code' => 201, 'message' => 'To month can not be in the past.', 'cause' => '', 'data' => json_decode("{}")));
+            elseif (date('Y-m', strtotime($from_year . "-" . $from_month)) > date('Y-m', strtotime($to_year . "-" . $to_month)))
+                return Response::json(array('code' => 201, 'message' => 'From month must be older then To month.', 'cause' => '', 'data' => json_decode("{}")));
+
+            $from_month_data_result = DB::select('SELECT *
+                                                    FROM 
+                                                        post_schedule_master 
+                                                    WHERE 
+                                                        sub_category_id = ? AND 
+                                                        EXTRACT(MONTH FROM schedule_date) = ? AND 
+                                                        EXTRACT(YEAR FROM schedule_date) = ? AND
+                                                        post_industry_id = ?', [$sub_category_id, $from_month, $from_year, $industry_id]);
+
+            $to_month_data_result = DB::select('SELECT 
+                                                    id,schedule_date,post_industry_id
+                                                FROM 
+                                                    post_schedule_master 
+                                                WHERE 
+                                                    sub_category_id = ? AND 
+                                                    EXTRACT(MONTH FROM schedule_date) = ? AND 
+                                                    EXTRACT(YEAR FROM schedule_date) = ? AND
+                                                    post_industry_id = ?', [$sub_category_id, $to_month, $to_year, $industry_id]);
+
+            foreach ($from_month_data_result as $item) {
+                $new_date = $to_year . '-' . $to_month . '-' . date('d', strtotime($item->schedule_date));
+                $new_date = date('Y-m-d', strtotime($new_date));
+                $item->schedule_date = $new_date;
+                $res = $this->isThemeAlreadyExists($to_month_data_result, $new_date);
+
+                if (isset($res)) {
+                    if ($replace_with_existing == 1) {
+                        $query_result = DB::update('UPDATE  
+                                                        post_schedule_master
+                                                    SET  
+                                                        sub_category_id = ?, 
+                                                        post_industry_id = ?, 
+                                                        post_theme_id = ?, 
+                                                        template_ids = ?, 
+                                                        schedule_date = ?, 
+                                                        tags = ?
+                                                    WHERE 
+                                                        id = ?', [$item->sub_category_id, $item->post_industry_id, $item->post_theme_id, $item->template_ids, $item->schedule_date, $item->tags, $res->id]);
+
+                    }
+                } else {
+                    DB::insert('INSERT 
+                                INTO post_schedule_master(sub_category_id,post_industry_id,post_theme_id,template_ids,schedule_date,tags) 
+                                VALUES 
+                                    (?, ?, ?, ?, ?, ?)', [$item->sub_category_id, $item->post_industry_id, $item->post_theme_id, $item->template_ids, $item->schedule_date, $item->tags]);
+                }
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Repeat post themes schedule successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("repeatPostThemes : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'repeat post themes.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAllTemplateBySearchTag getAllTemplateBySearchTag
+     * @apiName getAllTemplateBySearchTag
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     *  "sub_category_id":56,
+     *  "search_category":"man",
+     *  "page":1,
+     *  "item_count":30
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Template fetch successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 8,
+     * "result": [
+    * {
+    * "template_id": 18178,
+    * "compressed_img": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/compressed/5face1d7dc7ef_json_image_1605165527.jpg",
+    * "webp_original_img": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/webp_original/5face1d7dc7ef_json_image_1605165527.webp",
+    * "webp_thumbnail_after_image": "",
+    * "webp_original_after_img": "",
+    * "cover_webp_img": "",
+    * "content_type": 1,
+    * "updated_at": "2020-11-12 07:18:48",
+    * "search_text": 29.147781372070312
+    * },
+     * ]
+     * }
+     * }
+     */
+    public function getAllTemplateBySearchTag(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'search_category', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $this->search_category = trim(strtolower($request->search_category));
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+            $this->is_featured = 1;
+
+            $redis_result = Cache::remember("getAllTemplateBySearchTag:$this->sub_category_id:$this->search_category:$this->offset:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
+
+                $search_result = DB::select('SELECT
+                                                DISTINCT im.id AS template_id,
+                                                IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS compressed_img,
+                                                IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") AS webp_original_img,
+                                                IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_THUMBNAIL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS webp_thumbnail_after_image,
+                                                IF(im.content_type = ' . Config::get('constant.CONTENT_TYPE_FOR_BEFORE_AFTER_IMAGE') . ' AND im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '","after_image_",im.attribute1),"") AS webp_original_after_img,
+                                                IF(im.cover_webp_img != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", im.cover_webp_img), "") AS cover_webp_img,
+                                                im.content_type,
+                                                im.updated_at,
+                                                im.search_category,
+                                                MATCH(im.search_category) AGAINST("' . $this->search_category . '") +
+                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text 
+                                            FROM
+                                                images AS im,
+                                                catalog_master AS cm,
+                                                sub_category_catalog AS scc
+                                            WHERE
+                                                im.is_active = 1 AND
+                                                im.catalog_id = scc.catalog_id AND
+                                                cm.id = scc.catalog_id AND
+                                                cm.is_featured = ? AND
+                                                scc.sub_category_id IN (' . $this->sub_category_id . ') AND
+                                                ISNULL(im.original_img) AND
+                                                ISNULL(im.display_img) AND
+                                                (MATCH(im.search_category) AGAINST("' . $this->search_category . '") OR 
+                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $this->search_category . '"," ")," ","* ") IN BOOLEAN MODE))
+                                            ORDER BY search_text DESC, im.updated_at DESC ', [$this->is_featured]);
+
+                $total_row = count($search_result);
+                return array('total_record' => $total_row, 'result' => $search_result);
+            });
+
+            $search_result = $redis_result['result'];
+
+            $redis_result['result'] = array_slice($redis_result['result'], $this->offset, $this->item_count);
+            $redis_result['is_next_page'] = ($redis_result['total_record'] > ($this->offset + $this->item_count)) ? true : false;
+
+            if (!$redis_result) {
+                $message = "Sorry, we couldn't find any templates for '$this->search_category'.";
+                $response = array('code' => 201, 'message' => $message, 'cause' => '', 'data' => json_decode("{}"));
+            } else {
+                if (count($search_result) > 0) {
+                    $code = 200;
+                    $message = "Template fetch successfully.";
+                } else {
+                    $code = 201;
+                    $message = "Sorry, we couldn't find any templates for '$this->search_category'.";
+                }
+                $response = array('code' => $code, 'message' => $message, 'cause' => '', 'data' => $redis_result);
+            }
+
+            return $response;
+
+        } catch (Exception $e) {
+            Log::error("getAllTemplateBySearchTag : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get all template by search tag.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+
     }
 
 }

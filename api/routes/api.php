@@ -261,6 +261,20 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     //Get tag from image
     Route::post('getTagFromImage','AdminController@getTagFromImage');
 
+    //Schedule Post Calendar
+    Route::post('addIndustry','AdminController@addIndustry');
+    Route::post('updateIndustry','AdminController@updateIndustry');
+    Route::post('deleteIndustry','AdminController@deleteIndustry');
+    Route::post('addTheme','AdminController@addTheme');
+    Route::post('getThemeBySubCategoryId','AdminController@getThemeBySubCategoryId');
+    Route::post('updateTheme','AdminController@updateTheme');
+    Route::post('deleteTheme','AdminController@deleteTheme');
+    Route::post('addSchedulePost','AdminController@addSchedulePost');
+    Route::post('updateScheduledPost','AdminController@updateScheduledPost');
+    Route::post('deleteScheduledPost','AdminController@deleteScheduledPost');
+    Route::post('getScheduledPostDetails','AdminController@getScheduledPostDetails');
+    Route::post('repeatPostThemes','AdminController@repeatPostThemes');
+
 });
 
 //Common api
@@ -276,6 +290,10 @@ Route::middleware(['ability:user|admin,user_permission|admin_permission'])->grou
     Route::post('getSubCategoryByCategoryId', 'AdminController@getSubCategoryByCategoryId');
     Route::post('getCatalogBySubCategoryId_v2', 'AdminController@getCatalogBySubCategoryId_v2');
     Route::post('getCorruptedFontList', 'UserController@getCorruptedFontList'); //To get unused font list
+
+    //post calendar
+    Route::post('getAllTemplateBySearchTag','AdminController@getAllTemplateBySearchTag');
+    Route::post('getIndustryBySubCategoryIdForAdmin','AdminController@getIndustryBySubCategoryIdForAdmin');
 
 });
 
@@ -420,6 +438,10 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('getSearchTagBySubCategoryId', 'UserController@getSearchTagBySubCategoryId');
     Route::post('searchCatalogBySubCategoryId', 'UserController@searchCatalogBySubCategoryId');
 
+    //post calendar
+    Route::post('getPostByIndustryId', 'UserController@getPostByIndustryId');
+    Route::post('getIndustryBySubCategoryId','UserController@getIndustryBySubCategoryId');
+
 });
 
 //API for auto upload template
@@ -431,6 +453,14 @@ Route::middleware(['ability:image_uploader,image_uploader_permission'])->group(f
     Route::post('autoUploadTemplate', 'AdminController@autoUploadTemplate');
     Route::post('autoUploadTemplateV2', 'AdminController@autoUploadTemplateV2');
     Route::post('autoUploadTemplateV3', 'AdminController@autoUploadTemplateV3');
+
+    /* Master content */
+    Route::post('autoUploadMCMContent', 'MasterContentAdminController@autoUploadMCMContent');
+    Route::post('checkUploadStatus', 'MasterContentAdminController@checkUploadStatus');
+    Route::post('getAppCatalogsWithContentUploadStatus', 'MasterContentAdminController@getAppCatalogsWithContentUploadStatus');
+    Route::post('deleteMCMContent', 'MasterContentAdminController@deleteMCMContent');
+    Route::post('updateMCMContent', 'MasterContentAdminController@updateMCMContent');
+    Route::post('autoUploadContentV2', 'MasterContentAdminController@autoUploadContentV2');
 
 });
 
@@ -458,3 +488,5 @@ Route::post('spellCorrectionApi', 'UserController@spellCorrectionApi');
 Route::post('removeIndexInImageJson', 'AdminController@removeIndexInImageJson');
 
 /*Route::post('setNullStrokeScript', 'UserController@setNullStrokeScript');*/
+Route::post('collectUserGeneratedLogoData', 'UserController@collectUserGeneratedLogoData');
+Route::post('deleteObjectsFromS3', 'MasterContentAdminController@deleteObjectsFromS3');

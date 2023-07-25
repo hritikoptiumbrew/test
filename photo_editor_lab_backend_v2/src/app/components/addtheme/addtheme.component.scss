@@ -1,0 +1,83 @@
+@import '~@nebular/theme/styles/theming';
+
+nb-card {
+    width: 683px;
+}
+
+.close-icon {
+    position: absolute;
+    right: 30px;
+    font-size: 23px;
+    top: 37px;
+    cursor: pointer;
+}
+
+.header-text {
+    height: 98px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    h5 {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 600;
+        font-size: 30px !important;
+        line-height: 20px;
+        text-transform: capitalize;
+        color: #222B45;
+    }
+}
+
+nb-radio-group {
+    display: flex;
+}
+
+.w-100 {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 52px;
+}
+
+.main-btn {
+    width: 277px;
+    height: 50px;
+    background-color: #007BFF;
+    border-radius: 5px;
+    border: 0;
+    outline: none;
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    color: #FFFFFF;
+    text-transform: capitalize;
+}
+
+.form-label {
+    margin-top: 14px;
+    font-weight: 600;
+}
+
+.img-label {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    color: #222B45;
+}
+
+.input-label {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    color: #222B45;
+}
+
+@media only screen and (max-width: 700px) {
+    nb-card {
+        width: 100%;
+        height:auto;
+    }
+}

@@ -24,6 +24,7 @@ import { ValidationsService } from 'app/validations.service';
 import { NbDialogService } from '@nebular/theme';
 import { EnterotpComponent } from 'app/components/enterotp/enterotp.component';
 import { ViewimageComponent } from 'app/components/viewimage/viewimage.component';
+import {MatInputModule} from '@angular/material/input';
 
 @Component({
   selector: 'ngx-login',

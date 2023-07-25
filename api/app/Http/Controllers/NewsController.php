@@ -129,8 +129,12 @@ class NewsController extends Controller
                         );
 
                         // Get the user timeline feeds
-                        $list = $this->twitterPostByTwitterId($twitterConnection, $twitterID, $tweetNum);
-                        $post_list = array_merge($post_list, $list);
+                        /*$list = $this->twitterPostByTwitterId($twitterConnection, $twitterID, $tweetNum);
+                        if (is_array($list)) {
+                            $post_list = array_merge($post_list, $list);
+                        } else {
+                            Log::error("getFeedFromTwitter : unable to get data for twitter channel", ["twitterID" => $twitterID]);
+                        }*/
 
                     }
 
@@ -155,9 +159,9 @@ class NewsController extends Controller
 
             Redis::expire("getFeedFromTwitter:$this->country_code:$this->page", 1);
 
-            if (!$redis_result['result']) {
+            /*if (!$redis_result['result']) {
                 return Response::json(array('code' => 427, 'message' => "Sorry, We couldn't find any twitter post.", 'cause' => '', 'data' => json_decode('{}')));
-            }
+            }*/
 
             $this->is_cache == 0 ? $is_cache = 0 : $is_cache = 1;
             $redis_result['is_cache'] = $is_cache;

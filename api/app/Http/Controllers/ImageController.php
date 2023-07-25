@@ -48,6 +48,35 @@ class ImageController extends Controller
         return $response;
     }
 
+    public function verifyPDF($image_array)
+    {
+
+        $image_type = $image_array->getMimeType();
+        $image_size = $image_array->getSize();
+        //Log::info("verifyImage image details : ",['size' => $image_size, 'mime_type' => $image_type]);
+
+        /*
+         * check size into kb
+         * here 100 is kb & 1024 is bytes
+         * 1kb = 1024 bytes
+         * */
+
+        //$validations = $this->getValidationFromCache($category_id, $is_featured, $is_catalog);
+        //Log::info('verifyImage : ', ['validations' => $validations]);
+
+        //$MAXIMUM_FILESIZE = $validations * 1024;
+        //$MAXIMUM_FILESIZE = 10000 * 1024;
+        $MAXIMUM_FILESIZE = 10 * 1024 * 1024;
+
+        if (!($image_type == 'application/pdf'))
+            $response = Response::json(array('code' => 201, 'message' => 'Please select PDF file.', 'cause' => '', 'data' => json_decode("{}")));
+        elseif ($image_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => 201, 'message' => 'File Size is greater then 10MB.', 'cause' => '', 'data' => json_decode("{}")));
+        else
+            $response = '';
+        return $response;
+    }
+
     public function verifyImageWithSvg($image_array, $category_id, $is_featured, $is_catalog)
     {
 
@@ -2037,8 +2066,22 @@ class ImageController extends Controller
                 return $response = Response::json(array('code' => 201, 'message' => 'Please select square image.', 'cause' => '', 'data' => json_decode("{}")));
             }
         }
+        return $response;
+    }
 
+    public function verifyIndustryIcon($image_array)
+    {
+        $image_type = $image_array->getMimeType();
+        $image_size = $image_array->getSize();
 
+        $MAXIMUM_FILESIZE = 100 * 1024; //100kb
+
+        if (!($image_type == 'image/png'))
+            $response = Response::json(array('code' => 201, 'message' => 'Please select PNG icon file.', 'cause' => '', 'data' => json_decode("{}")));
+        elseif ($image_size > $MAXIMUM_FILESIZE)
+            $response = Response::json(array('code' => 201, 'message' => 'Icon file Size is greater then 100KB.', 'cause' => '', 'data' => json_decode("{}")));
+        else
+            $response = '';
         return $response;
     }
 

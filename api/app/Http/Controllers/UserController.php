@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Permission;
 use App\Role;
+use Illuminate\Support\Facades\Storage;
 use Response;
 use Config;
 use DB;
@@ -8318,8 +8319,12 @@ provide a result text without adding any extra words so that it can be used dire
                         );
 
                         // Get the user timeline feeds
-                        $list = (new NewsController())->twitterPostByTwitterId($twitterConnection, $twitterID, $tweetNum);
-                        $post_list = array_merge($post_list, $list);
+                        /*$list = (new NewsController())->twitterPostByTwitterId($twitterConnection, $twitterID, $tweetNum);
+                        if (is_array($list)) {
+                            $post_list = array_merge($post_list, $list);
+                        } else {
+                            Log::error("getHomePageDetail : unable to get data for twitter channel", ["twitterID" => $twitterID]);
+                        }*/
 
                     }
 
@@ -11776,6 +11781,7 @@ provide a result text without adding any extra words so that it can be used dire
             foreach ($old_json_array AS $i => $old_json){
                 //$old_json['old_catalog_id'] = $old_json['catalog_id'];
                 $old_json_array[$i]['catalog_id'] = $old_new_catalog_list[$old_json['catalog_id']];
+                $old_json_array[$i]["attribute4"] = $old_json_array[$i]["id"];
                 unset($old_json_array[$i]["id"]);
             }
 
@@ -12561,4 +12567,555 @@ provide a result text without adding any extra words so that it can be used dire
         }
         return $response;
     }
+
+    public function oldToNewCatalogId($old_catalog_id)
+    {
+        try {
+            $new_catalog_id = DB::select('SELECT
+                                              id AS catalog_id
+                                           FROM
+                                              catalog_master
+                                           WHERE
+                                              attribute5 = ?',[$old_catalog_id]);
+
+            if ($new_catalog_id){
+                return $new_catalog_id[0]->catalog_id;
+            }else{
+                return '';
+            }
+
+        } catch (Exception $e) {
+            Log::error("oldToNewContentId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get new catalog id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function oldToNewContentId($old_content_id)
+    {
+        try {
+            $new_content_id = DB::select('SELECT
+                                              id AS content_id
+                                           FROM
+                                              images
+                                           WHERE
+                                              attribute4 = ?',[$old_content_id]);
+
+            if ($new_content_id){
+                return $new_content_id[0]->content_id;
+            }else{
+                return '';
+            }
+
+        } catch (Exception $e) {
+            Log::error("oldToNewContentId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get new catalog id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function collectUserGeneratedLogoData(Request $request_body)
+    {
+        try {
+            /*$request = json_decode($request_body->input('request_data'));
+            if (($response = (new VerificationController())->validateRequiredParameter(array('svg_url'), $request)) != '')
+                return $response;
+
+            $svg_url = $request->svg_url;
+            $folder_name = uniqid();
+            $disk = Storage::disk('s3');
+            $aws_bucket = config('constant.AWS_BUCKET');
+            //$svg_path = $pdf_path = '';
+
+            if (!$request_body->hasFile('file')) {
+                Log::error('collectUserGeneratedLogoData : ', ['message' => 'required field file is missing or empty.']);
+            } else {
+                $image_array = Input::file('file');
+                if (($response = (new ImageController())->verifyPDF($image_array)) != ''){
+                    Log::error('collectUserGeneratedLogoData : ', ['verifyPDF' => $response]);
+                }else{
+                    $pdf_name = (new ImageController())->generateNewFileName('user_logo_pdf', $image_array);
+                    $original_path = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY');
+                    Input::file('file')->move($original_path, $pdf_name);
+
+                    if (config('constant.STORAGE') === 'S3_BUCKET') {
+                        $original_sourceFile = '../..' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY') . $pdf_name;
+
+                        if (($is_exist = ((new ImageController())->checkFileExist($original_sourceFile)) != 0)) {
+                            $original_targetFile = "imageflyer/temp_data/$folder_name/" . $pdf_name;
+                            $disk->put($original_targetFile, file_get_contents($original_sourceFile), 'public');
+                            unlink($original_sourceFile);
+                            //return "https://obinternalrd.s3.amazonaws.com/obinternalrd/logo_maker/$folder_name/" . $pdf_name;
+                            //$pdf_path = "https://obinternalrd.s3.amazonaws.com/obinternalrd/logo_maker/$folder_name/" . $pdf_name;
+                        }
+                    }
+                }
+            }
+
+            if(isset($request->svg_url) && $request->svg_url != ''){
+                $svg_file_content = file_get_contents($svg_url);
+                $extension = pathinfo($svg_url, PATHINFO_EXTENSION);
+                $svg_file_name = uniqid() . '_logo_svg_' . time() . '.' . $extension;
+                if(config('constant.STORAGE') === 'S3_BUCKET'){
+                    $destination_path = "imageflyer/temp_data/$folder_name/" . $svg_file_name;
+                    $disk->put($destination_path, $svg_file_content, 'public');
+                    //return "https://obinternalrd.s3.amazonaws.com/obinternalrd/logo_maker/$folder_name/" . $svg_file_name;
+                    //$svg_path = "https://obinternalrd.s3.amazonaws.com/obinternalrd/logo_maker/$folder_name/" . $svg_file_name;
+                }
+            }else{
+                Log::error('collectUserGeneratedLogoData : ', ['message' => 'required field SVG url is missing or empty.']);
+            }*/
+
+            return Response::json(array('code' => 200, 'message' => 'Images uploaded successfully.', 'cause' => '', 'data' => json_decode('{}')));
+
+        } catch (Exception $e) {
+            Log::error("collectUserGeneratedLogoData : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'upload files.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+    }
+
+    public function getIndustry($sub_category_id, $offset, $item_count)
+    {
+        $total_row_result = DB::select('SELECT COUNT(*) as total FROM post_industry WHERE sub_category_id = ? AND is_active = 1', [$sub_category_id]);
+        $total_row = $total_row_result[0]->total;
+
+        $result = DB::select('SELECT  
+                                    id, 
+                                    sub_category_id,
+                                    IF(icon != "", CONCAT("' . Config::get('constant.ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", icon),"") as icon,
+                                    IF(icon_webp != "", CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '", icon_webp),"") as icon_webp,
+                                    industry_name,
+                                    is_active,
+                                    created_at,
+                                    updated_at
+                               FROM 
+                                    post_industry 
+                               WHERE 
+                                    sub_category_id = ? AND is_active = 1
+                               ORDER BY updated_at DESC 
+                               LIMIT ?,?', [$sub_category_id, $offset, $item_count]);
+
+        $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
+
+        return array('total_record' => $total_row, 'is_next_page' => $is_next_page, 'industry_list' => $result);
+    }
+    /**
+     * @api {post} getIndustryBySubCategoryId getIndustryBySubCategoryId
+     * @apiName getIndustryBySubCategoryId
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "sub_category_id":66,
+     * "page":1,
+     * "item_count":10,
+     * "is_cache_enable":1
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Industry fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_record": 1,
+     * "is_next_page": false,
+     * "industry_list": [
+     * {
+     * "id": 155,
+     * "sub_category_id": 66,
+     * "icon": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/original/64b6353d2ec77_industry_icon_1689662781.png",
+     * "icon_webp": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/webp_original/64b6353d2ec77_industry_icon_1689662781.webp",
+     * "industry_name": "test_industry",
+     * "is_active": 1,
+     * "created_at": "2023-07-18 06:46:21",
+     * "updated_at": "2023-07-18 06:46:21"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getIndustryBySubCategoryId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->sub_category_id = $request->sub_category_id;
+            $page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
+            if ($is_cache_enable) {
+                $redis_result = Cache::remember("getIndustryBySubCategoryId:$this->sub_category_id:$page:$this->item_count", Config::get('constant.CACHE_TIME_6_HOUR'), function () {
+                    return $this->getIndustry($this->sub_category_id, $this->offset, $this->item_count);
+                });
+            } else {
+                $redis_result = $this->getIndustry($this->sub_category_id, $this->offset, $this->item_count);
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Industry fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+        } catch (Exception $e) {
+            Log::error("getIndustrySubCategoryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'get industry by sub category id.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    public function getTemplateList($sub_category_id, $template_ids, $offset, $item_count, $search_tag)
+    {
+
+        $search_tag = str_replace(',', ' ', $search_tag);
+        $this->is_featured = 1;
+
+        $total_row_result = DB::select('SELECT  
+                                         COUNT(im.id) AS total
+                                      FROM 
+                                            images AS im,
+                                            catalog_master AS cm,
+                                            sub_category_catalog AS scc
+                                       WHERE
+                                            im.is_active = 1 AND
+                                            im.catalog_id = scc.catalog_id AND
+                                            cm.id = scc.catalog_id AND
+                                            cm.is_featured = ? AND
+                                            scc.sub_category_id = ? AND
+                                            ISNULL(im.original_img) AND
+                                            ISNULL(im.display_img) AND
+                                            (im.id IN(' . $template_ids . ') OR
+                                            (MATCH(im.search_category) AGAINST("' . $search_tag . '") OR 
+                                            MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_tag . '"," ")," ","* ") IN BOOLEAN MODE)))
+                                       ',
+            [$this->is_featured, $sub_category_id]);
+
+        $total_row = $total_row_result[0]->total;
+
+        $host_name = request()->getHttpHost(); // With port if there is. Eg: mydomain.com:81
+        $certificate_maker_host_name = Config::get('constant.HOST_NAME_OF_CERTIFICATE_MAKER');
+
+        //to pass compress image(jpg/png) only for certificate_maker app because webp is not supported there into iOS
+        $image_url = ($host_name == $certificate_maker_host_name && $sub_category_id == 4) ? 'IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") as sample_image,' : 'IF(im.attribute1 != "",CONCAT("' . Config::get('constant.WEBP_ORIGINAL_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.attribute1),"") as sample_image,';
+        $template_list = DB::select('SELECT
+                                          im.id AS json_id,
+                                          ' . $image_url . '
+                                          im.is_free,
+                                          im.is_featured,
+                                          im.is_portrait,
+                                          coalesce(im.height,0) AS height,
+                                          coalesce(im.width,0) AS width,
+                                          coalesce(im.original_img_height,0) AS original_img_height,
+                                          coalesce(im.original_img_width,0) AS original_img_width,
+                                          COALESCE(im.multiple_images,"") AS multiple_images,
+                                          COALESCE(im.json_pages_sequence,"") AS pages_sequence,
+                                          COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(json_pages_sequence, ",","")) + 1,1) AS total_pages,
+                                          MATCH(im.search_category) AGAINST("' . $search_tag . '") +
+                                                MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_tag . '"," ")," ","* ") IN BOOLEAN MODE) AS search_text ,
+                                          im.updated_at
+                                        FROM
+                                            images AS im,
+                                            catalog_master AS cm,
+                                            sub_category_catalog AS scc
+                                        WHERE
+                                            im.is_active = 1 AND
+                                            im.catalog_id = scc.catalog_id AND
+                                            cm.id = scc.catalog_id AND
+                                            cm.is_featured = ? AND
+                                            scc.sub_category_id  = ? AND
+                                            ISNULL(im.original_img) AND
+                                            ISNULL(im.display_img) AND
+                                            (im.id IN(' . $template_ids . ') OR
+                                            (MATCH(im.search_category) AGAINST("' . $search_tag . '") OR 
+                                            MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_tag . '"," ")," ","* ") IN BOOLEAN MODE)))
+                                         ORDER BY CASE
+                                                WHEN im.id IN(' . $template_ids . ') THEN FIND_IN_SET(im.id, "' . $template_ids . '")
+                                                ELSE ' . count(explode(',', $template_ids)) . ' + 1
+                                            END,
+                                            search_text DESC, im.updated_at DESC
+                                        LIMIT ?,?',
+
+            [$this->is_featured, $sub_category_id, $offset, $item_count]);
+
+        $result = [
+            'template_list' => $template_list,
+            'total_row' => $total_row
+        ];
+        return $result;
+    }
+
+    public function getPosts($start_date, $industry_id, $sub_category_id, $offset, $item_count, $is_cache_enable)
+    {
+        $this->start_date = $start_date;
+        $this->industry_id = $industry_id;
+        $this->sub_category_id = $sub_category_id;
+
+        if ($is_cache_enable) {
+            $result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:$this->start_date", function () {
+                return DB::select('SELECT 
+                                        psm.schedule_date, 
+                                        DATE_FORMAT (psm.schedule_date, "%a %d") as display_date , 
+                                        psm.template_ids, pt.id AS theme_id, 
+                                        pt.theme_name, 
+                                        pt.short_description AS theme_short_description, 
+                                        psm.tags
+                                    FROM 
+                                        post_schedule_master AS psm, 
+                                        post_theme AS pt
+                                    WHERE 
+                                        pt.id = psm.post_theme_id AND 
+                                        psm.schedule_date  >= ? AND 
+                                        psm.post_industry_id =? AND 
+                                        psm.sub_category_id = ?
+                                    ORDER BY schedule_date
+                                    LIMIT 7', [$this->start_date, $this->industry_id, $this->sub_category_id]);
+            });
+        } else {
+            $result = DB::select('SELECT 
+                                        psm.schedule_date, 
+                                        DATE_FORMAT (psm.schedule_date, "%a %d") as display_date , 
+                                        psm.template_ids, pt.id AS theme_id, 
+                                        pt.theme_name, 
+                                        pt.short_description AS theme_short_description, 
+                                        psm.tags
+                                    FROM 
+                                        post_schedule_master AS psm, 
+                                        post_theme AS pt
+                                    WHERE 
+                                        pt.id = psm.post_theme_id AND 
+                                        psm.schedule_date  >= ? AND 
+                                        psm.post_industry_id =? AND 
+                                        psm.sub_category_id = ?
+                                    ORDER BY schedule_date
+                                    LIMIT 7', [$this->start_date, $this->industry_id, $this->sub_category_id]);
+        }
+
+        $schedule_date = date('Y-m-d');
+        $template_ids = [];
+
+        foreach ($result as $item) {
+            if ($item->schedule_date == $schedule_date) {
+                $template_ids = $item->template_ids;
+                $search_tag = $item->tags;
+                break;
+            } elseif ($item->schedule_date > $schedule_date) {
+                $schedule_date = $item->schedule_date;
+                $template_ids = $item->template_ids;
+                $search_tag = $item->tags;
+                break;
+            }
+        }
+
+        if (isset($result) && count($result) > 1) {
+            $templates = $this->getTemplateList($this->sub_category_id, $template_ids, $offset, $item_count, $search_tag);
+            $sample_cards = $templates['template_list'];
+            $total_row = $templates['total_row'];
+        } elseif (isset($result) && count($result) == 1) {
+            $schedule_date = $result[0]->schedule_date;
+            $template_ids = $result[0]->template_ids;
+            $search_tag = $result[0]->tags;
+            $templates = $this->getTemplateList($this->sub_category_id, $template_ids, $offset, $item_count, $search_tag);
+            $sample_cards = $templates['template_list'];
+            $total_row = $templates['total_row'];
+        } else {
+            $sample_cards = [];
+            $total_row = 0;
+        }
+
+        $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
+
+        if ($this->page == 1)
+            return array('total_records' => $total_row, 'is_next_page' => $is_next_page, 'schedule_date' => $schedule_date, 'schedule_theme_list' => $result, 'sample_cards' => $sample_cards);
+        else
+            return array('total_records' => $total_row, 'is_next_page' => $is_next_page, 'schedule_date' => $schedule_date, 'sample_cards' => $sample_cards);
+    }
+
+    public function getScheduledDatePost($schedule_date, $industry_id, $sub_category_id, $offset, $item_count)
+    {
+        $result = DB::select('SELECT 
+                                    psm.schedule_date ,
+                                    DATE_FORMAT (psm.schedule_date, "%a %d") as display_date, 
+                                    psm.template_ids, pt.id AS theme_id, 
+                                    pt.theme_name, 
+                                    pt.short_description AS theme_short_description,
+                                    psm.tags
+                               FROM 
+                                    post_schedule_master AS psm, 
+                                    post_theme AS pt
+                               WHERE 
+                                    pt.id = psm.post_theme_id AND 
+                                    psm.schedule_date = ? AND 
+                                    psm.post_industry_id =? AND 
+                                    psm.sub_category_id = ?
+                               ORDER BY
+                                    schedule_date',
+            [$schedule_date, $industry_id, $sub_category_id]);
+
+        if (count($result) > 0) {
+            $search_tag = $result[0]->tags;
+            $template_ids = $result[0]->template_ids;
+            $templates = $this->getTemplateList($sub_category_id, $template_ids, $offset, $item_count, $search_tag);
+            $sample_cards = $templates['template_list'];
+            $total_row = $templates['total_row'];
+        } else {
+            $sample_cards = [];
+            $total_row = 0;
+        }
+
+        $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
+        return array('total_records' => $total_row, 'is_next_page' => $is_next_page, 'schedule_date' => $this->schedule_date, 'sample_cards' => $sample_cards);
+    }
+
+
+    /**
+     * @api {post} getPostByIndustryId getPostByIndustryId
+     * @apiName getPostByIndustryId
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     *  Key: Authorization
+     *  Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     *  "sub_category_id" :66,
+     *  "industry_id":100,
+     *  "schedule_date":"",
+     *  "page": "1",
+     *  "item_count":"1",
+     *  "is_cache_enable":1
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Post details fetched successfully.",
+     * "cause": "",
+     * "data": {
+     * "total_records": 5,
+     * "is_next_page": true,
+     * "schedule_date": "2023-07-11",
+     * "schedule_theme_list": [
+     * {
+     * "schedule_date": "2023-07-10",
+     * "display_date": "Mon 10",
+     * "template_ids": "10667,3612,3613",
+     * "theme_id": 40,
+     * "theme_name": "women's day",
+     * "theme_short_description": "day to empower women worldwide."
+     * },
+     * {
+     * "schedule_date": "2023-07-11",
+     * "display_date": "Tue 11",
+     * "template_ids": "18420,9914,9919,10597,10657",
+     * "theme_id": 44,
+     * "theme_name": "my theme",
+     * "theme_short_description": "this theme for demo"
+     * },
+     * {
+     * "schedule_date": "2023-07-12",
+     * "display_date": "Wed 12",
+     * "template_ids": "4069,3521,3522,3523",
+     * "theme_id": 29,
+     * "theme_name": "Management Post",
+     * "theme_short_description": "For increase social traffics on your post"
+     * },
+     * {
+     * "schedule_date": "2023-07-13",
+     * "display_date": "Thu 13",
+     * "template_ids": "3806,4072,3807",
+     * "theme_id": 31,
+     * "theme_name": "Marketing Post",
+     * "theme_short_description": "To increase audience engagement"
+     * }
+     * ],
+     * "sample_cards": [
+     * {
+     * "json_id": 18420,
+     * "sample_image": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/webp_original/61557acd10f02_json_image_1632991949.webp",
+     * "is_free": 1,
+     * "is_featured": 1,
+     * "is_portrait": 1,
+     * "height": 650,
+     * "width": 550,
+     * "original_img_height": 1300,
+     * "original_img_width": 1100,
+     * "multiple_images": "",
+     * "pages_sequence": "",
+     * "total_pages": 1,
+     * "updated_at": "2023-03-09 09:30:47"
+     * },
+     * {
+     * "json_id": 9914,
+     * "sample_image": "http://192.168.0.109/photo_editor_lab_backend/image_bucket/webp_original/5cfe2ddeaad29_json_image_1560161758.webp",
+     * "is_free": 1,
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "height": 540,
+     * "width": 540,
+     * "original_img_height": 1080,
+     * "original_img_width": 1080,
+     * "multiple_images": "",
+     * "pages_sequence": "",
+     * "total_pages": 1,
+     * "updated_at": "2019-12-24 11:57:22"
+     * }
+     * ]
+     * }
+     * }
+     */
+    public function getPostByIndustryId(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'industry_id', 'page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->start_date = date('Y-m-d', strtotime(' -1 day'));
+            $this->industry_id = $request->industry_id;
+            $this->sub_category_id = $request->sub_category_id;
+            $this->schedule_date = isset($request->schedule_date) ? $request->schedule_date : NULL;
+            $this->page = $request->page;
+            $this->item_count = $request->item_count;
+            $this->offset = ($this->page - 1) * $this->item_count;
+            $is_cache_enable = isset($request->is_cache_enable) ? $request->is_cache_enable : 1;
+
+            if ($this->schedule_date) {
+                if ($is_cache_enable) {
+                    $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:$this->schedule_date:$this->page:$this->item_count", function () {
+                        return $this->getScheduledDatePost($this->schedule_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count);
+                    });
+                } else {
+                    $redis_result = $this->getScheduledDatePost($this->schedule_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count);
+                }
+
+            } else {
+                if ($is_cache_enable) {
+                    $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:$this->start_date:$this->page:$this->item_count", function () {
+                        return $this->getPosts($this->start_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count, 1);
+                    });
+                } else {
+                    $redis_result = $this->getPosts($this->start_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count, 0);
+                }
+            }
+
+            $response = Response::json(array('code' => 200, 'message' => 'Post details fetched successfully.', 'cause' => '', 'data' => $redis_result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+        } catch (Exception $e) {
+            Log::error("getPostByIndustryId : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'getPostByIndustryId', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
 }

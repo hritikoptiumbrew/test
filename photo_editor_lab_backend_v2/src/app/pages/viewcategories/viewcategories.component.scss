@@ -225,3 +225,7 @@ nb-icon {
 ::ng-deep nb-accordion nb-accordion-item-body .item-body {
   padding: 10px 21px !important;
 }
+
+::ng-deep .nb-theme-corporate nb-card-footer{
+  padding: 1rem 0 !important;
+}
