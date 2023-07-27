@@ -76,7 +76,6 @@ export class ReviewDataComponent implements OnInit {
           }
         } 
         this.reviewArray = results.data;  
-        console.log
         this.totalRecord = results.data.length;
         this.utils.hidePageLoader();
       }else if (results.code == 201) {
