@@ -22,6 +22,8 @@ use Abraham\TwitterOAuth\TwitterOAuth;
 use App\Jobs\SaveSearchTagJob;
 use Image;
 use Google\Cloud\Translate\V2\TranslateClient;
+use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 
 class UserController extends Controller
 {
@@ -31,6 +33,226 @@ class UserController extends Controller
         $this->item_count = Config::get('constant.PAGINATION_ITEM_LIMIT');
         $this->base_url = (new Utils())->getBaseUrl();
 
+    }
+    /* =================================| Ai Playground |=============================*/
+    /**
+     * @api {post} getDataFromPrompt getDataFromPrompt
+     * @apiName getDataFromPrompt
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "industry":"test" //optional
+     * "purpose":"High tea party invitation" //compulsory
+     * "exactly_want":"Description" //compulsory
+     * "device_json" : { //optional
+     *           "country" : "us",
+     *           "language" : "english"
+     *  }
+     * "app_json" : { //optional
+     *           "app_version" : "1.0",
+     *           "platform" : "1"
+     *  }
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Result get successfully",
+     * "cause": "",
+     * "data": {
+     * "id": 279,
+     * "result" : "Join us for an elegant high tea party!\nDate: [Date]\nTime: [Time]\nLocation: [Location]\nRSVP: [Contact information]\n\nDress up and indulge in a delightful selection of teas, finger sandwiches, scones, and sweet treats. Don't miss this opportunity to relax, socialize, and enjoy an afternoon of sophistication and deliciousness!\n"
+     * }
+     * }
+     */
+    public function getDataFromPrompt(Request $request_body)
+    {
+        try {
+            if ($request_body['device_json'] != null) {
+                $device_json['device_country_code'] = isset($request_body['device_json']['device_country_code']) ? $request_body['device_json']['device_country_code'] : "";
+                $device_json['device_language'] = isset($request_body['device_json']['device_language']) ? $request_body['device_json']['device_language'] : "";
+                $device_json = json_encode($device_json);
+            } else {
+                $device_json = NULL;
+            }
+
+            if ($request_body['app_json'] != null) {
+                $app_json['app_version'] = isset($request_body['app_json']['app_version']) ? $request_body['app_json']['app_version'] : "";
+                $app_json['platform'] = isset($request_body['app_json']['platform']) ? $request_body['app_json']['platform'] : "";
+                $app_json = json_encode($app_json);
+            } else {
+                $app_json = NULL;
+            }
+
+            $current_time = date('Y-m-d H:i:s');
+            $industry = isset($request_body['industry']) ? $request_body['industry'] : NULL;
+            $industry_string = $industry ? "\nUser belongs to: " . $industry : NULL;
+            $purpose = $request_body['purpose'];
+            $prompt = $request_body['exactly_want'];
+            $system = "You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.\n\n$industry_string\nPurpose of the poster: $purpose\n\n\ngive a result based on this but give the exact result that the user wants. Do not give the other description.\n\n\nprovide a result text without adding any extra words so that it can be used directly in the poster.";
+
+            $chatGpt_request = [
+                "model" => "gpt-3.5-turbo",
+                'messages' => [
+                    [
+                        "role" => "system",
+                        "content" => $system
+                    ],
+                    [
+                        "role" => "user",
+                        "content" => $prompt
+                    ]
+                ],
+            ];
+            Log::info('getDataFromPrompt : ', ['key' => config('constant.OPENAI_API_KEY')]);
+            $client = new Client();
+            $response_client = $client->post("https://api.openai.com/v1/chat/completions", [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . config('constant.OPENAI_API_KEY'),
+                ],
+                'json' => $chatGpt_request
+            ]);
+
+            $data = json_decode($response_client->getBody()->getContents(), true);
+            $db_data = array(
+                'industry' => $industry,
+                'purpose' => $purpose,
+                'exactly_want' => $request_body["exactly_want"],
+                'ChatGpt_response' => json_encode($data),
+                'ChatGpt_request' => json_encode($chatGpt_request),
+                'created_at' => $current_time,
+                'device_json' => $device_json,
+                'app_json' => $app_json,
+            );
+
+            DB::beginTransaction();
+            $chat_number = DB::table('ai_chats')->insertGetId($db_data);
+            $resutl['id'] = strval($chat_number);
+            $pregString = preg_replace('/(^[\"\']|[\"\']$)/', '', $data['choices'][0]['message']['content']);
+            $resutl['result'] = $pregString != null ? $pregString : $data['choices'][0]['message']['content'];
+            $resutl['result'] = trim($resutl['result']);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $resutl));
+
+        } catch (Exception $e) {
+            Log::error('getDataFromPrompt : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            DB::rollBack();
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} aiFeedback   aiFeedback
+     * @apiName aiFeedback
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "feedback":"yes" //compulsory
+     * "feedback_msg":"Description" //compulsory
+     * "chat_number":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Thank You For Your FeedBack",
+     * "cause": "",
+     * "data": {
+     * }
+     * }
+     */
+    public function aiFeedback(Request $request_body)
+    {
+        try {
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('feedback', 'feedback_msg', 'chat_number'), $request)) != '')
+                return $response;
+
+            DB::beginTransaction();
+            DB::update('UPDATE `ai_chats` SET feedback = ?, feedback_msg = ?, updated_at = ? WHERE id = ?', [$request->feedback, $request->feedback_msg, date('Y-m-d H:i:s'), $request->chat_number]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Thank you for your feedback.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error('aiFeedback : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'update feedback.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} getAiChats   getAiChats
+     * @apiName getAiChats
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     *  "code": 200,
+     *  "message": "success",
+     *  "cause": "",
+     *  "data": [
+     *  {
+     *  "id": 4,
+     *  "industry": "test",
+     *  "purpose": "High tea party invitation",
+     *  "exactly_want": "Description",
+     *  "ChatGpt_response": "{\"id\":\"chatcmpl-7dW4rN4CAsFk2xzZ31XoPU6hHApbK\",\"object\":\"chat.completion\",\"created\":1689652453,\"model\":\"gpt-3.5-turbo-0613\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"You are cordially invited to a delightful High Tea Party. Join us for an elegant afternoon filled with delectable treats, delicate teas, and delightful conversations. Dress up, bring your friends, and immerse yourself in the charm and elegance of our tea party. Save the date and RSVP now to reserve your spot for a memorable experience.\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":104,\"completion_tokens\":68,\"total_tokens\":172}}",
+     *  "feedback": null,
+     *  "feedback_msg": null,
+     *  "created_at": "2023-07-18 03:54:13",
+     *  "updated_at": null,
+     *  "ChatGpt_request": "{\"model\":\"gpt-3.5-turbo\",\"messages\":[{\"role\":\"system\",\"content\":\"You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.\\n\\nUser belongs to: test\\nPurpose of the poster: High tea party invitation\\n\\n\\ngive a result based on this but give the exact result that the user wants. Do not give the other description.\\n\\n\\nprovide a result text without adding any extra words so that it can be used directly in the poster.\"},{\"role\":\"user\",\"content\":\"Description\"}]}"
+     *  }
+     *]
+     *}
+     */
+    public function getAiChats()
+    {
+        try {
+            $data = DB::select('SELECT 
+                                    id, 
+                                    industry, 
+                                    purpose, 
+                                    exactly_want, 
+                                    ChatGpt_response, 
+                                    feedback, 
+                                    feedback_msg, 
+                                    created_at, 
+                                    updated_at, 
+                                    ChatGpt_request, 
+                                    device_json, 
+                                    app_json 
+                                FROM ai_chats 
+                                ORDER BY id DESC');
+            $response = Response::json(array('code' => 200, 'message' => 'AI chats fetched successfully.', 'cause' => '', 'data' => $data));
+        } catch (Exception $e) {
+            Log::error('getChats : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get AI chats.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
     }
 
     /* =================================| Catalogs |=============================*/
@@ -12481,7 +12703,7 @@ class UserController extends Controller
                                     post_industry 
                                WHERE 
                                     sub_category_id = ? AND is_active = 1
-                               ORDER BY id DESC 
+                               ORDER BY updated_at DESC 
                                LIMIT ?,?', [$sub_category_id, $offset, $item_count]);
 
         $is_next_page = ($total_row > ($offset + $item_count)) ? true : false;
@@ -12580,6 +12802,7 @@ class UserController extends Controller
                                             scc.sub_category_id = ? AND
                                             ISNULL(im.original_img) AND
                                             ISNULL(im.display_img) AND
+                                            im.original_img_height = im.original_img_width AND
                                             (im.id IN(' . $template_ids . ') OR
                                             (MATCH(im.search_category) AGAINST("' . $search_tag . '") OR 
                                             MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_tag . '"," ")," ","* ") IN BOOLEAN MODE)))
@@ -12621,6 +12844,7 @@ class UserController extends Controller
                                             scc.sub_category_id  = ? AND
                                             ISNULL(im.original_img) AND
                                             ISNULL(im.display_img) AND
+                                            im.original_img_height = im.original_img_width AND
                                             (im.id IN(' . $template_ids . ') OR
                                             (MATCH(im.search_category) AGAINST("' . $search_tag . '") OR 
                                             MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_tag . '"," ")," ","* ") IN BOOLEAN MODE)))
@@ -12728,6 +12952,7 @@ class UserController extends Controller
 
     public function getScheduledDatePost($schedule_date, $industry_id, $sub_category_id, $offset, $item_count)
     {
+
         $result = DB::select('SELECT 
                                     psm.schedule_date ,
                                     DATE_FORMAT (psm.schedule_date, "%a %d") as display_date, 
@@ -12870,7 +13095,8 @@ class UserController extends Controller
             if (($response = (new VerificationController())->validateRequiredParameter(array('sub_category_id', 'industry_id', 'page', 'item_count'), $request)) != '')
                 return $response;
 
-            $this->start_date = date('Y-m-d', strtotime(' -1 day'));
+            $this->current_date = date('Y-m-d');
+            $this->start_date = date('Y-m-d', strtotime('-1 day', strtotime($this->current_date)));
             $this->industry_id = $request->industry_id;
             $this->sub_category_id = $request->sub_category_id;
             $this->schedule_date = isset($request->schedule_date) ? $request->schedule_date : NULL;
@@ -12881,7 +13107,7 @@ class UserController extends Controller
 
             if ($this->schedule_date) {
                 if ($is_cache_enable) {
-                    $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:$this->schedule_date:$this->page:$this->item_count", function () {
+                    $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:schedule_date:$this->schedule_date:$this->page:$this->item_count", function () {
                         return $this->getScheduledDatePost($this->schedule_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count);
                     });
                 } else {
@@ -12890,7 +13116,7 @@ class UserController extends Controller
 
             } else {
                 if ($is_cache_enable) {
-                    $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:$this->start_date:$this->page:$this->item_count", function () {
+                    $redis_result = Cache::rememberforever("getPostByIndustryId:$this->sub_category_id:$this->industry_id:fresh_response:$this->current_date:$this->page:$this->item_count", function () {
                         return $this->getPosts($this->start_date, $this->industry_id, $this->sub_category_id, $this->offset, $this->item_count, 1);
                     });
                 } else {
@@ -12905,6 +13131,44 @@ class UserController extends Controller
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'getPostByIndustryId', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
+    }
+
+    public function checkHeightWidthOfTemplateInCatalog(Request $request_body)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('catalog_ids'), $request)) != '')
+                return $response;
+
+            $catalog_ids = $request->catalog_ids;
+            $response = DB::select('SELECT  
+                                         im.id,
+                                         IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS sample_img,
+                                         im.catalog_id,
+                                         im.height,
+                                         im.width,
+                                         im.original_img_height,
+                                         im.original_img_width
+                                   FROM
+                                        images AS im
+                                   WHERE
+                                         im.height = "" AND
+                                         im.width = "" AND
+                                         im.original_img_height = "" AND
+                                         im.original_img_width = "" AND
+                                         im.catalog_id IN ('.$catalog_ids.')
+                                   ORDER BY im.updated_at DESC');
+
+            $response = Response::json(array('code' => 200, 'message' => 'Template fetched successfully.', 'cause' => '', 'data' => $response));
+        } catch (Exception $e) {
+            Log::error("checkHeightWidthOfTemplateInCatalog : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'checkHeightWidthOfTemplateInCatalog', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+
     }
 
 }
