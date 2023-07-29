@@ -12799,10 +12799,11 @@ class UserController extends Controller
                                             im.catalog_id = scc.catalog_id AND
                                             cm.id = scc.catalog_id AND
                                             cm.is_featured = ? AND
+                                            (im.is_multipage = 0 OR (im.is_multipage = 1 AND COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) = 1)) AND
                                             scc.sub_category_id = ? AND
+                                            im.original_img_height = im.original_img_width AND
                                             ISNULL(im.original_img) AND
                                             ISNULL(im.display_img) AND
-                                            im.original_img_height = im.original_img_width AND
                                             (im.id IN(' . $template_ids . ') OR
                                             (MATCH(im.search_category) AGAINST("' . $search_tag . '") OR 
                                             MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_tag . '"," ")," ","* ") IN BOOLEAN MODE)))
@@ -12841,10 +12842,11 @@ class UserController extends Controller
                                             im.catalog_id = scc.catalog_id AND
                                             cm.id = scc.catalog_id AND
                                             cm.is_featured = ? AND
+                                            (im.is_multipage = 0 OR (im.is_multipage = 1 AND COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) = 1)) AND
                                             scc.sub_category_id  = ? AND
+                                            im.original_img_height = im.original_img_width AND
                                             ISNULL(im.original_img) AND
                                             ISNULL(im.display_img) AND
-                                            im.original_img_height = im.original_img_width AND
                                             (im.id IN(' . $template_ids . ') OR
                                             (MATCH(im.search_category) AGAINST("' . $search_tag . '") OR 
                                             MATCH(im.search_category) AGAINST(REPLACE(concat("' . $search_tag . '"," ")," ","* ") IN BOOLEAN MODE)))
@@ -12952,7 +12954,6 @@ class UserController extends Controller
 
     public function getScheduledDatePost($schedule_date, $industry_id, $sub_category_id, $offset, $item_count)
     {
-
         $result = DB::select('SELECT 
                                     psm.schedule_date ,
                                     DATE_FORMAT (psm.schedule_date, "%a %d") as display_date, 
@@ -13145,21 +13146,20 @@ class UserController extends Controller
 
             $catalog_ids = $request->catalog_ids;
             $response = DB::select('SELECT  
-                                         im.id,
+                                         im.id AS template_id,
                                          IF(im.image != "",CONCAT("' . Config::get('constant.COMPRESSED_IMAGES_DIRECTORY_OF_DIGITAL_OCEAN') . '",im.image),"") AS sample_img,
                                          im.catalog_id,
                                          im.height,
                                          im.width,
                                          im.original_img_height,
-                                         im.original_img_width
+                                         im.original_img_width,
+                                         im.is_active
                                    FROM
                                         images AS im
                                    WHERE
-                                         im.height = "" AND
-                                         im.width = "" AND
-                                         im.original_img_height = "" AND
-                                         im.original_img_width = "" AND
-                                         im.catalog_id IN ('.$catalog_ids.')
+                                        ((im.height = 0 OR im.height IS NULL OR im.height = "" ) OR (im.width = 0 OR im.width IS NULL OR im.width = "") OR (im.original_img_height = 0 OR im.original_img_height IS NULL OR im.original_img_height = "") OR (im.original_img_width = 0 OR im.original_img_width IS NULL OR im.original_img_width = "")) AND
+                                        im.catalog_id IN (' . $catalog_ids . ') AND
+                                        im.is_featured = 1
                                    ORDER BY im.updated_at DESC');
 
             $response = Response::json(array('code' => 200, 'message' => 'Template fetched successfully.', 'cause' => '', 'data' => $response));
