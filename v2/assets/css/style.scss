@@ -11,6 +11,8 @@
  * Copyright 2018 - 2020 Optimumbrew Technology
  */
 
+ @import '../../../node_modules/angular-calendar/css/angular-calendar.css';
+
  ::ng-deep ng2-smart-table table thead tr{
     th{
         ng2-smart-table-title{
