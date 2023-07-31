@@ -229,27 +229,59 @@ class UserController extends Controller
      *]
      *}
      */
-    public function getAiChats()
+    public function getAiChats(Request $request_body)
     {
         try {
-            $data = DB::select('SELECT 
-                                    id, 
-                                    industry, 
-                                    purpose, 
-                                    exactly_want, 
-                                    ChatGpt_response, 
-                                    feedback, 
-                                    feedback_msg, 
-                                    created_at, 
-                                    updated_at, 
-                                    ChatGpt_request, 
-                                    device_json, 
-                                    app_json 
-                                FROM ai_chats 
-                                ORDER BY id DESC');
-            $response = Response::json(array('code' => 200, 'message' => 'AI chats fetched successfully.', 'cause' => '', 'data' => $data));
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count'), $request)) != '')
+                return $response;
+
+            $this->item_count = $request->item_count;
+            $this->page = $request->page;
+            if(isset($request->order_by)) {
+
+                if(!strcasecmp($request->order_by,"country") && !strcasecmp($request->order_by,"language") && !strcasecmp($request->order_by,"app_version")  && !strcasecmp($request->order_by,"platform"))
+                {
+                    $this->order_by = $request->order_by;
+                }else {
+                    $this->order_by = "id";
+                }
+
+            } else {
+                $this->order_by = "id";
+            }
+            $this->order_type = isset($request->order_type) ? $request->order_type : 'DESC';
+            $this->offset = ($this->page - 1) * $this->item_count;
+
+            $total_row_result = DB::select('SELECT COUNT(*) as total FROM ai_chats');
+            $result['total_row'] = $total_row_result[0]->total;
+
+            $result['ai_chats'] = DB::select('SELECT 
+                                    id.id, 
+                                    id.industry, 
+                                    id.purpose, 
+                                    id.exactly_want, 
+                                    id.ChatGpt_response, 
+                                    id.feedback, 
+                                    id.feedback_msg, 
+                                    id.created_at, 
+                                    id.updated_at, 
+                                    id.ChatGpt_request, 
+                                    id.device_json, 
+                                    id.app_json
+                                    
+                                FROM 
+                                    ai_chats AS id 
+                                ORDER BY id.'. $this->order_by . ' ' . $this->order_type . '
+                                  LIMIT ?,?', [$this->offset, $this->item_count]);
+
+            $response = Response::json(array('code' => 200, 'message' => 'AI chats fetched successfully.', 'cause' => '', 'data' => $result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
         } catch (Exception $e) {
-            Log::error('getChats : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            Log::error('getAiChats : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get AI chats.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
