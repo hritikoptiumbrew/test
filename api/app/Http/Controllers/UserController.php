@@ -12954,7 +12954,6 @@ class UserController extends Controller
 
     public function getScheduledDatePost($schedule_date, $industry_id, $sub_category_id, $offset, $item_count)
     {
-
         $result = DB::select('SELECT 
                                     psm.schedule_date ,
                                     DATE_FORMAT (psm.schedule_date, "%a %d") as display_date, 
