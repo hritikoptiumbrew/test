@@ -16,7 +16,7 @@
   </div>
   <div class="row">
     <div class="col-md-12 mb-2 text-right">
-      <nb-select [(selected)]="selectedImageSize" (selectedChange)="setPageSize($event)">
+      <nb-select [(selected)]="selectedSize" (selectedChange)="setPageSize($event)">
         <nb-option *ngFor="let item of pageSize" value="{{item}}">{{ item }}</nb-option>
       </nb-select>
     </div>
@@ -30,24 +30,24 @@
               <thead>
                 <tr>
                   <th class="text-center">#</th>
-                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Industry</th>
-                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Purpose</th>
-                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Exactly Want</th>
-                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">ChatGpt Request</th>
-                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">ChatGpt Response</th>
-                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Country</th>
-                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Language</th>
-                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">App Version</th>
-                  <th class="text-center" (click)="sortBy('type', order_type == true ? 'ASC' : 'DESC')">Platform</th>
+                  <th class="text-center" (click)="sortBy('industry', order_type == true ? 'ASC' : 'DESC')">Industry</th>
+                  <th class="text-center" (click)="sortBy('purpose', order_type == true ? 'ASC' : 'DESC')">Purpose</th>
+                  <th class="text-center" (click)="sortBy('exactly_want', order_type == true ? 'ASC' : 'DESC')">Exactly Want</th>
+                  <th class="text-center" (click)="sortBy('chatGpt_request', order_type == true ? 'ASC' : 'DESC')">ChatGpt Request</th>
+                  <th class="text-center" (click)="sortBy('chatGpt_response', order_type == true ? 'ASC' : 'DESC')">ChatGpt Response</th>
+                  <th class="text-center" (click)="sortBy('country', order_type == true ? 'ASC' : 'DESC')">Country</th>
+                  <th class="text-center" (click)="sortBy('language', order_type == true ? 'ASC' : 'DESC')">Language</th>
+                  <th class="text-center" (click)="sortBy('app_version', order_type == true ? 'ASC' : 'DESC')">App Version</th>
+                  <th class="text-center" (click)="sortBy('platform', order_type == true ? 'ASC' : 'DESC')">Platform</th>
                   <th class="text-center">Created At</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let item of reviewArray| paginate : {
-                  itemsPerPage: selectedImageSize,
+                  itemsPerPage: selectedSize,
                   currentPage: currentPage,
                   totalItems: totalRecord};let i = index;">
-                  <td class="text-center width-90">{{i+1+(selectedImageSize * (currentPage-1))}}</td>
+                  <td class="text-center width-90">{{i+1+(selectedSize * (currentPage-1))}}</td>
                   <td class="text-center"><div style="inline-size: 130px; overflow-wrap: break-word;">{{ item.industry }}</div></td>
                   <td class="text-center"><div style="inline-size: 140px; overflow-wrap: break-word;">{{ item.purpose }}</div></td>
                   <td class="text-center">{{ item.exactly_want }}</td>
