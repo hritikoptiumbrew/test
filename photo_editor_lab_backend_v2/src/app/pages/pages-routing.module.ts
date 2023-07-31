@@ -30,6 +30,7 @@ import { ImagedetailsComponent } from './imagedetails/imagedetails.component';
 import { RediscacheComponent } from './rediscache/rediscache.component';
 import { SettingsComponent } from './settings/settings.component';
 import { SearchComponent } from './search/search.component';
+import { ReviewDataComponent } from './review-data/review-data.component';
 import { PostcalenderComponent } from './postcalender/postcalender.component';
 
 const routes: Routes = [{
@@ -75,6 +76,10 @@ const routes: Routes = [{
     {
       path: 'blog-list/:categoryId/:subCategoryName/:subCategoryId/:catalogName/:catalogId',
       component: BloglistComponent
+    },
+    {
+      path: 'review',
+      component: ReviewDataComponent
     },
     {
       path: 'statistics',

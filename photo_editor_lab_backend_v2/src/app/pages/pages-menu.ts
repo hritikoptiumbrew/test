@@ -27,6 +27,11 @@ export const MENU_ITEMS: NbMenuItem[] = [
     link: '/admin/categories',
   },
   {
+    title: 'AI Text Details',
+    icon: 'file-text-outline',
+    link: '/admin/review'
+  },
+  {
     title: 'Statistics',
     icon: 'bar-chart-outline',
     link: '/admin/statistics'

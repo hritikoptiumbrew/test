@@ -44,7 +44,7 @@ import { CalendarModule, DateAdapter, CalendarMonthModule, CalendarMonthViewComp
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 // import { PopoverModule } from '../../../node_modules/ngx-smart-popover';
 
-
+import { ReviewDataModule } from './review-data/review-data.module'
 @NgModule({
   imports: [
     PagesRoutingModule,
@@ -84,7 +84,8 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
       useFactory: adapterFactory,
     }),
     NbPopoverModule,
-    NbToggleModule
+    NbToggleModule,
+    ReviewDataModule
   ],
   declarations: [
     PagesComponent,
@@ -92,5 +93,5 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
     UpdateTagDialogComponent
   ],
 })
-export class PagesModule {
+  export class PagesModule {
 }

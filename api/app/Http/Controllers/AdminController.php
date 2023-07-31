@@ -13220,9 +13220,9 @@ class AdminController extends Controller
                 return Response::json(array('code' => 201, 'message' => 'From month must be older then To month.', 'cause' => '', 'data' => json_decode("{}")));
 
             $from_month_data_result = DB::select('SELECT *
-                                                    FROM 
+                                                   FROM 
                                                         post_schedule_master 
-                                                    WHERE 
+                                                   WHERE 
                                                         sub_category_id = ? AND 
                                                         EXTRACT(MONTH FROM schedule_date) = ? AND 
                                                         EXTRACT(YEAR FROM schedule_date) = ? AND
@@ -13240,30 +13240,31 @@ class AdminController extends Controller
 
             foreach ($from_month_data_result as $item) {
                 $new_date = $to_year . '-' . $to_month . '-' . date('d', strtotime($item->schedule_date));
-                $new_date = date('Y-m-d', strtotime($new_date));
-                $item->schedule_date = $new_date;
-                $res = $this->isThemeAlreadyExists($to_month_data_result, $new_date);
+                if (checkdate($to_month, date('d', strtotime($item->schedule_date)), $to_year)) {
+                    $new_date = date('Y-m-d', strtotime($new_date));
+                    $item->schedule_date = $new_date;
+                    $res = $this->isThemeAlreadyExists($to_month_data_result, $new_date);
 
-                if (isset($res)) {
-                    if ($replace_with_existing == 1) {
-                        $query_result = DB::update('UPDATE  
-                                                        post_schedule_master
-                                                    SET  
-                                                        sub_category_id = ?, 
-                                                        post_industry_id = ?, 
-                                                        post_theme_id = ?, 
-                                                        template_ids = ?, 
-                                                        schedule_date = ?, 
-                                                        tags = ?
-                                                    WHERE 
-                                                        id = ?', [$item->sub_category_id, $item->post_industry_id, $item->post_theme_id, $item->template_ids, $item->schedule_date, $item->tags, $res->id]);
-
+                    if (isset($res)) {
+                        if ($replace_with_existing == 1) {
+                            $query_result = DB::update('UPDATE  
+                                                            post_schedule_master
+                                                        SET  
+                                                            sub_category_id = ?, 
+                                                            post_industry_id = ?, 
+                                                            post_theme_id = ?, 
+                                                            template_ids = ?, 
+                                                            schedule_date = ?, 
+                                                            tags = ?
+                                                        WHERE 
+                                                            id = ?', [$item->sub_category_id, $item->post_industry_id, $item->post_theme_id, $item->template_ids, $item->schedule_date, $item->tags, $res->id]);
+                        }
+                    } else {
+                        DB::insert('INSERT 
+                                    INTO post_schedule_master(sub_category_id,post_industry_id,post_theme_id,template_ids,schedule_date,tags) 
+                                    VALUES 
+                                        (?, ?, ?, ?, ?, ?)', [$item->sub_category_id, $item->post_industry_id, $item->post_theme_id, $item->template_ids, $item->schedule_date, $item->tags]);
                     }
-                } else {
-                    DB::insert('INSERT 
-                                INTO post_schedule_master(sub_category_id,post_industry_id,post_theme_id,template_ids,schedule_date,tags) 
-                                VALUES 
-                                    (?, ?, ?, ?, ?, ?)', [$item->sub_category_id, $item->post_industry_id, $item->post_theme_id, $item->template_ids, $item->schedule_date, $item->tags]);
                 }
             }
 
@@ -13272,7 +13273,6 @@ class AdminController extends Controller
         } catch (Exception $e) {
             Log::error("repeatPostThemes : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'repeat post themes.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
-            DB::rollBack();
         }
         return $response;
     }
@@ -13357,6 +13357,7 @@ class AdminController extends Controller
                                                 im.catalog_id = scc.catalog_id AND
                                                 cm.id = scc.catalog_id AND
                                                 cm.is_featured = ? AND
+                                                (im.is_multipage = 0 OR (im.is_multipage = 1 AND COALESCE(LENGTH(im.json_pages_sequence) - LENGTH(REPLACE(im.json_pages_sequence, ",","")) + 1,1) = 1)) AND
                                                 im.original_img_height = im.original_img_width AND
                                                 scc.sub_category_id IN (' . $this->sub_category_id . ') AND
                                                 ISNULL(im.original_img) AND
