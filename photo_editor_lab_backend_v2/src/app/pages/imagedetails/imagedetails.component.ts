@@ -97,7 +97,6 @@ export class ImagedetailsComponent implements OnInit {
         this.imageDetails = results.data.image_details;
         this.totalRecord = results.data.total_record;
         this.dataSource = new LocalDataSource(this.imageDetails);
-        console.log(this.dataSource)
         this.utils.hidePageLoader();
       }
       else if (results.code == 201) {
