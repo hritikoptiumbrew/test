@@ -309,3 +309,21 @@ MODIFY COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_T
 
 ALTER TABLE post_schedule_master
 MODIFY COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+50) PhotoEditorLab : perform following query on database (25 July, 2023) Ai text module
+---------------------------------------------------------------------------------------------------
+CREATE TABLE `ai_chats` (
+ `id` bigint NOT NULL AUTO_INCREMENT,
+ `industry` mediumtext COLLATE utf8mb4_unicode_ci,
+ `purpose` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+ `exactly_want` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+ `ChatGpt_response` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+ `feedback` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ `feedback_msg` mediumtext COLLATE utf8mb4_unicode_ci,
+ `created_at` timestamp NOT NULL,
+ `updated_at` timestamp NULL DEFAULT NULL,
+ `ChatGpt_request` mediumtext COLLATE utf8mb4_unicode_ci,
+ `device_json` longtext COLLATE utf8mb4_unicode_ci,
+ `app_json` longtext COLLATE utf8mb4_unicode_ci,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
