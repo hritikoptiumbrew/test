@@ -32,6 +32,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { SearchComponent } from './search/search.component';
 import { ReviewDataComponent } from './review-data/review-data.component';
 import { PostcalenderComponent } from './postcalender/postcalender.component';
+import { AiPosterComponent } from './ai-poster/ai-poster.component';
 
 const routes: Routes = [{
   path: '',
@@ -80,6 +81,10 @@ const routes: Routes = [{
     {
       path: 'review',
       component: ReviewDataComponent
+    },
+    {
+      path: 'poster',
+      component: AiPosterComponent
     },
     {
       path: 'statistics',

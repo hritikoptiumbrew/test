@@ -1,14 +1,14 @@
 <div class="row img-det-card h-53">
     <div class="col-md-9 text-right">
       <ol class="breadcrumb mb-0" style="background: transparent;">
-        <li class="breadcrumb-item active" aria-current="page">AI Text Details</li>
+        <li class="breadcrumb-item active" aria-current="page">AI Poster</li>
       </ol>
     </div>
     <div class="col-md-3">
       <nb-card>
         <nb-card-header class="text-center p-7">
           <div class="total-cat">
-            Total Review : {{ totalRecord }}
+            Total Details : {{ totalRecord }}
           </div>
         </nb-card-header>
       </nb-card>
@@ -32,7 +32,7 @@
                   <th class="text-center">#</th>
                   <th class="text-center" (click)="sortBy('industry', order_type == true ? 'ASC' : 'DESC')">Industry</th>
                   <th class="text-center" (click)="sortBy('purpose', order_type == true ? 'ASC' : 'DESC')">Purpose</th>
-                  <th class="text-center" (click)="sortBy('exactly_want', order_type == true ? 'ASC' : 'DESC')">Exactly Want</th>
+                  <th class="text-center" (click)="sortBy('exactly_want', order_type == true ? 'ASC' : 'DESC')">Response Code </th>
                   <th class="text-center" (click)="sortBy('chatGpt_request', order_type == true ? 'ASC' : 'DESC')">ChatGpt Request</th>
                   <th class="text-center" (click)="sortBy('chatGpt_response', order_type == true ? 'ASC' : 'DESC')">ChatGpt Response</th>
                   <th class="text-center" (click)="sortBy('country', order_type == true ? 'ASC' : 'DESC')">Country</th>
@@ -51,16 +51,16 @@
                   currentPage: currentPage,
                   totalItems: totalRecord};let i = index;">
                   <td class="text-center width-90">{{i+1+(selectedSize * (currentPage-1))}}</td>
-                  <td class="text-center"><div style="inline-size: 130px; overflow-wrap: break-word;">{{ item.industry }}</div></td>
+                  <td class="text-center"><div style="inline-size: 130px; overflow-wrap: break-word; cursor: pointer;">{{ item.industry }}</div></td>
                   <td class="text-center"><div style="inline-size: 140px; overflow-wrap: break-word;">{{ item.purpose }}</div></td>
-                  <td class="text-center">{{ item.exactly_want }}</td>
+                  <td class="text-center">{{ item.response_code }}</td>
                   <td class=""><div style="inline-size: 300px; overflow-wrap: break-word;">{{item.ChatGpt_request}}</div></td>
                   <td class=""><div style="inline-size: 300px; overflow-wrap: break-word;">{{item.ChatGpt_response}}</div></td>
                   <td class="text-center">{{ item.device_json.device_country_code }}</td>
                   <td class="text-center">{{ item.device_json.device_language }}</td>
                   <td class="text-center">{{ item.app_json.app_version }}</td>
                   <td class="text-center">{{ item.app_json.platform }}</td>
-                  <td class="text-center">{{ item.device_json.device_uuid }}</td>
+                  <td class="text-center" style="cursor: pointer">{{ item.device_json.device_uuid }}</td>
                   <td class="text-center">{{ item.is_use }}</td>
                   <td class="text-center">{{ item.pro_status }}</td>
                   <td class="text-center">{{ item.created_at }}</td>
