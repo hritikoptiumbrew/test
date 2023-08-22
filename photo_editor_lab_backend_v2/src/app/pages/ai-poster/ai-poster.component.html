@@ -43,6 +43,7 @@
                   <th class="text-center" (click)="sortBy('is_use', order_type == true ? 'ASC' : 'DESC')">Is Use</th>
                   <th class="text-center" (click)="sortBy('pro_status', order_type == true ? 'ASC' : 'DESC')">Pro Status</th>
                   <th class="text-center">Created At</th>
+                  <th class="text-center" (click)="sortBy('design_id', order_type == true ? 'ASC' : 'DESC')">Design Id</th>
                 </tr>
               </thead>
               <tbody>
@@ -64,6 +65,7 @@
                   <td class="text-center">{{ item.is_use }}</td>
                   <td class="text-center">{{ item.pro_status }}</td>
                   <td class="text-center">{{ item.created_at }}</td>
+                  <td class="text-center">{{ item.design_id }}</td>
                 </tr>
               </tbody>
             </table>
