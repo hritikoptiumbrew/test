@@ -275,13 +275,16 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('getScheduledPostDetails','AdminController@getScheduledPostDetails');
     Route::post('repeatPostThemes','AdminController@repeatPostThemes');
 
+    //AI Playground APIs
+    Route::post('getAiChats', 'UserController@getAiChats');
+
+    //AI Poster Maker APIs
+    Route::post('getPosterChats','UserController@getPosterChats');
+
 });
 
 //Common api
 Route::middleware(['ability:user|admin,user_permission|admin_permission'])->group(function () {
-
-    //AI Playground APIs
-    Route::post('getAiChats', 'UserController@getAiChats');
 
     //doLogout
     Route::post('doLogout', 'LoginController@doLogout');
@@ -305,6 +308,13 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     //AI Playground APIs
     Route::post('getDataFromPrompt','UserController@getDataFromPrompt');
     Route::post('feedback', 'UserController@aiFeedback');
+    Route::post('aiTextPromptUseByUser', 'UserController@aiTextPromptUseByUser');
+
+    //AI Poster Maker APIs
+    Route::post('getPosterDataFromPrompt','UserController@getPosterDataFromPrompt');
+    Route::post('posterFeedback', 'UserController@posterFeedback');
+    Route::post('aiPosterPromptUseByUser', 'UserController@aiPosterPromptUseByUser');
+
 //    Route::post('getAiChats', 'UserController@getAiChats');
 
     //Template APIs

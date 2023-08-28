@@ -47,12 +47,14 @@ class UserController extends Controller
      * }
      * @apiSuccessExample Request-Body:
      *{
+     * "pro_status":"1" //optional
      * "industry":"test" //optional
      * "purpose":"High tea party invitation" //compulsory
      * "exactly_want":"Description" //compulsory
      * "device_json" : { //optional
      *           "country" : "us",
      *           "language" : "english"
+     *           "device_uuid" : "adsfasdfas"
      *  }
      * "app_json" : { //optional
      *           "app_version" : "1.0",
@@ -147,6 +149,141 @@ class UserController extends Controller
             $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get catalogs.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
+    }
+
+    /**
+     * @api {post} getDataFromPromptV2 getDataFromPromptV2
+     * @apiName getDataFromPromptV2
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "pro_status":"1" //optional
+     * "industry":"test" //optional
+     * "purpose":"High tea party invitation" //compulsory
+     * "exactly_want":"Description" //compulsory
+     * "device_json" : { //optional
+     *           "country" : "us",
+     *           "language" : "english"
+     *           "device_uuid" : "adsfasdfas"
+     *  }
+     * "app_json" : { //optional
+     *           "app_version" : "1.0",
+     *           "platform" : "1"
+     *  }
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Result get successfully",
+     * "cause": "",
+     * "data": {
+     * "id": 279,
+     * "result" : "Join us for an elegant high tea party!\nDate: [Date]\nTime: [Time]\nLocation: [Location]\nRSVP: [Contact information]\n\nDress up and indulge in a delightful selection of teas, finger sandwiches, scones, and sweet treats. Don't miss this opportunity to relax, socialize, and enjoy an afternoon of sophistication and deliciousness!\n"
+     * }
+     * }
+     */
+    public function getDataFromPromptV2(Request $request_body) {
+
+        try {
+
+            if(($response = (new VerificationController())->validateRequiredParameter(array('exactly_want'), json_decode($request_body->getContent()) )) != '')
+                return $response;
+
+            if ($request_body['device_json'] != null) {
+                $device_json['device_country_code'] = isset($request_body['device_json']['device_country_code']) ? $request_body['device_json']['device_country_code'] : "";
+                $device_json['device_language'] = isset($request_body['device_json']['device_language']) ? $request_body['device_json']['device_language'] : "";
+                $device_json['device_uuid'] = isset($request_body['device_json']['device_uuid']) ? $request_body['device_json']['device_uuid'] : "";
+                $device_json = json_encode($device_json);
+            } else {
+                $device_json = NULL;
+            }
+
+            if ($request_body['app_json'] != null) {
+                $app_json['app_version'] = isset($request_body['app_json']['app_version']) ? $request_body['app_json']['app_version'] : "";
+                $app_json['platform'] = isset($request_body['app_json']['platform']) ? $request_body['app_json']['platform'] : "";
+                $app_json = json_encode($app_json);
+            } else {
+                $app_json = NULL;
+            }
+
+            $pro_status = isset($request_body['pro_status']) ? intval($request_body['pro_status']) : NULL;
+            $current_time = date('Y-m-d H:i:s');
+            $industry = isset($request_body['industry']) ? $request_body['industry'] : NULL;
+            $industry_string = $industry ? "\nUser belongs to: " . $industry : NULL;
+            $purpose = $request_body['purpose'];
+            $exactly_want = $request_body['exactly_want'];
+
+            $prompt = config('constant.ai_text_prompts.'.strtolower($exactly_want));
+            $updatePromptValue = ["{DynamicValue1}" => $industry_string,"{DynamicValue2}" => $purpose];
+
+            //--- Set Other prompt
+            if(empty($prompt)) {
+                $prompt = config('constant.ai_text_prompts.others');
+                $updatePromptValue['{DynamicValue3}'] = $exactly_want;
+            }
+
+            $system = strtr($prompt, $updatePromptValue);
+
+            $chatGpt_request = [
+                "model" => "gpt-3.5-turbo",
+                'messages' => [
+                    [
+                        "role" => "system",
+                        "content" => $system
+                    ]
+                ],
+            ];
+
+            $client = new Client();
+            $response_client = $client->post("https://api.openai.com/v1/chat/completions", [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . config('constant.OPENAI_API_KEY'),
+                ],
+                'json' => $chatGpt_request
+            ]);
+
+            $data = json_decode($response_client->getBody()->getContents(), true);
+
+            $db_data = array(
+                'industry' => $industry,
+                'purpose' => $purpose,
+                'exactly_want' => $request_body["exactly_want"],
+                'ChatGpt_response' => json_encode($data),
+                'ChatGpt_request' => json_encode($chatGpt_request),
+                'created_at' => $current_time,
+                'device_json' => $device_json,
+                'app_json' => $app_json,
+                'pro_status' => $pro_status,
+            );
+
+            DB::beginTransaction();
+            $chat_number = DB::table('ai_chats')->insertGetId($db_data);
+            $result['id'] = strval($chat_number);
+            $decode_response = json_decode($data['choices'][0]['message']['content']);
+            if(isset($decode_response->data)) {
+                $result['result'] = $decode_response->data;
+                $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $result));
+            } else {
+                Log::error('getDataFromPromptV2 ', ['Exception' =>$decode_response->error]);
+                $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong, Please Try Again', 'cause' => $decode_response->error, 'data' => json_decode("{}")));
+            }
+            DB::commit();
+
+        } catch (\Exception $e) {
+            Log::error('getDataFromPromptV2 ', ['Exception' =>$e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            DB::rollBack();
+            $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong, Please Try Again', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+
+        return $response;
+
     }
 
     /**
@@ -285,6 +422,1163 @@ class UserController extends Controller
             $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get AI chats.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
         }
         return $response;
+    }
+
+
+    /**
+     * @api {post} aiTextPromptUseByUser   aiTextPromptUseByUser
+     * @apiName aiTextPromptUseByUser
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "device_uuid":"ex34vcwrd" //compulsory
+     * "ai_id":"127" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Text prompt using status update",
+     * "cause": "",
+     * "data": {
+     * }
+     * }
+     */
+
+    public function aiTextPromptUseByUser(Request $request_body) {
+
+        try {
+            $request = json_decode($request_body->getContent());
+            DB::beginTransaction();
+            DB::update('UPDATE ai_chats SET is_use = ?, updated_at = ? WHERE JSON_VALUE(device_json, "$.device_uuid") = ? AND id = ?', [1, date('Y-m-d H:i:s'),$request->device_uuid,$request->ai_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Text prompt using status update','cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error('aiTextPromptUseByUser', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+
+    }
+
+    /* =================================| AI Poster Maker |=============================*/
+
+    public function getPosterDataFromPromptOldResponse(Request $request_body) {
+
+        try {
+            Log::info("getPosterDataFromPrompt Request : ",[$request_body]);
+            if ($request_body['device_json'] != null) {
+
+//                $device_json['device_country_code'] = isset($request_body['device_json']['device_country_code']) ? $request_body['device_json']['device_country_code'] : "";
+//                $device_json['device_language'] = isset($request_body['device_json']['device_language']) ? $request_body['device_json']['device_language'] : "";
+
+                $device_json['device_country_code'] = isset($request_body['device_json']['country']) ? $request_body['device_json']['country'] : "";
+                $device_json['device_language'] = isset($request_body['device_json']['language']) ? $request_body['device_json']['language'] : "";
+                $device_json['device_uuid'] = isset($request_body['device_json']['device_uuid']) ? $request_body['device_json']['device_uuid'] : "";
+                $device_json = json_encode($device_json);
+            } else {
+                $device_json = NULL;
+            }
+
+            if ($request_body['app_json'] != null) {
+                $app_json['app_version'] = isset($request_body['app_json']['app_version']) ? $request_body['app_json']['app_version'] : "";
+                $app_json['platform'] = isset($request_body['app_json']['platform']) ? $request_body['app_json']['platform'] : "";
+                $app_json = json_encode($app_json);
+            } else {
+                $app_json = NULL;
+            }
+            $pro_status = isset($request_body['pro_status']) ? intval($request_body['pro_status']) : NULL;
+            $current_time = date('Y-m-d H:i:s');
+            $industry = isset($request_body['industry']) ? $request_body['industry'] : NULL;
+            $industry_string = $industry ? "\nUser belongs: " . $industry : NULL;
+            $purpose = $request_body['purpose'];
+            $system = "You are a helpful assistant whose job is to create text content for posters.\n$industry_string\nPurpose of the poster: $purpose\n\ngive a header, short description, and CTA based on this but give the exact result that the user wants.\n\nprovide the short description text without any suggestions to be directly used in the poster.\ngive CTA text in 1 to 5 words.\n\ngive the four-color Hex Codes for this poster:\n1. dark muted color code.\n2. muted color code.\n3. light color code.\n4. light bright color code.\n\nchoose colors that are relevant to the poster's content and ensure they remain visible when layered on top of each other so that the poster's content remains legible.\n\nadd these four color codes as a comma-separated string to the 'colors' key in the JSON provided below.\n\nprovide a description of the image that can be used for this poster, based on its content. give the description short and simple and give the main content at starting. Here are some general examples of image descriptions, unrelated to this specific poster, provided only for your understanding: 'Nail art', 'Carabiner hook with climbing equipment', 'woman in carnival mask', 'Mother and son hugging', 'A group of people working', and 'A woman using a MacBook'.\n\ngive an image description in 1 to 10 words.\n\nadd this description in the 'imgDescription' key in the JSON provided below.\n\nProvide four search tags for this poster that can be used to find similar posters based on the purpose of this poster. Start with the main search tag. Here are some general examples of search tags: RealEstate, Photography, Hiring, Education, Bakery, Invitation, Gym, Advertisement, Babysitting, Party, Sale, Church, Cloth.\ngive each search tag in one word.\n\nadd these 4 search tags as a string to the 'searchTag' key in the JSON provided below.\n\nprovide 2 results in the following JSON format. Ensure that each result is unique and has a different header, short description, CTA, and colors.\n\n{\n \"data\": [\n {\n \"header\": \"\",\n \"shortDescription\": \"\",\n \"CTA\": \"\",\n \"colors\": \"\",\n \"imgDescription\": \"\"\n }\n ],\n \"searchTag\": \"\"\n}\n\nIf the result cannot be found then only give the below response in Json format\n\n{\n \"error\": \"result not found\"\n";
+
+            $chatGpt_request = [
+                "model" => "gpt-3.5-turbo",
+                'messages' => [
+                    [
+                        "role" => "system",
+                        "content" => $system
+                    ]
+                ],
+            ];
+
+            $client = new Client();
+
+            $response_client = $client->post("https://api.openai.com/v1/chat/completions", [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . config('constant.OPENAI_API_KEY_FOR_POSTER'),
+                ],
+                'json' => $chatGpt_request
+            ]);
+
+            $data = json_decode($response_client->getBody()->getContents(), true);
+
+            $db_data = array(
+                'industry' => $industry,
+                'purpose' => $purpose,
+                'ChatGpt_response' => json_encode($data),
+                'ChatGpt_request' => json_encode($chatGpt_request),
+                'created_at' => $current_time,
+                'device_json' => $device_json,
+                'app_json' => $app_json,
+                'pro_status'=>$pro_status
+            );
+
+            DB::beginTransaction();
+
+            $gpt_response = json_decode($data['choices'][0]['message']['content']);
+
+
+                //--Get First Poster By description
+                $first_description = $gpt_response->data[0]->imgDescription;
+                $first_poster = $this->getPosterApiImage($first_description);
+                $gpt_response->data[0]->hasImage = $first_poster['success'];
+                $gpt_response->data[0]->imgURL = $first_poster['imgURL'];
+                $gpt_response->data[0]->imgHeight = $first_poster['imgHeight'];
+                $gpt_response->data[0]->imgWidth  = $first_poster['imgWidth'];
+//                old method
+//                $first_poster_response =  $client->get("https://api.pexels.com/v1/search",[
+//                    'query' => ['query' => $first_description],
+//                    'headers' => ['Authorization' => config('constant.POSTER_API_KEY')]
+//                ]);
+//
+//                $first_poster_response_decode = json_decode($first_poster_response->getBody()->getContents(), true);
+//
+//                $random_index = rand(0,4);
+//
+//                $first_poster = $first_poster_response_decode['photos'][$random_index];
+//                $gpt_response->data[0]->imgURL = $first_poster['src']['large'];
+//                $gpt_response->data[0]->imgHeight = $first_poster['height'];
+//                $gpt_response->data[0]->imgWidth  = $first_poster['width'];
+                //--Get First Poster By description
+
+            if(isset($gpt_response->data[1]->imgDescription)) {
+
+
+                //--Get Second Poster By description
+                $second_description = $gpt_response->data[1]->imgDescription;
+                $second_poster = $this->getPosterApiImage($second_description);
+                $gpt_response->data[1]->hasImage = $second_poster['success'];
+                $gpt_response->data[1]->imgURL = $second_poster['imgURL'];
+                $gpt_response->data[1]->imgHeight = $second_poster['imgHeight'];
+                $gpt_response->data[1]->imgWidth  = $second_poster['imgWidth'];
+//                $second_poster_response =  $client->get("https://api.pexels.com/v1/search",[
+//                    'query' => ['query' => $second_description],
+//                    'headers' => ['Authorization' => config('constant.POSTER_API_KEY')]
+//                ]);
+//
+//                $second_poste_response_decode = json_decode($second_poster_response->getBody()->getContents(), true);
+//
+//                $random_index = rand(0,4);
+//
+//                $second_poster = $second_poste_response_decode['photos'][$random_index];
+//                $gpt_response->data[1]->imgURL = $second_poster['src']['large'];
+//                $gpt_response->data[1]->imgHeight = $second_poster['height'];
+//                $gpt_response->data[1]->imgWidth = $second_poster['width'];
+                //--Get Second Poster By description
+
+            } else{
+
+                $gpt_response->data[1] = $gpt_response->data[0];
+                Log::info('getPosterDataFromPrompt : ', ['Exception' => "Second imgDescription is not set"]);
+            }
+
+            //-- Color Choose
+            $gpt_response->isAIColor = $gpt_response->data[0]->hasImage && $gpt_response->data[1]->hasImage ? config('constant.IS_AI_COLOR') : false;
+
+            $result['result'] = json_encode($gpt_response);
+
+            $db_data['ChatGpt_response'] = json_encode($data);
+            $db_data['response_code'] = 200;
+            $chat_number = DB::table('ai_post_chats')->insertGetId($db_data);
+            $result['id'] = strval($chat_number);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $result));
+
+            DB::commit();
+
+        } catch (Exception $e) {
+            Log::error('getPosterDataFromPrompt : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            DB::rollBack();
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get Poster.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
+    }
+
+
+    /**
+     * @api {post} getPosterDataFromPrompt getPosterDataFromPrompt
+     * @apiName getPosterDataFromPrompt
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "pro_status":"1" //optional
+     * "design_ids":"46940, 46945" //optional
+     * "industry":"test" //optional
+     * "purpose":"High tea party invitation" //compulsory
+     * "device_json" : { //optional
+     *           "device_country_code" : "us",
+     *           "device_language" : "english"
+     *           "device_uuid" : "ex34vcwrd"
+     *  }
+     * "app_json" : { //optional
+     *           "app_version" : "1.0",
+     *           "platform" : "1"
+     *  }
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Result get successfully",
+     * "cause": "",
+     * "data": {
+     * "result" : {
+     *     "data": [
+     * {
+     * "text_json": [
+     * {
+     * "xPos": 40,
+     * "yPos": 87,
+     * "color": "#9D6A6A",
+     * "text": "Join us for a High Tea Party! TEST",
+     * "size": 90,
+     * "fontWeight": "",
+     * "lineHeight": 1.16,
+     * "fontStyle": "",
+     * "textDecoration": "",
+     * "textBackgroundColor": "",
+     * "fontName": "AgencyFB-Bold",
+     * "fontPath": "fonts/AGENCYB.ttf",
+     * "alignment": 1,
+     * "bg_image": "",
+     * "texture_image": "",
+     * "opacity": 100,
+     * "angle": 0,
+     * "charSpacing": 0,
+     * "stroke": null,
+     * "strokeWidth": 1,
+     * "shadowColor": "#000000",
+     * "shadowRadius": 0,
+     * "shadowOffsetX": 0,
+     * "shadowOffsetY": 0,
+     * "pak_index": 3,
+     * "aiTag": "h1",
+     * "maxWidth": 320,
+     * "maxHeight": 325,
+     * "palette_color_id": 2
+     * },
+     * {
+     * "xPos": 40,
+     * "yPos": 572,
+     * "color": "#9D6A6A",
+     * "text": "Indulge in a delightful afternoon tea experience with us. Join us for a High Tea Party filled with exquisite teas, delectable pastries, and delightful conversations. TEST",
+     * "size": 24,
+     * "fontWeight": "",
+     * "lineHeight": 1.16,
+     * "fontStyle": "",
+     * "textDecoration": "",
+     * "textBackgroundColor": "",
+     * "fontName": "Montserrat-Medium",
+     * "fontPath": "fonts/Montserrat-Medium.otf",
+     * "alignment": 1,
+     * "bg_image": "",
+     * "texture_image": "",
+     * "opacity": 100,
+     * "angle": 0,
+     * "charSpacing": 0,
+     * "stroke": null,
+     * "strokeWidth": 1,
+     * "shadowColor": "#000000",
+     * "shadowRadius": 0,
+     * "shadowOffsetX": 0,
+     * "shadowOffsetY": 0,
+     * "pak_index": 4,
+     * "aiTag": "h2",
+     * "maxWidth": 362,
+     * "maxHeight": 90,
+     * "palette_color_id": 2
+     * },
+     * {
+     * "xPos": 56,
+     * "yPos": 759,
+     * "color": "#FDEFDC",
+     * "text": "445 W, Mount Eden Road, Anchorage, AK 99504, USA",
+     * "size": 20,
+     * "fontWeight": "",
+     * "lineHeight": 1.16,
+     * "fontStyle": "",
+     * "textDecoration": "",
+     * "textBackgroundColor": "",
+     * "fontName": "Montserrat-Medium",
+     * "fontPath": "fonts/Montserrat-Medium.otf",
+     * "alignment": 1,
+     * "bg_image": "",
+     * "texture_image": "",
+     * "opacity": 100,
+     * "angle": 0,
+     * "charSpacing": 0,
+     * "stroke": null,
+     * "strokeWidth": 1,
+     * "shadowColor": "#000000",
+     * "shadowRadius": 0,
+     * "shadowOffsetX": 0,
+     * "shadowOffsetY": 0,
+     * "pak_index": 5,
+     * "is_brand_address": 1,
+     * "is_company_address": 1,
+     * "palette_color_id": 4
+     * }
+     * ],
+     * "sticker_json": [
+     * {
+     * "xPos": -82,
+     * "yPos": 741,
+     * "sticker_type": 1,
+     * "width": 814,
+     * "height": 60,
+     * "color": "#9D6A6A",
+     * "palette_color_id": 2,
+     * "sticker_image": "64d0c2436e876_sticker_image_16914028190.png",
+     * "angle": 0,
+     * "is_round": 0,
+     * "pak_index": 0,
+     * "svg_properties": {
+     * "colors": []
+     * }
+     * },
+     * {
+     * "xPos": 402.45,
+     * "yPos": -22,
+     * "sticker_type": 1,
+     * "width": 351,
+     * "height": 351,
+     * "color": "#9D6A6A",
+     * "palette_color_id": 2,
+     * "sticker_image": "64d0c2437f0e8_sticker_image_16914028191.png",
+     * "angle": 0,
+     * "is_round": 0,
+     * "pak_index": 1,
+     * "svg_properties": {
+     * "colors": []
+     * }
+     * },
+     * {
+     * "xPos": 40,
+     * "yPos": 471,
+     * "sticker_type": 1,
+     * "width": 101,
+     * "height": 20,
+     * "color": "#9D6A6A",
+     * "palette_color_id": 2,
+     * "sticker_image": "64d0c24390052_sticker_image_16914028192.png",
+     * "angle": 0,
+     * "is_round": 0,
+     * "pak_index": 2,
+     * "svg_properties": {
+     * "colors": []
+     * }
+     * }
+     * ],
+     * "curved_text_json": [],
+     * "frame_image_sticker_json": [],
+     * "image_sticker_json": [],
+     * "frame_json": {
+     * "frame_image": "",
+     * "frame_color": ""
+     * },
+     * "background_json": {
+     * "background_image": "",
+     * "background_color": "#F5E4E4",
+     * "is_brand_background": 1,
+     * "palette_color_id": 3
+     * },
+     * "sample_image": "64d0c24364f3f_sample_image_1691402819.jpg",
+     * "height": 800,
+     * "width": 650,
+     * "display_height": 800,
+     * "display_width": 650,
+     * "display_size_type": "px",
+     * "page_id": 139736,
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "threedObject": [],
+     * "total_objects": 6,
+     * "svg_json": [],
+     * "palette_colors": [
+     * "#432C2C",
+     * "#9D6A6A",
+     * "#F5E4E4",
+     * "#FDEFDC"
+     * ],
+     * "aiImgURL": "https://images.pexels.com/photos/238306/pexels-photo-238306.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+     * "design_id": "46940"
+     * },
+     * {
+     * "text_json": [
+     * {
+     * "xPos": 40,
+     * "yPos": 87,
+     * "color": "#7E9AAD",
+     * "text": "You're Invited to a High Tea Party!",
+     * "size": 90,
+     * "fontWeight": "",
+     * "lineHeight": 1.16,
+     * "fontStyle": "",
+     * "textDecoration": "",
+     * "textBackgroundColor": "",
+     * "fontName": "AgencyFB-Bold",
+     * "fontPath": "fonts/AGENCYB.ttf",
+     * "alignment": 1,
+     * "bg_image": "",
+     * "texture_image": "",
+     * "opacity": 100,
+     * "angle": 0,
+     * "charSpacing": 0,
+     * "stroke": null,
+     * "strokeWidth": 1,
+     * "shadowColor": "#000000",
+     * "shadowRadius": 0,
+     * "shadowOffsetX": 0,
+     * "shadowOffsetY": 0,
+     * "pak_index": 3,
+     * "aiTag": "h1",
+     * "maxWidth": 320,
+     * "maxHeight": 325,
+     * "palette_color_id": 2
+     * },
+     * {
+     * "xPos": 40,
+     * "yPos": 572,
+     * "color": "#7E9AAD",
+     * "text": "Join us for an elegant High Tea Party. Sip on fine teas, savor delicious desserts, and enjoy the charming ambiance. It'll be a delightful affair!",
+     * "size": 24,
+     * "fontWeight": "",
+     * "lineHeight": 1.16,
+     * "fontStyle": "",
+     * "textDecoration": "",
+     * "textBackgroundColor": "",
+     * "fontName": "Montserrat-Medium",
+     * "fontPath": "fonts/Montserrat-Medium.otf",
+     * "alignment": 1,
+     * "bg_image": "",
+     * "texture_image": "",
+     * "opacity": 100,
+     * "angle": 0,
+     * "charSpacing": 0,
+     * "stroke": null,
+     * "strokeWidth": 1,
+     * "shadowColor": "#000000",
+     * "shadowRadius": 0,
+     * "shadowOffsetX": 0,
+     * "shadowOffsetY": 0,
+     * "pak_index": 4,
+     * "aiTag": "h2",
+     * "maxWidth": 362,
+     * "maxHeight": 90,
+     * "palette_color_id": 2
+     * },
+     * {
+     * "xPos": 56,
+     * "yPos": 759,
+     * "color": "#FDEFDC",
+     * "text": "445 W, Mount Eden Road, Anchorage, AK 99504, USA",
+     * "size": 20,
+     * "fontWeight": "",
+     * "lineHeight": 1.16,
+     * "fontStyle": "",
+     * "textDecoration": "",
+     * "textBackgroundColor": "",
+     * "fontName": "Montserrat-Medium",
+     * "fontPath": "fonts/Montserrat-Medium.otf",
+     * "alignment": 1,
+     * "bg_image": "",
+     * "texture_image": "",
+     * "opacity": 100,
+     * "angle": 0,
+     * "charSpacing": 0,
+     * "stroke": null,
+     * "strokeWidth": 1,
+     * "shadowColor": "#000000",
+     * "shadowRadius": 0,
+     * "shadowOffsetX": 0,
+     * "shadowOffsetY": 0,
+     * "pak_index": 5,
+     * "is_brand_address": 1,
+     * "is_company_address": 1,
+     * "palette_color_id": 4
+     * }
+     * ],
+     * "sticker_json": [
+     * {
+     * "xPos": -82,
+     * "yPos": 741,
+     * "sticker_type": 1,
+     * "width": 814,
+     * "height": 60,
+     * "color": "#7E9AAD",
+     * "palette_color_id": 2,
+     * "sticker_image": "64d0c2436e876_sticker_image_16914028190.png",
+     * "angle": 0,
+     * "is_round": 0,
+     * "pak_index": 0,
+     * "svg_properties": {
+     * "colors": []
+     * }
+     * },
+     * {
+     * "xPos": 402.45,
+     * "yPos": -22,
+     * "sticker_type": 1,
+     * "width": 351,
+     * "height": 351,
+     * "color": "#7E9AAD",
+     * "palette_color_id": 2,
+     * "sticker_image": "64d0c2437f0e8_sticker_image_16914028191.png",
+     * "angle": 0,
+     * "is_round": 0,
+     * "pak_index": 1,
+     * "svg_properties": {
+     * "colors": []
+     * }
+     * },
+     * {
+     * "xPos": 40,
+     * "yPos": 471,
+     * "sticker_type": 1,
+     * "width": 101,
+     * "height": 20,
+     * "color": "#7E9AAD",
+     * "palette_color_id": 2,
+     * "sticker_image": "64d0c24390052_sticker_image_16914028192.png",
+     * "angle": 0,
+     * "is_round": 0,
+     * "pak_index": 2,
+     * "svg_properties": {
+     * "colors": []
+     * }
+     * }
+     * ],
+     * "curved_text_json": [],
+     * "frame_image_sticker_json": [],
+     * "image_sticker_json": [],
+     * "frame_json": {
+     * "frame_image": "",
+     * "frame_color": ""
+     * },
+     * "background_json": {
+     * "background_image": "",
+     * "background_color": "#D9E4EF",
+     * "is_brand_background": 1,
+     * "palette_color_id": 3
+     * },
+     * "sample_image": "64d0c24364f3f_sample_image_1691402819.jpg",
+     * "height": 800,
+     * "width": 650,
+     * "display_height": 800,
+     * "display_width": 650,
+     * "display_size_type": "px",
+     * "page_id": 139736,
+     * "is_featured": 0,
+     * "is_portrait": 1,
+     * "threedObject": [],
+     * "total_objects": 6,
+     * "svg_json": [],
+     * "palette_colors": [
+     * "#17323F",
+     * "#7E9AAD",
+     * "#D9E4EF",
+     * "#FDEFDC"
+     * ],
+     * "aiImgURL": "https://images.pexels.com/photos/4960054/pexels-photo-4960054.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+     * "design_id": "46945"
+     * }
+     * ],
+     * "searchTag": "HighTea, Party, Invitation",
+     * "isAIColor": false,
+     * "design_ids": "46945,46940"
+     * },
+     * "id": "279",
+     * }
+     * }
+     */
+    public function getPosterDataFromPrompt(Request $request_body) {
+
+        try {
+            Log::info("getPosterDataFromPrompt Request : ",[$request_body]);
+            if ($request_body['device_json'] != null) {
+
+                $device_json['device_country_code'] = isset($request_body['device_json']['device_country_code']) ? $request_body['device_json']['device_country_code'] : "";
+                $device_json['device_language'] = isset($request_body['device_json']['device_language']) ? $request_body['device_json']['device_language'] : "";
+
+                $device_json['device_uuid'] = isset($request_body['device_json']['device_uuid']) ? $request_body['device_json']['device_uuid'] : "";
+                $device_json = json_encode($device_json);
+            } else {
+                $device_json = NULL;
+            }
+
+            if ($request_body['app_json'] != null) {
+                $app_json['app_version'] = isset($request_body['app_json']['app_version']) ? $request_body['app_json']['app_version'] : "";
+                $app_json['platform'] = isset($request_body['app_json']['platform']) ? $request_body['app_json']['platform'] : "";
+                $app_json = json_encode($app_json);
+            } else {
+                $app_json = NULL;
+            }
+            $json_ids = isset($request_body['design_ids']) ?  array_map('intval', explode(',',$request_body['design_ids'])): array();
+            $pro_status = isset($request_body['pro_status']) ? intval($request_body['pro_status']) : NULL;
+            $current_time = date('Y-m-d H:i:s');
+            $industry = isset($request_body['industry']) ? $request_body['industry'] : NULL;
+            $industry_string = $industry ? "\nUser belongs: " . $industry : NULL;
+            $purpose = $request_body['purpose'];
+            $system = "You are a helpful assistant whose job is to create text content for posters.\n$industry_string\nPurpose of the poster: $purpose\n\ngive a header, short description, and CTA based on this but give the exact result that the user wants.\n\nprovide the short description text without any suggestions to be directly used in the poster.\ngive CTA text in 1 to 5 words.\n\ngive the four-color Hex Codes for this poster:\n1. dark muted color code.\n2. muted color code.\n3. light color code.\n4. light bright color code.\n\nchoose colors that are relevant to the poster's content and ensure they remain visible when layered on top of each other so that the poster's content remains legible.\n\nadd these four color codes as a comma-separated string to the 'colors' key in the JSON provided below.\n\nprovide a description of the image that can be used for this poster, based on its content. give the description short and simple and give the main content at starting. Here are some general examples of image descriptions, unrelated to this specific poster, provided only for your understanding: 'Nail art', 'Carabiner hook with climbing equipment', 'woman in carnival mask', 'Mother and son hugging', 'A group of people working', and 'A woman using a MacBook'.\n\ngive an image description in 1 to 10 words.\n\nadd this description in the 'imgDescription' key in the JSON provided below.\n\nProvide four search tags for this poster that can be used to find similar posters based on the purpose of this poster. Start with the main search tag. Here are some general examples of search tags: RealEstate, Photography, Hiring, Education, Bakery, Invitation, Gym, Advertisement, Babysitting, Party, Sale, Church, Cloth.\ngive each search tag in one word.\n\nadd these 4 search tags as a string to the 'searchTag' key in the JSON provided below.\n\nprovide 2 results in the following JSON format. Ensure that each result is unique and has a different header, short description, CTA, and colors.\n\n{\n \"data\": [\n {\n \"header\": \"\",\n \"shortDescription\": \"\",\n \"CTA\": \"\",\n \"colors\": \"\",\n \"imgDescription\": \"\"\n }\n ],\n \"searchTag\": \"\"\n}\n\nIf the result cannot be found then only give the below response in Json format\n\n{\n \"error\": \"result not found\"\n";
+
+            $chatGpt_request = [
+                "model" => "gpt-3.5-turbo",
+                'messages' => [
+                    [
+                        "role" => "system",
+                        "content" => $system
+                    ]
+                ],
+            ];
+
+            $client = new Client();
+
+            $response_client = $client->post("https://api.openai.com/v1/chat/completions", [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . config('constant.OPENAI_API_KEY_FOR_POSTER'),
+                ],
+                'json' => $chatGpt_request
+            ]);
+
+            $data = json_decode($response_client->getBody()->getContents(), true);
+
+            $db_data = array(
+                'industry' => $industry,
+                'purpose' => $purpose,
+                'ChatGpt_response' => json_encode($data),
+                'ChatGpt_request' => json_encode($chatGpt_request),
+                'created_at' => $current_time,
+                'device_json' => $device_json,
+                'app_json' => $app_json,
+                'pro_status'=>$pro_status
+            );
+
+            //--Store chatGpt Response
+            DB::beginTransaction();
+
+            $db_data['ChatGpt_response'] = json_encode($data);
+            $db_data['response_code'] = 200;
+            $chat_number = DB::table('ai_post_chats')->insertGetId($db_data);
+            $result['id'] = strval($chat_number);
+
+            DB::commit();
+
+
+            $gpt_response = json_decode($data['choices'][0]['message']['content']);
+
+
+            //--Get First Poster By description
+                $first_description = $gpt_response->data[0]->imgDescription;
+                $first_poster = $this->getPosterApiImage($first_description);
+                $with_image_index = isset($request_body['with_image_index']) ? intval($request_body['with_image_index']) : 0;
+                $without_image_index = isset($request_body['with_image_index']) ? intval($request_body['with_image_index']) : 0;
+                if($first_poster['success']) {
+                    $poster_json = config('constant.poster_json_with_image');
+                } else {
+                    $poster_json = config('constant.poster_json_without_image');
+                }
+
+                $unuse_first_json_ids = array_values(array_diff($poster_json, $json_ids));
+                if(count($unuse_first_json_ids) == 0) {
+
+                    $first_json_id = $poster_json[0];
+//                    $first_json_id = 46944;
+                    $used_first_json_ids = array($first_json_id);
+
+                } else {
+                    $firs_random = rand(0,(count($unuse_first_json_ids) - 1));
+                    $first_json_id = $unuse_first_json_ids[$firs_random];
+//                    $first_json_id = 46944;
+
+                    $used_first_json_ids = array_intersect($poster_json, $json_ids);
+                    array_push($used_first_json_ids,$first_json_id);
+                }
+
+                $first_result = DB::select('SELECT
+                                              json_data
+                                          FROM
+                                              images
+                                          WHERE
+                                              id = ?
+                                          ORDER BY updated_at DESC', [$first_json_id]);
+                $first_data = json_decode($first_result[0]->json_data);
+                $first_data->palette_colors = explode(",",str_replace(' ','',$gpt_response->data[0]->colors));
+                $first_data->aiImgURL = $first_poster['imgURL'];
+//                $first_data->json_ids = implode(",", $used_first_json_ids);
+                $first_data->design_id = strval($first_json_id);
+                foreach ($first_data->text_json as $text_data) {
+                    if(isset($text_data->aiTag)) {
+
+                        switch ($text_data->aiTag) {
+
+                            case("h1") :
+                                $text_data->text = $gpt_response->data[0]->header;
+                                break;
+                            case("h2") :
+                                $text_data->text = $gpt_response->data[0]->shortDescription;
+                                break;
+                            case("cta") :
+                                $text_data->text = $gpt_response->data[0]->CTA;
+                                break;
+
+                        }
+
+                    }
+
+                    if(isset($text_data->palette_color_id)) {
+                        $text_data->color = $first_data->palette_colors[$text_data->palette_color_id - 1];
+                    }
+                }
+
+                foreach ($first_data->sticker_json as $sticker_data) {
+
+                    if(isset($sticker_data->palette_color_id)) {
+                        $sticker_data->color = $first_data->palette_colors[$sticker_data->palette_color_id - 1];
+                    }
+                }
+
+                foreach ($first_data->frame_image_sticker_json as $frame_image_sticker_json) {
+
+                    if(isset($frame_image_sticker_json->aiTag)) {
+                        switch ($frame_image_sticker_json->aiTag) {
+                            case("ai_image") :
+                                $frame_image_sticker_json->image_sticker_image = $first_poster['imgURL'];
+                                $frame_image_sticker_json->imgHeight = floatval($first_poster['imgHeight']);
+                                $frame_image_sticker_json->imgWidth = floatval($first_poster['imgWidth']);
+                        }
+                    }
+                }
+
+                $first_data->background_json->background_color = $first_data->palette_colors[$first_data->background_json->palette_color_id - 1];
+
+                $gpt_response->data[0] = $first_data;
+            //--Get First Poster By description
+
+            if(isset($gpt_response->data[1]->imgDescription)) {
+
+
+                //--Get Second Poster By description
+                $second_description = $gpt_response->data[1]->imgDescription;
+                $second_poster = $this->getPosterApiImage($second_description);
+
+                if((!$first_poster['success']) && $second_poster['success']) {
+                    $poster_json_second = config('constant.poster_json_with_image');
+                } else {
+                    $poster_json_second = config('constant.poster_json_without_image');
+                }
+
+                $unuse_second_json_ids = array_values(array_diff($poster_json_second, $json_ids));
+
+                if(count($unuse_second_json_ids) == 0) {
+
+                    $second_json_id = $poster_json_second[0];
+//                    $second_json_id = 46947;
+                    $used_second_json_ids = array($second_json_id);
+
+
+                }else {
+                    $second_random = rand(0,(count($unuse_second_json_ids) - 1));
+                    $second_json_id = $unuse_second_json_ids[$second_random];
+//                    $second_json_id = 46947;
+
+                    $used_second_json_ids = array_intersect($poster_json_second, $json_ids);
+                    array_push($used_second_json_ids,$second_json_id);
+                }
+
+                $second_result = DB::select('SELECT
+                                                  json_data
+                                              FROM
+                                                  images
+                                              WHERE
+                                                  id = ?
+                                              ORDER BY updated_at DESC', [$second_json_id]);
+                $second_data = json_decode($second_result[0]->json_data);
+                $second_data->palette_colors = explode(",",str_replace(' ','',$gpt_response->data[1]->colors));
+                $second_data->aiImgURL = $second_poster['imgURL'];
+//                $second_data->json_ids = implode(",", $used_second_json_ids);
+                $second_data->design_id = strval($second_json_id);
+                foreach ($second_data->text_json as $text_data) {
+                    if(isset($text_data->aiTag)) {
+
+                        switch ($text_data->aiTag) {
+
+                            case("h1") :
+                                $text_data->text = $gpt_response->data[1]->header;
+                                break;
+                            case("h2") :
+                                $text_data->text = $gpt_response->data[1]->shortDescription;
+                                break;
+                            case("cta") :
+                                $text_data->text = $gpt_response->data[1]->CTA;
+                                break;
+
+                        }
+
+                    }
+
+                    if(isset($text_data->palette_color_id)) {
+                        $text_data->color = $second_data->palette_colors[$text_data->palette_color_id - 1];
+                    }
+                }
+
+                foreach ($second_data->sticker_json as $sticker_data) {
+
+                    if(isset($sticker_data->palette_color_id)) {
+                        $sticker_data->color = $second_data->palette_colors[$sticker_data->palette_color_id - 1];
+                    }
+                }
+
+
+                foreach ($second_data->frame_image_sticker_json as $frame_image_sticker_json) {
+
+                    if(isset($frame_image_sticker_json->aiTag)) {
+                        switch ($frame_image_sticker_json->aiTag) {
+                            case("ai_image") :
+                                $frame_image_sticker_json->image_sticker_image = $second_poster['imgURL'];
+                                $frame_image_sticker_json->imgHeight = floatval($second_poster['imgHeight']);
+                                $frame_image_sticker_json->imgWidth = floatval($second_poster['imgWidth']);
+                        }
+                    }
+                }
+
+                $second_data->background_json->background_color = $second_data->palette_colors[$second_data->background_json->palette_color_id - 1];
+
+                $gpt_response->data[1] = $second_data;
+                //--Get Second Poster By description
+
+
+                $gpt_response->design_ids = implode(',',array_merge($used_first_json_ids,$used_second_json_ids));
+                //-- Color Choose
+                $gpt_response->isAIColor = config('constant.IS_AI_COLOR');
+
+                $result['result'] = $gpt_response;
+
+                $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $result));
+            } else {
+//                $gpt_response->design_ids = implode(',',$used_first_json_ids);
+//                $gpt_response->data[1] = $gpt_response->data[0];
+                Log::info('getPosterDataFromPrompt : ', ['Exception' => "Second imgDescription is not set"]);
+                $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get Poster.', 'cause' => "Second imgDescription is not set", 'data' => json_decode("{}")));
+            }
+
+            //-- Color Choose
+//            $gpt_response->isAIColor = config('constant.IS_AI_COLOR');
+//
+//            $result['result'] = $gpt_response;
+
+
+//            $db_data['ChatGpt_response'] = json_encode($data);
+//            $db_data['response_code'] = 200;
+//            $chat_number = DB::table('ai_post_chats')->insertGetId($db_data);
+//            $result['id'] = strval($chat_number);
+
+//            $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $result));
+
+//            DB::commit();
+
+        } catch (Exception $e) {
+            Log::error('getPosterDataFromPrompt : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            DB::rollBack();
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get Poster.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+
+        Log::info('getPosterDataFromPrompt Response',[$response]);
+
+        return $response;
+    }
+
+    /**
+     * @api {post} posterFeedback   posterFeedback
+     * @apiName posterFeedback
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "feedback":"yes" //compulsory
+     * "feedback_msg":"Description" //compulsory
+     * "chat_number":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Thank You For Your FeedBack",
+     * "cause": "",
+     * "data": {
+     * }
+     * }
+     */
+    public function posterFeedback(Request $request_body) {
+        try {
+            DB::beginTransaction();
+            DB::update('UPDATE
+                            ai_post_chats 
+                        SET 
+                            feedback = ?, feedback_msg = ?, updated_at = ? 
+                        WHERE 
+                            id = ?',
+                [$request_body['feedback'], $request_body['feedback_msg'], date('Y-m-d H:i:s'), $request_body['chat_number']]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Thank You For Your FeedBack', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error('posterFeedback : id : '.$request_body['chat_number'], ['Exception' =>$e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => 'Something Is wrong', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+    }
+
+
+    /**
+     * @api {post} getPosterChats   getPosterChats
+     * @apiName getPosterChats
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "item_count":"1" //compulsory
+     * "order_by":"purpose" //optional
+     * "order_type":"DESC" //optional
+     * "page":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Thank You For Your FeedBack",
+     * "cause": "",
+     * "data": {
+     *       "total_raw_result": 4,
+     *       "poster_chats": [
+     *       {
+     *       "id": 4,
+     *       "industry": "test",
+     *       "purpose": "High tea party invitation",
+     *       "ChatGpt_response": "{\"id\":\"chatcmpl-7lsSsQGu7xlxV6jSQ9WELwqptR9zp\",\"object\":\"chat.completion\",\"created\":1691645134,\"model\":\"gpt-3.5-turbo-0613\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n \\\"data\\\": [\\n {\\n \\\"header\\\": \\\"Join us for a delightful High Tea Party!\\\",\\n \\\"short description\\\": \\\"Indulge in a selection of exquisite teas and delectable treats.\\\",\\n \\\"CTA\\\": \\\"RSVP Now\\\",\\n \\\"colors\\\": \\\"#3D3939,#8D786B,#F6DDD3,#F6B19D\\\",\\n \\\"imgDescription\\\": \\\"Table set with tea cups and pastries\\\"\\n },\\n {\\n \\\"header\\\": \\\"You're invited to an elegant High Tea Party!\\\",\\n \\\"short description\\\": \\\"Savor the luxury of a traditional English tea experience.\\\",\\n \\\"CTA\\\": \\\"Save the Date\\\",\\n \\\"colors\\\": \\\"#2C273A,#6E6886,#E0DDE1,#FAE9F0\\\",\\n \\\"imgDescription\\\": \\\"Tea cups and teapot with dainty finger sandwiches\\\"\\n }\\n ],\\n \\\"searchTag\\\": \\\"HighTea, Party, Invitation\\\"\\n}\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":494,\"completion_tokens\":187,\"total_tokens\":681}}",
+     *       "feedback": "yes",
+     *       "feedback_msg": "NA",
+     *       "created_at": "2023-08-10 05:25:34",
+     *       "updated_at": "2023-08-10 05:39:57",
+     *       "ChatGpt_request": "{\"model\":\"gpt-3.5-turbo\",\"messages\":[{\"role\":\"system\",\"content\":\"You are a helpful assistant whose job is to create text content for posters.\\n\\nUser belongs: test\\nPurpose of the poster: High tea party invitation\\n\\ngive a header, short description, and CTA based on this but give the exact result that the user wants.\\n\\nprovide the short description text without any suggestions to be directly used in the poster.\\ngive CTA text in 1 to 5 words.\\n\\ngive the four-color Hex Codes for this poster:\\n1. dark muted color code.\\n2. muted color code.\\n3. light color code.\\n4. light bright color code.\\n\\nchoose colors that are relevant to the poster's content and ensure they remain visible when layered on top of each other so that the poster's content remains legible.\\n\\nadd these four color codes as a comma-separated string to the 'colors' key in the JSON provided below.\\n\\nprovide a description of the image that can be used for this poster, based on its content. give the description short and simple and give the main content at starting. Here are some general examples of image descriptions, unrelated to this specific poster, provided only for your understanding: 'Nail art', 'Carabiner hook with climbing equipment', 'woman in carnival mask', 'Mother and son hugging', 'A group of people working', and 'A woman using a MacBook'.\\n\\ngive an image description in 1 to 10 words.\\n\\nadd this description in the 'imgDescription' key in the JSON provided below.\\n\\nProvide four search tags for this poster that can be used to find similar posters based on the purpose of this poster. Start with the main search tag. Here are some general examples of search tags: RealEstate, Photography, Hiring, Education, Bakery, Invitation, Gym, Advertisement, Babysitting, Party, Sale, Church, Cloth.\\ngive each search tag in one word.\\n\\nadd these 4 search tags as a string to the 'searchTag' key in the JSON provided below.\\n\\nprovide 2 results in the following JSON format. Ensure that each result is unique and has a different header, short description, CTA, and colors.\\n\\n{\\n \\\"data\\\": [\\n {\\n \\\"header\\\": \\\"\\\",\\n \\\"short description\\\": \\\"\\\",\\n \\\"CTA\\\": \\\"\\\",\\n \\\"colors\\\": \\\"\\\",\\n \\\"imgDescription\\\": \\\"\\\"\\n }\\n ],\\n \\\"searchTag\\\": \\\"\\\"\\n}\\n\\nIf the result cannot be found then only give the below response in Json format\\n\\n{\\n \\\"error\\\": \\\"result not found\\\"\\n\"}]}",
+     *       "device_json": "{\"device_country_code\":\"us\",\"device_language\":\"english\"}",
+     *       "app_json": "{\"app_version\":\"1.0\",\"platform\":\"1\"}",
+     *       "response_code": 200
+     *       }
+     *       ]
+     *       }
+     * }
+     */
+    public function getPosterChats(Request $request_body) {
+            try{
+
+                $token = JWTAuth::getToken();
+                JWTAuth::toUser($token);
+
+                $request = json_decode($request_body->getContent());
+                if(($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count'), $request)) != '')
+                    return $response;
+
+                $item_count = $request->item_count;
+                $page = $request->page;
+                if(isset($request->order_by)) {
+
+                    if(!strcasecmp($request->order_by,"country") && !strcasecmp($request->order_by,"language") && !strcasecmp($request->order_by,"app_version")  && !strcasecmp($request->order_by,"platform"))
+                    {
+                        $order_by = $request->order_by;
+                    }else {
+                        $order_by = "id";
+                    }
+
+                } else {
+                    $order_by = "id";
+                }
+                $order_type = isset($request->order_type) ? $request->order_type : 'DESC';
+                $offset = ($page - 1) * $item_count;
+
+                $total_raw_result = DB::select('SELECT COUNT(*) AS total FROM ai_post_chats');
+                $result['total_raw_result'] = $total_raw_result[0]->total;
+                $result['poster_chats'] = DB::select('SELECT 
+                                                        id.id, 
+                                                        id.industry, 
+                                                        id.purpose, 
+                                                        id.ChatGpt_response, 
+                                                        id.feedback, 
+                                                        id.feedback_msg, 
+                                                        id.created_at, 
+                                                        id.updated_at, 
+                                                        id.ChatGpt_request, 
+                                                        id.device_json, 
+                                                        id.app_json,
+                                                        id.response_code,
+                                                        IF(id.is_use = 1, "true", "false") AS is_use,
+                                                        IF(id.pro_status = 1, "true", "false") AS pro_status,
+                                                        id.design_id
+                                                      FROM 
+                                                        ai_post_chats AS id
+                                                      ORDER BY id.'.$order_by.' '.$order_type.' LIMIT ?,?',[$offset, $item_count]);
+
+                $response = Response::json(array('code' => 200, 'message' => 'Ai Poster chats fetched successfully.', 'cause' => '', 'data' => $result));
+                $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+            } catch (Exception $e) {
+                Log::error('getPosterChats : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+                $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR'). 'get Ai Poster.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            }
+
+            return $response;
+    }
+
+
+    public function getPosterApiImage($imgDescription) {
+
+        try {
+            $poster_api_key_array = config('constant.PEXELS_API_KEY_ARRAY');
+
+            $cache_index = Cache::remember("POSTER_API_KEY_INDEX",config('constant.POSTER_API_KEY_RESET_MINUTES'), function() {
+                return 0;
+            });
+
+            Log::info("Current Cache Index: ", ["index" =>$cache_index]);
+
+
+            $client = new Client();
+
+            $poster_response_decode =  $client->get("https://api.pexels.com/v1/search",[
+                'query' => ['query' => $imgDescription],
+                'headers' => ['Authorization' => $poster_api_key_array[$cache_index]]
+            ]);
+
+            $status = $poster_response_decode->getStatusCode();
+
+            if($status == 429) {
+
+                if($cache_index < count($poster_api_key_array) - 1) {
+                    $new_index = $cache_index + 1;
+                    Cache::forget("POSTER_API_KEY_INDEX");
+                    Cache::remember("POSTER_API_KEY_INDEX",config('constant.POSTER_API_KEY_RESET_MINUTES'), function() use ($new_index){
+                        return $new_index;
+                    });
+
+                    return $this->getPosterApiImage($imgDescription);
+                } else {
+                    $result['success'] = false;
+                    $result['imgURL'] = "";
+                    $result['imgHeight'] = "";
+                    $result['imgWidth'] = "";
+                }
+
+            } else {
+                $randomIndex = rand(0,4);
+
+                $poster_decode = json_decode($poster_response_decode->getBody()->getContents(), true);
+                $Poster = $poster_decode['photos'][$randomIndex];
+                $result['success'] = true;
+                $result['imgURL'] = $Poster['src']['large'];
+                $result['imgHeight'] = $Poster['height'];
+                $result['imgWidth'] = $Poster['width'];
+
+            }
+        } catch (Exception $e) {
+            Log::error('getPosterApiImage : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+
+            $result['success'] = false;
+            $result['imgURL'] = '';
+            $result['imgHeight'] = '';
+            $result['imgWidth'] = '';
+        }
+
+
+        return $result;
+    }
+
+    /**
+     * @api {post} aiPosterPromptUseByUser   aiPosterPromptUseByUser
+     * @apiName aiPosterPromptUseByUser
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "device_uuid":"ex34vcwrd" //compulsory
+     * "ai_id":"127" //compulsory
+     * "design_id":"46940" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Poster prompt using status update",
+     * "cause": "",
+     * "data": {
+     * }
+     * }
+     */
+
+    public function aiPosterPromptUseByUser(Request $request_body) {
+
+        try {
+
+            $request = json_decode($request_body->getContent());
+            if(($response = (new VerificationController())->validateRequiredParameter(array('design_id', 'device_uuid', 'ai_id'), $request)) != '')
+                return $response;
+
+            DB::beginTransaction();
+            DB::update('UPDATE ai_post_chats SET is_use = ?, updated_at = ?, design_id = ? WHERE JSON_VALUE(device_json, "$.device_uuid") = ? AND id = ?', [1, date('Y-m-d H:i:s'),intval($request->design_id),$request->device_uuid,$request->ai_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Poster prompt using status update','cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error('aiTextPromptUseByUser', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+
     }
 
     /* =================================| Catalogs |=============================*/
