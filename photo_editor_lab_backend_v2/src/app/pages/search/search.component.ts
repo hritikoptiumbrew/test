@@ -196,9 +196,7 @@ export class SearchComponent implements OnInit {
         {
           this.catedata.push(results.data.category_list[i]);
         }
-        this.onserch();
-        console.log(this.catedata,"catdata");
-       
+        this.onserch();       
        }
        else if (results.code == 201) {
         this.util.showError(results.message, 3000);
@@ -315,7 +313,6 @@ export class SearchComponent implements OnInit {
       this.multiSelectedApps.push(this.subCatId);
       this.setMultiSelectAppName(this.subCatId);
     }
-    console.log(this.multiSelectedApps.join(','),'sub-cat-id');
     //this.numberOfItems,this.multiSelectedApps.join(",")
     let data = {
       "page": this.pageNum,
@@ -365,7 +362,7 @@ export class SearchComponent implements OnInit {
   openDia() {
     console.log(this.select_category,this.is_free);
     let dialogRef = this.dialogService.open(UpdateTagDialogComponent, {
-      closeOnBackdropClick: false,
+      closeOnBackdropClick: false,  
       context: {
         //data that send to dialog
         cat_id:this.select_category,

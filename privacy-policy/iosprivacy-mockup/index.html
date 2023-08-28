@@ -229,6 +229,11 @@ Copyright 2018 - 2021 Optimumbrew Technology
                         changelogo(app_data);
                         changeFavicon(app_data);
                         break;
+                    case 'info09':
+                        app_data = JSON.parse(JSON.stringify(data)).info09;
+                        changelogo(app_data);
+                        changeFavicon(app_data);
+                        break;
                     default:
                         app_data = JSON.parse(JSON.stringify(data)).enaup0;
                         changelogo(app_data);
