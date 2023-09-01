@@ -455,7 +455,7 @@ class UserController extends Controller
         try {
             $request = json_decode($request_body->getContent());
             DB::beginTransaction();
-            DB::update('UPDATE ai_chats SET is_use = ?, updated_at = ? WHERE JSON_VALUE(device_json, "$.device_uuid") = ? AND id = ?', [1, date('Y-m-d H:i:s'),$request->device_uuid,$request->ai_id]);
+            DB::update('UPDATE ai_chats SET is_use = ?, updated_at = ? WHERE JSON_EXTRACT(device_json, "$.device_uuid") = ? AND id = ?', [1, date('Y-m-d H:i:s'),$request->device_uuid,$request->ai_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Text prompt using status update','cause' => '', 'data' => json_decode("{}")));
@@ -1111,13 +1111,11 @@ class UserController extends Controller
                 if(count($unuse_first_json_ids) == 0) {
 
                     $first_json_id = $poster_json[0];
-//                    $first_json_id = 46944;
                     $used_first_json_ids = array($first_json_id);
 
                 } else {
                     $firs_random = rand(0,(count($unuse_first_json_ids) - 1));
                     $first_json_id = $unuse_first_json_ids[$firs_random];
-//                    $first_json_id = 46944;
 
                     $used_first_json_ids = array_intersect($poster_json, $json_ids);
                     array_push($used_first_json_ids,$first_json_id);
@@ -1179,131 +1177,133 @@ class UserController extends Controller
                 }
 
                 $first_data->background_json->background_color = $first_data->palette_colors[$first_data->background_json->palette_color_id - 1];
-
-                $gpt_response->data[0] = $first_data;
             //--Get First Poster By description
 
+            //--Get Second Poster By description
             if(isset($gpt_response->data[1]->imgDescription)) {
 
-
-                //--Get Second Poster By description
                 $second_description = $gpt_response->data[1]->imgDescription;
                 $second_poster = $this->getPosterApiImage($second_description);
 
-                if((!$first_poster['success']) && $second_poster['success']) {
-                    $poster_json_second = config('constant.poster_json_with_image');
-                } else {
-                    $poster_json_second = config('constant.poster_json_without_image');
-                }
+                $gpt_response_secound['colors'] = $gpt_response->data[1]->colors;
+                $gpt_response_secound['header'] = $gpt_response->data[1]->header;
+                $gpt_response_secound['shortDescription'] = $gpt_response->data[1]->shortDescription;
+                $gpt_response_secound['CTA'] = $gpt_response->data[1]->CTA;
 
-                $unuse_second_json_ids = array_values(array_diff($poster_json_second, $json_ids));
+            } else {
 
-                if(count($unuse_second_json_ids) == 0) {
+                //Note :- use secound image to set secound json for responose
 
-                    $second_json_id = $poster_json_second[0];
-//                    $second_json_id = 46947;
-                    $used_second_json_ids = array($second_json_id);
+                $second_poster['success'] = $first_poster['success'];
+                $second_poster['imgURL'] = $first_poster['imgURL_second'];
+                $second_poster['imgHeight'] = $first_poster['imgHeight_second'];
+                $second_poster['imgWidth'] = $first_poster['imgWidth_second'];
+
+                $gpt_response_secound['colors'] = $gpt_response->data[0]->colors;
+                $gpt_response_secound['header'] = $gpt_response->data[0]->header;
+                $gpt_response_secound['shortDescription'] = $gpt_response->data[0]->shortDescription;
+                $gpt_response_secound['CTA'] = $gpt_response->data[0]->CTA;
+
+                Log::info('getPosterDataFromPrompt : ', ['Exception' => "Second imgDescription is not set"]);
+//                $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get Poster.', 'cause' => "Second imgDescription is not set", 'data' => json_decode("{}")));
+            }
+
+            if((!$first_poster['success']) && $second_poster['success']) {
+                $poster_json_second = config('constant.poster_json_with_image');
+            } else {
+                $poster_json_second = config('constant.poster_json_without_image');
+            }
+
+            $unuse_second_json_ids = array_values(array_diff($poster_json_second, $json_ids));
+
+            if(count($unuse_second_json_ids) == 0) {
+
+                $second_json_id = $poster_json_second[0];
+                $used_second_json_ids = array($second_json_id);
 
 
-                }else {
-                    $second_random = rand(0,(count($unuse_second_json_ids) - 1));
-                    $second_json_id = $unuse_second_json_ids[$second_random];
-//                    $second_json_id = 46947;
+            }else {
+                $second_random = rand(0,(count($unuse_second_json_ids) - 1));
+                $second_json_id = $unuse_second_json_ids[$second_random];
 
-                    $used_second_json_ids = array_intersect($poster_json_second, $json_ids);
-                    array_push($used_second_json_ids,$second_json_id);
-                }
+                $used_second_json_ids = array_intersect($poster_json_second, $json_ids);
+                array_push($used_second_json_ids,$second_json_id);
+            }
 
-                $second_result = DB::select('SELECT
+            $second_result = DB::select('SELECT
                                                   json_data
                                               FROM
                                                   images
                                               WHERE
                                                   id = ?
                                               ORDER BY updated_at DESC', [$second_json_id]);
-                $second_data = json_decode($second_result[0]->json_data);
-                $second_data->palette_colors = explode(",",str_replace(' ','',$gpt_response->data[1]->colors));
-                $second_data->aiImgURL = $second_poster['imgURL'];
+            $second_data = json_decode($second_result[0]->json_data);
+            $second_data->palette_colors = explode(",",str_replace(' ','',$gpt_response_secound['colors']));
+            $second_data->aiImgURL = $second_poster['imgURL'];
 //                $second_data->json_ids = implode(",", $used_second_json_ids);
-                $second_data->design_id = strval($second_json_id);
-                foreach ($second_data->text_json as $text_data) {
-                    if(isset($text_data->aiTag)) {
+            $second_data->design_id = strval($second_json_id);
+            foreach ($second_data->text_json as $text_data) {
+                if(isset($text_data->aiTag)) {
 
-                        switch ($text_data->aiTag) {
+                    switch ($text_data->aiTag) {
 
-                            case("h1") :
-                                $text_data->text = $gpt_response->data[1]->header;
-                                break;
-                            case("h2") :
-                                $text_data->text = $gpt_response->data[1]->shortDescription;
-                                break;
-                            case("cta") :
-                                $text_data->text = $gpt_response->data[1]->CTA;
-                                break;
-
-                        }
+                        case("h1") :
+                            $text_data->text = $gpt_response_secound['header'];
+                            break;
+                        case("h2") :
+                            $text_data->text = $gpt_response_secound['shortDescription'];
+                            break;
+                        case("cta") :
+                            $text_data->text = $gpt_response_secound['CTA'];
+                            break;
 
                     }
 
-                    if(isset($text_data->palette_color_id)) {
-                        $text_data->color = $second_data->palette_colors[$text_data->palette_color_id - 1];
-                    }
                 }
 
-                foreach ($second_data->sticker_json as $sticker_data) {
-
-                    if(isset($sticker_data->palette_color_id)) {
-                        $sticker_data->color = $second_data->palette_colors[$sticker_data->palette_color_id - 1];
-                    }
+                if(isset($text_data->palette_color_id)) {
+                    $text_data->color = $second_data->palette_colors[$text_data->palette_color_id - 1];
                 }
-
-
-                foreach ($second_data->frame_image_sticker_json as $frame_image_sticker_json) {
-
-                    if(isset($frame_image_sticker_json->aiTag)) {
-                        switch ($frame_image_sticker_json->aiTag) {
-                            case("ai_image") :
-                                $frame_image_sticker_json->image_sticker_image = $second_poster['imgURL'];
-                                $frame_image_sticker_json->imgHeight = floatval($second_poster['imgHeight']);
-                                $frame_image_sticker_json->imgWidth = floatval($second_poster['imgWidth']);
-                        }
-                    }
-                }
-
-                $second_data->background_json->background_color = $second_data->palette_colors[$second_data->background_json->palette_color_id - 1];
-
-                $gpt_response->data[1] = $second_data;
-                //--Get Second Poster By description
-
-
-                $gpt_response->design_ids = implode(',',array_merge($used_first_json_ids,$used_second_json_ids));
-                //-- Color Choose
-                $gpt_response->isAIColor = config('constant.IS_AI_COLOR');
-
-                $result['result'] = $gpt_response;
-
-                $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $result));
-            } else {
-//                $gpt_response->design_ids = implode(',',$used_first_json_ids);
-//                $gpt_response->data[1] = $gpt_response->data[0];
-                Log::info('getPosterDataFromPrompt : ', ['Exception' => "Second imgDescription is not set"]);
-                $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get Poster.', 'cause' => "Second imgDescription is not set", 'data' => json_decode("{}")));
             }
 
+            foreach ($second_data->sticker_json as $sticker_data) {
+
+                if(isset($sticker_data->palette_color_id)) {
+                    $sticker_data->color = $second_data->palette_colors[$sticker_data->palette_color_id - 1];
+                }
+            }
+
+
+            foreach ($second_data->frame_image_sticker_json as $frame_image_sticker_json) {
+
+                if(isset($frame_image_sticker_json->aiTag)) {
+                    switch ($frame_image_sticker_json->aiTag) {
+                        case("ai_image") :
+                            $frame_image_sticker_json->image_sticker_image = $second_poster['imgURL'];
+                            $frame_image_sticker_json->imgHeight = floatval($second_poster['imgHeight']);
+                            $frame_image_sticker_json->imgWidth = floatval($second_poster['imgWidth']);
+                    }
+                }
+            }
+
+            $second_data->background_json->background_color = $second_data->palette_colors[$second_data->background_json->palette_color_id - 1];
+            //--Get Second Poster By description
+
+            $gpt_response->data[0] = $first_data;
+            $gpt_response->data[1] = $second_data;
+
+
+
+            $gpt_response->design_ids = implode(',',array_merge($used_first_json_ids,$used_second_json_ids));
             //-- Color Choose
-//            $gpt_response->isAIColor = config('constant.IS_AI_COLOR');
-//
-//            $result['result'] = $gpt_response;
+            $gpt_response->isAIColor = config('constant.IS_AI_COLOR');
 
+            $result['result'] = $gpt_response;
 
-//            $db_data['ChatGpt_response'] = json_encode($data);
-//            $db_data['response_code'] = 200;
-//            $chat_number = DB::table('ai_post_chats')->insertGetId($db_data);
-//            $result['id'] = strval($chat_number);
+            $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $result));
 
-//            $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $result));
+            //-- Color Choose
 
-//            DB::commit();
 
         } catch (Exception $e) {
             Log::error('getPosterDataFromPrompt : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
@@ -1509,7 +1509,7 @@ class UserController extends Controller
 
             } else {
                 $randomIndex = rand(0,4);
-
+                
                 $poster_decode = json_decode($poster_response_decode->getBody()->getContents(), true);
                 $Poster = $poster_decode['photos'][$randomIndex];
                 $result['success'] = true;
@@ -1517,6 +1517,12 @@ class UserController extends Controller
                 $result['imgHeight'] = $Poster['height'];
                 $result['imgWidth'] = $Poster['width'];
 
+                //--Note :- This values will use when chatGpt give one json Object , that time we create second json by other images
+
+                $second_poster = $poster_decode['photos'][rand(0,4)];
+                $result['imgURL_second'] = $second_poster['src']['large'];
+                $result['imgHeight_second'] = $second_poster['height'];
+                $result['imgWidth_second'] = $second_poster['width'];
             }
         } catch (Exception $e) {
             Log::error('getPosterApiImage : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
@@ -1566,13 +1572,13 @@ class UserController extends Controller
                 return $response;
 
             DB::beginTransaction();
-            DB::update('UPDATE ai_post_chats SET is_use = ?, updated_at = ?, design_id = ? WHERE JSON_VALUE(device_json, "$.device_uuid") = ? AND id = ?', [1, date('Y-m-d H:i:s'),intval($request->design_id),$request->device_uuid,$request->ai_id]);
+            DB::update('UPDATE ai_post_chats SET is_use = ?, updated_at = ?, design_id = ? WHERE JSON_EXTRACT(device_json, "$.device_uuid") = ? AND id = ?', [1, date('Y-m-d H:i:s'),intval($request->design_id),$request->device_uuid,$request->ai_id]);
             DB::commit();
 
             $response = Response::json(array('code' => 200, 'message' => 'Poster prompt using status update','cause' => '', 'data' => json_decode("{}")));
 
         } catch (Exception $e) {
-            Log::error('aiTextPromptUseByUser', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            Log::error('aiPosterPromptUseByUser', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
             DB::rollBack();
         }
