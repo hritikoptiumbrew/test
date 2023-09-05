@@ -349,3 +349,9 @@ CREATE TABLE `ai_post_chats` (
  `design_id` int DEFAULT NULL,
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+51) PhotoEditorLab : perform following query on database (05 Sep, 2023) Ai Text module update
+---------------------------------------------------------------------------------------------------
+
+ALTER TABLE `ai_chats` ADD `pro_status` TINYINT(1) NULL DEFAULT NULL AFTER `app_json`;
+ALTER TABLE `ai_chats` ADD `is_use` TINYINT(1) NULL DEFAULT NULL AFTER `pro_status`;

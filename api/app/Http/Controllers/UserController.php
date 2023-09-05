@@ -408,8 +408,9 @@ class UserController extends Controller
                                     id.updated_at, 
                                     id.ChatGpt_request, 
                                     id.device_json, 
-                                    id.app_json
-                                    
+                                    id.app_json,
+                                    IF(id.is_use = 1, "true","false") AS is_use,
+                                    IF(id.pro_status = 1, "true","false") AS pro_status
                                 FROM 
                                     ai_chats AS id 
                                 ORDER BY id.'. $this->order_by . ' ' . $this->order_type . '
@@ -417,6 +418,7 @@ class UserController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'AI chats fetched successfully.', 'cause' => '', 'data' => $result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
         } catch (Exception $e) {
             Log::error('getAiChats : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get AI chats.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
