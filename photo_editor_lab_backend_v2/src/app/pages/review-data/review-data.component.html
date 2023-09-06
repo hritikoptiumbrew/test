@@ -33,6 +33,7 @@
                   <th class="text-center" (click)="sortBy('industry', order_type == true ? 'ASC' : 'DESC')">Industry</th>
                   <th class="text-center" (click)="sortBy('purpose', order_type == true ? 'ASC' : 'DESC')">Purpose</th>
                   <th class="text-center" (click)="sortBy('exactly_want', order_type == true ? 'ASC' : 'DESC')">Exactly Want</th>
+                  <th class="text-center" (click)="sortBy('response_code', order_type == true ? 'ASC' : 'DESC')">Respond Code</th>
                   <th class="text-center" (click)="sortBy('chatGpt_request', order_type == true ? 'ASC' : 'DESC')">ChatGpt Request</th>
                   <th class="text-center" (click)="sortBy('chatGpt_response', order_type == true ? 'ASC' : 'DESC')">ChatGpt Response</th>
                   <th class="text-center" (click)="sortBy('country', order_type == true ? 'ASC' : 'DESC')">Country</th>
@@ -54,6 +55,7 @@
                   <td class="text-center"><div style="inline-size: 130px; overflow-wrap: break-word;">{{ item.industry }}</div></td>
                   <td class="text-center"><div style="inline-size: 140px; overflow-wrap: break-word;">{{ item.purpose }}</div></td>
                   <td class="text-center">{{ item.exactly_want }}</td>
+                  <td class="text-center">{{ item.response_code }}</td>
                   <td class=""><div style="inline-size: 300px; overflow-wrap: break-word;">{{item.ChatGpt_request}}</div></td>
                   <td class=""><div style="inline-size: 300px; overflow-wrap: break-word;">{{item.ChatGpt_response}}</div></td>
                   <td class="text-center">{{ item.device_json.device_country_code }}</td>
