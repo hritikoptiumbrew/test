@@ -306,7 +306,7 @@ Route::middleware(['ability:user,user_permission'])->group(function () {
     Route::post('user', 'UserController@index');
 
     //AI Playground APIs
-    Route::post('getDataFromPrompt','UserController@getDataFromPrompt');
+    Route::post('getDataFromPrompt','UserController@getDataFromPromptV2');
     Route::post('feedback', 'UserController@aiFeedback');
     Route::post('aiTextPromptUseByUser', 'UserController@aiTextPromptUseByUser');
 

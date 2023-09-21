@@ -189,7 +189,7 @@ class UserController extends Controller
      * }
      */
     public function getDataFromPromptV2(Request $request_body) {
-
+        $db_id = NULL;
         try {
 
             if(($response = (new VerificationController())->validateRequiredParameter(array('exactly_want'), json_decode($request_body->getContent()) )) != '')
@@ -261,22 +261,29 @@ class UserController extends Controller
                 'device_json' => $device_json,
                 'app_json' => $app_json,
                 'pro_status' => $pro_status,
+                'response_code' => 200,
             );
 
             DB::beginTransaction();
             $chat_number = DB::table('ai_chats')->insertGetId($db_data);
+            DB::commit();
             $result['id'] = strval($chat_number);
+            //-- db_id variable is use to update the code in database
+            $db_id = $result['id'];
             $decode_response = json_decode($data['choices'][0]['message']['content']);
             if(isset($decode_response->data)) {
                 $result['result'] = $decode_response->data;
                 $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $result));
             } else {
+                DB::update('UPDATE ai_chats SET response_code = ? WHERE  id = ?',[201, $db_id]);
                 Log::error('getDataFromPromptV2 ', ['Exception' =>$decode_response->error]);
                 $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong, Please Try Again', 'cause' => $decode_response->error, 'data' => json_decode("{}")));
             }
-            DB::commit();
 
         } catch (\Exception $e) {
+            if($db_id != NULL) {
+                DB::update('UPDATE ai_chats SET response_code = ? WHERE  id = ?',[201, $db_id]);
+            }
             Log::error('getDataFromPromptV2 ', ['Exception' =>$e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
             $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong, Please Try Again', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
@@ -408,8 +415,10 @@ class UserController extends Controller
                                     id.updated_at, 
                                     id.ChatGpt_request, 
                                     id.device_json, 
-                                    id.app_json
-                                    
+                                    id.app_json,
+                                    IF(id.is_use = 1, "true","false") AS is_use,
+                                    IF(id.pro_status = 1, "true","false") AS pro_status,
+                                    id.response_code
                                 FROM 
                                     ai_chats AS id 
                                 ORDER BY id.'. $this->order_by . ' ' . $this->order_type . '
@@ -417,6 +426,7 @@ class UserController extends Controller
 
             $response = Response::json(array('code' => 200, 'message' => 'AI chats fetched successfully.', 'cause' => '', 'data' => $result));
             $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
         } catch (Exception $e) {
             Log::error('getAiChats : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
             $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get AI chats.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
@@ -1021,6 +1031,8 @@ class UserController extends Controller
      */
     public function getPosterDataFromPrompt(Request $request_body) {
 
+        $db_id = NULL;
+
         try {
             Log::info("getPosterDataFromPrompt Request : ",[$request_body]);
             if ($request_body['device_json'] != null) {
@@ -1089,7 +1101,7 @@ class UserController extends Controller
             $db_data['response_code'] = 200;
             $chat_number = DB::table('ai_post_chats')->insertGetId($db_data);
             $result['id'] = strval($chat_number);
-
+            $db_id = $result['id'];
             DB::commit();
 
 
@@ -1306,6 +1318,9 @@ class UserController extends Controller
 
 
         } catch (Exception $e) {
+            if($db_id != NULL) {
+                DB::update('UPDATE ai_post_chats SET response_code = ? WHERE id = ?', [201,$db_id]);
+            }
             Log::error('getPosterDataFromPrompt : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
             DB::rollBack();
             $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get Poster.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));

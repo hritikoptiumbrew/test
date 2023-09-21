@@ -457,6 +457,8 @@ Purpose of the poster: {DynamicValue2}
 
 give a Product list based on this but give the exact result that the user wants. Do not give the other description.
 
+Ensure that the user receives the actual product list in the result, avoiding the use of dummy data.
+
 provide a result text without adding any extra words so that it can be used directly in the poster.
 
 add this text in the \'data\' key in the JSON provided below.
@@ -503,27 +505,26 @@ If the result cannot be found then only give the below response in JSON format
 
         //====================================================Service list PROMPT=====================================================//
 
-        'service list' => 'You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
+        'service list' => 'You are a helpful assistant whose job is to give text content for posters. The text content should be concise and not too detailed to fit on the poster.
 {DynamicValue1}
-Purpose of the poster: {DynamicValue2}
+Objective of this poster: {DynamicValue2}
 
-give a Service list based on this but give the exact result that the user wants. Do not give the other description.
-
-provide a result text without adding any extra words so that it can be used directly in the poster.
+Provide a service list that precisely matches the user\'s request. Avoid including any extraneous information and ensure the user receives the accurate service list, without the inclusion of placeholder data.
 
 add this text in the \'data\' key in the JSON provided below.
 
 give the result in the below JSON format.
 
 {
-  "data": ""
+"data": ""
 }
 
 If the result cannot be found then only give the below response in JSON format
 
 {
-  "error": "result not found"
-}',
+"error": "result not found"
+}
+',
 
 
 
