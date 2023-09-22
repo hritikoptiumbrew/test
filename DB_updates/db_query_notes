@@ -361,3 +361,8 @@ ALTER TABLE `ai_chats` ADD `is_use` TINYINT(1) NULL DEFAULT NULL AFTER `pro_stat
 ---------------------------------------------------------------------------------------------------
 
 ALTER TABLE `ai_chats` ADD `response_code` INT NULL DEFAULT NULL AFTER `is_use`;
+
+54) PhotoEditorLab : perform following query on database (22 Sep, 2023) Ai Text and Ai poster module add is_debug
+---------------------------------------------------------------------------------------------------
+ALTER TABLE `ai_chats` ADD `is_debug` TINYINT(2) NOT NULL DEFAULT '0' AFTER `response_code`;
+ALTER TABLE `ai_post_chats` ADD `is_debug` TINYINT(2) NOT NULL DEFAULT '0' AFTER `design_id`;
