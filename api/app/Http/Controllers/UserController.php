@@ -1069,7 +1069,7 @@ class UserController extends Controller
             $industry = isset($request_body['industry']) ? $request_body['industry'] : NULL;
             $industry_string = $industry ? "\nUser belongs: " . $industry : NULL;
             $purpose = $request_body['purpose'];
-            $system = "You are a helpful assistant whose job is to create text content for posters.\n$industry_string\nPurpose of the poster: $purpose\n\ngive a header, short description, and CTA based on this but give the exact result that the user wants.\n\nprovide the short description text without any suggestions to be directly used in the poster.\ngive CTA text in 1 to 5 words.\n\ngive the four-color Hex Codes for this poster:\n1. dark muted color code.\n2. muted color code.\n3. light color code.\n4. light bright color code.\n\nchoose colors that are relevant to the poster's content and ensure they remain visible when layered on top of each other so that the poster's content remains legible.\n\nadd these four color codes as a comma-separated string to the 'colors' key in the JSON provided below.\n\nprovide a description of the image that can be used for this poster, based on its content. give the description short and simple and give the main content at starting. Here are some general examples of image descriptions, unrelated to this specific poster, provided only for your understanding: 'Nail art', 'Carabiner hook with climbing equipment', 'woman in carnival mask', 'Mother and son hugging', 'A group of people working', and 'A woman using a MacBook'.\n\ngive an image description in 1 to 10 words.\n\nadd this description in the 'imgDescription' key in the JSON provided below.\nalso, convert this description into english language if needed and add this into the 'imgDescriptionEnglish' key in the JSON provided below.\n\nProvide four search tags for this poster that can be used to find similar posters based on the purpose of this poster. Start with the main search tag. Here are some general examples of search tags: RealEstate, Photography, Hiring, Education, Bakery, Invitation, Gym, Advertisement, Babysitting, Party, Sale, Church, Cloth.\ngive each search tag in one word.\n\nadd these 4 search tags as a string to the 'searchTag' key in the JSON provided below.\nalso, convert these search tags into english language if needed and add this to the 'searchTagEnglish' key in the JSON provided below.\n\nprovide 2 results in the following JSON format. Ensure that each result is unique and has a different header, short description, CTA, and colors.\n\n{\n \"data\": [\n {\n \"header\": \"\",\n \"shortDescription\": \"\",\n \"CTA\": \"\",\n \"colors\": \"\",\n \"imgDescription\": \"\",\n \"imgDescriptionEnglish\": \"\"\n }\n ],\n \"searchTag\": \"\",\n \"searchTagEnglish\": \"\"\n}\n\nIf the result cannot be found then only give the below response in Json format\n\n{\n \"error\": \"result not found\"\n}";
+            $system = "You are a helpful assistant whose job is to create text content for posters.\n$industry_string\nPurpose of the poster: $purpose\n\ngive a header, short description, and CTA based on this but give the exact result that the user wants.\n\nprovide the short description text without any suggestions to be directly used in the poster.\ngive CTA text in 1 to 5 words.\n\ngive the four-color Hex Codes for this poster:\n1. dark muted color code.\n2. muted color code.\n3. light color code.\n4. light bright color code.\n\nchoose colors that are relevant to the poster's content and ensure they remain visible when layered on top of each other so that the poster's content remains legible.\n\nadd these four color codes as a comma-separated string to the 'colors' key in the JSON provided below.\n\nprovide a description of the image that can be used for this poster, based on its content. give the description short and simple and give the main content at starting. Here are some general examples of image descriptions, unrelated to this specific poster, provided only for your understanding: 'Nail art', 'Carabiner hook with climbing equipment', 'woman in carnival mask', 'Mother and son hugging', 'A group of people working', and 'A woman using a MacBook'.\n\ngive an image description in 1 to 10 words.\n\nadd this description in the 'imgDescription' key in the JSON provided below.\n\nProvide four search tags for this poster that can be used to find similar posters based on the purpose of this poster. Start with the main search tag. Here are some general examples of search tags: RealEstate, Photography, Hiring, Education, Bakery, Invitation, Gym, Advertisement, Babysitting, Party, Sale, Church, Cloth.\ngive each search tag in one word.\n\nadd these 4 search tags as a string to the 'searchTag' key in the JSON provided below.\n\nprovide 2 results in the following JSON format. Ensure that each result is unique and has a different header, short description, CTA, and colors.\n\n{\n \"data\": [\n {\n \"header\": \"\",\n \"shortDescription\": \"\",\n \"CTA\": \"\",\n \"colors\": \"\",\n \"imgDescription\": \"\"\n }\n ],\n \"searchTag\": \"\"\n}\n\nIf the result cannot be found then only give the below response in Json format\n\n{\n \"error\": \"result not found\"\n";
 
             $chatGpt_request = [
                 "model" => "gpt-3.5-turbo",
@@ -1120,12 +1120,8 @@ class UserController extends Controller
 
 
             //--Get First Poster By description
-            $first_description_english = $gpt_response->data[0]->imgDescriptionEnglish;
-            if ($first_description_english != null) {
-                $first_description = $first_description_english;
-            }else {
-                $first_description = $gpt_response->data[0]->imgDescription;
-            }
+            $first_description = $gpt_response->data[0]->imgDescription;
+
                 $first_poster = $this->getPosterApiImage($first_description);
                 $with_image_index = isset($request_body['with_image_index']) ? intval($request_body['with_image_index']) : 0;
                 $without_image_index = isset($request_body['with_image_index']) ? intval($request_body['with_image_index']) : 0;
@@ -1210,12 +1206,7 @@ class UserController extends Controller
             //--Get Second Poster By description
             if(isset($gpt_response->data[1]->imgDescription)) {
 
-                $second_description_english = $gpt_response->data[1]->imgDescriptionEnglish;
-                if ($second_description_english != null) {
-                    $second_description = $second_description_english;
-                }else {
-                    $second_description = $gpt_response->data[1]->imgDescription;
-                }
+                $second_description = $gpt_response->data[1]->imgDescription;
                 $second_poster = $this->getPosterApiImage($second_description);
 
                 $gpt_response_secound['colors'] = $gpt_response->data[1]->colors;
@@ -1330,10 +1321,6 @@ class UserController extends Controller
             $gpt_response->design_ids = implode(',',array_merge($used_first_json_ids,$used_second_json_ids));
             //-- Color Choose
             $gpt_response->isAIColor = config('constant.IS_AI_COLOR');
-            $search_tag_english = $gpt_response->searchTagEnglish;
-            if ($search_tag_english != null) {
-                $gpt_response->searchTag = $search_tag_english;
-            }
             $result['result'] = $gpt_response;
 
             $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $result));
