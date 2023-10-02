@@ -10908,7 +10908,7 @@ class AdminController extends Controller
                 $basename = $file_info['basename'];
                 $file_size = filesize($folder_path.'/'.$files);
 
-                if (($extension == "jpg" || $extension == "png" || $extension == "jpeg") && $error_msg == "" ) {
+                if (($extension == "jpg" || $extension == "png" || $extension == "jpeg" || $extension == "svg") && $error_msg == "" ) {
 
                     array_push($resource_image_array, $basename);
                     if ($file_size >= $IMAGE_MAXIMUM_FILESIZE) {
@@ -10960,14 +10960,22 @@ class AdminController extends Controller
             // check resource image is exist or not
             if (count($resource_image_array) > 0) {
                 $exist_files_array = array();
-                foreach ($resource_image_array as $image_name) {
+                foreach ($resource_image_array as $i => $image_name) {
                     if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                         if (($is_exist = (new ImageController())->checkFileExistInS3("resource", $image_name)) == 1) {
-                            array_push($exist_files_array, $image_name);
+                            if (strpos($image_name, '_mcm_')) {
+                                unset($resource_image_array[$i]);
+                            } else {
+                                array_push($exist_files_array, $image_name);
+                            }
                         }
-                    }else{
+                    } else {
                         if (($is_exist = (new ImageController())->checkFileExist($resource_image_path . $image_name)) != 0) {
-                            array_push($exist_files_array, $image_name);
+                            if (strpos($image_name, '_mcm_')) {
+                                unset($resource_image_array[$i]);
+                            } else {
+                                array_push($exist_files_array, $image_name);
+                            }
                         }
                     }
 
@@ -11206,7 +11214,7 @@ class AdminController extends Controller
                 $basename = $file_info['basename'];
                 $file_size = filesize($folder_path.'/'.$files);
 
-                if (($extension == "jpg" || $extension == "png" || $extension == "jpeg") && $error_msg == "" ) {
+                if (($extension == "jpg" || $extension == "png" || $extension == "jpeg" || $extension == "svg") && $error_msg == "" ) {
 
                     array_push($resource_image_array, $basename);
                     if ($file_size >= $IMAGE_MAXIMUM_FILESIZE) {
@@ -11258,14 +11266,22 @@ class AdminController extends Controller
             // check resource image is exist or not
             if (count($resource_image_array) > 0) {
                 $exist_files_array = array();
-                foreach ($resource_image_array as $image_name) {
+                foreach ($resource_image_array as $i => $image_name) {
                     if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
                         if (($is_exist = (new ImageController())->checkFileExistInS3("resource", $image_name)) == 1) {
-                            array_push($exist_files_array, $image_name);
+                            if (strpos($image_name, '_mcm_')) {
+                                unset($resource_image_array[$i]);
+                            } else {
+                                array_push($exist_files_array, $image_name);
+                            }
                         }
-                    }else{
+                    } else {
                         if (($is_exist = (new ImageController())->checkFileExist($resource_image_path . $image_name)) != 0) {
-                            array_push($exist_files_array, $image_name);
+                            if (strpos($image_name, '_mcm_')) {
+                                unset($resource_image_array[$i]);
+                            } else {
+                                array_push($exist_files_array, $image_name);
+                            }
                         }
                     }
 

@@ -288,7 +288,7 @@ class MasterContentAdminController extends Controller
                     }
 
                     $result = array('uploaded_content_catalog' => $uploaded_content_catalog, 'selection_catalog' => $selection_catalog);
-                    $response = Response::json(array('code' => 200, 'message' => 'Upload sgetCatalogBySubCategoryIdForAdmintatus get successfully.', 'cause' => '', 'data' => $result));
+                    $response = Response::json(array('code' => 200, 'message' => 'Upload status get successfully.', 'cause' => '', 'data' => $result));
                 } else {
                     $result = array('selection_catalog' => $selection_catalog);
                     $response = Response::json(array('code' => 200, 'message' => 'Upload status get successfully.', 'cause' => '', 'data' => $result));

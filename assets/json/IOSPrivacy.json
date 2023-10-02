@@ -262,5 +262,16 @@
     "contact_us": "../../support/iossupport/?id=poa12l",
     "privacy_policy": "../../privacy-policy/iosprivacy-smpm/?id=poa12l",
     "terms": "../../terms-of-use/iosterms/?id=poa12l"
+  },
+  "info09": {
+    "app_name": "Infographic Maker JNA",
+    "canonical": "https://photoeditorlab.co.in",
+    "webp_logo": "assets/images/ios_app_logos/Infographic_Maker_JNA.webp",
+    "png_logo": "assets/images/ios_app_logos/Infographic_Maker_JNA.png",
+    "favicon": "ios_favicon/Infographic_Maker_JNA",
+    "title": "Infographic Maker",
+    "contact_us": "../../support/iossupport/?id=info09",
+    "privacy_policy": "../../privacy-policy/iosprivacy-menu/?id=info09",
+    "terms": "../../terms-of-use/iosterms/?id=info09"
   }
 }

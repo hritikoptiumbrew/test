@@ -88,7 +88,6 @@ export class ImagedetailsComponent implements OnInit {
       }
     }).then((results: any) => {
       if (results.code == 200) {
-       
         var j = 1;
         results.data.image_details.forEach(appname => {
           appname.resolution = appname.width + " * " + appname.height;

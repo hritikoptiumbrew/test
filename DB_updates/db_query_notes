@@ -327,3 +327,42 @@ CREATE TABLE `ai_chats` (
  `app_json` longtext COLLATE utf8mb4_unicode_ci,
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+51) PhotoEditorLab : perform following query on database (28 Aug, 2023) Ai Poster module
+---------------------------------------------------------------------------------------------------
+CREATE TABLE `ai_post_chats` (
+ `id` bigint NOT NULL AUTO_INCREMENT,
+ `industry` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+ `purpose` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+ `ChatGpt_response` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+ `feedback` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ `feedback_msg` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+ `created_at` timestamp NOT NULL,
+ `updated_at` timestamp NULL DEFAULT NULL,
+ `ChatGpt_request` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+ `device_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+ `app_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+ `response_code` int NOT NULL,
+ `pro_status` tinyint DEFAULT NULL,
+ `is_use` tinyint DEFAULT NULL,
+ `design_id` int DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+52) PhotoEditorLab : perform following query on database (05 Sep, 2023) Ai Text module update
+---------------------------------------------------------------------------------------------------
+
+ALTER TABLE `ai_chats` ADD `pro_status` TINYINT(1) NULL DEFAULT NULL AFTER `app_json`;
+ALTER TABLE `ai_chats` ADD `is_use` TINYINT(1) NULL DEFAULT NULL AFTER `pro_status`;
+
+
+53) PhotoEditorLab : perform following query on database (06 Sep, 2023) Ai Text module update
+---------------------------------------------------------------------------------------------------
+
+ALTER TABLE `ai_chats` ADD `response_code` INT NULL DEFAULT NULL AFTER `is_use`;
+
+54) PhotoEditorLab : perform following query on database (22 Sep, 2023) Ai Text and Ai poster module add is_debug
+---------------------------------------------------------------------------------------------------
+ALTER TABLE `ai_chats` ADD `is_debug` TINYINT(2) NOT NULL DEFAULT '0' AFTER `response_code`;
+ALTER TABLE `ai_post_chats` ADD `is_debug` TINYINT(2) NOT NULL DEFAULT '0' AFTER `design_id`;
