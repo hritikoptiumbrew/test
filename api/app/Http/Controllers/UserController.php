@@ -1117,7 +1117,7 @@ class UserController extends Controller
 
 
             $gpt_response = json_decode($data['choices'][0]['message']['content']);
-
+            $manualAIColor = false;
 
             //--Get First Poster By description
             $first_description = $gpt_response->data[0]->imgDescription;
@@ -1128,6 +1128,7 @@ class UserController extends Controller
                 if($first_poster['success']) {
                     $poster_json = config('constant.poster_json_with_image');
                 } else {
+                    $manualAIColor = true;
                     $poster_json = config('constant.poster_json_without_image');
                 }
 
@@ -1232,9 +1233,13 @@ class UserController extends Controller
 //                $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR') . 'get Poster.', 'cause' => "Second imgDescription is not set", 'data' => json_decode("{}")));
             }
 
-            if((!$first_poster['success']) && $second_poster['success']) {
+            if((!$first_poster['success']) && (!$second_poster['success'])) {
+                $poster_json_second = config('constant.poster_json_with_image');
+            } else if ((!$first_poster['success']) && $second_poster['success']) {
+                $manualAIColor = true;
                 $poster_json_second = config('constant.poster_json_with_image');
             } else {
+                $manualAIColor = true;
                 $poster_json_second = config('constant.poster_json_without_image');
             }
 
@@ -1320,7 +1325,11 @@ class UserController extends Controller
 
             $gpt_response->design_ids = implode(',',array_merge($used_first_json_ids,$used_second_json_ids));
             //-- Color Choose
-            $gpt_response->isAIColor = config('constant.IS_AI_COLOR');
+            if ($manualAIColor) {
+                $gpt_response->isAIColor = true;
+            }else {
+                $gpt_response->isAIColor = config('constant.IS_AI_COLOR');
+            }
             $result['result'] = $gpt_response;
 
             $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => '', 'data' => $result));
@@ -1513,7 +1522,8 @@ class UserController extends Controller
 
             $poster_response_decode =  $client->get("https://api.pexels.com/v1/search",[
                 'query' => ['query' => $imgDescription],
-                'headers' => ['Authorization' => $poster_api_key_array[$cache_index]]
+                'headers' => ['Authorization' => $poster_api_key_array[$cache_index]],
+                'timeout' => config('constant.AI_IMAGE_API_TIMEOUT')
             ]);
 
             $status = $poster_response_decode->getStatusCode();
@@ -1530,9 +1540,9 @@ class UserController extends Controller
                     return $this->getPosterApiImage($imgDescription);
                 } else {
                     $result['success'] = false;
-                    $result['imgURL'] = "";
-                    $result['imgHeight'] = "";
-                    $result['imgWidth'] = "";
+                    $result['imgURL'] = config('constant.AI_DEFAULT_IMAGE_PATH');
+                    $result['imgHeight'] = config('constant.AI_DEFAULT_IMAGE_HEIGHT');
+                    $result['imgWidth'] = config('constant.AI_DEFAULT_IMAGE_WIDTH');
                 }
 
             } else {
@@ -1556,9 +1566,9 @@ class UserController extends Controller
             Log::error('getPosterApiImage : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
 
             $result['success'] = false;
-            $result['imgURL'] = '';
-            $result['imgHeight'] = '';
-            $result['imgWidth'] = '';
+            $result['imgURL'] = config('constant.AI_DEFAULT_IMAGE_PATH');
+            $result['imgHeight'] = config('constant.AI_DEFAULT_IMAGE_HEIGHT');
+            $result['imgWidth'] = config('constant.AI_DEFAULT_IMAGE_WIDTH');
         }
 
 
