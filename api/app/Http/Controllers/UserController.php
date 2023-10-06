@@ -1234,12 +1234,15 @@ class UserController extends Controller
             }
 
             if((!$first_poster['success']) && (!$second_poster['success'])) {
+                $manualAIColor = true;
                 $poster_json_second = config('constant.poster_json_with_image');
             } else if ((!$first_poster['success']) && $second_poster['success']) {
                 $manualAIColor = true;
                 $poster_json_second = config('constant.poster_json_with_image');
-            } else {
+            } else if ($first_poster['success'] && (!$second_poster['success'])) {
                 $manualAIColor = true;
+                $poster_json_second = config('constant.poster_json_without_image');
+            }else {
                 $poster_json_second = config('constant.poster_json_without_image');
             }
 
