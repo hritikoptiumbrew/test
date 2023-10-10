@@ -54,6 +54,11 @@
   left: 4px;
 }
 
+.mat-chip.mat-standard-chip {
+  background-color: #e0e0e0;
+  color: rgba(0,0,0,.87);
+}
+
 @media only screen and (max-width: 600px) {
   .add-json-data-card {
     width: 96%;
