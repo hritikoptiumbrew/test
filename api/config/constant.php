@@ -233,4 +233,329 @@ return [
     'SINGLE_PAGE_SUB_CATEGORY_ID_FOR_LAYOUT' => '15',
     'MULTI_PAGE_SUB_CATEGORY_ID_FOR_LAYOUT' => '18',
 
+    'OPENAI_API_KEY' => env('OPENAI_API_KEY'),
+
+    'OPENAI_API_KEY_FOR_POSTER' => env('OPENAI_API_KEY_FOR_POSTER'),
+
+//    'POSTER_API_KEY' => env('POSTER_API_KEY'),
+//    'POSTER_API_KEY_ARRAY' => [env('POSTER_API_KEY'), env('POSTER_API_KEY_SECOND')],
+
+    'PEXELS_API_KEY' => env('PEXELS_API_KEY'),
+    'PEXELS_API_KEY_ARRAY' => [env('PEXELS_API_KEY'), env('PEXELS_API_KEY_SECOND'), env('PEXELS_API_KEY_THRID')],
+
+    'IS_AI_COLOR' => false,
+    'POSTER_API_KEY_RESET_MINUTES' => 60,
+    'AI_DEFAULT_IMAGE_PATH' => 'https://d1ao3vke5d2qjl.cloudfront.net/app_static_resource/ai_poster_default_image.jpg',//'http://192.168.0.110/photo_editor_lab_backend/image_bucket/resource/ai_poster_default_image.jpg',
+    'AI_DEFAULT_IMAGE_HEIGHT' => 363,
+    'AI_DEFAULT_IMAGE_WIDTH' => 367,
+    'AI_IMAGE_API_TIMEOUT' => 15,
+
+//    'poster_json_with_image' => array(46940, 46941, 46942, 46943, 46944, 46950,46951, 46952, 46953, 46954, 46955, 46956, 46957, 46958, 46959),
+//    'poster_json_without_image' => array(46945, 46946, 46947,46948,46949,46960, 46961, 46962, 46963, 46964),
+
+    //-- For Live
+    'poster_json_with_image' => array(76249, 76250, 76251, 76252, 76253, 76254, 76255, 76256, 76257, 76258, 76259, 76260, 76261, 76262, 76263),
+    'poster_json_without_image' => array(76264, 76265, 76266, 76267, 76268, 76269, 76270, 76271, 76272, 76273),
+
+    'ai_text_prompts' => [
+
+//====================================================headline PROMPT=====================================================//
+        'headline' => 'You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Purpose of the poster: {DynamicValue2}
+
+give a Headline based on this but give the exact result that the user wants. Do not give the other description.
+
+provide a result text without adding any extra words so that it can be used directly in the poster.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+  "data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+  "error": "result not found"
+}',
+//====================================================promotion PROMPT=====================================================//
+        'promotion' => 'You are a helpful assistant whose job is to give text content for posters. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Objective of this poster: {DynamicValue2}
+
+Provide a suitable promotion for this poster. Generate a result text without any extra words for direct use in the poster. Ensure that the promotion or promotions type keywords are not included in the result, as this content is intended for promotional use in the poster.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+  "data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+  "error": "result not found"
+}',
+
+
+//====================================================special offers PROMPT=====================================================//
+
+        'special offers' => 'You are a helpful assistant whose job is to give text content for posters. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Objective of this poster: {DynamicValue2}
+
+Provide appropriate Special Offers for this poster. give special offers that are attractive. Generate a result text without any extra words for direct use in the poster.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+"data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+"error": "result not found"
+}
+',
+
+        //====================================================subheadline PROMPT=====================================================//
+
+        'subheadline' => 'You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Purpose of the poster: {DynamicValue2}
+
+give a Subheadline based on this but give the exact result that the user wants. Do not give the other description.
+
+provide a result text without adding any extra words so that it can be used directly in the poster.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+  "data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+  "error": "result not found"
+}',
+
+        //====================================================Description PROMPT=====================================================//
+
+        'description' => 'You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Purpose of the poster: {DynamicValue2}
+
+give a description based on this but give the exact result that the user wants. Do not give the other description.
+
+provide a result text without adding any extra words so that it can be used directly in the poster.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+  "data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+  "error": "result not found"
+}',
+
+
+        //====================================================Branding Description PROMPT=====================================================//
+
+        'branding description' => 'You are a helpful assistant whose job is to give text content for posters. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Objective of this poster: {DynamicValue2}
+
+provide a suitable branding description text for this poster. Generate a text without any extra words for direct use in the poster. Here are some general examples of branding descriptions, unrelated to this specific poster, provided only for your understanding: \'Innovative technology, timeless elegance\', \'Empowering lifestyles through sustainable fashion, \'Where comfort meets cutting-edge fashion\', \'Designing tomorrow with eco-conscious solutions\', and \'Join us in creating positive change by supporting our mission\', and \'Designing tomorrow with eco-conscious solutions\'.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+  "data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+  "error": "result not found"
+}',
+
+
+        //====================================================Service Description PROMPT=====================================================//
+
+        'service description' => 'You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Purpose of the poster: {DynamicValue2}
+
+give a Service Description based on this but give the exact result that the user wants. Do not give the other description.
+
+provide a result text without adding any extra words so that it can be used directly in the poster.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+  "data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+  "error": "result not found"
+}',
+
+
+
+        //====================================================call to action PROMPT=====================================================//
+
+        'call to action' => 'You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Purpose of the poster: {DynamicValue2}
+
+give a CTA based on this but give the exact result that the user wants. Do not give the other description.
+
+give CTA text in 1 to 5 words.
+
+provide a result text without adding any extra words so that it can be used directly in the poster.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+  "data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+  "error": "result not found"
+}',
+
+
+
+
+        //====================================================Product list PROMPT=====================================================//
+
+        'product list' => 'You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Purpose of the poster: {DynamicValue2}
+
+give a Product list based on this but give the exact result that the user wants. Do not give the other description.
+
+Ensure that the user receives the actual product list in the result, avoiding the use of dummy data.
+
+provide a result text without adding any extra words so that it can be used directly in the poster.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+  "data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+  "error": "result not found"
+}',
+
+
+
+        //====================================================Product Description PROMPT=====================================================//
+
+        'product description' => 'You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Purpose of the poster: {DynamicValue2}
+
+give a Product Description based on this but give the exact result that the user wants. Do not give the other description.
+
+provide a result text without adding any extra words so that it can be used directly in the poster.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+  "data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+  "error": "result not found"
+}',
+
+
+
+        //====================================================Service list PROMPT=====================================================//
+
+        'service list' => 'You are a helpful assistant whose job is to give text content for posters. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Objective of this poster: {DynamicValue2}
+
+Provide a service list that precisely matches the user\'s request. Avoid including any extraneous information and ensure the user receives the accurate service list, without the inclusion of placeholder data.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+"data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+"error": "result not found"
+}
+',
+
+
+
+        //====================================================Others PROMPT=====================================================//
+
+        'others' => 'You are a helpful assistant whose job is to provide or create text content for poster. The text content should be concise and not too detailed to fit on the poster.
+{DynamicValue1}
+Purpose of the poster: {DynamicValue2}
+User needs text for: {DynamicValue3}
+
+give the text base on this data that user provide. Make sure to avoid repeating the exact line provided as the poster details.
+
+provide a result text without adding any extra words so that it can be used directly in the poster.
+
+add this text in the \'data\' key in the JSON provided below.
+
+give the result in the below JSON format.
+
+{
+  "data": ""
+}
+
+If the result cannot be found then only give the below response in JSON format
+
+{
+  "error": "result not found"
+}',
+    ],
+
 ];
