@@ -245,6 +245,10 @@ return [
 
     'IS_AI_COLOR' => false,
     'POSTER_API_KEY_RESET_MINUTES' => 60,
+    'AI_DEFAULT_IMAGE_PATH' => 'https://d1ao3vke5d2qjl.cloudfront.net/app_static_resource/ai_poster_default_image.jpg',//'http://192.168.0.110/photo_editor_lab_backend/image_bucket/resource/ai_poster_default_image.jpg',
+    'AI_DEFAULT_IMAGE_HEIGHT' => 363,
+    'AI_DEFAULT_IMAGE_WIDTH' => 367,
+    'AI_IMAGE_API_TIMEOUT' => 15,
 
 //    'poster_json_with_image' => array(46940, 46941, 46942, 46943, 46944, 46950,46951, 46952, 46953, 46954, 46955, 46956, 46957, 46958, 46959),
 //    'poster_json_without_image' => array(46945, 46946, 46947,46948,46949,46960, 46961, 46962, 46963, 46964),
