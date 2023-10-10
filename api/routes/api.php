@@ -274,6 +274,7 @@ Route::middleware(['ability:admin,admin_permission'])->group(function () {
     Route::post('deleteScheduledPost','AdminController@deleteScheduledPost');
     Route::post('getScheduledPostDetails','AdminController@getScheduledPostDetails');
     Route::post('repeatPostThemes','AdminController@repeatPostThemes');
+    Route::post('setIndustryRankOnTheTopByAdmin','AdminController@setIndustryRankOnTheTopByAdmin');
 
     //AI Playground APIs
     Route::post('getAiChats', 'UserController@getAiChats');
