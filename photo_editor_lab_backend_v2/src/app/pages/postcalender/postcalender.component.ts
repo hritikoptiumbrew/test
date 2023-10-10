@@ -21,7 +21,8 @@ import {
   isSameMonth,
   addHours,
 } from 'date-fns';
-import { Subject } from 'rxjs';
+import { Subject, Observable, of } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import {
   CalendarDateFormatter,
   CalendarEvent,
@@ -35,6 +36,7 @@ import {
 import { EventColor } from 'calendar-utils';
 import { CustomDateFormatter } from './custom-date-formatter.providers';
 import { DatePipe } from '@angular/common';
+import { FormControl } from '@angular/forms';
 
 const colors: Record<string, EventColor> = {
   red: {
@@ -77,10 +79,10 @@ export class PostcalenderComponent implements OnInit {
   refresh = new Subject<void>();
   events: CalendarEvent[] = [];
   activeDayIsOpen: boolean = false;
-  pageSizeOfIndustry: any = [5,10,15,20];
-  pageSizeOfTheme: any = [5,10,15,20];
-  selectedPageSizeOfIndustry: any = '20';
-  selectedPageSizeOfTheme: any = '20';
+  pageSizeOfIndustry: any = [20,40,60,80,100];
+  pageSizeOfTheme: any = [20,40,60,80,100];
+  selectedPageSizeOfIndustry: any = '100';
+  selectedPageSizeOfTheme: any = '100';
   pageNumOfIndustry: number = 1;
   pageNumOfTheme: number = 1;
   previousLabel = "<";
@@ -94,10 +96,16 @@ export class PostcalenderComponent implements OnInit {
   theme_list:any = [];
   total_theme:any;
   selectedIndustry:any = "";
+  selectedIndustryName:any = "";
   scheduledPostList:any = [];
+
+  options: any[];
+  filteredOptions$: Observable<string[]>;
+  @ViewChild('autoInput') input;
+  @ViewChild('autoInput') autoInput: ElementRef;
   
   constructor(
-    private dialog: NbDialogService,
+    private dialog: NbDialogService,  
     private utils: UtilService,
     private dataService: DataService,
     private datePipe: DatePipe,
@@ -301,7 +309,7 @@ export class PostcalenderComponent implements OnInit {
       {
         "sub_category_id": this.selected_sub_category_id,
         "page": 1,
-        "item_count":100
+        "item_count":1000
       }, {
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('at')
@@ -318,6 +326,13 @@ export class PostcalenderComponent implements OnInit {
           });
         }
 
+        let tempIndustryNameArr = [];
+        this.industry_list_selection_active.forEach(element => {
+          tempIndustryNameArr.push(element.industry_name);
+        });
+        this.options = this.industry_list_selection_active;
+        this.filteredOptions$ = of(tempIndustryNameArr);
+
         if(this.industry_list_selection_active.length == 0){
           this.selectedIndustry = "";
           $("#select_industry").children().text("Select Your Industry");
@@ -329,6 +344,8 @@ export class PostcalenderComponent implements OnInit {
               $("#select_industry").children().text(element.industry_name);
               $("#select_industry").children().removeClass("placeholder");
               this.selectedIndustry = element.id.toString();
+              this.selectedIndustryName = element.industry_name;
+              this.autoInput.nativeElement.value = element.industry_name;
             } 
           }); 
 
@@ -357,6 +374,29 @@ export class PostcalenderComponent implements OnInit {
       this.utils.hidePageLoader();
       this.utils.showError(ERROR.SERVER_ERR, 4000);
     });
+  }
+
+  private filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    let tempFilterValue = [];
+    this.options.forEach(element => {
+      tempFilterValue.push(element.industry_name);
+    });
+    return tempFilterValue.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
+  }
+
+  getFilteredOptions(value: string): Observable<string[]> {
+    return of(value).pipe(
+      map(filterString => this.filter(filterString)),
+    );
+  }
+
+  onChange() {
+    this.filteredOptions$ = this.getFilteredOptions(this.input.nativeElement.value);
+  }
+
+  onSelectionChange($event) {
+    this.filteredOptions$ = this.getFilteredOptions($event);
   }
 
   getThemeForSelection(){
@@ -481,12 +521,12 @@ export class PostcalenderComponent implements OnInit {
       this.getIndustryForSelection();
     }
     else if(event.tabTitle == "Theme Management"){
-      this.selectedPageSizeOfTheme = '20';
+      this.selectedPageSizeOfTheme = '100';
       this.pageNumOfTheme = 1;
       this.getThemeBySubCategoryId();
     }
     else if(event.tabTitle == "industry Management"){
-      this.selectedPageSizeOfIndustry = '20';
+      this.selectedPageSizeOfIndustry = '100';
       this.pageNumOfIndustry = 1;
       this.getIndustryBySubCategoryId();
     }
@@ -494,12 +534,16 @@ export class PostcalenderComponent implements OnInit {
 
   setPageSizeOfIndustry(value) {
     this.selectedPageSizeOfIndustry = value;
+    const element = document.getElementById("industry-table-body");
+    element.scrollTo(0, 0);
     this.pageNumOfIndustry = 1;
     this.getIndustryBySubCategoryId();
   }
 
   setPageSizeOfTheme(value) {
     this.selectedPageSizeOfTheme = value;
+    const element = document.getElementById("theme-table-body");
+    element.scrollTo(0, 0);
     this.pageNumOfTheme = 1;
     this.getThemeBySubCategoryId();
   }
@@ -524,15 +568,25 @@ export class PostcalenderComponent implements OnInit {
    
   }
 
-  selectedChangeIndustry(value){
+  // selectedChangeIndustry(value){
+  //   this.industry_list_selection_active.forEach(element => {
+  //     if(element.id == value){
+  //       $("#select_industry").children().text(element.industry_name);
+  //       $("#select_industry").children().removeClass("placeholder");
+  //     }
+  //   });
+    
+  //   this.selectedIndustry = value;
+  //   this.getScheduledPostDetails();
+  // }
+
+  changeSelectedIndustry(value){
     this.industry_list_selection_active.forEach(element => {
-      if(element.id == value){
-        $("#select_industry").children().text(element.industry_name);
-        $("#select_industry").children().removeClass("placeholder");
+      if(element.industry_name == value){
+        this.selectedIndustry = element.id;
+        this.selectedIndustryName = element.industry_name;
       }
     });
-    
-    this.selectedIndustry = value;
     this.getScheduledPostDetails();
   }
 
@@ -573,6 +627,37 @@ export class PostcalenderComponent implements OnInit {
         this.getThemeBySubCategoryId();
       }
     });
+  }
+
+  setRankIndistry(industry){
+    this.utils.showLoader();
+    let request_data = {
+      "industry_id": industry.id
+    }
+    this.dataService.postData('setIndustryRankOnTheTopByAdmin', request_data,
+      {
+        headers:
+          { 'Authorization': 'Bearer ' + localStorage.getItem('at') }
+      })
+      .then(response => {
+        if (response.code == 200) {
+          this.utils.hideLoader();
+          this.getIndustryBySubCategoryId();
+          this.utils.showSuccess(response.message, 3000);
+        } else if (response.code == 201) {
+          this.utils.hideLoader();
+          this.getIndustryBySubCategoryId();
+          this.utils.showError(response.message, 3000);
+        }
+        else {
+          this.utils.hideLoader();
+          this.utils.showError(ERROR.SERVER_ERR, 3000);
+        }
+      })
+      .catch(e => {
+        this.utils.hideLoader();
+        this.utils.showError(ERROR.SERVER_ERR, 3000);
+      })
   }
 
   updateIndustry(industry){
@@ -752,11 +837,15 @@ export class PostcalenderComponent implements OnInit {
 
   handlePageChangeOfIndustry(event) {
     this.pageNumOfIndustry = event;
+    const element = document.getElementById("industry-table-body");
+    element.scrollTo(0, 0);
     this.getIndustryBySubCategoryId();
   }
 
   handlePageChangeOfTheme(event) {
     this.pageNumOfTheme = event;
+    const element = document.getElementById("theme-table-body");
+    element.scrollTo(0, 0);
     this.getThemeBySubCategoryId();
   }
 

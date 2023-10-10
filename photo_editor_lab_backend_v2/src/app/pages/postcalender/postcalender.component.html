@@ -5,9 +5,25 @@
           <div class="overlay-div">
             <div class="d-flex justify-content-between align-items-center" style="user-select: none;margin-bottom: 16px;">
               <div>
-                <nb-select id="select_industry" class="post-industry-select" placeholder="Select Your Industry"  [(selected)]="selectedIndustry" (selectedChange)="selectedChangeIndustry($event)">
+                <nb-card size="small" style="position: absolute;top: 79px;height: auto;z-index: 1;">
+                  <nb-card-body class="example-items-rows p-0">
+                    <input #autoInput
+                      nbInput
+                      type="text"
+                      (input)="onChange()"
+                      placeholder="Search industry name"
+                      [nbAutocomplete]="auto" />
+                      <nb-autocomplete #auto (selectedChange)="onSelectionChange($event)">
+                        <nb-option *ngFor="let option of filteredOptions$ | async" [value]="option"  [style]="option == selectedIndustryName ? 'background: #3366ff; color: #fff;' : ''" (click)="changeSelectedIndustry(option)">
+                          {{ option }}
+                        </nb-option>
+                      </nb-autocomplete>
+                  </nb-card-body>
+                </nb-card>
+
+                <!-- <nb-select id="select_industry" class="post-industry-select" placeholder="Select Your Industry"  [(selected)]="selectedIndustry" (selectedChange)="selectedChangeIndustry($event)">
                     <nb-option  *ngFor="let industry of industry_list_selection_active;" value="{{industry.id}}" style="white-space:pre;">{{industry.industry_name}}</nb-option>
-                </nb-select>
+                </nb-select> -->
               </div>
               <div class="d-flex" style="column-gap: 22px;">
                 <div class="arrow-div" (click)="repeatThemes()">
@@ -114,7 +130,7 @@
             <div class="col-md-12">
               <div class="table-data">
                 <nb-card class="mb-0" style="border: 0;">
-                  <nb-card-body class="table-body-new p-0" style="max-height: calc(100vh - 476px); position: relative;" >
+                  <nb-card-body id="theme-table-body" class="table-body-new p-0" style="max-height: calc(100vh - 476px); position: relative;" >
                     <table class="table mb-0">
                       <thead style="position: sticky;top: -2px;left: 0;background-color: #fff;">
                         <tr>
@@ -127,7 +143,7 @@
                       </thead>
                       <tbody>
                         <tr *ngFor="let theme of theme_list | paginate:{id: 'paginationForTheme', itemsPerPage: selectedPageSizeOfTheme, currentPage: pageNumOfTheme, totalItems: total_theme }  let i = index;">
-                          <td style="padding-left: 30px;">{{i+1}}</td>
+                          <td style="padding-left: 30px;">{{ pageNumOfTheme * selectedPageSizeOfTheme - selectedPageSizeOfTheme + i + 1 }}</td>
                           <td style="padding-left: 30px;"> {{theme.theme_name}}</td>
                           <td style="padding-left: 30px;">{{theme.short_description}}</td>
                           <td style="padding-left: 30px;">{{theme.created_at | date: 'yyyy-MM-dd hh:mm:ss' }}</td>
@@ -192,9 +208,9 @@
                 <div class="col-md-12">
                   <div class="table-data">
                     <nb-card class="mb-0" style="border: 0;">
-                      <nb-card-body class="table-body-new p-0" style="max-height: calc(100vh - 476px); position: relative;" >
+                      <nb-card-body id="industry-table-body" class="table-body-new p-0" style="max-height: calc(100vh - 476px); position: relative;" >
                         <table class="table mb-0" >
-                          <thead style="position: sticky;top: -2px;left: 0;background-color: #fff;">
+                          <thead style="position: sticky;top: -2px;left: 0;background-color: #fff;z-index: 1;">
                             <tr>
                               <th style="width: 100px;">#</th>
                               <th style="width: 140px;">Icon</th>
@@ -205,14 +221,21 @@
                           </thead>
                           <tbody>
                             <tr scope="row" *ngFor="let industry of industry_list  | paginate:{id: 'paginationForIndustry', itemsPerPage: selectedPageSizeOfIndustry, currentPage: pageNumOfIndustry, totalItems: total_industry }  let i = index;"  >
-                              <td style="padding-left: 30px;">{{i+1}}</td>
-                              <td style="padding-left: 30px;"> <img src="{{industry.icon_webp}}" alt="industry icon" width="40" height="40"></td>
+                              <td style="padding-left: 30px;">{{ pageNumOfIndustry * selectedPageSizeOfIndustry - selectedPageSizeOfIndustry + i + 1 }}</td>
+                              <td> <img src="{{industry.icon_webp}}" alt="industry icon" style="height: 100%;width: auto;max-width: 100%;"></td>
                               <td style="padding-left: 30px;white-space:pre;">{{industry.industry_name}}</td>
                               <td style="padding-left: 30px;">{{ industry.created_at | date: 'yyyy-MM-dd hh:mm:ss' }}</td>
-                              <td class="text-center">
-                                <button class="tab-effect" (click)="updateIndustry(industry)" style="cursor:pointer;height: 100%;width: 100%;border: 0;background-color: transparent;">
+                              <td class="text-center d-flex justify-content-around" style="border-top: 0;border-left: 0;border-right: 0;">
+                                <button class="tab-effect" (click)="updateIndustry(industry)" style="cursor:pointer;height: 100%;border: 0;background-color: transparent;">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                     <path d="M19.9492 3.53085L20.4691 4.05078C20.873 4.45468 20.873 5.10781 20.4691 5.50742L19.2188 6.7621L17.2379 4.78125L18.4883 3.53085C18.8922 3.12695 19.5453 3.12695 19.9449 3.53085H19.9492ZM10.0148 12.0086L15.7812 6.23789L17.7621 8.21875L11.9914 13.9852C11.8668 14.1098 11.7121 14.2 11.5445 14.2473L9.03086 14.9648L9.74844 12.4512C9.7957 12.2836 9.88594 12.1289 10.0105 12.0043L10.0148 12.0086ZM17.0316 2.07421L8.55391 10.5477C8.18008 10.9215 7.90938 11.3812 7.76758 11.884L6.53867 16.1809C6.43555 16.5418 6.53438 16.9285 6.80078 17.1949C7.06719 17.4613 7.45391 17.5602 7.81484 17.457L12.1117 16.2281C12.6188 16.082 13.0785 15.8113 13.448 15.4418L21.9258 6.96835C23.1332 5.76093 23.1332 3.80156 21.9258 2.59414L21.4059 2.07421C20.1984 0.866792 18.2391 0.866792 17.0316 2.07421ZM4.78125 3.75C2.69297 3.75 1 5.44296 1 7.53125V19.2187C1 21.307 2.69297 23 4.78125 23H16.4688C18.557 23 20.25 21.307 20.25 19.2187V14.4062C20.25 13.8348 19.7902 13.375 19.2188 13.375C18.6473 13.375 18.1875 13.8348 18.1875 14.4062V19.2187C18.1875 20.1684 17.4184 20.9375 16.4688 20.9375H4.78125C3.83164 20.9375 3.0625 20.1684 3.0625 19.2187V7.53125C3.0625 6.58164 3.83164 5.8125 4.78125 5.8125H9.59375C10.1652 5.8125 10.625 5.35273 10.625 4.78125C10.625 4.20976 10.1652 3.75 9.59375 3.75H4.78125Z" fill="#646A88" stroke="white" stroke-width="0.4"/>
+                                  </svg>
+                                </button>
+                                <button class="tab-effect" (click)="setRankIndistry(industry)" style="cursor:pointer;height: 100%;border: 0;background-color: transparent;">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+                                    <path d="M13 21.6673V4.33398L6.5 10.834" stroke="#646A88" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M13 18.5V18" stroke="#646A88" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M13 14.5V4.33398M13 4.33398L6.5 10.834M13 4.33398L19.5 10.834" stroke="#646A88" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
                                   </svg>
                                 </button>
                               </td>

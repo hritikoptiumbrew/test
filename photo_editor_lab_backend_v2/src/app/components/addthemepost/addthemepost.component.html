@@ -18,10 +18,25 @@
                         1
                     </div>
                     <div>
-                        <nb-select placeholder="Select Your Theme" [(selected)]="selected_theme_id" (selectedChange)="changeTheme($event)">
+                        <nb-card size="small" style="height: auto;margin: auto;width: fit-content;">
+                            <nb-card-body>
+                              <input #autoInput
+                                nbInput
+                                type="text"
+                                (input)="onChange()"
+                                placeholder="Search theme name"
+                                [nbAutocomplete]="auto" />
+                                <nb-autocomplete #auto (selectedChange)="onSelectionChange($event)">
+                                  <nb-option *ngFor="let option of filteredOptions$ | async" [value]="option"  [style]="option == selectedThemeName ? 'background: #3366ff; color: #fff;' : ''" (click)="changeSelectedTheme(option)">
+                                    {{ option }}
+                                  </nb-option>
+                                </nb-autocomplete>
+                            </nb-card-body>
+                        </nb-card>
+                        <!-- <nb-select placeholder="Select Your Theme" [(selected)]="selected_theme_id" (selectedChange)="changeTheme($event)">
                             <nb-option *ngFor="let themes of theme_list;"
                                 value="{{themes.id}}">{{themes.theme_name}}</nb-option>
-                        </nb-select>
+                        </nb-select> -->
                     </div>
                 </div>
                 <div class="select-template">
