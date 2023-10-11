@@ -1,11 +1,12 @@
 import { E } from '@angular/cdk/keycodes';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
 import { ERROR } from 'app/app.constants';
 import { DataService } from 'app/data.service';
 import { UtilService } from 'app/util.service';
 import { Console } from 'console';
-import { fromEvent } from 'rxjs';
+import { Observable, fromEvent, of } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { DatePipe } from '@angular/common'
 import { ChangeDetectorRef } from '@angular/core';
 
@@ -42,6 +43,11 @@ export class AddthemepostComponent implements OnInit {
   selected_theme_name:any;
   preview_date_arr = [];
 
+  options: any[];
+  filteredOptions$: Observable<string[]>;
+  @ViewChild('autoInput') input;
+  @ViewChild('autoInput') autoInput: ElementRef;
+
   constructor(private dialogref: NbDialogRef<AddthemepostComponent>,private dataService: DataService,
     private utils: UtilService,public datePipe: DatePipe,private cdr: ChangeDetectorRef) { 
       this.utils.dialogref = this.dialogref;
@@ -61,7 +67,7 @@ export class AddthemepostComponent implements OnInit {
     this.getThemeBySubCategoryId();
     if(this.selected_tags){
       this.selected_tags.split(',').forEach(element => {
-        this.tagList.push(element)
+        this.tagList.push(element.trim())
       });
     }
 
@@ -81,7 +87,7 @@ export class AddthemepostComponent implements OnInit {
       {
         "sub_category_id": this.selected_sub_category_id,
         "page": 1,
-        "item_count": 100
+        "item_count": 1000
       }, {
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('at')
@@ -92,13 +98,21 @@ export class AddthemepostComponent implements OnInit {
         this.theme_list = results.data.theme_list;
         if(this.selected_theme_name){
           this.theme_list.forEach(element => {
-            if(element.theme_name == this.selected_theme_name){
-              this.selected_theme_id =  element.id.toString();
-              this.selectedThemeName = element.theme_name;
+            if(element.theme_name.trim() == this.selected_theme_name.trim()){
+              this.selectedThemeId =  element.id.toString();
+              this.selectedThemeName = element.theme_name.trim();
               this.selectedThemeDesc = element.short_description;
+              this.autoInput.nativeElement.value = element.theme_name.trim();
             }
           });
         }
+
+        let tempThemeNameArr = [];
+        this.theme_list.forEach(element => {
+          tempThemeNameArr.push(element.theme_name.trim());
+        });
+        this.options = this.theme_list;
+        this.filteredOptions$ = of(tempThemeNameArr);
         this.utils.hidePageLoader();
       }
       else if (results.code == 201) {
@@ -124,7 +138,7 @@ export class AddthemepostComponent implements OnInit {
 
   getTemplateBySubCategoryId(){
     if (typeof this.searchQuery == "undefined" || this.searchQuery == "" || this.searchQuery == null || this.searchQuery.trim() == "") {
-      this.utils.showError("Please enter search query.", 3000);
+      // this.utils.showError("Please enter search query.", 3000);
       return false;
     }
     else{
@@ -258,15 +272,48 @@ export class AddthemepostComponent implements OnInit {
     this.dialogref.close({ res: "" });
   }
 
-  changeTheme(selected){
+  private filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    let tempFilterValue = [];
+    this.options.forEach(element => {
+      tempFilterValue.push(element.theme_name.trim());
+    });
+    return tempFilterValue.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
+  }
+
+  getFilteredOptions(value: string): Observable<string[]> {
+    return of(value).pipe(
+      map(filterString => this.filter(filterString)),
+    );
+  }
+
+  onChange() {
+    this.filteredOptions$ = this.getFilteredOptions(this.input.nativeElement.value);
+  }
+
+  onSelectionChange($event) {
+    this.filteredOptions$ = this.getFilteredOptions($event);
+  }
+
+  changeSelectedTheme(value){
     this.theme_list.forEach(element => {
-      if(element.id == selected){
-        this.selectedThemeName = element.theme_name
+      if(element.theme_name.trim() == value){
+        this.selectedThemeId= element.id;
+        this.selectedThemeName = element.theme_name.trim();
         this.selectedThemeDesc = element.short_description
-        this.selectedThemeId = element.id
       }
     });
   }
+
+  // changeTheme(selected){
+  //   this.theme_list.forEach(element => {
+  //     if(element.id == selected){
+  //       this.selectedThemeName = element.theme_name
+  //       this.selectedThemeDesc = element.short_description
+  //       this.selectedThemeId = element.id
+  //     }
+  //   });
+  // }
 
   selectTemplate(id){
     this.templates.forEach(element => {
@@ -308,7 +355,13 @@ export class AddthemepostComponent implements OnInit {
       let comma_sepa_arr = this.tagInput.split(',');
       comma_sepa_arr.forEach(element => {
         if(element != "" && element.trim() != ""){
-          this.tagList.push(element);
+          let tagNameToLowerCase = element.trim().toLowerCase();
+          if(this.tagList.includes(tagNameToLowerCase)){
+            this.utils.showError("Please enter unique tag name.", 3000);
+          }
+          else{
+            this.tagList.push(tagNameToLowerCase);
+          }
         }
       });
       this.tagInput = '';
@@ -394,7 +447,7 @@ export class AddthemepostComponent implements OnInit {
         "post_schedule_id": this.post_schedule_id, 
         "sub_category_id":this.selected_sub_category_id,
         "post_industry_id": this.selected_industry_id, 
-        "post_theme_id":this.selected_theme_id,
+        "post_theme_id":this.selectedThemeId,
         "template_ids": template_ids,
         "schedule_date":this.selected_date_for_post,
         "tags": this.tagList.join(',')
