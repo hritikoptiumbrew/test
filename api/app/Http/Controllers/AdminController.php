@@ -10918,7 +10918,7 @@ class AdminController extends Controller
 
                     //$all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
                     $all_json_data_encode = file_get_contents($folder_path.'/'.$files);
-                    $all_json_data = json_decode(str_replace("index", "pak_index", $all_json_data_encode));
+                    $all_json_data = json_decode(str_replace('"index"', '"pak_index"', $all_json_data_encode));
                 }
 
             }
@@ -11224,7 +11224,7 @@ class AdminController extends Controller
 
                     //$all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
                     $all_json_data_encode = file_get_contents($folder_path.'/'.$files);
-                    $all_json_data = json_decode(str_replace("index", "pak_index", $all_json_data_encode));
+                    $all_json_data = json_decode(str_replace('"index"', '"pak_index"', $all_json_data_encode));
                 }
 
             }
