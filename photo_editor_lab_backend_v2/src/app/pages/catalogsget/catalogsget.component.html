@@ -87,7 +87,7 @@ Copyright 2018 - 2020 Optimumbrew Technology
 <div class="catalog-data">
   <div class="row">
     <div class="col-md-12">
-      <nb-accordion multi>
+      <nb-accordion>
         <nb-accordion-item expanded="true">
           <nb-accordion-item-header>
             <div class="row w-100">
@@ -101,72 +101,71 @@ Copyright 2018 - 2020 Optimumbrew Technology
           </nb-accordion-item-header>
           <nb-accordion-item-body>
             <div class="row">
-
-              <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0"
-                *ngFor="let item of featuredCatalogList ; let i = index">
-                <nb-card class="card-content">
-                  <div class="picture text-center" style="position: relative;overflow: hidden;"
-                    (click)="!multiselectFlag && selectedCatalogType == '1'?viewCatalog(item):addCatalogRank($event,item.catalog_id)">
-                    <img class="placeholder-img">
-                    <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
-                      [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
-                    <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
-                      <div class="ribbon-yellow">Android PRO</div>
+              <virtual-scroller #scroll [items]="featuredCatalogList" enableUnequalChildrenSizes="true" [style.max-height]="featuredCatalogList.length == 0 ? '0' : 'calc(100vh - 366px)'">
+                <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" [id]="'div-'+i" *ngFor="let item of scroll.viewPortItems; let i = index">
+                  <nb-card class="card-content">
+                    <div class="picture text-center" style="position: relative;overflow: hidden;"
+                      (click)="!multiselectFlag && selectedCatalogType == '1'?viewCatalog(item):addCatalogRank($event,item.catalog_id)">
+                      <img class="placeholder-img">
+                      <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
+                        [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
+                      <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
+                        <div class="ribbon-yellow">Android PRO</div>
+                      </div>
+                      <div *ngIf="item.is_ios_free==0" class="ribbon-wrapper-green">
+                        <div class="ribbon-green">IOS PRO</div>
+                      </div>
+                      <div class="catalog-icon"
+                        *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5"
+                        nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                        nbTooltipTrigger="hint">
+                        <img src="./assets/popular-icon.jpg">
+                      </div>
+                      <div class="catalog-icon" *ngIf="item.catalog_type && item.catalog_type != 1"
+                        nbTooltip="Event Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                        nbTooltipTrigger="hint">
+                        <img src="./assets/event-icon.jpg">
+                      </div>
+                      <span class="rank-icon" style="opacity: 0.6;"
+                          *ngIf="multiselectFlag && selectedCatalogType == '1' && catalogIdArr.indexOf(item.catalog_id) == -1"></span>
+                      <span class="rank-icon"
+                          *ngIf="multiselectFlag && selectedCatalogType == '1' && catalogIdArr.indexOf(item.catalog_id) != -1">{{ catalogIdArr.indexOf(item.catalog_id) + 1 }}</span>    
                     </div>
-                    <div *ngIf="item.is_ios_free==0" class="ribbon-wrapper-green">
-                      <div class="ribbon-green">IOS PRO</div>
+                    <div class="details">
+                      <div [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom"
+                        nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
                     </div>
-                    <div class="catalog-icon"
-                      *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5"
-                      nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
-                      nbTooltipTrigger="hint">
-                      <img src="./assets/popular-icon.jpg">
-                    </div>
-                    <div class="catalog-icon" *ngIf="item.catalog_type && item.catalog_type != 1"
-                      nbTooltip="Event Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
-                      nbTooltipTrigger="hint">
-                      <img src="./assets/event-icon.jpg">
-                    </div>
-                    <span class="rank-icon" style="opacity: 0.6;"
-                        *ngIf="multiselectFlag && selectedCatalogType == '1' && catalogIdArr.indexOf(item.catalog_id) == -1"></span>
-                    <span class="rank-icon"
-                        *ngIf="multiselectFlag && selectedCatalogType == '1' && catalogIdArr.indexOf(item.catalog_id) != -1">{{ catalogIdArr.indexOf(item.catalog_id) + 1 }}</span>    
+                    <nb-card-footer style="background: #e1e8f3;padding: 10px !important;">
+                      <a nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                        (click)="viewCatalog(item)">
+                        <nb-icon icon="folder" pack="eva"></nb-icon>
+                      </a>
+                      <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                        (click)="editCatalog(item , i)">
+                        <nb-icon icon="edit-2" pack="eva"></nb-icon>
+                      </a>
+                      <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                        (click)="deleteCatalog(item.catalog_id)">
+                        <nb-icon icon="trash-2" pack="eva"></nb-icon>
+                      </a>
+                      <a nbTooltip="Link this catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                        nbTooltipTrigger="hint" (click)="linkCatalog(item)">
+                        <nb-icon icon="link-2" pack="eva"></nb-icon>
+                      </a>
+                      <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                        nbTooltipTrigger="hint" (click)="moveToFirst(item,'feature',i)">
+                        <nb-icon icon="upload" pack="eva"></nb-icon>
+                      </a>
+                    </nb-card-footer>
+                  </nb-card>
+                  <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
+                  <div class="fullscreen-icon" *ngIf="!multiselectFlag"
+                    style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;"
+                    (click)="viewImage(item.compressed_img)">
+                    <img src="./assets/expand.png" style="width: 25px">
                   </div>
-                  <div class="details">
-                    <div [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom"
-                      nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
-                  </div>
-                  <nb-card-footer style="background: #e1e8f3;padding: 10px !important;">
-                    <a nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-                      (click)="viewCatalog(item)">
-                      <nb-icon icon="folder" pack="eva"></nb-icon>
-                    </a>
-                    <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-                      (click)="editCatalog(item , i)">
-                      <nb-icon icon="edit-2" pack="eva"></nb-icon>
-                    </a>
-                    <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-                      (click)="deleteCatalog(item.catalog_id)">
-                      <nb-icon icon="trash-2" pack="eva"></nb-icon>
-                    </a>
-                    <a nbTooltip="LInk this catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
-                      nbTooltipTrigger="hint" (click)="linkCatalog(item)">
-                      <nb-icon icon="link-2" pack="eva"></nb-icon>
-                    </a>
-                    <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
-                      nbTooltipTrigger="hint" (click)="moveToFirst(item,'feature',i)">
-                      <nb-icon icon="upload" pack="eva"></nb-icon>
-                    </a>
-                  </nb-card-footer>
-                </nb-card>
-                <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
-                <div class="fullscreen-icon" *ngIf="!multiselectFlag"
-                  style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;"
-                  (click)="viewImage(item.compressed_img)">
-                  <img src="./assets/expand.png" style="width: 25px">
                 </div>
-
-              </div>
+              </virtual-scroller>
               <div class="col-md-12 text-center" *ngIf="featuredCatalogList.length == 0">
                 <img src="./assets/data-not-found.png" style="width:180px">
                 <h2>No data found</h2>
@@ -192,69 +191,71 @@ Copyright 2018 - 2020 Optimumbrew Technology
                 <img src="./assets/data-not-found.png" style="width:180px">
                 <h2>No data found</h2>
               </div>
-              <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" *ngFor="let item of normalCatalogList;let i = index;">
-                <nb-card class="card-content">
-                  <div class="picture text-center" style="position: relative;overflow: hidden;"
-                  (click)="!multiselectFlag && selectedCatalogType == '1'?viewCatalog(item):addCatalogRank($event,item.catalog_id)">
-                    <img class="placeholder-img">
-                    <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
-                      [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
-                      <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
-                        <div class="ribbon-yellow">Android PRO</div>
+              <virtual-scroller #data [items]="normalCatalogList" enableUnequalChildrenSizes="true" [style.max-height]="normalCatalogList.length == 0 ? '0' : 'calc(100vh - 366px)'">
+                <div class="col-xl-2 col-md-3 col-sm-3 pr-0 pl-0" *ngFor="let item of data.viewPortItems;let i = index;">
+                  <nb-card class="card-content">
+                    <div class="picture text-center" style="position: relative;overflow: hidden;"
+                    (click)="!multiselectFlag && selectedCatalogType == '1'?viewCatalog(item):addCatalogRank($event,item.catalog_id)">
+                      <img class="placeholder-img">
+                      <img [lazyLoad]="item.webp_original_img?item.webp_original_img:item.thumbnail_img"
+                        [errorImage]="utils.errorImg" alt="{{item.name}} thumbnail image" (load)="imageLoad($event)">
+                        <div *ngIf="item.is_free==0" class="ribbon-wrapper-yellow">
+                          <div class="ribbon-yellow">Android PRO</div>
+                        </div>
+                        <div *ngIf="item.is_ios_free==0" class="ribbon-wrapper-green">
+                          <div class="ribbon-green">IOS PRO</div>
+                        </div>
+                      <div class="catalog-icon"
+                        *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5"
+                        nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                        nbTooltipTrigger="hint">
+                        <img src="./assets/popular-icon.jpg">
                       </div>
-                      <div *ngIf="item.is_ios_free==0" class="ribbon-wrapper-green">
-                        <div class="ribbon-green">IOS PRO</div>
+                      <div class="catalog-icon" *ngIf="item.catalog_type && item.catalog_type != 1"
+                        nbTooltip="Event Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                        nbTooltipTrigger="hint">
+                        <img src="./assets/event-icon.jpg">
                       </div>
-                    <div class="catalog-icon"
-                      *ngIf="item.catalog_type && item.popularity_rate && item.catalog_type == 1 && item.popularity_rate == 5"
-                      nbTooltip="Popular Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
-                      nbTooltipTrigger="hint">
-                      <img src="./assets/popular-icon.jpg">
+                      <span class="rank-icon" style="opacity: 0.6;"
+                          *ngIf="multiselectFlag && selectedCatalogType == '2' && catalogIdArr.indexOf(item.catalog_id) == -1"></span>
+                      <span class="rank-icon"
+                          *ngIf="multiselectFlag && selectedCatalogType == '2' && catalogIdArr.indexOf(item.catalog_id) != -1">{{ catalogIdArr.indexOf(item.catalog_id) + 1 }}</span>    
                     </div>
-                    <div class="catalog-icon" *ngIf="item.catalog_type && item.catalog_type != 1"
-                      nbTooltip="Event Catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
-                      nbTooltipTrigger="hint">
-                      <img src="./assets/event-icon.jpg">
+                    <div class="details">
+                      <div [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom"
+                        nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
                     </div>
-                    <span class="rank-icon" style="opacity: 0.6;"
-                        *ngIf="multiselectFlag && selectedCatalogType == '2' && catalogIdArr.indexOf(item.catalog_id) == -1"></span>
-                    <span class="rank-icon"
-                        *ngIf="multiselectFlag && selectedCatalogType == '2' && catalogIdArr.indexOf(item.catalog_id) != -1">{{ catalogIdArr.indexOf(item.catalog_id) + 1 }}</span>    
+                    <nb-card-footer style="background: #e1e8f3;padding: 10px !important;">
+                      <a nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                        (click)="viewCatalog(item)">
+                        <nb-icon icon="folder" pack="eva"></nb-icon>
+                      </a>
+                      <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                        (click)="editCatalog(item)">
+                        <nb-icon icon="edit-2" pack="eva"></nb-icon>
+                      </a>
+                      <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
+                        (click)="deleteCatalog(item.catalog_id)">
+                        <nb-icon icon="trash-2" pack="eva"></nb-icon>
+                      </a>
+                      <a nbTooltip="Link this catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                        nbTooltipTrigger="hint" (click)="linkCatalog(item)">
+                        <nb-icon icon="link-2" pack="eva"></nb-icon>
+                      </a>
+                      <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
+                        nbTooltipTrigger="hint" (click)="moveToFirst(item,'normal',i)">
+                        <nb-icon icon="upload" pack="eva"></nb-icon>
+                      </a>
+                    </nb-card-footer>
+                  </nb-card>
+                  <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
+                  <div class="fullscreen-icon" *ngIf="!multiselectFlag"
+                    style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;"
+                    (click)="viewImage(item.compressed_img)">
+                    <img src="./assets/expand.png" style="width: 25px">
                   </div>
-                  <div class="details">
-                    <div [nbTooltip]="item.catalog_id+'. '+item.name" nbTooltipPlacement="bottom"
-                      nbTooltipStatus="primary">{{item.catalog_id}}. {{item.name}}</div>
-                  </div>
-                  <nb-card-footer style="background: #e1e8f3;padding: 10px !important;">
-                    <a nbTooltip="View" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-                      (click)="viewCatalog(item)">
-                      <nb-icon icon="folder" pack="eva"></nb-icon>
-                    </a>
-                    <a nbTooltip="Edit" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-                      (click)="editCatalog(item)">
-                      <nb-icon icon="edit-2" pack="eva"></nb-icon>
-                    </a>
-                    <a nbTooltip="Delete" nbTooltipPlacement="bottom" nbTooltipStatus="primary" nbTooltipTrigger="hint"
-                      (click)="deleteCatalog(item.catalog_id)">
-                      <nb-icon icon="trash-2" pack="eva"></nb-icon>
-                    </a>
-                    <a nbTooltip="Link this catalog" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
-                      nbTooltipTrigger="hint" (click)="linkCatalog(item)">
-                      <nb-icon icon="link-2" pack="eva"></nb-icon>
-                    </a>
-                    <a nbTooltip="Move to first" nbTooltipPlacement="bottom" nbTooltipStatus="primary"
-                      nbTooltipTrigger="hint" (click)="moveToFirst(item,'normal',i)">
-                      <nb-icon icon="upload" pack="eva"></nb-icon>
-                    </a>
-                  </nb-card-footer>
-                </nb-card>
-                <img src="./assets/featured_img.png" *ngIf="item.is_featured==1" class="label-img">
-                <div class="fullscreen-icon" *ngIf="!multiselectFlag"
-                  style="background:lightgray;position: absolute;top: 0;right: 6px;cursor: pointer;"
-                  (click)="viewImage(item.compressed_img)">
-                  <img src="./assets/expand.png" style="width: 25px">
                 </div>
-              </div>
+              </virtual-scroller>
             </div>
           </nb-accordion-item-body>
         </nb-accordion-item>

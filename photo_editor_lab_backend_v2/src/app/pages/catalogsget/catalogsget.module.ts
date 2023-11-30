@@ -18,6 +18,7 @@ import { CatalogsgetComponent } from './catalogsget.component';
 import { FormsModule } from '@angular/forms';
 import { NbAccordionModule, NbBadgeModule, NbCardModule, NbIconModule, NbInputModule, NbRadioModule, NbSelectModule, NbTooltipModule } from '@nebular/theme';
 import { LazyLoadImageModule } from 'ng-lazyload-image';
+import { VirtualScrollerModule } from 'ngx-virtual-scroller';
 
 @NgModule({
   declarations: [CatalogsgetComponent],
@@ -32,7 +33,8 @@ import { LazyLoadImageModule } from 'ng-lazyload-image';
     NbTooltipModule,
     NbAccordionModule,
     NbBadgeModule,
-    LazyLoadImageModule
+    LazyLoadImageModule,
+    VirtualScrollerModule
   ]
 })
 export class CatalogsgetModule { }

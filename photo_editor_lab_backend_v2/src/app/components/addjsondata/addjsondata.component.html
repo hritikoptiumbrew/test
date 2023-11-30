@@ -179,8 +179,8 @@ Copyright 2018 - 2020 Optimumbrew Technology
               <input nbInput (keyup.enter)="add($event)" type="text" class="mw-100 mb-1"
                 [formControl]="searchINputControl"  placeholder="Select / Enter new tag">
               <p id="tagInputError" style="color: red;margin-bottom: 3px;"></p>
-              <mat-chip-list #chipList aria-label="Fruit selection">
-                <mat-chip *ngFor="let fruit of selectedSearchTags">
+              <mat-chip-list #chipList aria-label="Fruit selection" style="user-select: none;">
+                <mat-chip class="rippleEffect" *ngFor="let fruit of selectedSearchTags" (click)="createRippleEffect($event)">
                   {{fruit}}
                   <i class="fa fa-times" style="margin-top: 5px;color:red;cursor: pointer;" matChipRemove
                     (click)="remove(fruit)"></i>
