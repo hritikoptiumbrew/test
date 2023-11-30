@@ -10918,7 +10918,7 @@ class AdminController extends Controller
 
                     //$all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
                     $all_json_data_encode = file_get_contents($folder_path.'/'.$files);
-                    $all_json_data = json_decode(str_replace("index", "pak_index", $all_json_data_encode));
+                    $all_json_data = json_decode(str_replace('"index"', '"pak_index"', $all_json_data_encode));
                 }
 
             }
@@ -11224,7 +11224,7 @@ class AdminController extends Controller
 
                     //$all_json_data = json_decode(file_get_contents($folder_path.'/'.$files));
                     $all_json_data_encode = file_get_contents($folder_path.'/'.$files);
-                    $all_json_data = json_decode(str_replace("index", "pak_index", $all_json_data_encode));
+                    $all_json_data = json_decode(str_replace('"index"', '"pak_index"', $all_json_data_encode));
                 }
 
             }
@@ -13413,6 +13413,60 @@ class AdminController extends Controller
         }
         return $response;
 
+    }
+
+    /**
+     * @api {post} setIndustryRankOnTheTopByAdmin setIndustryRankOnTheTopByAdmin
+     * @apiName setIndustryRankOnTheTopByAdmin
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     * {
+     * "industry_id":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Rank set successfully.",
+     * "cause": "",
+     * "data": {}
+     * }
+     */
+    public function setIndustryRankOnTheTopByAdmin(Request $request_body)
+    {
+        try {
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if (($response = (new VerificationController())->validateRequiredParameter(array('industry_id'), $request)) != '')
+                return $response;
+
+            $industry_id = $request->industry_id;
+            $create_time = date('Y-m-d H:i:s');
+
+            DB::beginTransaction();
+            DB::update('UPDATE
+                            post_industry
+                        SET 
+                            updated_at = ?
+                        WHERE
+                            id = ?', [$create_time, $industry_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Rank set successfully.', 'cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error("setIndustryRankOnTheTopByAdmin : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => Config::get('constant.EXCEPTION_ERROR') . 'set industry rank.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+        return $response;
     }
 
 }
