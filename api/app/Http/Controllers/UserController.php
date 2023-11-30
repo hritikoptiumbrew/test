@@ -1628,6 +1628,298 @@ class UserController extends Controller
 
     }
 
+    /* =================================| Ai Search |=============================*/
+
+    /**
+     * @api {post} getSearchTagsFromPrompt getSearchTagsFromPrompt
+     * @apiName getSearchTagsFromPrompt
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "pro_status":"1" //optional
+     * "is_debug":"1" //optional
+     * "purpose":"diwali offers" //compulsory
+     * "existing_search_query":"offers" //compulsory
+     * "device_json" : { //optional
+     *           "device_uuid": "78A1111F-E068-4B32-B994-D29F6D2DB457",
+     *           "device_country_code": "en-US",
+     *           "device_language": "US",
+     *           "device_country_name": "United States"
+     *  }
+     * "app_json" : { //optional
+     *          "app_version": "1.91",
+     *          "platform": "2"
+     *  }
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Result get successfully.",
+     * "cause": "",
+     * "data": {
+     *      "id": "279",
+     *      "searchTag": "Diwali, Offers, Sale, Advertisement"
+     * }
+     * }
+     */
+    public function getSearchTagsFromPrompt(Request $request_body) {
+
+        $db_id = NULL;
+
+        try {
+
+            $request = json_decode($request_body->getContent());
+            if(($response = (new VerificationController())->validateRequiredParameter(array('purpose','existing_search_query'), $request)) != '')
+                return $response;
+
+
+            $user_country = "";
+
+            if ($request_body['device_json'] != null) {
+
+                $device_json['device_country_code'] = isset($request_body['device_json']['device_country_code']) ? $request_body['device_json']['device_country_code'] : "";
+                $device_json['device_country_name'] = isset($request_body['device_json']['device_country_name']) ? $request_body['device_json']['device_country_name'] : "";
+                $user_country = $device_json['device_country_name'];
+                $device_json['device_language'] = isset($request_body['device_json']['device_language']) ? $request_body['device_json']['device_language'] : "";
+
+                $device_json['device_uuid'] = isset($request_body['device_json']['device_uuid']) ? $request_body['device_json']['device_uuid'] : "";
+                $device_json = json_encode($device_json);
+            } else {
+                $device_json = NULL;
+            }
+
+            if ($request_body['app_json'] != null) {
+                $app_json['app_version'] = isset($request_body['app_json']['app_version']) ? $request_body['app_json']['app_version'] : "";
+                $app_json['platform'] = isset($request_body['app_json']['platform']) ? $request_body['app_json']['platform'] : "";
+                $app_json = json_encode($app_json);
+            } else {
+                $app_json = NULL;
+            }
+
+
+            $is_debug = $request_body['is_debug'] != NULL ? intval($request_body['is_debug']) : 0;
+            $pro_status = isset($request_body['pro_status']) ? intval($request_body['pro_status']) : NULL;
+            $purpose = $request_body['purpose'];
+            $existing_search_query = $request_body['existing_search_query'];
+//            $system = "You are a helpful assistant whose job is to create a search tags for posters, so users can easily find poster templates from the collection as per their requirements.\n\nPurpose of the poster: ".$purpose."\nUser's Country: ".$user_country."\n\ngive two search tags for this poster that can be used to find poster templates based on the purpose of the poster. Start with the main search tag. Here are some general examples of search tags: Photography, Real Estate, Hiring, Education, Bakery, Invitation, Gym, Advertisement, Babysitting, Party, Sale, Church, and Cloth.\n\neach search tag should be 1 to 2 words in length. Please ensure that you provide 2 search tags.\n\nadd these two search tags as a comma-separated string to 'searchTag' key in the JSON provided below.\n\n{\n  \"searchTag\": \"\"\n}\n\nIf the result cannot be found then only give the below response in JSON format\n\n{\n  \"error\": \"result not found\"\n}";
+            $system = "You are a helpful assistant whose job is to create search tags to find posters, so users can easily find poster templates from the collection as per their requirements.\n\nPurpose of the poster: ".$purpose."\nUser'\''s Country: ".$user_country."\nExisting Search Query: ".$existing_search_query."\n\nThe user tried to find poster templates by the given existing search query but didn'\''t find the required poster templates, so give us four search tags that can be used to find poster templates based on the purpose of the poster and existing search query. Start with the main search tag. Here are some general examples of search tags: Photography, Real Estate, Hiring, Education, Bakery, Invitation, Gym, Advertisement, Babysitting, Party, Sale, Church, and Cloth.\n\neach search tag should be 1 to 2 words in length. Please ensure that you provide 4 search tags.\n\nadd these four search tags as a comma-separated string to '\''searchTag'\'' key in the JSON provided below.\n\n{\n   \"searchTag\": \"\"\n}\n\nIf the result cannot be found then only give the below response in JSON format\n\n{\n   \"error\": \"result not found\"\n}";
+            $chatGpt_request = [
+                "model" => "gpt-3.5-turbo",
+                'messages' => [
+                    [
+                        "role" => "system",
+                        "content" => $system
+                    ]
+                ],
+            ];
+
+            $client = new Client();
+            $response_client = $client->post("https://api.openai.com/v1/chat/completions", [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . config('constant.OPENAI_API_KEY_FOR_SEARCH'),
+                ],
+                'json' => $chatGpt_request
+            ]);
+
+            $chatGpt_response = json_decode($response_client->getBody()->getContents(), true);
+
+
+            $db_data = array(
+                'search_query' => $existing_search_query,
+                'purpose' => $purpose,
+                'ChatGpt_response' => json_encode($chatGpt_response),
+                'ChatGpt_request' => json_encode($chatGpt_request),
+                'device_json' => $device_json,
+                'app_json' => $app_json,
+                'pro_status'=>$pro_status,
+                'is_debug' => $is_debug,
+                'response_code' => 200
+            );
+
+            $db_id = DB::table('ai_poster_searchTag_chats')->insertGetId($db_data);
+
+            $decode_response = json_decode($chatGpt_response['choices'][0]['message']['content']);
+            $result['id'] = $db_id;
+            $result['searchTag'] = $decode_response->searchTag;
+
+            $response = Response::json(array('code' => 200, 'message' => 'Result get successfully.', 'cause' => "", 'data' => $result));
+
+
+        } catch (Exception $e) {
+            if($db_id != NULL) {
+                DB::update('UPDATE ai_poster_searchTag_chats SET response_code = ? WHERE id = ?', [201,$db_id]);
+            }
+            Log::error('getSearchTagsFromPrompt', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @api {post} aiSearchTagPromptUseByUser   aiSearchTagPromptUseByUser
+     * @apiName aiSearchTagPromptUseByUser
+     * @apiGroup User
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "device_uuid":"ex34vcwrd" //compulsory
+     * "ai_id":"127" //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Ai Search using status update",
+     * "cause": "",
+     * "data": {
+     * }
+     * }
+     */
+    public function aiSearchTagPromptUseByUser(Request $request_body) {
+
+        try {
+
+            $request = json_decode($request_body->getContent());
+            if(($response = (new VerificationController())->validateRequiredParameter(array('device_uuid', 'ai_id'), $request)) != '')
+                return $response;
+
+            DB::beginTransaction();
+            DB::update('UPDATE ai_poster_searchTag_chats SET is_use = ?, updated_at = ? WHERE JSON_EXTRACT(device_json, "$.device_uuid") = ? AND id = ?', [1, date('Y-m-d H:i:s'),$request->device_uuid,$request->ai_id]);
+            DB::commit();
+
+            $response = Response::json(array('code' => 200, 'message' => 'Ai Search using status update','cause' => '', 'data' => json_decode("{}")));
+
+        } catch (Exception $e) {
+            Log::error('aiSearchTagPromptUseByUser', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => 'Something Is Wrong', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            DB::rollBack();
+        }
+
+        return $response;
+
+    }
+
+    /**
+     * @api {post} getAiSearchChats   getAiSearchChats
+     * @apiName getAiSearchChats
+     * @apiGroup Admin
+     * @apiVersion 1.0.0
+     * @apiSuccessExample Request-Header:
+     * {
+     * Key: Authorization
+     * Value: Bearer token
+     * }
+     * @apiSuccessExample Request-Body:
+     *{
+     * "item_count":"1" //compulsory
+     * "order_by":"purpose" //optional
+     * "order_type":"DESC" //optional
+     * "page":1 //compulsory
+     * }
+     * @apiSuccessExample Success-Response:
+     * {
+     * "code": 200,
+     * "message": "Ai Search chats fetched successfully.",
+     * "cause": "",
+     * "data": {
+     *       "total_raw_result": 1,
+     *       "search_chats": [
+     *       {
+     * "id": 398,
+     * "search_query": "Brochure",
+     * "purpose": "Wedding program 3 in 8.5x11 landscape",
+     * "ChatGpt_response": "{\"id\":\"chatcmpl-8QCsZfu71RbamnDUU9cNymQOWR17z\",\"object\":\"chat.completion\",\"created\":1701256727,\"model\":\"gpt-3.5-turbo-0613\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n   \\\"searchTag\\\": \\\"Wedding program, Landscape, 8.5x11, United States\\\"\\n}\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":249,\"completion_tokens\":24,\"total_tokens\":273}}",
+     * "feedback": null,
+     * "feedback_msg": null,
+     * "created_at": "2023-11-29 11:18:48",
+     * "updated_at": "2023-11-29 11:18:48",
+     * "ChatGpt_request": "{\"model\":\"gpt-3.5-turbo\",\"messages\":[{\"role\":\"system\",\"content\":\"You are a helpful assistant whose job is to create search tags to find posters, so users can easily find poster templates from the collection as per their requirements.\\n\\nPurpose of the poster: Wedding program 3 in 8.5x11 landscape\\nUser'\\\\''s Country: United States\\nExisting Search Query: Hello\\n\\nThe user tried to find poster templates by the given existing search query but didn'\\\\''t find the required poster templates, so give us four search tags that can be used to find poster templates based on the purpose of the poster and existing search query. Start with the main search tag. Here are some general examples of search tags: Photography, Real Estate, Hiring, Education, Bakery, Invitation, Gym, Advertisement, Babysitting, Party, Sale, Church, and Cloth.\\n\\neach search tag should be 1 to 2 words in length. Please ensure that you provide 4 search tags.\\n\\nadd these four search tags as a comma-separated string to '\\\\''searchTag'\\\\'' key in the JSON provided below.\\n\\n{\\n   \\\"searchTag\\\": \\\"\\\"\\n}\\n\\nIf the result cannot be found then only give the below response in JSON format\\n\\n{\\n   \\\"error\\\": \\\"result not found\\\"\\n}\"}]}",
+     * "device_json": "{\"device_country_code\":\"en-US\",\"device_country_name\":\"United States\",\"device_language\":\"US\",\"device_uuid\":\"78A1111F-E068-4B32-B994-D29F6D2DB457\"}",
+     * "app_json": "{\"app_version\":\"1.91\",\"platform\":\"2\"}",
+     * "response_code": 200,
+     * "is_use": "false",
+     * "pro_status": "true"
+     * }
+     *       ]
+     *       }
+     * }
+     */
+    public function getAiSearchChats(Request $request_body) {
+        try{
+
+            $token = JWTAuth::getToken();
+            JWTAuth::toUser($token);
+
+            $request = json_decode($request_body->getContent());
+            if(($response = (new VerificationController())->validateRequiredParameter(array('page', 'item_count'), $request)) != '')
+                return $response;
+
+            $item_count = $request->item_count;
+            $page = $request->page;
+            if(isset($request->order_by)) {
+
+                if(!strcasecmp($request->order_by,"country") && !strcasecmp($request->order_by,"language") && !strcasecmp($request->order_by,"app_version")  && !strcasecmp($request->order_by,"platform"))
+                {
+                    $order_by = $request->order_by;
+                }else {
+                    $order_by = "id";
+                }
+
+            } else {
+                $order_by = "id";
+            }
+            $order_type = isset($request->order_type) ? $request->order_type : 'DESC';
+            $offset = ($page - 1) * $item_count;
+
+            $total_raw_result = DB::select('SELECT COUNT(*) AS total FROM ai_poster_searchTag_chats');
+            $result['total_raw_result'] = $total_raw_result[0]->total;
+            $result['search_chats'] = DB::select('SELECT 
+                                                        id.id, 
+                                                        id.search_query, 
+                                                        id.purpose, 
+                                                        id.ChatGpt_response, 
+                                                        id.feedback, 
+                                                        id.feedback_msg, 
+                                                        id.created_at, 
+                                                        id.updated_at, 
+                                                        id.ChatGpt_request, 
+                                                        id.device_json, 
+                                                        id.app_json,
+                                                        id.response_code,
+                                                        IF(id.is_use = 1, "true", "false") AS is_use,
+                                                        IF(id.pro_status = 1, "true", "false") AS pro_status
+                                                      FROM 
+                                                        ai_poster_searchTag_chats AS id
+                                                      WHERE 
+                                                          id.is_debug = ?
+                                                      ORDER BY id.'.$order_by.' '.$order_type.' LIMIT ?,?',[0,$offset, $item_count]);
+
+            $response = Response::json(array('code' => 200, 'message' => 'Ai Search chats fetched successfully.', 'cause' => '', 'data' => $result));
+            $response->headers->set('Cache-Control', Config::get('constant.RESPONSE_HEADER_CACHE'));
+
+        } catch (Exception $e) {
+            Log::error('getAiSearchChats : ', ['Exception' => $e->getMessage(), "TraceAsString" => $e->getTraceAsString()]);
+            $response = Response::json(array('code' => 201, 'message' => config('constant.EXCEPTION_ERROR'). 'get Ai Search.', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+        }
+
+        return $response;
+    }
+
+
+
     /* =================================| Catalogs |=============================*/
 
     /**
