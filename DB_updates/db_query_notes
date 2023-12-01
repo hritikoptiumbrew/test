@@ -366,3 +366,24 @@ ALTER TABLE `ai_chats` ADD `response_code` INT NULL DEFAULT NULL AFTER `is_use`;
 ---------------------------------------------------------------------------------------------------
 ALTER TABLE `ai_chats` ADD `is_debug` TINYINT(2) NOT NULL DEFAULT '0' AFTER `response_code`;
 ALTER TABLE `ai_post_chats` ADD `is_debug` TINYINT(2) NOT NULL DEFAULT '0' AFTER `design_id`;
+
+55) PhotoEditorLab : perform following query on database (01 Dec, 2023) Ai Search module
+---------------------------------------------------------------------------------------------------
+CREATE TABLE `ai_poster_searchTag_chats` (
+ `id` bigint NOT NULL AUTO_INCREMENT,
+ `search_query` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+ `purpose` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+ `ChatGpt_response` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+ `ChatGpt_request` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+ `feedback` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ `feedback_msg` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+ `device_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+ `app_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+ `response_code` int NOT NULL,
+ `pro_status` tinyint DEFAULT NULL,
+ `is_use` tinyint DEFAULT NULL,
+ `is_debug` tinyint DEFAULT '0',
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
