@@ -46,6 +46,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 import { ReviewDataModule } from './review-data/review-data.module';
 import { AiPosterModule } from './ai-poster/ai-poster.module';
+import { AiSearchComponent } from './ai-search/ai-search.component';
 
 @NgModule({
   imports: [
@@ -94,6 +95,7 @@ import { AiPosterModule } from './ai-poster/ai-poster.module';
     PagesComponent,
     SearchComponent,
     UpdateTagDialogComponent,
+    AiSearchComponent,
   ],
 })
   export class PagesModule {

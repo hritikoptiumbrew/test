@@ -37,6 +37,11 @@ export const MENU_ITEMS: NbMenuItem[] = [
     link: '/admin/poster'
   },
   {
+    title: 'AI Search',
+    icon: 'search',
+    link: '/admin/ai-search'
+  },
+  {
     title: 'Statistics',
     icon: 'bar-chart-outline',
     link: '/admin/statistics'
